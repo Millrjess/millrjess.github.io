@@ -6,102 +6,126 @@
 <title>Sitemap &mdash; Jessica A. Miller</title>
 <meta name="description" content="Jessica A. Miller &mdash; AI Digital Transformation Consultant. Sitemap">
 <link rel="icon" href="../assets/img/cropped-img_5113-4-e1738174378751.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
 <style>:root{
-  --navy:#16283f; --slate:#334155; --muted:#64748b; --accent:#0e7c86;
-  --accent-dark:#0a5f66; --bg:#ffffff; --wash:#f4f7fa; --border:#e3e9f1;
-  --radius:10px;
+  --navy:#0f2340; --navy-2:#173f68; --slate:#334155; --muted:#64748b;
+  --accent:#0d9488; --accent-dark:#0b7c73; --accent-soft:#e6f7f5;
+  --bg:#edf1f6; --card:#ffffff; --border:#e2e8f0; --radius:14px;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-head:'Sora','Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --shadow:0 14px 34px -18px rgba(15,35,64,.22);
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
 body{
   margin:0; color:var(--slate); background:var(--bg);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,
-    "Apple Color Emoji","Segoe UI Emoji",sans-serif;
-  font-size:17px; line-height:1.7;
+  font-family:var(--font-body); font-size:17px; line-height:1.7;
 }
-.wrap{max-width:1060px; margin:0 auto; padding:0 24px}
-h1,h2,h3,h4{color:var(--navy); line-height:1.25; margin:1.6em 0 .6em}
-h1{font-size:2rem; margin-top:.4em}
-h2{font-size:1.45rem; border-bottom:2px solid var(--border); padding-bottom:.35em}
-h3{font-size:1.15rem}
-a{color:var(--accent); text-decoration:none}
-a:hover{color:var(--accent-dark); text-decoration:underline}
+::selection{background:var(--accent); color:#fff}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+h1,h2,h3,h4{font-family:var(--font-head); color:var(--navy); line-height:1.22;
+  margin:1.5em 0 .55em; letter-spacing:-.015em}
+h1{font-size:clamp(1.9rem,1.3rem + 2.4vw,2.6rem); margin-top:.2em; font-weight:800}
+h2{font-size:1.4rem; font-weight:700}
+h3{font-size:1.12rem; font-weight:600}
+a{color:var(--accent-dark); text-decoration:none}
+a:hover{color:var(--accent); text-decoration:underline}
+a:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
 .muted{color:var(--muted); font-size:.92em}
 img{max-width:100%; height:auto; border-radius:var(--radius)}
-figure{margin:1.5em 0}
+figure{margin:1.6em 0}
 figcaption{color:var(--muted); font-size:.85em; text-align:center}
 blockquote{
-  border-left:4px solid var(--accent); margin:1.5em 0; padding:.6em 1.2em;
-  background:var(--wash); border-radius:0 var(--radius) var(--radius) 0; color:var(--navy);
+  border-left:4px solid var(--accent); margin:1.6em 0; padding:.8em 1.3em;
+  background:var(--accent-soft); border-radius:0 var(--radius) var(--radius) 0; color:var(--navy);
 }
 blockquote p{margin:.5em 0}
 ul,ol{padding-left:1.4em}
-li{margin:.35em 0}
-hr{border:0; border-top:1px solid var(--border); margin:2em 0}
-table{border-collapse:collapse; width:100%; margin:1.5em 0}
-th,td{border:1px solid var(--border); padding:.6em .9em; text-align:left}
-th{background:var(--wash); color:var(--navy)}
+li{margin:.4em 0}
+hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
+table{border-collapse:collapse; width:100%; margin:1.6em 0; font-size:.95em}
+th,td{border:1px solid var(--border); padding:.65em .95em; text-align:left}
+th{background:var(--navy); color:#fff; font-family:var(--font-head); font-weight:600}
+tr:nth-child(even) td{background:#f8fafc}
 
 /* header */
-.site-header{background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50}
-.header-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:14px; padding-bottom:14px; flex-wrap:wrap}
-.brand a{color:var(--navy); text-decoration:none; display:flex; flex-direction:row; align-items:center; gap:14px; line-height:1.3}
+.site-header{background:rgba(255,255,255,.9); backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:50; box-shadow:0 2px 12px -6px rgba(15,35,64,.12)}
+.header-inner{display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding-top:12px; padding-bottom:12px; flex-wrap:wrap}
+.brand a{color:var(--navy); text-decoration:none; display:flex; align-items:center;
+  gap:14px; line-height:1.3}
 .brand-text{display:flex; flex-direction:column}
-.brand-logo{height:48px; width:auto}
-.brand-name{font-weight:700; font-size:1.25rem; letter-spacing:.01em}
-.brand-tag{font-size:.8rem; color:var(--muted)}
+.brand-logo{height:46px; width:auto; border-radius:10px}
+.brand-name{font-family:var(--font-head); font-weight:700; font-size:1.22rem; letter-spacing:-.01em}
+.brand-tag{font-size:.78rem; color:var(--muted)}
 .nav{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:2px}
-.nav a{display:block; padding:.45em .7em; border-radius:6px; color:var(--slate); font-size:.95rem; text-decoration:none}
-.nav a:hover{background:var(--wash); color:var(--navy)}
+.nav a{display:block; padding:.5em .75em; border-radius:999px; color:var(--slate);
+  font-size:.93rem; font-weight:500; text-decoration:none; transition:background .15s}
+.nav a:hover{background:var(--accent-soft); color:var(--navy); text-decoration:none}
 .nav a.active{background:var(--navy); color:#fff}
 
-/* page */
-.page{padding-top:8px; padding-bottom:48px}
+/* page card */
+.page{padding-top:26px; padding-bottom:26px}
+.page > article{background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:clamp(1.4rem,4vw,3rem); box-shadow:var(--shadow)}
+.page > article > h1:first-child{margin-top:0}
 .notice{background:#fff8e6; border:1px solid #f0dfae; border-radius:var(--radius);
   padding:.9em 1.2em; color:#6b5b2e}
 
 /* hero */
-.hero{background:linear-gradient(135deg,var(--navy) 0%,#1f3a5f 100%); color:#eaf0f8;
-  border-radius:14px; padding:2.6em 2.2em; margin:1.2em 0 2.2em}
-.hero h1{color:#fff; margin-top:0; font-size:2.1rem}
-.hero .lede{font-size:1.12rem; max-width:60ch}
-.hero-cta{margin-top:1.4em}
+.hero{background:
+    radial-gradient(900px 320px at 85% -10%, rgba(13,148,136,.45), transparent 60%),
+    linear-gradient(135deg,#0b1f3a 0%, #134a5f 100%);
+  color:#eaf0f8; border-radius:18px; padding:clamp(1.8em,5vw,3em);
+  margin:1em 0 2.2em; box-shadow:var(--shadow)}
+.hero h1{color:#fff; margin-top:0; font-size:clamp(1.7rem,1.2rem + 2.4vw,2.4rem)}
+.hero h2{color:#fff; border:0}
+.hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
+.hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
 .btn{display:inline-block; background:var(--accent); color:#fff !important; font-weight:600;
-  padding:.65em 1.4em; border-radius:8px; margin-right:.6em; text-decoration:none !important}
-.btn:hover{background:var(--accent-dark)}
-.btn-ghost{background:transparent; border:2px solid rgba(255,255,255,.55)}
-.btn-ghost:hover{background:rgba(255,255,255,.12)}
+  padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
+  box-shadow:0 8px 18px -8px rgba(13,148,136,.6); transition:transform .15s, background .15s}
+.btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-ghost{background:transparent; border:2px solid rgba(255,255,255,.55); box-shadow:none}
+.btn-ghost:hover{background:rgba(255,255,255,.14); transform:translateY(-2px)}
+body.home .page > article > h1:first-child{display:none}
 
 /* cards */
-.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin:1.2em 0}
-.card{display:block; border:1px solid var(--border); border-radius:var(--radius);
-  padding:1.1em 1.2em; background:#fff; color:var(--slate); text-decoration:none !important}
-.card:hover{border-color:var(--accent); box-shadow:0 4px 14px rgba(14,124,134,.12)}
-.card h3{margin:.2em 0 .3em; font-size:1.05rem}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
+.card{display:block; border:1px solid var(--border); border-radius:16px;
+  padding:1.25em 1.35em; background:#fff; color:var(--slate); text-decoration:none !important;
+  transition:transform .18s, box-shadow .18s, border-color .18s}
+.card:hover{border-color:var(--accent); box-shadow:var(--shadow); transform:translateY(-4px);
+  text-decoration:none !important}
+.card h3{margin:.2em 0 .35em; font-size:1.05rem}
 .card p{margin:0; color:var(--muted); font-size:.9em}
-.post-list{display:grid; gap:14px; margin-top:1em}
-.post-card{border:1px solid var(--border); border-radius:var(--radius); padding:1em 1.3em}
-.post-card h2{border:0; padding:0; margin:.2em 0 .3em; font-size:1.2rem}
+.post-list{display:grid; gap:16px; margin-top:1.1em}
+.post-card{border:1px solid var(--border); border-radius:16px; padding:1.15em 1.4em;
+  background:#fff; transition:box-shadow .18s, transform .18s}
+.post-card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
+.post-card h2{border:0; padding:0; margin:.2em 0 .35em; font-size:1.22rem}
 .post-titles{list-style:none; padding:0}
-.post-titles li{padding:.55em 0; border-bottom:1px solid var(--border)}
+.post-titles li{padding:.6em 0; border-bottom:1px solid var(--border)}
 
 /* footer */
-.site-footer{background:var(--navy); color:#c6d2e2; margin-top:40px}
-.footer-inner{padding-top:26px; padding-bottom:26px; display:flex; justify-content:space-between;
-  gap:12px; flex-wrap:wrap; font-size:.92rem}
+.site-footer{background:linear-gradient(180deg,#0f2340,#0b1a30); color:#c6d2e2; margin-top:44px}
+.footer-inner{padding-top:30px; padding-bottom:30px; display:flex; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; font-size:.92rem; align-items:center}
 .footer-inner p{margin:.25em 0}
-.site-footer a{color:#fff}
-.site-footer a:hover{color:#9fd8dd}
+.site-footer a{color:#fff; font-weight:500}
+.site-footer a:hover{color:#7fd6cf}
 .site-footer .social a{margin:0 .45em}
 
 /* responsive */
 @media (max-width:720px){
   body{font-size:16px}
-  h1{font-size:1.6rem}
-  .hero{padding:1.8em 1.3em}
-  .hero h1{font-size:1.6rem}
   .header-inner{flex-direction:column; align-items:flex-start}
-  .footer-inner{flex-direction:column}
+  .footer-inner{flex-direction:column; align-items:flex-start}
+  .page > article{border-radius:16px}
 }
 </style>
 </head>
@@ -118,7 +142,7 @@ th{background:var(--wash); color:var(--navy)}
 <main class="wrap page">
 <article>
 <h1>Sitemap</h1>
-<h2>Pages</h2><ul><li><a href="../">Home</a></li><li><a href="../about/">About</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../resume/">Resume</a></li><li><a href="../blog/">Blog</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../privacy-policy/">Privacy Policy</a></li><li><a href="../sitemap/">Sitemap</a></li></ul><h2>Articles</h2><ul><li><a href="../blog/ai-and-data-analytics-how-to-make-data-driven-decisions-like-a-pro/">Unlock the Power of  Your Data Drive Decisions Like a Pro with AI-Driven Analytics (and Elevate Your UX)</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/no-code-ai-how-businesses-can-leverage-ai-without-a-tech-team/">No-Code AI: How Businesses Can Leverage AI Without a Tech Team</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/ux-design-for-ai-powered-products-best-practices-for-2025/">UX Design for AI-Powered Products: Best Practices for 2025</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/how-to-integrate-ai-into-your-business-operations-a-step-by-step-guide/">How to Integrate AI into Your Business Operations: A Step-by-Step Guide</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/the-role-of-ai-in-digital-transformation-a-game-changer-for-companies/">The Role of AI in Digital Transformation: A Game Changer for Companies</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/emerging-ai-trends-in-2025-what-businesses-need-to-know/">Emerging AI Trends in 2025: What Businesses Need to Know</a> <span class="muted">&mdash; January 30, 2025</span></li><li><a href="../blog/the-future-of-ai-in-business-how-to-stay-ahead-of-the-curve/">The Future of AI in Business: How to Stay Ahead of the Curve</a> <span class="muted">&mdash; January 30, 2025</span></li></ul>
+<h2>Pages</h2><ul><li><a href="../">Home</a></li><li><a href="../about/">About</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../resume/">Resume</a></li><li><a href="../blog/">Blog</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../privacy-policy/">Privacy Policy</a></li><li><a href="../sitemap/">Sitemap</a></li></ul><h2>Articles</h2><ul><li><a href="../blog/ai-and-data-analytics-how-to-make-data-driven-decisions-like-a-pro/">Unlock the Power of  Your Data Drive Decisions Like a Pro with AI-Driven Analytics (and Elevate Your UX)</a> <span class="muted">&mdash; January 30, 2025</span></li></ul>
 </article>
 </main>
 <footer class="site-footer">
