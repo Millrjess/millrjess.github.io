@@ -184,17 +184,34 @@ body.home .page > article > h1:first-child{display:none}
 <label>Project details
 <textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
 <p><button class="btn" type="submit">Send Request</button></p>
-<p class="muted">This opens your email app with your message addressed to me &mdash; nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me there</a>.</p>
+<input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+<p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
+<p class="muted" id="consult-note">Your message is sent straight to my inbox via a secure form service &mdash; nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me there</a>.</p>
 </form>
 <script>
 document.getElementById('consult-form').addEventListener('submit', function(e){
   e.preventDefault();
-  var f = e.target;
-  var name = f.name.value.trim(), email = f.email.value.trim(),
-      service = f.service.value, details = f.details.value.trim();
-  var subject = encodeURIComponent('Consultation Request from ' + name);
-  var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nService: ' + service + '\n\nProject details:\n' + details);
-  window.location.href = 'mailto:millrjess@gmail.com?subject=' + subject + '&body=' + body;
+  var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note');
+  btn.disabled = true; btn.textContent = 'Sending\u2026';
+  fetch('https://formsubmit.co/ajax/millrjess@gmail.com', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify({
+      name: f.name.value.trim(),
+      email: f.email.value.trim(),
+      service: f.service.value,
+      message: f.details.value.trim(),
+      _subject: 'New consultation request from millrjess.github.io',
+      _honey: f._honey.value,
+      _captcha: 'false',
+      _template: 'table'
+    })
+  }).then(function(r){ return r.json(); }).then(function(){
+    f.reset();
+    note.innerHTML = 'Thanks \u2014 your message is on its way. I read and reply to every inquiry personally.';
+  }).catch(function(){
+    note.innerHTML = 'Something went wrong sending your message. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>.';
+  }).finally(function(){ btn.disabled = false; btn.textContent = 'Send Request'; });
 });
 </script>
 </article>
