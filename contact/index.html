@@ -127,6 +127,16 @@ body.home .page > article > h1:first-child{display:none}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
 }
+
+/* consultation form */
+.consult-form{max-width:640px; margin:1.2em 0}
+.consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
+.consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
+  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
+  background:#f8fafc; margin-top:.35em; display:block}
+.consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
+  outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
+.consult-form button{border:0; cursor:pointer; font:inherit}
 </style>
 </head>
 <body>
@@ -156,7 +166,37 @@ body.home .page > article > h1:first-child{display:none}
 <li>LinkedIn:<a href="https://linkedin.com/in/millrjess">linkedin.com/in/millrjess</a></li>
 </ul>
 
-<p><strong>Consultation Request Form</strong> </p><p class="notice">The embedded contact form isn&rsquo;t available on this static version of the site &mdash; please reach out directly using the contact details above or <a href="https://www.linkedin.com/in/millrjess">via LinkedIn</a>.</p>
+<h2>Consultation Request Form</h2>
+<p>Tell me about your project and I&rsquo;ll get back to you within one business day.</p>
+<form id="consult-form" class="consult-form">
+<label>Your name
+<input type="text" name="name" required autocomplete="name"></label>
+<label>Your email
+<input type="email" name="email" required autocomplete="email"></label>
+<label>What do you need help with?
+<select name="service">
+<option>WordPress maintenance &amp; updates</option>
+<option>Site security / malware removal</option>
+<option>Technical SEO</option>
+<option>Site speed &amp; performance</option>
+<option>Something else</option>
+</select></label>
+<label>Project details
+<textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
+<p><button class="btn" type="submit">Send Request</button></p>
+<p class="muted">This opens your email app with your message addressed to me &mdash; nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me there</a>.</p>
+</form>
+<script>
+document.getElementById('consult-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  var f = e.target;
+  var name = f.name.value.trim(), email = f.email.value.trim(),
+      service = f.service.value, details = f.details.value.trim();
+  var subject = encodeURIComponent('Consultation Request from ' + name);
+  var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nService: ' + service + '\n\nProject details:\n' + details);
+  window.location.href = 'mailto:millrjess@gmail.com?subject=' + subject + '&body=' + body;
+});
+</script>
 </article>
 </main>
 <footer class="site-footer">
