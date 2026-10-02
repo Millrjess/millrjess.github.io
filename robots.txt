@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://millrjess.github.io/sitemap.xml
