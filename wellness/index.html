@@ -123,6 +123,17 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .badge{display:inline-block; background:var(--sage-soft); color:var(--sage-dark);
   font-size:.75rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
   border-radius:999px; padding:.25em .9em; border:1px solid #d9e6d2}
+.product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin:1.1em 0 1.6em}
+.product-card{border:1px solid var(--border); border-radius:16px; background:#fff; overflow:hidden; display:flex; flex-direction:column}
+.product-card img{width:100%; aspect-ratio:1/1; object-fit:contain; background:#fafafa; padding:12px}
+.product-info{padding:1em 1.2em 1.2em; display:flex; flex-direction:column; flex:1}
+.product-info h4{margin:0 0 .35em; font-size:1rem; line-height:1.35}
+.product-info p{margin:0 0 .9em; color:var(--muted); font-size:.9em; flex:1}
+.shop-btn{display:inline-block; text-align:center; background:var(--sage-dark); color:#fff; font-weight:600; font-size:.92em; padding:.65em 1.2em; border-radius:999px; text-decoration:none}
+.shop-btn:hover{filter:brightness(1.1); color:#fff}
+.cta-band{background:var(--sage-soft); border:1px solid #d9e6d2; border-radius:var(--radius); padding:1.4em 1.6em; margin:1.8em 0; text-align:center}
+.cta-band p{margin:0 0 .9em; font-size:1.05em}
+.hero-cta{margin-top:1.1em}
 .disclosure{background:var(--sage-soft); border:1px solid #d9e6d2; border-radius:var(--radius);
   padding:.9em 1.2em; color:var(--sage-dark); font-size:.92em; margin:1.2em 0}
 
@@ -162,7 +173,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="hero">
 <img src="../assets/img/new-chapter-profile.png" alt="A New Chapter in My Health Journey logo: an open book turning into a leaf in gold and sage green" class="hero-logo">
 <h1>A New Chapter in My Health Journey</h1>
-<p class="lede">I am documenting my own metabolic health journey in my 50s, and sharing what I learn and what I love along the way.</p>
+<p class="lede">I am documenting my own healthy metabolism journey in my 50s, and sharing what I learn and what I love along the way.</p>
+<p class="hero-cta"><a class="shop-btn" href="#amazon-favorites">Shop my favorites</a></p>
 </div>
 <nav class="page-nav" aria-label="On this page"><p><strong>On this page:</strong>
 <a href="#story">My story</a> ·
@@ -205,9 +217,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>My goal is not simply to lose weight. My goal is to protect my health, preserve my independence, and give myself the best opportunity to enjoy the years ahead.</p>
 <blockquote><p>This is my personal journey, not medical advice. Talk to your own clinician about what is right for you.</p></blockquote>
 
+<div class="cta-band"><p><strong>Everything I use is linked below.</strong> Real products from my own kitchen and routine, no sponsored placements.</p><a class="shop-btn" href="#amazon-favorites">See my Amazon Favorites</a></div>
+
 <h2 id="pillars">The four pillars</h2>
 <div class="cards">
-  <a class="card pillar-link" href="#protein-staples"><div class="pillar-icon">&#x1F49A;</div><h3>Healthy Metabolism</h3><p>Protein, muscle, movement, and steady habits. The foundation everything else is built on.</p><span class="pillar-cta">Shop my staples &rarr;</span></a>
+  <a class="card pillar-link" href="#healthy-metabolism-products"><div class="pillar-icon">&#x1F49A;</div><h3>Healthy Metabolism</h3><p>Protein, muscle, movement, and steady habits. The foundation everything else is built on.</p><span class="pillar-cta">Shop my staples &rarr;</span></a>
   <a class="card pillar-link" href="#style-soon"><div class="pillar-icon">&#x1F457;</div><h3>Style at 50+</h3><p>Fashion that fits real life. Pieces that feel good, look current, and work as hard as you do.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
   <a class="card pillar-link" href="#makeup-soon"><div class="pillar-icon">&#x1F484;</div><h3>Makeup</h3><p>Looks that love mature skin. Simple routines, honest reviews, and nothing that settles into fine lines.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
   <a class="card pillar-link" href="#hair-soon"><div class="pillar-icon">&#x1F487;</div><h3>Hair</h3><p>Care and color for this chapter. What is working for my hair now, and what I wish I had known sooner.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
@@ -217,29 +231,30 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="amazon-favorites">Amazon Favorites</h2>
 <p>Everything on this page is something I actually use in my own routine. If it is here, I bought it, I use it, and I would buy it again. When I find something new worth sharing, it lands here first.</p>
 <p><strong>My promise:</strong> no sponsored placements, no paid rankings. Just what works for me, shared the way I would tell a friend.</p>
-<p>Below are the high-protein staples actually in my kitchen right now: my morning shake, my snacks, my bars. I keep sugar and saturated fat low, and I pair it all with strength training to protect muscle and Pilates for everything else.</p>
 <div class="disclosure"><strong>Disclosure:</strong> As an Amazon Associate I earn from qualifying purchases.</div>
-<h3 id="protein-staples">My high-protein staples</h3>
-<ul class="product-list">
-<li><a href="https://www.amazon.com/dp/B0DFJP6LZF?tag=millrjess-20">Premier Protein Caf&eacute; Latte Shake, 30g protein</a> — my morning shake. The caffeine gets me going and it is genuinely delicious.</li>
-<li><a href="https://www.amazon.com/dp/B0BJP21C81?tag=millrjess-20">Fairlife Nutrition Plan Chocolate Shake, 30g protein</a> — my other everyday shake, smooth and filling.</li>
-<li><a href="https://www.amazon.com/dp/B0D1SZPWLN?tag=millrjess-20">Pure Protein Bars, Chocolate Variety Pack</a> — 20 to 21 grams of protein per bar, my grab-and-go.</li>
-<li><a href="https://www.amazon.com/dp/B07D3NS8NW?tag=millrjess-20">Chomps Original Beef Jerky Snack Sticks</a> — clean-ingredient jerky for a savory protein snack.</li>
-<li><a href="https://www.amazon.com/dp/B0H8KL213F?tag=millrjess-20">Mini Babybel Pro, Protein + Probiotics</a> — portion-controlled cheese with extra protein.</li>
-<li><a href="https://www.amazon.com/dp/B0CQHY49VB?tag=millrjess-20">Clio Mini Greek Yogurt Bars, Variety Pack</a> — tastes like a treat, eats like a snack with protein.</li>
-</ul>
-<h3 id="wellness-staples">My wellness staples</h3>
-<ul class="product-list">
-<li><a href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20">Orgain Organic Protein Powder, Vanilla Bean</a> — the protein powder I actually use.</li>
-<li><a href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20">Benefiber Daily Prebiotic Fiber Supplement</a> — my daily fiber. Dissolves clear, no taste.</li>
-<li><a href="https://www.amazon.com/dp/B09QV3XG8B?tag=millrjess-20">Vital Proteins Collagen Peptides, Unflavored</a> — stirs into coffee or shakes.</li>
-<li><a href="https://www.amazon.com/dp/B07TV8BS49?tag=millrjess-20">The Coconut Cult Probiotic Coconut Yogurt, Original</a> — my probiotic yogurt.</li>
-</ul>
-<div class="cards">
-  <div class="card" id="style-soon"><h3>Style at 50+</h3><p>The pieces I reach for on repeat. <span class="badge">Coming soon</span></p></div>
-  <div class="card" id="makeup-soon"><h3>Makeup</h3><p>What is in my makeup bag right now. <span class="badge">Coming soon</span></p></div>
-  <div class="card" id="hair-soon"><h3>Hair</h3><p>Care and color I trust with my hair. <span class="badge">Coming soon</span></p></div>
+<h3 id="healthy-metabolism-products">Healthy Metabolism</h3>
+<p>Below are the high-protein staples actually in my kitchen right now: my morning shake, my snacks, my bars. I keep sugar and saturated fat low, and I pair it all with strength training to protect muscle and Pilates for everything else.</p>
+<div class="product-grid">
+<div class="product-card"><img src="../assets/img/products/premier.jpg" alt="Premier Protein Caf&eacute; Latte Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Premier Protein Caf&eacute; Latte Shake, 30g protein</h4><p>My morning shake. The caffeine gets me going and it is genuinely delicious.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0DFJP6LZF?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/fairlife.jpg" alt="Fairlife Nutrition Plan Chocolate Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Fairlife Nutrition Plan Chocolate Shake, 30g protein</h4><p>My other everyday shake, smooth and filling.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0BJP21C81?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/pureprotein.jpg" alt="Pure Protein Bars, Chocolate Variety Pack" loading="lazy"><div class="product-info"><h4>Pure Protein Bars, Chocolate Variety Pack</h4><p>20 to 21 grams of protein per bar, my grab-and-go.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0D1SZPWLN?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/chomps.jpg" alt="Chomps Original Beef Jerky Snack Sticks" loading="lazy"><div class="product-info"><h4>Chomps Original Beef Jerky Snack Sticks</h4><p>Clean-ingredient jerky for a savory protein snack.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07D3NS8NW?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/babybel.jpg" alt="Mini Babybel Pro, Protein + Probiotics" loading="lazy"><div class="product-info"><h4>Mini Babybel Pro, Protein + Probiotics</h4><p>Portion-controlled cheese with extra protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0H8KL213F?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/clio.png" alt="Clio Mini Greek Yogurt Bars, Variety Pack" loading="lazy"><div class="product-info"><h4>Clio Mini Greek Yogurt Bars, Variety Pack</h4><p>Tastes like a treat, eats like a snack with protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0CQHY49VB?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
 </div>
+<h4>My wellness staples</h4>
+<div class="product-grid">
+<div class="product-card"><img src="../assets/img/products/orgain.jpg" alt="Orgain Organic Protein Powder, Vanilla Bean" loading="lazy"><div class="product-info"><h4>Orgain Organic Protein Powder, Vanilla Bean</h4><p>The protein powder I actually use.</p><a class="shop-btn" href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/benefiber.jpg" alt="Benefiber Daily Prebiotic Fiber Supplement" loading="lazy"><div class="product-info"><h4>Benefiber Daily Prebiotic Fiber Supplement</h4><p>My daily fiber. Dissolves clear, no taste.</p><a class="shop-btn" href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/vitalproteins.jpg" alt="Vital Proteins Collagen Peptides, Unflavored" loading="lazy"><div class="product-info"><h4>Vital Proteins Collagen Peptides, Unflavored</h4><p>Stirs into coffee or shakes.</p><a class="shop-btn" href="https://www.amazon.com/dp/B09QV3XG8B?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/coconutcult.jpg" alt="The Coconut Cult Probiotic Coconut Yogurt, Original" loading="lazy"><div class="product-info"><h4>The Coconut Cult Probiotic Coconut Yogurt, Original</h4><p>My probiotic yogurt.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07TV8BS49?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+</div>
+<h3 id="style-soon">Style at 50+</h3>
+<div class="cards"><div class="card"><p>The pieces I reach for on repeat. <span class="badge">Coming soon</span></p></div></div>
+<h3 id="makeup-soon">Makeup</h3>
+<div class="cards"><div class="card"><p>What is in my makeup bag right now. <span class="badge">Coming soon</span></p></div></div>
+<h3 id="hair-soon">Hair</h3>
+<div class="cards"><div class="card"><p>Care and color I trust with my hair. <span class="badge">Coming soon</span></p></div></div>
 
 <hr>
 <h2 id="journal">From the journal</h2>
