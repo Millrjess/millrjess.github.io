@@ -287,7 +287,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </article>
 <script>
 (function(){var h=document.querySelector('.site-header'),n=document.querySelector('.page-nav');
-function setOff(){if(h&&n){n.style.top=(h.offsetHeight+6)+'px';}}
+function setOff(){if(h&&n){var off=h.offsetHeight+n.offsetHeight+16;n.style.top=(h.offsetHeight+6)+'px';
+document.querySelectorAll('#story,#turning-point,#pillars,#amazon-favorites,#healthy-metabolism-products,#style-soon,#makeup-soon,#hair-soon,#journal,#hydration').forEach(function(el){el.style.scrollMarginTop=off+'px';});}}
 window.addEventListener('resize',setOff);window.addEventListener('load',setOff);setOff();})();
 </script>
 </main>
