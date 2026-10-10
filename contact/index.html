@@ -21,7 +21,9 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet"></noscript>
 <style>:root{
   --navy:#0f2340; --navy-2:#173f68; --slate:#334155; --muted:#64748b;
   --accent:#0d9488; --accent-dark:#0b7c73; --accent-soft:#e6f7f5;
@@ -99,7 +101,7 @@ tr:nth-child(even) td{background:#f8fafc}
 .hero h2{color:#fff; border:0}
 .hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
 .hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
-.btn{display:inline-block; background:var(--accent); color:#fff !important; font-weight:600;
+.btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(13,148,136,.6); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
@@ -156,7 +158,7 @@ body.home .page > article > h1:first-child{display:none}
 <header class="site-header">
   <div class="wrap header-inner">
     <div class="brand">
-      <a href="../"><img src="../assets/img/cropped-img_5113-4-e1738174378751.png" alt="Jessica A. Miller logo" class="brand-logo"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
+      <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../about/">About</a></li><li><a href="../books/">Books</a></li><li><a href="../wellness/">Wellness</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../resume/">Resume</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/" class="active">Contact</a></li></ul></nav>
