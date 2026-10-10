@@ -158,6 +158,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   .header-inner{flex-direction:column; align-items:flex-start}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
+  .site-header{position:static}
+  .page-nav{top:0 !important}
+  .product-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px}
+  .nav-pill{padding:.55em 1em; font-size:.88em}
 }
 </style>
 <script type="application/ld+json">
@@ -287,8 +291,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </article>
 <script>
 (function(){var h=document.querySelector('.site-header'),n=document.querySelector('.page-nav');
-function setOff(){if(h&&n){var off=h.offsetHeight+n.offsetHeight+16;n.style.top=(h.offsetHeight+6)+'px';
-document.querySelectorAll('#story,#turning-point,#pillars,#amazon-favorites,#healthy-metabolism-products,#style-soon,#makeup-soon,#hair-soon,#journal,#hydration').forEach(function(el){el.style.scrollMarginTop=off+'px';});}}
+function setOff(){if(!n){return;}var mobile=window.innerWidth<=720;
+if(mobile){n.style.top='0px';var off2=n.offsetHeight+16;}
+else if(h){var off=h.offsetHeight+n.offsetHeight+16;n.style.top=(h.offsetHeight+6)+'px';var off2=off;}
+else{var off2=120;}
+document.querySelectorAll('#story,#turning-point,#pillars,#amazon-favorites,#healthy-metabolism-products,#style-soon,#makeup-soon,#hair-soon,#journal,#hydration').forEach(function(el){el.style.scrollMarginTop=off2+'px';});}
 window.addEventListener('resize',setOff);window.addEventListener('load',setOff);setOff();})();
 </script>
 </main>
