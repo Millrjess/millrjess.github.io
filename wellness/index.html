@@ -114,8 +114,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .pillar-link h3{color:var(--ink)}
 .pillar-cta{display:inline-block; margin-top:.6em; font-size:.85em; font-weight:600; color:var(--sage-dark)}
 .post-list{display:grid; gap:16px; margin-top:1.1em}
-.page-nav p{margin:.4em 0 1.6em; font-size:.95em}
-.page-nav a{white-space:nowrap}
+.page-nav{margin:.4em 0 1.8em; display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.nav-pill{display:inline-block; padding:.6em 1.2em; border-radius:999px; border:1px solid var(--border); background:#fff; font-weight:600; font-size:.92em; color:var(--ink); text-decoration:none; white-space:nowrap}
+.nav-pill:hover{border-color:var(--sage-dark); text-decoration:none}
+.nav-pill-shop{background:var(--sage-dark); border-color:var(--sage-dark); color:#fff}
+.nav-pill-shop:hover{filter:brightness(1.1); color:#fff}
+.nav-sub{flex-basis:100%; margin:.2em 0 0; font-size:.9em}
+.nav-sub a{white-space:nowrap}
 .post-card{border:1px solid var(--border); border-radius:16px; padding:1.15em 1.4em;
   background:#fff}
 .post-card h3{margin:.2em 0 .35em; font-size:1.1rem}
@@ -176,12 +181,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="lede">I am documenting my own healthy metabolism journey in my 50s, and sharing what I learn and what I love along the way.</p>
 <p class="hero-cta"><a class="shop-btn" href="#amazon-favorites">Shop my favorites</a></p>
 </div>
-<nav class="page-nav" aria-label="On this page"><p><strong>On this page:</strong>
-<a href="#story">My story</a> ·
-<a href="#turning-point">My turning point</a> ·
-<a href="#pillars">The four pillars</a> ·
-<a href="#amazon-favorites">Amazon Favorites</a> ·
-<a href="#journal">From the journal</a></p></nav>
+<nav class="page-nav" aria-label="On this page">
+<a class="nav-pill" href="#healthy-metabolism-products">&#x1F49A; Healthy Metabolism</a>
+<a class="nav-pill" href="#style-soon">&#x1F457; Style at 50+</a>
+<a class="nav-pill" href="#makeup-soon">&#x1F484; Makeup</a>
+<a class="nav-pill" href="#hair-soon">&#x1F487; Hair</a>
+<a class="nav-pill nav-pill-shop" href="#amazon-favorites">&#x1F6D2; Shop Amazon Favorites</a>
+<p class="nav-sub"><a href="#story">My story</a> · <a href="#turning-point">My turning point</a> · <a href="#journal">From the journal</a></p>
+</nav>
 
 <h2 id="story">My story</h2>
 <p>For most of my adult life, I worked out at a gym, tried to eat healthy, and made an effort to maintain a healthy weight. I understood the importance of exercise and nutrition, and I did my best to practice what I knew.</p>
