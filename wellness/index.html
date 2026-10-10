@@ -109,6 +109,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .card h3{margin:.2em 0 .35em; font-size:1.05rem}
 .card p{margin:0; color:var(--muted); font-size:.9em}
 .pillar-icon{font-size:1.6rem; line-height:1}
+.pillar-link{display:block; color:inherit; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease}
+.pillar-link:hover{transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.pillar-link h3{color:var(--ink)}
+.pillar-cta{display:inline-block; margin-top:.6em; font-size:.85em; font-weight:600; color:var(--sage-dark)}
 .post-list{display:grid; gap:16px; margin-top:1.1em}
 .page-nav p{margin:.4em 0 1.6em; font-size:.95em}
 .page-nav a{white-space:nowrap}
@@ -150,7 +154,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
       <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
-    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../about/">About</a></li><li><a href="../books/">Books</a></li><li><a href="../wellness/" class="active">Wellness</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../resume/">Resume</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
+    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../about/">About</a></li><li><a href="../books/">Books</a></li><li><a href="../wellness/" class="active">Wellness</a></li><li><a href="../wellness/#amazon-favorites">Amazon Favorites</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../resume/">Resume</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
   </div>
 </header>
 <main class="wrap page">
@@ -164,7 +168,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <a href="#story">My story</a> ·
 <a href="#turning-point">My turning point</a> ·
 <a href="#pillars">The four pillars</a> ·
-<a href="#favorites">Amazon Favorites</a> ·
+<a href="#amazon-favorites">Amazon Favorites</a> ·
 <a href="#journal">From the journal</a></p></nav>
 
 <h2 id="story">My story</h2>
@@ -203,10 +207,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2 id="pillars">The four pillars</h2>
 <div class="cards">
-  <div class="card"><div class="pillar-icon">&#x1F49A;</div><h3>Healthy Metabolism</h3><p>Protein, muscle, movement, and steady habits. The foundation everything else is built on.</p></div>
-  <div class="card"><div class="pillar-icon">&#x1F457;</div><h3>Style at 50+</h3><p>Fashion that fits real life. Pieces that feel good, look current, and work as hard as you do.</p></div>
-  <div class="card"><div class="pillar-icon">&#x1F484;</div><h3>Makeup</h3><p>Looks that love mature skin. Simple routines, honest reviews, and nothing that settles into fine lines.</p></div>
-  <div class="card"><div class="pillar-icon">&#x1F487;</div><h3>Hair</h3><p>Care and color for this chapter. What is working for my hair now, and what I wish I had known sooner.</p></div>
+  <a class="card pillar-link" href="#protein-staples"><div class="pillar-icon">&#x1F49A;</div><h3>Healthy Metabolism</h3><p>Protein, muscle, movement, and steady habits. The foundation everything else is built on.</p><span class="pillar-cta">Shop my staples &rarr;</span></a>
+  <a class="card pillar-link" href="#style-soon"><div class="pillar-icon">&#x1F457;</div><h3>Style at 50+</h3><p>Fashion that fits real life. Pieces that feel good, look current, and work as hard as you do.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
+  <a class="card pillar-link" href="#makeup-soon"><div class="pillar-icon">&#x1F484;</div><h3>Makeup</h3><p>Looks that love mature skin. Simple routines, honest reviews, and nothing that settles into fine lines.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
+  <a class="card pillar-link" href="#hair-soon"><div class="pillar-icon">&#x1F487;</div><h3>Hair</h3><p>Care and color for this chapter. What is working for my hair now, and what I wish I had known sooner.</p><span class="pillar-cta">See what is coming &rarr;</span></a>
 </div>
 
 <hr>
@@ -215,7 +219,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p><strong>My promise:</strong> no sponsored placements, no paid rankings. Just what works for me, shared the way I would tell a friend.</p>
 <p>Below are the high-protein staples actually in my kitchen right now: my morning shake, my snacks, my bars. I keep sugar and saturated fat low, and I pair it all with strength training to protect muscle and Pilates for everything else.</p>
 <div class="disclosure"><strong>Disclosure:</strong> As an Amazon Associate I earn from qualifying purchases.</div>
-<h3>My high-protein staples</h3>
+<h3 id="protein-staples">My high-protein staples</h3>
 <ul class="product-list">
 <li><a href="https://www.amazon.com/dp/B0DFJP6LZF?tag=millrjess-20">Premier Protein Caf&eacute; Latte Shake, 30g protein</a> — my morning shake. The caffeine gets me going and it is genuinely delicious.</li>
 <li><a href="https://www.amazon.com/dp/B0BJP21C81?tag=millrjess-20">Fairlife Nutrition Plan Chocolate Shake, 30g protein</a> — my other everyday shake, smooth and filling.</li>
@@ -224,7 +228,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><a href="https://www.amazon.com/dp/B0H8KL213F?tag=millrjess-20">Mini Babybel Pro, Protein + Probiotics</a> — portion-controlled cheese with extra protein.</li>
 <li><a href="https://www.amazon.com/dp/B0CQHY49VB?tag=millrjess-20">Clio Mini Greek Yogurt Bars, Variety Pack</a> — tastes like a treat, eats like a snack with protein.</li>
 </ul>
-<h3>My wellness staples</h3>
+<h3 id="wellness-staples">My wellness staples</h3>
 <ul class="product-list">
 <li><a href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20">Orgain Organic Protein Powder, Vanilla Bean</a> — the protein powder I actually use.</li>
 <li><a href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20">Benefiber Daily Prebiotic Fiber Supplement</a> — my daily fiber. Dissolves clear, no taste.</li>
@@ -232,9 +236,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><a href="https://www.amazon.com/dp/B07TV8BS49?tag=millrjess-20">The Coconut Cult Probiotic Coconut Yogurt, Original</a> — my probiotic yogurt.</li>
 </ul>
 <div class="cards">
-  <div class="card"><h3>Style at 50+</h3><p>The pieces I reach for on repeat. <span class="badge">Coming soon</span></p></div>
-  <div class="card"><h3>Makeup</h3><p>What is in my makeup bag right now. <span class="badge">Coming soon</span></p></div>
-  <div class="card"><h3>Hair</h3><p>Care and color I trust with my hair. <span class="badge">Coming soon</span></p></div>
+  <div class="card" id="style-soon"><h3>Style at 50+</h3><p>The pieces I reach for on repeat. <span class="badge">Coming soon</span></p></div>
+  <div class="card" id="makeup-soon"><h3>Makeup</h3><p>What is in my makeup bag right now. <span class="badge">Coming soon</span></p></div>
+  <div class="card" id="hair-soon"><h3>Hair</h3><p>Care and color I trust with my hair. <span class="badge">Coming soon</span></p></div>
 </div>
 
 <hr>
