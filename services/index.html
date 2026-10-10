@@ -151,6 +151,17 @@ body.home .page > article > h1:first-child{display:none}
 .consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
+
+/* mobile hamburger menu */
+.nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
+@media (max-width:720px){
+  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between}
+  .nav-toggle{display:block}
+  .site-header nav{display:none; width:100%}
+  .site-header nav.open{display:block}
+  .site-header nav.open .nav{flex-direction:column; align-items:stretch}
+  .site-header nav.open .nav a{padding:.7em .5em}
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Service","name":"Website Operations Services","provider":{"@type":"ProfessionalService","name":"Jessica A. Miller — Website Operations Consultant","url":"https://millrjess.github.io/"},"url":"https://millrjess.github.io/services/","description":"Website management services: WordPress, Drupal, and Joomla care, malware removal, technical SEO, site health audits, and GA4 reporting.","areaServed":["North Andover MA","Andover MA","Lawrence MA","Haverhill MA"]}
@@ -163,6 +174,7 @@ body.home .page > article > h1:first-child{display:none}
       <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../services/" class="active">Services</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../about/">About</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../books/">Books</a></li><li><a href="../resume/">Resume</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
   </div>
 </header>
@@ -207,6 +219,11 @@ body.home .page > article > h1:first-child{display:none}
 
 <p>See the <a href="../fee-schedule/">fee schedule</a> for pricing, or <a href="../contact/">request a consultation</a> to talk through your project.</p>
 </article>
+
+<section class="cta-band">
+<h2>Ready to stop worrying about your website?</h2>
+<p><a class="btn" href="../contact/">Request a Consultation</a> <a class="btn btn-ghost" href="../fee-schedule/">View Fee Schedule</a></p>
+</section>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-inner">

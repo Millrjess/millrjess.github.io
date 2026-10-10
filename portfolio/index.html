@@ -154,6 +154,17 @@ body.home .page > article > h1:first-child{display:none}
 .viz-embed{margin:.8em 0; border:1px solid var(--border); border-radius:12px; overflow:hidden}
 .viz-embed iframe{display:block; width:100%; max-width:100%}
 @media (max-width:720px){.viz-embed iframe{height:420px !important}}
+
+/* mobile hamburger menu */
+.nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
+@media (max-width:720px){
+  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between}
+  .nav-toggle{display:block}
+  .site-header nav{display:none; width:100%}
+  .site-header nav.open{display:block}
+  .site-header nav.open .nav{flex-direction:column; align-items:stretch}
+  .site-header nav.open .nav a{padding:.7em .5em}
+}
 </style>
 </head>
 <body>
@@ -163,6 +174,7 @@ body.home .page > article > h1:first-child{display:none}
       <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../portfolio/" class="active">Portfolio</a></li><li><a href="../services/">Services</a></li><li><a href="../testimonials/">Testimonials</a></li><li><a href="../about/">About</a></li><li><a href="../certifications/">Certifications</a></li><li><a href="../books/">Books</a></li><li><a href="../resume/">Resume</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
   </div>
 </header>
@@ -264,15 +276,16 @@ body.home .page > article > h1:first-child{display:none}
 <p class="muted">May 2025 &ndash; Present</p>
 <p>I created a dashboard to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time vs. repeat calls. I worked closely with teams to make sure the tool was useful, easy to use, and followed privacy rules. The dashboard helps leaders make smarter decisions and improve service while keeping customer info safe.</p>
 </div>
-<div class="post-card">
-<h2>UX Case Study: Foodie Explorer App</h2>
-<p class="muted">Jan 2025 &ndash; Jan 2026</p>
-<p>Complete, end-to-end UX design lifecycle for the Foodie Explorer app, a mobile solution for the time-constraint pain point in meal planning and grocery shopping. The project covered user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design.</p>
-<p><a href="https://www.youtube.com/watch?v=3eY3yojcT4g">Case study video on YouTube</a></p>
-</div>
+
 </div>
 
 </article>
+
+<section class="cta-band">
+<h2>Like what you see?</h2>
+<p>I am available for contract engagements, website care plans, and one-time projects.</p>
+<p><a class="btn" href="../contact/">Get in Touch</a></p>
+</section>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-inner">

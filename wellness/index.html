@@ -163,6 +163,17 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   .product-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px}
   .nav-pill{padding:.55em 1em; font-size:.88em}
 }
+
+/* mobile hamburger menu */
+.nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
+@media (max-width:720px){
+  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between}
+  .nav-toggle{display:block}
+  .site-header nav{display:none; width:100%}
+  .site-header nav.open{display:block}
+  .site-header nav.open .nav{flex-direction:column; align-items:stretch}
+  .site-header nav.open .nav a{padding:.7em .5em}
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Blog","name":"A New Chapter in My Health Journey","url":"https://millrjess.github.io/wellness/","description":"Science-backed wellness for women 50 plus: metabolic health, healthy aging, fashion, makeup, and hair.","author":{"@type":"Person","name":"Jessica A. Miller","url":"https://millrjess.github.io/about/"}}
@@ -304,5 +315,15 @@ window.addEventListener('resize',setOff);window.addEventListener('load',setOff);
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="https://www.facebook.com/JessicaAMillerMA">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/">Pinterest</a></p>
   </div>
 </footer>
+
+<script>
+document.querySelectorAll('.nav-toggle').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var nav = btn.closest('.site-header').querySelector('nav');
+    nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded', nav.classList.contains('open'));
+  });
+});
+</script>
 </body>
 </html>
