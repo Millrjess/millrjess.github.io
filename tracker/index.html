@@ -228,33 +228,7 @@
     .feature h3 { font-family: var(--serif); font-size: 1.2rem; font-weight: 400; margin-bottom: 10px; }
     .feature p { color: var(--muted); font-size: .94rem; margin-bottom: 0; }
 
-    .rhythm { padding-top: 30px; }
-    .rhythm-panel { background: var(--sage-dark); color: #f7f5ea; display: grid; grid-template-columns: .9fr 1.1fr; min-height: 470px; border-radius: 6px 42px 6px 42px; overflow: hidden; }
-    .rhythm-copy { padding: 62px; align-self: center; }
-    .rhythm-copy h2 { font-size: clamp(2rem, 3.5vw, 3.25rem); margin-bottom: 22px; }
-    .rhythm-copy p { color: #dce6db; }
-    .rhythm-copy em { color: #efcb84; font-family: var(--serif); }
-    .timeline { background: color-mix(in srgb, var(--sage-dark) 82%, #101610); padding: 58px; display: flex; flex-direction: column; justify-content: center; }
-    .timeline-step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; position: relative; padding-bottom: 28px; }
-    .timeline-step:last-child { padding-bottom: 0; }
-    .timeline-step:not(:last-child):before { content: ""; position: absolute; left: 21px; top: 44px; bottom: 0; width: 1px; background: rgba(255,255,255,.26); }
-    .step-num { width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; display: grid; place-items: center; color: #efcb84; font-family: var(--serif); }
-    .timeline-step strong { display: block; font-size: 1rem; margin: 2px 0 3px; }
-    .timeline-step span { color: #cbd7ca; font-size: .88rem; }
 
-    .compare { padding-top: 92px; }
-    .compare-head { max-width: 720px; margin-bottom: 38px; }
-    .compare-head h2 { margin-bottom: 16px; }
-    .compare-head p { color: var(--muted); margin-bottom: 0; font-size: 1.05rem; }
-    .compare-grid { border-block: 1px solid var(--line); }
-    .compare-row { display: grid; grid-template-columns: .8fr 1fr 1fr; }
-    .compare-row + .compare-row { border-top: 1px solid var(--line); }
-    .compare-cell { padding: 20px 24px; }
-    .compare-cell + .compare-cell { border-left: 1px solid var(--line); }
-    .compare-row.header { color: var(--sage-dark); font-weight: 700; font-size: .86rem; }
-    .compare-label { font-family: var(--serif); font-weight: 400; }
-    .compare-good { background: var(--sage-pale); font-weight: 600; }
-    .compare-manual { color: var(--muted); }
 
     .pricing { background: var(--surface-soft); }
     .price-intro { text-align: center; max-width: 650px; margin: 0 auto 48px; }
@@ -263,7 +237,7 @@
     .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 850px; margin: auto; }
     .price-card { background: var(--surface); border: 1px solid var(--line); padding: 38px; border-radius: 5px 28px 28px 28px; position: relative; }
     .price-card.featured { border-color: var(--gold); box-shadow: var(--shadow); }
-    .save { position: absolute; right: 22px; top: 20px; background: var(--gold-pale); color: var(--gold-deep); border-radius: 100px; font-size: .76rem; font-weight: 700; padding: 6px 10px; }
+    .save { position: absolute; right: 22px; top: 20px; background: var(--gold-deep); color: #fff; border-radius: 100px; font-size: .76rem; font-weight: 700; padding: 6px 10px; }
     .price-card h3 { font-family: var(--serif); font-weight: 400; font-size: 1.4rem; margin-bottom: 16px; }
     .amount { font-family: var(--serif); font-size: 3rem; letter-spacing: -.05em; line-height: 1; }
     .amount sup { font-size: 1.2rem; vertical-align: top; top: .2em; position: relative; }
@@ -280,7 +254,7 @@
 
     .testimonials { background: var(--bg); }
     .stories-shell { max-width: 860px; margin: auto; border-block: 1px solid var(--line); padding: 52px 0; display: grid; grid-template-columns: 140px 1fr; gap: 42px; align-items: center; }
-    .story-mark { width: 120px; height: 120px; border-radius: 50%; background: var(--gold-pale); color: var(--gold-deep); display: grid; place-items: center; font-family: var(--serif); font-size: 3.6rem; }
+    .story-mark { width: 120px; height: 120px; border-radius: 50%; background: var(--gold-deep); color: #fff; display: grid; place-items: center; font-family: var(--serif); font-size: 3.6rem; }
     .story-mark.word { font-family: var(--sans); font-size: 1.05rem; font-weight: 700; letter-spacing: .01em; }
     .stories-shell h2 { font-size: clamp(1.8rem, 3vw, 2.8rem); margin-bottom: 12px; }
     .stories-shell p { color: var(--muted); margin-bottom: 0; }
@@ -317,12 +291,12 @@
       .feature-list { grid-template-columns: 1fr 1fr; }
       .feature:not(:nth-child(3n+1)) { border-left: 0; padding-left: 0; }
       .feature:nth-child(even) { border-left: 1px solid var(--line); padding-left: 24px; }
-      .rhythm-panel { grid-template-columns: 1fr; }
-      .rhythm-copy, .timeline { padding: 44px; }
       .faq-grid { gap: 36px; }
     }
     @media (max-width: 620px) {
       .wrap { width: min(100% - 28px, 1140px); }
+      nav .wrap { flex-wrap: wrap; gap: 8px; }
+      nav .wrap div:last-child { gap: 14px !important; font-size: .85rem; }
       .hero { padding: 42px 0 38px; background: linear-gradient(165deg, var(--surface) 0 66%, var(--surface-soft) 66% 100%); }
       h1 { font-size: clamp(2.45rem, 13vw, 3.8rem); }
       .actions { flex-direction: column; }
@@ -338,15 +312,6 @@
       .feature, .feature:not(:nth-child(3n+1)), .feature:nth-child(even) { border-left: 0; padding: 26px 0; min-height: 0; display: grid; grid-template-columns: 45px 1fr; column-gap: 18px; }
       .feature .icon { margin: 0; grid-row: span 2; width: 36px; height: 36px; }
       .feature h3 { margin: 1px 0 7px; }
-      .rhythm { padding-top: 0; }
-      .rhythm-copy, .timeline { padding: 34px 25px; }
-      .compare-row, .compare-row.header { grid-template-columns: 1fr; }
-      .compare-row.header .compare-cell:first-child { display: none; }
-      .compare-cell { padding: 15px 18px; }
-      .compare-cell + .compare-cell { border-left: 0; border-top: 1px solid var(--line); }
-      .compare-row:not(.header) .compare-cell:before { display: block; margin-bottom: 3px; color: var(--sage-dark); font-family: var(--sans); font-size: .72rem; font-weight: 700; }
-      .compare-row:not(.header) .compare-good:before { content: "WITH A NEW CHAPTER"; }
-      .compare-row:not(.header) .compare-manual:before { content: "TRACKING MANUALLY"; }
       .price-grid { grid-template-columns: 1fr; }
       .price-card { padding: 30px 24px; }
       .stories-shell { grid-template-columns: 1fr; gap: 23px; }
