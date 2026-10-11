@@ -1,3 +1,9 @@
+/*
+ * A New Chapter Tracker
+ * Copyright (c) 2026 Jessica A. Miller. All rights reserved.
+ * https://millrjess.github.io/tracker/
+ */
+
 /* A New Chapter Tracker - app logic. Data persists in localStorage on this device only. */
 
 "use strict";

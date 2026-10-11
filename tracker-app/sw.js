@@ -1,3 +1,9 @@
+/*
+ * A New Chapter Tracker
+ * Copyright (c) 2026 Jessica A. Miller. All rights reserved.
+ * https://millrjess.github.io/tracker/
+ */
+
 const CACHE_NAME = "new-chapter-tracker-v7";
 const ASSETS = [
   "./",
