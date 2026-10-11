@@ -118,9 +118,13 @@
       </div>
       <form id="protein-form" class="inline-form">
         <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
-        <input type="number" id="protein-grams" placeholder="Grams" min="0" aria-label="Protein grams">
+        <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
+        <input type="number" id="carb-grams" placeholder="Carbs g" min="0" aria-label="Carb grams">
+        <input type="number" id="fat-grams" placeholder="Fat g" min="0" aria-label="Fat grams">
+        <input type="number" id="calorie-count" placeholder="Cal" min="0" aria-label="Calories">
         <button type="submit" class="btn btn-small">Log</button>
       </form>
+      <div id="macro-summary" style="margin-top:12px;font-size:.92rem;color:var(--muted)"></div>
       <div id="protein-list" class="today-entries"></div>
     </div>
 
@@ -416,6 +420,30 @@
           <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
         </label>
         <p class="muted">Protein helps protect muscle during weight loss. 90 g is a common starting goal.</p>
+      </div>
+
+      <div class="card">
+        <h3>Daily carb goal</h3>
+        <label>Daily carb goal (g)
+          <input type="number" id="set-carb-goal" min="0" step="1" placeholder="130">
+        </label>
+        <p class="muted">Carbs are your body's preferred energy source. 130 g is a common minimum.</p>
+      </div>
+
+      <div class="card">
+        <h3>Daily fat goal</h3>
+        <label>Daily fat goal (g)
+          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="65">
+        </label>
+        <p class="muted">Healthy fats support hormones and satiety. 65 g is a common starting goal.</p>
+      </div>
+
+      <div class="card">
+        <h3>Daily calorie goal</h3>
+        <label>Daily calorie goal
+          <input type="number" id="set-calorie-goal" min="0" step="1" placeholder="1600">
+        </label>
+        <p class="muted">Set this with your healthcare professional's guidance.</p>
       </div>
 
       <div class="card">

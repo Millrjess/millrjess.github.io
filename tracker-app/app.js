@@ -17,6 +17,9 @@ const DEFAULTS = {
     shotDay: "",
     waterGoal: 80,
     proteinGoal: 90,
+    carbGoal: 130,
+    fatGoal: 65,
+    calorieGoal: 1600,
     refillDate: ""
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
@@ -149,7 +152,7 @@ function renderToday() {
     b.style.opacity = isToday ? "" : "0.5";
   });
   // Disable manual entry forms and mood buttons on past days
-  ["protein-food", "protein-grams", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
+  ["protein-food", "protein-grams", "carb-grams", "fat-grams", "calorie-count", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
   });
@@ -179,6 +182,18 @@ function renderToday() {
   document.getElementById("protein-percent").textContent = proteinPct >= 100
     ? "Goal reached! Nice work."
     : proteinPct + "% of daily goal";
+
+  // Macro summary
+  const carbG = sumForDate(store.protein, t, "carbs");
+  const fatG = sumForDate(store.protein, t, "fat");
+  const calN = sumForDate(store.protein, t, "calories");
+  const carbGoal = Number(store.settings.carbGoal) || 130;
+  const fatGoal = Number(store.settings.fatGoal) || 65;
+  const calGoal = Number(store.settings.calorieGoal) || 1600;
+  document.getElementById("macro-summary").innerHTML =
+    "Carbs: <strong>" + carbG + "g</strong> / " + carbGoal + "g &nbsp;·&nbsp; " +
+    "Fat: <strong>" + fatG + "g</strong> / " + fatGoal + "g &nbsp;·&nbsp; " +
+    "Calories: <strong>" + calN + "</strong> / " + calGoal;
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
@@ -284,9 +299,18 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
     document.getElementById("protein-grams").placeholder = "Enter grams first";
     return;
   }
-  store.protein.push({ id: uid(), date: todayStr(), grams, food: food || "Logged entry" });
+  store.protein.push({
+    id: uid(), date: todayStr(), grams,
+    carbs: Number(document.getElementById("carb-grams").value) || 0,
+    fat: Number(document.getElementById("fat-grams").value) || 0,
+    calories: Number(document.getElementById("calorie-count").value) || 0,
+    food: food || "Logged entry"
+  });
   document.getElementById("protein-food").value = "";
   document.getElementById("protein-grams").value = "";
+  document.getElementById("carb-grams").value = "";
+  document.getElementById("fat-grams").value = "";
+  document.getElementById("calorie-count").value = "";
   saveStore();
   renderToday();
 });
@@ -961,6 +985,9 @@ function renderSettings() {
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 80;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
+  document.getElementById("set-carb-goal").value = s.carbGoal || 130;
+  document.getElementById("set-fat-goal").value = s.fatGoal || 65;
+  document.getElementById("set-calorie-goal").value = s.calorieGoal || 1600;
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -995,6 +1022,12 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.waterGoal = wg > 0 ? wg : 80;
   const pg = Number(document.getElementById("set-protein-goal").value);
   store.settings.proteinGoal = pg > 0 ? pg : 90;
+  const cg = Number(document.getElementById("set-carb-goal").value);
+  store.settings.carbGoal = cg > 0 ? cg : 130;
+  const fg = Number(document.getElementById("set-fat-goal").value);
+  store.settings.fatGoal = fg > 0 ? fg : 65;
+  const calg = Number(document.getElementById("set-calorie-goal").value);
+  store.settings.calorieGoal = calg > 0 ? calg : 1600;
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();
