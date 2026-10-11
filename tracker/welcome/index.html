@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to A New Chapter Tracker</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A96A; --gold-deep: #A8864A; --sage: #7A8B6F; --sage-dark: #5A6B52;
+  --ink: #2B2B28; --muted: #6E6A5E; --surface: #FDFBF7; --surface-soft: #F7F3EB;
+  --serif: 'Libre Baskerville', Georgia, serif; --sans: 'DM Sans', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--surface); color: var(--ink); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.card { background: #fff; border-radius: 24px; padding: 48px 40px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 24px 60px -20px rgba(0,0,0,.15); }
+h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.8rem, 5vw, 2.4rem); margin-bottom: 12px; }
+p { color: var(--muted); margin-bottom: 16px; }
+.app-link { display: inline-block; margin: 20px 0; padding: 16px 36px; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: #2D2D2D; font-weight: 700; font-size: 1.1rem; border-radius: 100px; text-decoration: none; }
+.app-link:hover { transform: translateY(-2px); }
+.steps { text-align: left; margin: 28px 0; padding: 0; list-style: none; }
+.steps li { padding: 12px 0; border-bottom: 1px solid var(--surface-soft); display: flex; gap: 12px; }
+.steps li:last-child { border: none; }
+.step-num { background: var(--sage); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; font-weight: 700; flex-shrink: 0; }
+.note { font-size: .9rem; background: var(--surface-soft); border-radius: 12px; padding: 16px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>You're in. Welcome.</h1>
+  <p>Your subscription to A New Chapter Tracker is active. Here's your app:</p>
+  <a class="app-link" href="../../tracker-app/">Open My Tracker</a>
+  <ol class="steps">
+    <li><span class="step-num">1</span><span><strong>Bookmark this page.</strong> This is your private access link.</span></li>
+    <li><span class="step-num">2</span><span><strong>Add to your home screen.</strong> On iPhone: Share → Add to Home Screen. On Android: menu → Add to Home Screen.</span></li>
+    <li><span class="step-num">3</span><span><strong>Complete the setup.</strong> The app will walk you through your medication, dose, and goals on first launch.</span></li>
+  </ol>
+  <div class="note">Questions? Reply to your receipt email anytime. Your data stays on your device. Nothing is uploaded.</div>
+</div>
+</body>
+</html>
