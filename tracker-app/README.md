@@ -22,7 +22,7 @@ Your GLP-1 wellness journey, beautifully tracked. A private, installable web app
 
 ## Privacy
 
-All data stays on your device in localStorage. Nothing is sent to a server, sold, or shared. There are no accounts and no cross-device sync.
+All tracked data stays on your device in localStorage. Nothing is sent to a server, sold, or shared. Anonymous usage statistics (screen views) are collected via Google Analytics to improve the app. There are no accounts and no cross-device sync.
 
 ## Tech
 

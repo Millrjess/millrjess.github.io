@@ -95,6 +95,13 @@ function showTab(name) {
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
   if (name === "weight") drawWeightChart();
+  try {
+    gtag("event", "page_view", {
+      page_title: "Tracker - " + name,
+      page_location: location.href.split("#")[0] + "#" + name,
+      page_path: "/tracker-app/#" + name
+    });
+  } catch (e) { /* analytics unavailable; app keeps working */ }
 }
 
 tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
