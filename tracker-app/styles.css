@@ -678,3 +678,23 @@ label textarea {
     font-size: 0.7rem;
   }
 }
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(43, 43, 40, 0.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px; overflow-y: auto;
+}
+.modal-overlay.hidden { display: none; }
+.modal-card {
+  background: var(--card, #fff); border-radius: 20px;
+  max-width: 440px; width: 100%; padding: 28px 24px;
+  box-shadow: 0 24px 60px -12px rgba(0,0,0,.3);
+  margin-top: 4vh;
+}
+.modal-card h2 { margin-top: 0; }
+.modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .92rem; }
+.modal-card label select, .modal-card label input {
+  display: block; width: 100%; margin-top: 6px; padding: 10px 12px;
+  border: 1px solid var(--border, #ddd); border-radius: 10px; font-size: 1rem;
+}

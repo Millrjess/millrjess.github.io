@@ -35,6 +35,45 @@
 </head>
 <body>
 
+<div id="setup-wizard" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+  <div class="modal-card">
+    <h2 id="setup-title">Welcome to A New Chapter</h2>
+    <p class="muted">Let's set up your tracker. This takes less than a minute.</p>
+    <form id="setup-form">
+      <label>Your medication
+        <select id="setup-med">
+          <option value="Zepbound">Zepbound</option>
+          <option value="Wegovy">Wegovy</option>
+          <option value="Ozempic">Ozempic</option>
+          <option value="Mounjaro">Mounjaro</option>
+          <option value="Other">Other</option>
+        </select>
+      </label>
+      <label>Current dose (mg)
+        <input type="number" id="setup-dose" step="0.5" min="0" placeholder="e.g. 2.5">
+      </label>
+      <label>Weekly shot day
+        <select id="setup-shot-day">
+          <option value="">Choose a day</option>
+          <option>Sunday</option><option>Monday</option><option>Tuesday</option>
+          <option>Wednesday</option><option>Thursday</option><option>Friday</option>
+          <option>Saturday</option>
+        </select>
+      </label>
+      <label>Daily water goal (oz)
+        <input type="number" id="setup-water" value="80" min="16" max="200">
+      </label>
+      <label>Daily protein goal (g)
+        <input type="number" id="setup-protein" value="90" min="20" max="300">
+      </label>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button type="submit" class="btn btn-primary">Start tracking</button>
+        <button type="button" class="btn" id="setup-skip">Skip for now</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <header class="app-header">
   <h1>A New Chapter Tracker</h1>
   <p class="tagline">Your wellness journey, beautifully tracked.</p>
@@ -262,7 +301,7 @@
         </select>
       </label>
       <label>Notes
-        <textarea id="journal-notes" rows="4" placeholder="Write about your day..."></textarea>
+        <textarea id="journal-notes" rows="4" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
       </label>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
@@ -381,6 +420,7 @@
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
       </div>
+      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
     </div>
 
     <div class="card legal-card">

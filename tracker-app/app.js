@@ -880,7 +880,7 @@ function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
   const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
   if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No side effects logged. Tap "Log effect" to add one.</p>';
+    list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
     return;
   }
   const badgeClass = { Mild: "badge-mild", Moderate: "badge-moderate", Severe: "badge-severe" };
@@ -1095,6 +1095,47 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
     e.target.value = "";
   };
   reader.readAsText(file);
+});
+
+/* ---------- First-run setup wizard ---------- */
+
+(function setupWizard() {
+  if (localStorage.getItem("nct-setup-done")) return;
+  const overlay = document.getElementById("setup-wizard");
+  const form = document.getElementById("setup-form");
+  overlay.classList.remove("hidden");
+
+  const finish = () => {
+    localStorage.setItem("nct-setup-done", "1");
+    overlay.classList.add("hidden");
+  };
+
+  document.getElementById("setup-skip").addEventListener("click", finish);
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    store.settings.medication = document.getElementById("setup-med").value || "Zepbound";
+    const dose = parseFloat(document.getElementById("setup-dose").value);
+    if (!isNaN(dose)) store.settings.dose = dose;
+    store.settings.shotDay = document.getElementById("setup-shot-day").value || "";
+    const water = parseInt(document.getElementById("setup-water").value, 10);
+    if (!isNaN(water)) store.settings.waterGoal = water;
+    const protein = parseInt(document.getElementById("setup-protein").value, 10);
+    if (!isNaN(protein)) store.settings.proteinGoal = protein;
+    saveStore();
+    renderSettings();
+    renderNextInjection();
+    renderToday();
+    finish();
+  });
+})();
+
+document.getElementById("clear-all-data").addEventListener("click", () => {
+  if (!confirm("Delete ALL your data? This cannot be undone. Consider downloading a backup first.")) return;
+  if (!confirm("Are you sure? All water, protein, injections, weight, journal, and side effect entries will be permanently deleted.")) return;
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem("nct-setup-done");
+  location.reload();
 });
 
 /* ---------- Init ---------- */
