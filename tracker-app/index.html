@@ -120,6 +120,8 @@
   <section id="tab-injections" class="tab-panel" role="tabpanel" aria-label="Injections">
     <h2>Injections</h2>
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
+    <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
+    <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
 
     <form id="injection-form" class="card hidden" aria-label="Log injection">
       <h3>Log Injection</h3>
@@ -224,7 +226,7 @@
       <h3>Progress Photos</h3>
       <p class="muted">Photos stay on this device only. Take them monthly in similar lighting for the best comparison.</p>
       <label class="btn btn-primary photo-upload-label">+ Add photo
-        <input type="file" id="photo-input" accept="image/*" capture="environment" hidden>
+        <input type="file" id="photo-input" accept="image/*" hidden>
       </label>
     </div>
 

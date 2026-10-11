@@ -328,6 +328,48 @@ function toggleForm(form, showBtn, show) {
   if (showBtn) showBtn.classList.toggle("hidden", show);
 }
 
+/* ---------- Shot reminder (calendar) ---------- */
+document.getElementById("add-shot-reminder").addEventListener("click", () => {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) {
+    alert("Set your shot day in Settings first, then come back to add the reminder.");
+    return;
+  }
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  const now = new Date();
+  const diff = (target - now.getDay() + 7) % 7;
+  const next = new Date(now);
+  next.setDate(now.getDate() + diff);
+  next.setHours(9, 0, 0, 0);
+  const fmt = (d) => {
+    const p = (n) => String(n).padStart(2, "0");
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "T" + p(d.getHours()) + p(d.getMinutes()) + "00";
+  };
+  const med = store.settings.medication || "GLP-1";
+  const dose = store.settings.dose ? " " + store.settings.dose + " mg" : "";
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//A New Chapter Tracker//EN",
+    "BEGIN:VEVENT",
+    "UID:shot-reminder-" + Date.now() + "@newchapter",
+    "DTSTAMP:" + fmt(new Date()),
+    "DTSTART:" + fmt(next),
+    "RRULE:FREQ=WEEKLY",
+    "SUMMARY:" + med + dose + " shot day",
+    "DESCRIPTION:Time for your weekly injection. Log it in A New Chapter Tracker.",
+    "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "shot-reminder.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+
 document.getElementById("show-injection-form").addEventListener("click", () => {
   editingInjectionId = null;
   injForm.querySelector("h3").textContent = "Log Injection";
