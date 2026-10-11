@@ -372,6 +372,17 @@
       <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
     </div>
 
+    <div class="card">
+      <h3>Backup &amp; restore</h3>
+      <p class="muted">Save a full backup of your data, or restore from a backup file. Useful when switching phones.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn" id="backup-data">Download backup</button>
+        <label class="btn" style="cursor:pointer">Restore backup
+          <input type="file" id="restore-input" accept=".json,application/json" hidden>
+        </label>
+      </div>
+    </div>
+
     <div class="card legal-card">
       <h3>Medical Disclaimer</h3>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>

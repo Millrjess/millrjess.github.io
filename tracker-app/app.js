@@ -1051,6 +1051,52 @@ document.getElementById("export-data").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
+/* ---------- Backup & restore (JSON) ---------- */
+
+document.getElementById("backup-data").addEventListener("click", () => {
+  const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
+  const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "new-chapter-backup-" + todayStr() + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+document.getElementById("restore-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const backup = JSON.parse(reader.result);
+      if (!backup || backup.app !== "new-chapter-tracker" || !backup.store) {
+        throw new Error("not a tracker backup");
+      }
+      if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+      store = backup.store;
+      saveStore();
+      renderToday();
+      renderInjections();
+      renderWeight();
+      renderMeasurements();
+      renderPhotos();
+      renderJournal();
+      renderSideEffects();
+      renderNextInjection();
+      renderSettings();
+      alert("Backup restored.");
+    } catch (err) {
+      alert("Could not read that backup file. Make sure it is a backup downloaded from this app.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
 /* ---------- Init ---------- */
 
 renderToday();
