@@ -138,8 +138,12 @@ function renderToday() {
   viewDate.setDate(viewDate.getDate() + viewOffset);
   const label = viewOffset === 0 ? "Today" : viewOffset === -1 ? "Yesterday"
     : viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  dateEl.textContent = label + (viewOffset !== 0 && viewOffset !== -1
-    ? " · " + viewDate.toLocaleDateString("en-US", { month: "long", day: "numeric" }) : "");
+  document.getElementById("today-heading").textContent = label;
+  dateEl.textContent = viewOffset === 0
+    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    : viewOffset === -1
+    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    : "";
 
   // Show/hide nav arrows
   document.getElementById("day-prev").style.visibility = "";
@@ -633,7 +637,12 @@ function drawWeightChart() {
   const labelEvery = Math.max(1, Math.ceil(sorted.length / 5));
   sorted.forEach((w, i) => {
     if (i % labelEvery === 0 || i === sorted.length - 1) {
-      ctx.fillText(formatDate(w.date).replace(", 2026", "").replace(", 2027", ""), x(i), H - 12);
+      const lx = x(i);
+      // Right-align the last label so it doesn't clip at the edge
+      ctx.textAlign = i === sorted.length - 1 ? "right" : i === 0 ? "left" : "center";
+      ctx.fillText(formatDate(w.date).replace(", 2026", "").replace(", 2027", ""), 
+        i === sorted.length - 1 ? W - 4 : i === 0 ? 4 : lx, H - 12);
+      ctx.textAlign = "center";
     }
   });
 

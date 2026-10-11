@@ -661,6 +661,7 @@ label textarea {
 .tab-label {
   font-size: 0.62rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .tab-btn.active {

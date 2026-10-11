@@ -86,7 +86,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
       <div style="text-align:center;flex:1">
-        <h2 style="margin:0">Today</h2>
+        <h2 style="margin:0" id="today-heading">Today</h2>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
@@ -155,9 +155,9 @@
         <button class="btn btn-small" data-exercise="15">+15 min walk</button>
         <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
         <button class="btn btn-small" data-exercise="30">+30 min workout</button>
-        <button class="btn btn-small" id="undo-exercise">Undo</button>
       </div>
       <div id="exercise-list" class="today-entries"></div>
+      <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>
     </div>
 
     <div class="card">
@@ -468,7 +468,7 @@
       <h3>Backup &amp; restore</h3>
       <p class="muted">Save a full backup of your data, or restore from a backup file. Useful when switching phones.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button type="button" class="btn" id="backup-data">Download backup</button>
+        <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
         <label class="btn" style="cursor:pointer">Restore backup
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
