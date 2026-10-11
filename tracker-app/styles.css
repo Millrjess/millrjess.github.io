@@ -270,6 +270,48 @@ label textarea {
   margin-top: 12px;
 }
 
+.today-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.today-entries:empty {
+  display: none;
+}
+
+.today-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--accent-soft, #f7f5ef);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px 6px 12px;
+  font-size: 0.9rem;
+}
+
+.app-footer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 14px calc(96px + env(safe-area-inset-bottom));
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.app-footer a {
+  color: var(--sage-dark);
+  font-weight: 600;
+}
+
+.app-footer .footer-copy {
+  margin-top: 4px;
+  font-size: 0.78rem;
+}
+
 .entry {
   background: var(--card-bg);
   border: 1px solid var(--border);

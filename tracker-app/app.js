@@ -10,6 +10,7 @@ const DEFAULTS = {
     dose: "",
     shotDay: "",
     waterGoal: 80,
+    proteinGoal: 90,
     refillDate: ""
   },
   water: [],        // { date: "YYYY-MM-DD", oz: number }
@@ -23,6 +24,17 @@ const DEFAULTS = {
 };
 
 let store = loadStore();
+ensureEntryIds();
+
+/* Older entries saved before per-entry delete existed may lack ids. Give them one. */
+function ensureEntryIds() {
+  ["water", "protein", "exercise"].forEach((key) => {
+    if (!Array.isArray(store[key])) return;
+    store[key].forEach((e) => {
+      if (!e.id) e.id = uid();
+    });
+  });
+}
 
 function loadStore() {
   try {
@@ -107,9 +119,11 @@ function renderToday() {
   document.getElementById("water-progress").style.width = waterPct + "%";
   document.getElementById("water-percent").textContent = waterPct + "% of daily goal";
 
+  const proteinGoal = Number(store.settings.proteinGoal) || 90;
+  document.getElementById("protein-goal-display").textContent = proteinGoal;
   const proteinG = sumForDate(store.protein, t, "grams");
   document.getElementById("protein-today").textContent = proteinG;
-  const proteinPct = Math.min(100, Math.round((proteinG / 90) * 100));
+  const proteinPct = Math.min(100, Math.round((proteinG / proteinGoal) * 100));
   document.getElementById("protein-progress").style.width = proteinPct + "%";
   document.getElementById("protein-percent").textContent = proteinPct + "% of daily goal";
 
@@ -118,11 +132,79 @@ function renderToday() {
 
   renderNextInjection();
   renderMood();
+  renderTodayEntries(t);
 }
+
+/* Today's water, protein, and movement entries with per-entry remove */
+
+function renderTodayEntries(t) {
+  const waterToday = store.water.filter((e) => e.date === t);
+  document.getElementById("water-list").innerHTML = waterToday.length
+    ? waterToday.map((e) => `
+      <div class="today-entry">
+        <span>+${escapeHtml(e.oz)} oz</span>
+        <button class="btn btn-small btn-danger" data-del-water="${e.id}">Remove</button>
+      </div>`).join("")
+    : "";
+
+  const proteinToday = store.protein.filter((e) => e.date === t);
+  document.getElementById("protein-list").innerHTML = proteinToday.length
+    ? proteinToday.map((e) => `
+      <div class="today-entry">
+        <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
+        <button class="btn btn-small btn-danger" data-del-protein="${e.id}">Remove</button>
+      </div>`).join("")
+    : "";
+
+  const exToday = store.exercise.filter((e) => e.date === t);
+  document.getElementById("exercise-list").innerHTML = exToday.length
+    ? exToday.map((e) => `
+      <div class="today-entry">
+        <span>${escapeHtml(e.label || "Exercise")} &middot; ${escapeHtml(e.minutes)} min</span>
+        <button class="btn btn-small btn-danger" data-del-exercise="${e.id}">Remove</button>
+      </div>`).join("")
+    : "";
+
+  bindTodayEntryDeletes();
+}
+
+function bindTodayEntryDeletes() {
+  document.querySelectorAll("[data-del-water]").forEach((b) => b.addEventListener("click", () => {
+    store.water = store.water.filter((e) => e.id !== b.dataset.delWater);
+    saveStore();
+    renderToday();
+  }));
+  document.querySelectorAll("[data-del-protein]").forEach((b) => b.addEventListener("click", () => {
+    store.protein = store.protein.filter((e) => e.id !== b.dataset.delProtein);
+    saveStore();
+    renderToday();
+  }));
+  document.querySelectorAll("[data-del-exercise]").forEach((b) => b.addEventListener("click", () => {
+    store.exercise = store.exercise.filter((e) => e.id !== b.dataset.delExercise);
+    saveStore();
+    renderToday();
+  }));
+}
+
+function undoLastEntry(key) {
+  const t = todayStr();
+  for (let i = store[key].length - 1; i >= 0; i--) {
+    if (store[key][i].date === t) {
+      store[key].splice(i, 1);
+      break;
+    }
+  }
+  saveStore();
+  renderToday();
+}
+
+document.getElementById("undo-water").addEventListener("click", () => undoLastEntry("water"));
+document.getElementById("undo-protein").addEventListener("click", () => undoLastEntry("protein"));
+document.getElementById("undo-exercise").addEventListener("click", () => undoLastEntry("exercise"));
 
 document.querySelectorAll("[data-water]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    store.water.push({ date: todayStr(), oz: Number(btn.dataset.water) });
+    store.water.push({ id: uid(), date: todayStr(), oz: Number(btn.dataset.water) });
     saveStore();
     renderToday();
   });
@@ -130,7 +212,7 @@ document.querySelectorAll("[data-water]").forEach((btn) => {
 
 document.querySelectorAll("[data-protein]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    store.protein.push({ date: todayStr(), grams: Number(btn.dataset.protein), food: "Quick add" });
+    store.protein.push({ id: uid(), date: todayStr(), grams: Number(btn.dataset.protein), food: "Quick add" });
     saveStore();
     renderToday();
   });
@@ -141,7 +223,7 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
   const food = document.getElementById("protein-food").value.trim();
   const grams = Number(document.getElementById("protein-grams").value);
   if (!grams || grams <= 0) return;
-  store.protein.push({ date: todayStr(), grams, food: food || "Logged entry" });
+  store.protein.push({ id: uid(), date: todayStr(), grams, food: food || "Logged entry" });
   document.getElementById("protein-food").value = "";
   document.getElementById("protein-grams").value = "";
   saveStore();
@@ -152,7 +234,7 @@ document.querySelectorAll("[data-exercise]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const labels = { 15: "Walk", 10: "Stretch", 30: "Exercise" };
     const mins = Number(btn.dataset.exercise);
-    store.exercise.push({ date: todayStr(), minutes: mins, label: labels[mins] || "Exercise" });
+    store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: labels[mins] || "Exercise" });
     saveStore();
     renderToday();
   });
@@ -612,6 +694,7 @@ function renderSettings() {
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 80;
+  document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -644,11 +727,85 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 80;
+  const pg = Number(document.getElementById("set-protein-goal").value);
+  store.settings.proteinGoal = pg > 0 ? pg : 90;
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();
   renderToday();
   alert("Settings saved.");
+});
+
+/* ---------- Data export (tab-delimited) ---------- */
+
+function tsvCell(v) {
+  return String(v == null ? "" : v).replace(/\t/g, " ").replace(/\r?\n/g, " ");
+}
+
+function tsvSection(title, headers, rows) {
+  const out = [title, headers.join("\t")];
+  rows.forEach((r) => out.push(r.map(tsvCell).join("\t")));
+  out.push("");
+  return out;
+}
+
+document.getElementById("export-data").addEventListener("click", () => {
+  const lines = [];
+  lines.push("A New Chapter Tracker - data export");
+  lines.push("Exported " + new Date().toLocaleString("en-US"));
+  lines.push("");
+
+  lines.push(...tsvSection(
+    "Water Intake",
+    ["Date", "Amount (oz)"],
+    [...store.water].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.oz])
+  ));
+
+  lines.push(...tsvSection(
+    "Protein",
+    ["Date", "Food", "Grams"],
+    [...store.protein].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.food, e.grams])
+  ));
+
+  lines.push(...tsvSection(
+    "Movement",
+    ["Date", "Activity", "Minutes"],
+    [...store.exercise].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.label, e.minutes])
+  ));
+
+  lines.push(...tsvSection(
+    "Injections",
+    ["Date", "Medication", "Dose (mg)", "Site", "Notes"],
+    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.notes])
+  ));
+
+  lines.push(...tsvSection(
+    "Weight",
+    ["Date", "Weight (lbs)"],
+    [...store.weight].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.value])
+  ));
+
+  lines.push(...tsvSection(
+    "Journal",
+    ["Date", "Mood", "Rating", "Notes"],
+    [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.rating, e.notes])
+  ));
+
+  lines.push(...tsvSection(
+    "Side Effects",
+    ["Date", "Symptom", "Severity", "Notes"],
+    [...store.sideEffects].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.symptom, e.severity, e.notes])
+  ));
+
+  const blob = new Blob([lines.join("\n")], { type: "text/tab-separated-values;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "new-chapter-tracker-" + todayStr() + ".tsv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
 /* ---------- Init ---------- */

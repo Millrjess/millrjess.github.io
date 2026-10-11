@@ -37,23 +37,27 @@
         <button class="btn btn-small" data-water="8">+8 oz</button>
         <button class="btn btn-small" data-water="16">+16 oz</button>
         <button class="btn btn-small" data-water="24">+24 oz</button>
+        <button class="btn btn-small" id="undo-water">Undo</button>
       </div>
+      <div id="water-list" class="today-entries"></div>
     </div>
 
     <div class="card">
       <h3>Protein</h3>
-      <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of 90 g goal</span></p>
+      <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of <span id="protein-goal-display">90</span> g goal</span></p>
       <div class="progress-bar"><div class="progress-fill" id="protein-progress"></div></div>
       <p class="percent-line" id="protein-percent">0% of daily goal</p>
       <div class="quick-add">
         <button class="btn btn-small" data-protein="15">+15 g</button>
         <button class="btn btn-small" data-protein="30">+30 g shake</button>
+        <button class="btn btn-small" id="undo-protein">Undo</button>
       </div>
       <form id="protein-form" class="inline-form">
         <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
         <input type="number" id="protein-grams" placeholder="Grams" min="0" aria-label="Protein grams">
         <button type="submit" class="btn btn-small">Log</button>
       </form>
+      <div id="protein-list" class="today-entries"></div>
     </div>
 
     <div class="card">
@@ -64,7 +68,9 @@
         <button class="btn btn-small" data-exercise="15">+15 min walk</button>
         <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
         <button class="btn btn-small" data-exercise="30">+30 min</button>
+        <button class="btn btn-small" id="undo-exercise">Undo</button>
       </div>
+      <div id="exercise-list" class="today-entries"></div>
     </div>
 
     <div class="card">
@@ -283,6 +289,14 @@
       </div>
 
       <div class="card">
+        <h3>Daily protein goal</h3>
+        <label>Daily protein goal (g)
+          <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
+        </label>
+        <p class="muted">Protein helps protect muscle during weight loss. 90 g is a common starting goal.</p>
+      </div>
+
+      <div class="card">
         <h3>Prescription refill reminder</h3>
         <label>Refill date
           <input type="date" id="set-refill-date">
@@ -294,6 +308,12 @@
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
     </form>
 
+    <div class="card">
+      <h3>My data</h3>
+      <p class="muted">Download everything you have tracked as a tab-delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
+      <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
+    </div>
+
     <div class="card legal-card">
       <h3>Medical Disclaimer</h3>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
@@ -304,6 +324,11 @@
   </section>
 
 </main>
+
+<footer class="app-footer">
+  <p>How can we make this app better? <a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
+  <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+</footer>
 
 <nav class="tab-bar" aria-label="Main navigation">
   <button class="tab-btn active" data-tab="today">
