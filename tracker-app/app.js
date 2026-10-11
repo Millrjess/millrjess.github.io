@@ -13,11 +13,13 @@ const DEFAULTS = {
     proteinGoal: 90,
     refillDate: ""
   },
-  water: [],        // { date: "YYYY-MM-DD", oz: number }
-  protein: [],      // { date, grams, food }
-  exercise: [],     // { date, minutes, label }
+  water: [],        // { id, date: "YYYY-MM-DD", oz: number }
+  protein: [],      // { id, date, grams, food }
+  exercise: [],     // { id, date, minutes, label }
   injections: [],   // { id, date, medication, dose, site, notes }
   weight: [],       // { id, date, value }
+  measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
+  photos: [],       // { id, date, dataUrl }
   journal: [],      // { id, date, mood, rating, notes }
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {}         // { "YYYY-MM-DD": "Good" }
@@ -118,17 +120,21 @@ function renderToday() {
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
   document.getElementById("water-today").textContent = waterOz;
-  const waterPct = Math.min(100, Math.round((waterOz / waterGoal) * 100));
-  document.getElementById("water-progress").style.width = waterPct + "%";
-  document.getElementById("water-percent").textContent = waterPct + "% of daily goal";
+  const waterPct = Math.round((waterOz / waterGoal) * 100);
+  document.getElementById("water-progress").style.width = Math.min(100, waterPct) + "%";
+  document.getElementById("water-percent").textContent = waterPct >= 100
+    ? "Goal reached! Nice work."
+    : waterPct + "% of daily goal";
 
   const proteinGoal = Number(store.settings.proteinGoal) || 90;
   document.getElementById("protein-goal-display").textContent = proteinGoal;
   const proteinG = sumForDate(store.protein, t, "grams");
   document.getElementById("protein-today").textContent = proteinG;
-  const proteinPct = Math.min(100, Math.round((proteinG / proteinGoal) * 100));
-  document.getElementById("protein-progress").style.width = proteinPct + "%";
-  document.getElementById("protein-percent").textContent = proteinPct + "% of daily goal";
+  const proteinPct = Math.round((proteinG / proteinGoal) * 100);
+  document.getElementById("protein-progress").style.width = Math.min(100, proteinPct) + "%";
+  document.getElementById("protein-percent").textContent = proteinPct >= 100
+    ? "Goal reached! Nice work."
+    : proteinPct + "% of daily goal";
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
@@ -136,6 +142,10 @@ function renderToday() {
   renderNextInjection();
   renderMood();
   renderTodayEntries(t);
+
+  document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
+  document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
+  document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
 }
 
 /* Today's water, protein, and movement entries with per-entry remove */
@@ -225,7 +235,11 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const food = document.getElementById("protein-food").value.trim();
   const grams = Number(document.getElementById("protein-grams").value);
-  if (!grams || grams <= 0) return;
+  if (!grams || grams <= 0) {
+    document.getElementById("protein-grams").focus();
+    document.getElementById("protein-grams").placeholder = "Enter grams first";
+    return;
+  }
   store.protein.push({ id: uid(), date: todayStr(), grams, food: food || "Logged entry" });
   document.getElementById("protein-food").value = "";
   document.getElementById("protein-grams").value = "";
@@ -524,6 +538,158 @@ function drawWeightChart() {
   });
 }
 
+/* ---------- Measurements ---------- */
+
+const measForm = document.getElementById("measurement-form");
+let editingMeasId = null;
+
+document.getElementById("show-measurement-form").addEventListener("click", () => {
+  editingMeasId = null;
+  measForm.querySelector("h3").textContent = "Log Measurements";
+  measForm.reset();
+  document.getElementById("meas-date").value = todayStr();
+  toggleForm(measForm, document.getElementById("show-measurement-form"), true);
+});
+
+document.getElementById("cancel-measurement").addEventListener("click", () => {
+  toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+});
+
+measForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const num = (id) => {
+    const v = Number(document.getElementById(id).value);
+    return v > 0 ? v : null;
+  };
+  const entry = {
+    id: editingMeasId || uid(),
+    date: document.getElementById("meas-date").value,
+    waist: num("meas-waist"),
+    hips: num("meas-hips"),
+    chest: num("meas-chest"),
+    arm: num("meas-arm"),
+    thigh: num("meas-thigh"),
+    neck: num("meas-neck")
+  };
+  if (!entry.date) return;
+  if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
+    alert("Enter at least one measurement.");
+    return;
+  }
+  if (editingMeasId) {
+    const i = store.measurements.findIndex((x) => x.id === editingMeasId);
+    if (i > -1) store.measurements[i] = entry;
+  } else {
+    store.measurements.push(entry);
+  }
+  editingMeasId = null;
+  saveStore();
+  renderMeasurements();
+  toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+});
+
+const MEAS_LABELS = { waist: "Waist", hips: "Hips", chest: "Chest", arm: "Arm", thigh: "Thigh", neck: "Neck" };
+
+function renderMeasurements() {
+  const list = document.getElementById("measurement-list");
+  const sorted = [...store.measurements].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = "";
+    return;
+  }
+  list.innerHTML = sorted.map((m) => {
+    const parts = Object.keys(MEAS_LABELS)
+      .filter((k) => m[k] != null)
+      .map((k) => MEAS_LABELS[k] + " " + Number(m[k]).toFixed(1) + "&Prime;");
+    return `
+    <div class="entry">
+      <p class="entry-title">${escapeHtml(formatDate(m.date))}</p>
+      <p class="entry-sub">${parts.join(" &middot; ")}</p>
+      <div class="entry-actions">
+        <button class="btn btn-small" data-edit-meas="${m.id}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-meas="${m.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll("[data-edit-meas]").forEach((b) => b.addEventListener("click", () => {
+    const m = store.measurements.find((x) => x.id === b.dataset.editMeas);
+    if (!m) return;
+    editingMeasId = m.id;
+    measForm.querySelector("h3").textContent = "Edit Measurements";
+    document.getElementById("meas-date").value = m.date;
+    ["waist", "hips", "chest", "arm", "thigh", "neck"].forEach((k) => {
+      document.getElementById("meas-" + k).value = m[k] != null ? m[k] : "";
+    });
+    toggleForm(measForm, document.getElementById("show-measurement-form"), true);
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-meas]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete these measurements?")) return;
+    store.measurements = store.measurements.filter((x) => x.id !== b.dataset.delMeas);
+    saveStore();
+    renderMeasurements();
+  }));
+}
+
+/* ---------- Progress photos ---------- */
+
+document.getElementById("photo-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 800;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        const scale = maxDim / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      try {
+        store.photos.push({ id: uid(), date: todayStr(), dataUrl });
+        saveStore();
+      } catch (err) {
+        store.photos.pop();
+        alert("Not enough storage on this device for more photos. Try exporting your data first.");
+        return;
+      }
+      renderPhotos();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+});
+
+function renderPhotos() {
+  const grid = document.getElementById("photo-grid");
+  const sorted = [...store.photos].sort((a, b) => a.date.localeCompare(b.date));
+  grid.innerHTML = sorted.map((p) => `
+    <div class="photo-item">
+      <img src="${p.dataUrl}" alt="Progress photo from ${escapeHtml(formatDate(p.date))}" loading="lazy">
+      <div class="photo-date">
+        <span>${escapeHtml(formatDate(p.date))}</span>
+        <button data-del-photo="${p.id}" aria-label="Delete photo">Delete</button>
+      </div>
+    </div>`).join("");
+
+  grid.querySelectorAll("[data-del-photo]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this photo?")) return;
+    store.photos = store.photos.filter((x) => x.id !== b.dataset.delPhoto);
+    saveStore();
+    renderPhotos();
+  }));
+}
+
 /* ---------- Journal ---------- */
 
 const journalForm = document.getElementById("journal-form");
@@ -789,6 +955,19 @@ document.getElementById("export-data").addEventListener("click", () => {
   ));
 
   lines.push(...tsvSection(
+    "Measurements",
+    ["Date", "Waist (in)", "Hips (in)", "Chest (in)", "Arm (in)", "Thigh (in)", "Neck (in)"],
+    [...(store.measurements || [])].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.waist, e.hips, e.chest, e.arm, e.thigh, e.neck])
+  ));
+
+  lines.push("Progress Photos");
+  lines.push(["Date", "Note"].join("\t"));
+  [...(store.photos || [])].sort((a, b) => a.date.localeCompare(b.date)).forEach((p) => {
+    lines.push([p.date, "Photo stored in app (not included in export)"].join("\t"));
+  });
+  lines.push("");
+
+  lines.push(...tsvSection(
     "Journal",
     ["Date", "Mood", "Rating", "Notes"],
     [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.rating, e.notes])
@@ -816,6 +995,8 @@ document.getElementById("export-data").addEventListener("click", () => {
 renderToday();
 renderInjections();
 renderWeight();
+renderMeasurements();
+renderPhotos();
 renderJournal();
 renderSideEffects();
 renderSettings();

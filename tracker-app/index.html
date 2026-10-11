@@ -67,7 +67,7 @@
       <div class="quick-add">
         <button class="btn btn-small" data-exercise="15">+15 min walk</button>
         <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
-        <button class="btn btn-small" data-exercise="30">+30 min</button>
+        <button class="btn btn-small" data-exercise="30">+30 min workout</button>
         <button class="btn btn-small" id="undo-exercise">Undo</button>
       </div>
       <div id="exercise-list" class="today-entries"></div>
@@ -173,6 +173,43 @@
     </div>
 
     <div id="weight-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Body Measurements</h3>
+      <p class="muted">Track inches lost alongside pounds. Measure monthly for the clearest picture.</p>
+      <button class="btn btn-primary" id="show-measurement-form">+ Log measurements</button>
+    </div>
+
+    <form id="measurement-form" class="card hidden" aria-label="Log measurements">
+      <h3>Log Measurements</h3>
+      <label>Date
+        <input type="date" id="meas-date" required>
+      </label>
+      <div class="measure-grid">
+        <label>Waist (in)<input type="number" id="meas-waist" step="0.1" min="0" placeholder="e.g. 34.5"></label>
+        <label>Hips (in)<input type="number" id="meas-hips" step="0.1" min="0" placeholder="e.g. 42.0"></label>
+        <label>Chest (in)<input type="number" id="meas-chest" step="0.1" min="0" placeholder="e.g. 38.0"></label>
+        <label>Arm (in)<input type="number" id="meas-arm" step="0.1" min="0" placeholder="e.g. 13.5"></label>
+        <label>Thigh (in)<input type="number" id="meas-thigh" step="0.1" min="0" placeholder="e.g. 24.0"></label>
+        <label>Neck (in)<input type="number" id="meas-neck" step="0.1" min="0" placeholder="e.g. 14.0"></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-measurement">Cancel</button>
+      </div>
+    </form>
+
+    <div id="measurement-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Progress Photos</h3>
+      <p class="muted">Photos stay on this device only. Take them monthly in similar lighting for the best comparison.</p>
+      <label class="btn btn-primary photo-upload-label">+ Add photo
+        <input type="file" id="photo-input" accept="image/*" capture="environment" hidden>
+      </label>
+    </div>
+
+    <div id="photo-grid" class="photo-grid"></div>
   </section>
 
   <!-- JOURNAL TAB -->
