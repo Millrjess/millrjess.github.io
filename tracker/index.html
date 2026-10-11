@@ -383,7 +383,7 @@
           <div class="eyebrow">A steadier way to navigate GLP-1 life after 50</div>
           <h1>A New Chapter Tracker: your GLP-1 companion app</h1>
           <p class="subhead">Stop carrying your whole GLP-1 routine in your head.</p>
-          <p>Shot day. Dose. Water. Protein. Movement. How you actually feel. When those details live across alarms, notes, and memory, even a good week can feel like too much. <strong>A New Chapter</strong> brings it together simply, calmly, and without judgment.</p>
+          <p>Shot day. Dose. Water. Protein. Movement. How you actually feel. <strong>A New Chapter</strong> brings it together simply, calmly, and without judgment.</p>
           <div class="actions">
             <a class="button primary" href="#pricing">Get started <span aria-hidden="true">→</span></a>
             <a class="button secondary" href="#features">See what you can track</a>
@@ -432,94 +432,62 @@
       </div>
     </section>
 
+    <section class="try-it" style="padding:60px 0;background:var(--surface)">
+      <div class="wrap" style="max-width:520px;margin:auto;text-align:center">
+        <h2 style="font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:12px">Try it right now</h2>
+        <p style="color:var(--muted);margin-bottom:28px">This is how easy logging feels in the app. Go ahead.</p>
+        <div style="background:var(--surface-soft);border-radius:20px;padding:28px;box-shadow:var(--shadow);text-align:left">
+          <div style="display:flex;gap:10px;margin-bottom:16px">
+            <input type="text" id="demo-exercise" placeholder="What did you do? (e.g. Morning walk)" style="flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
+            <input type="number" id="demo-minutes" placeholder="Min" min="1" max="300" style="width:80px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
+          </div>
+          <button id="demo-save" class="button primary" style="width:100%;text-align:center">Log it</button>
+          <ul id="demo-list" style="list-style:none;padding:0;margin:20px 0 0;line-height:2.2"></ul>
+          <p id="demo-total" style="margin:12px 0 0;font-weight:700;color:var(--sage-dark)"></p>
+        </div>
+      </div>
+    </section>
+    <script>
+    (function(){
+      var list = [], totalEl = document.getElementById('demo-total'),
+          ul = document.getElementById('demo-list');
+      document.getElementById('demo-save').addEventListener('click', function(){
+        var ex = document.getElementById('demo-exercise').value.trim(),
+            min = parseInt(document.getElementById('demo-minutes').value, 10);
+        if (!ex || !min || min < 1) return;
+        list.push({ex: ex, min: min});
+        var li = document.createElement('li');
+        li.innerHTML = '<span style="font-size:1.2em">💪</span> ' + ex.replace(/</g,'&lt;') + ' — ' + min + ' min';
+        ul.appendChild(li);
+        var total = list.reduce(function(s, e){ return s + e.min; }, 0);
+        totalEl.textContent = 'Today: ' + total + ' minutes of movement. Nice work.';
+        document.getElementById('demo-exercise').value = '';
+        document.getElementById('demo-minutes').value = '';
+        document.getElementById('demo-exercise').focus();
+      });
+    })();
+    </script>
+
     <section class="features" id="features">
       <div class="wrap">
         <div class="section-head">
-          <h2>You already have enough to remember.</h2>
-          <p>Between injection timing, hydration, protein, movement, and the way your body responds, the mental load adds up fast. Keep the essentials visible without managing another complicated system.</p>
+          <h2>Everything in one calm place.</h2>
+          <p>No spreadsheets. No scattered notes. Just the essentials of your GLP-1 routine, visible at a glance.</p>
         </div>
         <div class="feature-list">
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m3 0h2m3 0h2m-10 3h2m3 0h2"/></svg></div><h3>Know exactly when shot day is</h3><p>See your next injection clearly, so you are not second-guessing the date or searching through reminders.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 18 3 2 12-12-3-3L4 17v1Zm10-11 3 3m1-6 2 2M7 14l3 3"/></svg></div><h3>Keep your dose history together</h3><p>Record your medication and dose in one organized timeline you can refer back to.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13Z"/><path d="M8.5 16c.7 1.4 1.8 2 3.5 2"/></svg></div><h3>See your water add up</h3><p>Track ounces as you go and see your progress toward the built-in 80 oz daily goal.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 4c3 0 5 2 5 5 0-3 2-5 5-5 0 4-2 7-5 8-3-1-5-4-5-8Z"/><path d="M12 12v8M7 20h10"/></svg></div><h3>Make protein easier to notice</h3><p>Keep a simple daily tally instead of trying to reconstruct what you ate at the end of the day.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 7v10m12-10v10M3 9v6m18-6v6M6 12h12"/></svg></div><h3>Remember the movement you did</h3><p>Log daily movement with quick one-tap entries.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div><h3>Watch inches disappear</h3><p>Log waist, hips, chest, arm, thigh, and neck measurements to see change the scale misses.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="7" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 7l1.5-3h5L16 7"/></svg></div><h3>See your progress</h3><p>Monthly progress photos in a private timeline. Everything stays on your device.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div><h3>Take your data anywhere</h3><p>Export everything as a spreadsheet-ready file for your records or doctor visits.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h14v18H5zM8 7h8M8 11h8m-8 4h5"/></svg></div><h3>Notice patterns, not perfection</h3><p>Capture how you felt and what worked, so small details are not lost by next week.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="rhythm">
-      <div class="wrap rhythm-panel">
-        <div class="rhythm-copy">
-          <h2>One small check-in.<br><em>A week that makes more sense.</em></h2>
-          <p>Stop searching through notes and trying to remember yesterday. A few focused entries create a clearer picture of your week.</p>
-        </div>
-        <div class="timeline">
-          <div class="timeline-step"><span class="step-num">1</span><div><strong>Plan the week</strong><span>See your next injection and current dose at a glance.</span></div></div>
-          <div class="timeline-step"><span class="step-num">2</span><div><strong>Log the essentials</strong><span>Add water, protein, strength, and cardio as your day unfolds.</span></div></div>
-          <div class="timeline-step"><span class="step-num">3</span><div><strong>Reflect, then reset</strong><span>Write a short diary note and begin tomorrow with a clear page.</span></div></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="compare" aria-labelledby="compare-title">
-      <div class="wrap">
-        <div class="compare-head">
-          <h2 id="compare-title">One place beats six scattered reminders.</h2>
-          <p>Manual tracking can work, but it asks you to keep finding, updating, and connecting the details yourself.</p>
-        </div>
-        <div class="compare-grid" role="table" aria-label="A New Chapter compared with manual tracking">
-          <div class="compare-row header" role="row">
-            <div class="compare-cell" role="columnheader">What you track</div>
-            <div class="compare-cell compare-good" role="columnheader">With A New Chapter</div>
-            <div class="compare-cell" role="columnheader">Tracking manually</div>
-          </div>
-          <div class="compare-row" role="row">
-            <div class="compare-cell compare-label" role="rowheader">Shot day</div>
-            <div class="compare-cell compare-good" role="cell">Your next injection stays visible in one weekly view.</div>
-            <div class="compare-cell compare-manual" role="cell">Check calendars, alarms, or messages to confirm the date.</div>
-          </div>
-          <div class="compare-row" role="row">
-            <div class="compare-cell compare-label" role="rowheader">Dose history</div>
-            <div class="compare-cell compare-good" role="cell">Medication and dose stay together in an organized log.</div>
-            <div class="compare-cell compare-manual" role="cell">Piece together notes from different days or places.</div>
-          </div>
-          <div class="compare-row" role="row">
-            <div class="compare-cell compare-label" role="rowheader">Daily essentials</div>
-            <div class="compare-cell compare-good" role="cell">Water, protein, and movement share one focused check-in.</div>
-            <div class="compare-cell compare-manual" role="cell">Switch between separate apps, notes, or memory.</div>
-          </div>
-          <div class="compare-row" role="row">
-            <div class="compare-cell compare-label" role="rowheader">How the week felt</div>
-            <div class="compare-cell compare-good" role="cell">A daily diary keeps the context with the numbers.</div>
-            <div class="compare-cell compare-manual" role="cell">Small patterns can be harder to spot later.</div>
-          </div>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m3 0h2m3 0h2m-10 3h2m3 0h2"/></svg></div><h3>Shot day countdown</h3><p>See your next injection and current dose without second-guessing.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 18 3 2 12-12-3-3L4 17v1Zm10-11 3 3m1-6 2 2M7 14l3 3"/></svg></div><h3>Dose and site history</h3><p>Medication, dose, and injection site rotation in one organized log.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13Z"/><path d="M8.5 16c.7 1.4 1.8 2 3.5 2"/></svg></div><h3>Water and protein</h3><p>Quick daily tallies with goals you can adjust in Settings.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 7v10m12-10v10M3 9v6m18-6v6M6 12h12"/></svg></div><h3>Movement and weight</h3><p>One-tap movement logging, weight chart, and body measurements.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="7" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 7l1.5-3h5L16 7"/></svg></div><h3>Progress photos</h3><p>Private monthly photo timeline. Everything stays on your device.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h14v18H5zM8 7h8M8 11h8m-8 4h5"/></svg></div><h3>Diary and side effects</h3><p>Daily notes, mood, and side effect tracking with spreadsheet export.</p></article>
         </div>
       </div>
     </section>
 
     <section class="pricing" id="pricing">
       <div class="wrap">
-        <div class="price-intro"><h2>Start Tracking Today</h2><p>A New Chapter Tracker is live. Here is what you get:</p></div>
-        <div style="max-width: 560px; margin: 0 auto 30px; text-align: left;">
-          <ul style="list-style: none; padding: 0; line-height: 2;">
-            <li>💉 Injection logging with shot day countdown</li>
-            <li>📝 Dose history log</li>
-            <li>🔄 Injection site rotation tracker</li>
-            <li>🤒 Side effect logging</li>
-            <li>⚖️ Weight tracking with progress chart</li>
-            <li>💧 80 oz water tracker</li>
-            <li>🥩 Protein logging</li>
-            <li>💪 Daily movement quick log</li>
-            <li>📓 Daily diary with mood</li>
-            <li>💊 Prescription refill reminders</li>
-          </ul>
-          <p style="text-align: center; font-weight: 700;">$3.99/month or $29.99/year.</p>
-        </div>
+        <div class="price-intro"><h2>Start tracking today</h2><p>$3.99/month or $29.99/year. Cancel anytime.</p></div>
         <div class="price-grid">
           <div class="price-card">
             <h3>Monthly</h3>
@@ -555,7 +523,7 @@
       <div class="wrap">
         <div class="stories-shell">
           <div class="story-mark word" aria-hidden="true">Lived<br>experience</div>
-          <div><h2>Built from lived Zepbound experience, not a generic habit template.</h2><p>The founder wanted one calm place for the details that matter in her own routine: shot timing, dose, hydration, protein, movement, and daily notes. Member stories will be added only when real users choose to share them.</p></div>
+          <div><h2>Built from lived Zepbound experience.</h2><p>Not a generic habit template. One calm place for the details that matter: shot timing, dose, hydration, protein, movement, and daily notes.</p></div>
         </div>
       </div>
     </section>
