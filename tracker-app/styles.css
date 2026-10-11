@@ -66,7 +66,7 @@ h1, h2, h3 {
 }
 
 .app-header {
-  background: linear-gradient(135deg, var(--sage-deep) 0%, var(--sage) 60%, var(--sage-dark) 100%);
+  background: linear-gradient(135deg, var(--sage-deep) 0%, var(--sage-dark) 60%, var(--sage-deep) 100%);
   color: #fff;
   padding: 28px 16px 22px;
   text-align: center;
@@ -209,7 +209,7 @@ main {
 .btn-primary {
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   border-color: var(--gold-dark);
-  color: #fff;
+  color: #2D2D2D;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(201, 169, 106, 0.35);
 }
