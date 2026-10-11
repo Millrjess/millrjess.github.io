@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>A New Chapter Tracker</title>
+<meta name="description" content="Your GLP-1 wellness journey, beautifully tracked.">
+<meta name="theme-color" content="#7A8B6F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="New Chapter">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>A New Chapter Tracker</h1>
+  <p class="tagline">Your wellness journey, beautifully tracked.</p>
+</header>
+
+<main id="app-main">
+
+  <!-- TODAY TAB -->
+  <section id="tab-today" class="tab-panel active" aria-label="Today">
+    <h2>Today</h2>
+    <p class="date-line" id="today-date"></p>
+
+    <div class="card">
+      <h3>Water Intake</h3>
+      <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">80</span> oz goal</span></p>
+      <div class="progress-bar"><div class="progress-fill" id="water-progress"></div></div>
+      <p class="percent-line" id="water-percent">0% of daily goal</p>
+      <div class="quick-add">
+        <button class="btn btn-small" data-water="8">+8 oz</button>
+        <button class="btn btn-small" data-water="16">+16 oz</button>
+        <button class="btn btn-small" data-water="24">+24 oz</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Protein</h3>
+      <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of 90 g goal</span></p>
+      <div class="progress-bar"><div class="progress-fill" id="protein-progress"></div></div>
+      <p class="percent-line" id="protein-percent">0% of daily goal</p>
+      <div class="quick-add">
+        <button class="btn btn-small" data-protein="15">+15 g</button>
+        <button class="btn btn-small" data-protein="30">+30 g shake</button>
+      </div>
+      <form id="protein-form" class="inline-form">
+        <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
+        <input type="number" id="protein-grams" placeholder="Grams" min="0" aria-label="Protein grams">
+        <button type="submit" class="btn btn-small">Log</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Movement</h3>
+      <p class="big-number"><span id="exercise-today">0</span> min</p>
+      <p class="muted">Every minute counts.</p>
+      <div class="quick-add">
+        <button class="btn btn-small" data-exercise="15">+15 min walk</button>
+        <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
+        <button class="btn btn-small" data-exercise="30">+30 min</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Next Injection</h3>
+      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <button class="btn btn-link" data-goto="injections">View shot history</button>
+    </div>
+
+    <div class="card">
+      <h3>Daily Mood</h3>
+      <div class="mood-row" id="mood-row">
+        <button class="mood-btn" data-mood="Great">Great</button>
+        <button class="mood-btn" data-mood="Good">Good</button>
+        <button class="mood-btn" data-mood="Okay">Okay</button>
+        <button class="mood-btn" data-mood="Low">Low</button>
+      </div>
+      <p class="muted" id="mood-today-label">No mood logged today yet.</p>
+    </div>
+
+    <div class="card">
+      <h3>Evening Reflection</h3>
+      <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
+      <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
+    </div>
+  </section>
+
+  <!-- INJECTIONS TAB -->
+  <section id="tab-injections" class="tab-panel" aria-label="Injections">
+    <h2>Injections</h2>
+    <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
+
+    <form id="injection-form" class="card hidden" aria-label="Log injection">
+      <h3>Log Injection</h3>
+      <label>Date
+        <input type="date" id="inj-date" required>
+      </label>
+      <label>Medication name
+        <input type="text" id="inj-med" placeholder="e.g. Zepbound" required>
+      </label>
+      <label>Dose (mg)
+        <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
+      </label>
+      <label>Injection site
+        <select id="inj-site" required>
+          <option value="">Choose a site</option>
+          <option>Left Abdomen</option>
+          <option>Right Abdomen</option>
+          <option>Left Thigh</option>
+          <option>Right Thigh</option>
+          <option>Left Upper Arm</option>
+          <option>Right Upper Arm</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="inj-notes" rows="2" placeholder="Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-injection">Cancel</button>
+      </div>
+    </form>
+
+    <div id="injection-list" class="entry-list"></div>
+  </section>
+
+  <!-- WEIGHT TAB -->
+  <section id="tab-weight" class="tab-panel" aria-label="Weight">
+    <h2>Weight</h2>
+    <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
+
+    <form id="weight-form" class="card hidden" aria-label="Log weight">
+      <h3>Log Weigh-in</h3>
+      <label>Date
+        <input type="date" id="weight-date" required>
+      </label>
+      <label>Weight (lbs)
+        <input type="number" id="weight-value" step="0.1" min="0" placeholder="e.g. 184.2" required>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-weight">Cancel</button>
+      </div>
+    </form>
+
+    <div class="stats-row">
+      <div class="card stat-card">
+        <p class="stat-label">Current weight</p>
+        <p class="stat-value"><span id="current-weight">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label">Total lost</p>
+        <p class="stat-value loss"><span id="total-lost">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Progress over time</h3>
+      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart"></canvas>
+      <p class="muted" id="weight-chart-empty">Log at least two weigh-ins to see your chart.</p>
+    </div>
+
+    <div id="weight-list" class="entry-list"></div>
+  </section>
+
+  <!-- JOURNAL TAB -->
+  <section id="tab-journal" class="tab-panel" aria-label="Journal">
+    <h2>Journal</h2>
+    <button class="btn btn-primary" id="show-journal-form">+ New entry</button>
+
+    <form id="journal-form" class="card hidden" aria-label="New journal entry">
+      <h3>New Journal Entry</h3>
+      <label>Date
+        <input type="date" id="journal-date" required>
+      </label>
+      <label>Mood
+        <select id="journal-mood" required>
+          <option value="">Choose a mood</option>
+          <option>Great</option>
+          <option>Good</option>
+          <option>Okay</option>
+          <option>Low</option>
+        </select>
+      </label>
+      <label>Rating
+        <select id="journal-rating">
+          <option value="5">5 stars</option>
+          <option value="4">4 stars</option>
+          <option value="3">3 stars</option>
+          <option value="2">2 stars</option>
+          <option value="1">1 star</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="journal-notes" rows="4" placeholder="Write about your day..."></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-journal">Cancel</button>
+      </div>
+    </form>
+
+    <div id="journal-list" class="entry-list"></div>
+  </section>
+
+  <!-- SIDE EFFECTS TAB -->
+  <section id="tab-side-effects" class="tab-panel" aria-label="Side effects">
+    <h2>Side Effects</h2>
+    <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+
+    <form id="sideeffect-form" class="card hidden" aria-label="Log side effect">
+      <h3>Log Side Effect</h3>
+      <label>Date
+        <input type="date" id="se-date" required>
+      </label>
+      <label>Symptom
+        <input type="text" id="se-symptom" placeholder="e.g. Nausea" required>
+      </label>
+      <label>Severity
+        <select id="se-severity" required>
+          <option value="">Choose severity</option>
+          <option>Mild</option>
+          <option>Moderate</option>
+          <option>Severe</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="se-notes" rows="2" placeholder="What helped? Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-sideeffect">Cancel</button>
+      </div>
+    </form>
+
+    <div id="sideeffect-list" class="entry-list"></div>
+  </section>
+
+  <!-- SETTINGS TAB -->
+  <section id="tab-settings" class="tab-panel" aria-label="Settings">
+    <h2>Settings</h2>
+
+    <form id="settings-form">
+      <div class="card">
+        <h3>Medication</h3>
+        <label>Current medication
+          <input type="text" id="set-med" placeholder="e.g. Zepbound">
+        </label>
+        <label>Current dose (mg)
+          <input type="number" id="set-dose" step="0.1" min="0" placeholder="e.g. 2.5">
+        </label>
+      </div>
+
+      <div class="card">
+        <h3>Weekly shot day</h3>
+        <label>Shot day
+          <select id="set-shot-day">
+            <option value="">Choose a day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+          </select>
+        </label>
+        <p class="muted">Your Today tab will show how many days until your next scheduled shot.</p>
+      </div>
+
+      <div class="card">
+        <h3>Daily water goal</h3>
+        <label>Daily water goal (oz)
+          <input type="number" id="set-water-goal" min="0" step="1" placeholder="80">
+        </label>
+        <p class="muted">Staying well hydrated supports digestion and may ease side effects. 80 oz is a common starting goal.</p>
+      </div>
+
+      <div class="card">
+        <h3>Prescription refill reminder</h3>
+        <label>Refill date
+          <input type="date" id="set-refill-date">
+        </label>
+        <p class="muted" id="refill-countdown"></p>
+        <p class="muted">Set your refill date as a reminder to request your prescription before you run out.</p>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+    </form>
+
+    <div class="card legal-card">
+      <h3>Medical Disclaimer</h3>
+      <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
+      <h3>Privacy</h3>
+      <p>Your data is stored only on this device. It is never sent to a server, sold, or shared.</p>
+      <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tab-bar" aria-label="Main navigation">
+  <button class="tab-btn active" data-tab="today">
+    <span class="tab-icon">&#9728;</span>
+    <span class="tab-label">Today</span>
+  </button>
+  <button class="tab-btn" data-tab="injections">
+    <span class="tab-icon">&#128137;</span>
+    <span class="tab-label">Injections</span>
+  </button>
+  <button class="tab-btn" data-tab="weight">
+    <span class="tab-icon">&#9878;</span>
+    <span class="tab-label">Weight</span>
+  </button>
+  <button class="tab-btn" data-tab="journal">
+    <span class="tab-icon">&#128214;</span>
+    <span class="tab-label">Journal</span>
+  </button>
+  <button class="tab-btn" data-tab="side-effects">
+    <span class="tab-icon">&#9888;</span>
+    <span class="tab-label">Side Effects</span>
+  </button>
+  <button class="tab-btn" data-tab="settings">
+    <span class="tab-icon">&#9881;</span>
+    <span class="tab-label">Settings</span>
+  </button>
+</nav>
+
+<script src="app.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
