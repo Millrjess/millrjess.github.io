@@ -149,7 +149,7 @@ function renderToday() {
     b.style.opacity = isToday ? "" : "0.5";
   });
   // Disable manual entry forms and mood buttons on past days
-  ["protein-food", "protein-grams", "protein-add", "exercise-custom", "exercise-add", "photo-btn"].forEach((id) => {
+  ["protein-food", "protein-grams", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
   });
@@ -299,6 +299,17 @@ document.querySelectorAll("[data-exercise]").forEach((btn) => {
     saveStore();
     renderToday();
   });
+});
+
+document.getElementById("exercise-add").addEventListener("click", () => {
+  const type = document.getElementById("exercise-type").value;
+  const mins = Number(document.getElementById("exercise-minutes").value);
+  if (!type || !mins || mins < 1) return;
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: type });
+  saveStore();
+  renderToday();
+  document.getElementById("exercise-type").value = "";
+  document.getElementById("exercise-minutes").value = "";
 });
 
 /* Next injection countdown */

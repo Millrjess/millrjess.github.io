@@ -128,6 +128,25 @@
       <h3>Movement</h3>
       <p class="big-number"><span id="exercise-today">0</span> min</p>
       <p class="muted">Every minute counts.</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="exercise-type" aria-label="Exercise type" style="flex:1;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+          <option value="">Choose activity…</option>
+          <option>Walking</option>
+          <option>Yoga</option>
+          <option>Pilates</option>
+          <option>Barre</option>
+          <option>Strength Training</option>
+          <option>Cardio</option>
+          <option>Spinning</option>
+          <option>Zumba</option>
+          <option>TRX</option>
+          <option>Swimming</option>
+          <option>Stretching</option>
+          <option>Other</option>
+        </select>
+        <input type="number" id="exercise-minutes" placeholder="Min" min="1" max="600" aria-label="Minutes" style="width:76px;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+        <button class="btn btn-small" id="exercise-add" style="white-space:nowrap">Add</button>
+      </div>
       <div class="quick-add">
         <button class="btn btn-small" data-exercise="15">+15 min walk</button>
         <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
