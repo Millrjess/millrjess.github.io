@@ -91,7 +91,11 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 
 function showTab(name) {
-  tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+  tabButtons.forEach((b) => {
+    const active = b.dataset.tab === name;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", active ? "true" : "false");
+  });
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
   if (name === "weight") drawWeightChart();
@@ -129,6 +133,7 @@ function renderToday() {
   document.getElementById("water-today").textContent = waterOz;
   const waterPct = Math.round((waterOz / waterGoal) * 100);
   document.getElementById("water-progress").style.width = Math.min(100, waterPct) + "%";
+  document.getElementById("water-progressbar").setAttribute("aria-valuenow", Math.min(100, waterPct));
   document.getElementById("water-percent").textContent = waterPct >= 100
     ? "Goal reached! Nice work."
     : waterPct + "% of daily goal";
@@ -139,6 +144,7 @@ function renderToday() {
   document.getElementById("protein-today").textContent = proteinG;
   const proteinPct = Math.round((proteinG / proteinGoal) * 100);
   document.getElementById("protein-progress").style.width = Math.min(100, proteinPct) + "%";
+  document.getElementById("protein-progressbar").setAttribute("aria-valuenow", Math.min(100, proteinPct));
   document.getElementById("protein-percent").textContent = proteinPct >= 100
     ? "Goal reached! Nice work."
     : proteinPct + "% of daily goal";

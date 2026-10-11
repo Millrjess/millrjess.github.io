@@ -10,9 +10,10 @@
   --card-bg: #FFFFFF;
   --ink: #2D2D2D;
   --ink-soft: #4A4A4A;
-  --muted: #8A8A8A;
+  --muted: #6B6B6B;
   --border: #E5E0D5;
   --danger: #B0563E;
+  --focus: #2F6FED;
   --radius: 16px;
   --shadow: 0 2px 12px rgba(45, 45, 45, 0.07);
   --shadow-lift: 0 6px 24px rgba(45, 45, 45, 0.10);
@@ -20,6 +21,23 @@
 
 * {
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .progress-fill {
+    transition: none;
+  }
 }
 
 html {
@@ -173,6 +191,13 @@ main {
   padding: 9px 15px;
   font-size: 0.92rem;
   font-weight: 500;
+  min-height: 44px;
+}
+
+.mood-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
 }
 
 .btn-primary {
@@ -547,6 +572,9 @@ label textarea {
   color: var(--muted);
   font: inherit;
   cursor: pointer;
+  min-height: 56px;
+  min-width: 44px;
+  justify-content: center;
 }
 
 .tab-icon {

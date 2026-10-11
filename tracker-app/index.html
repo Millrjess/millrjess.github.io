@@ -31,14 +31,14 @@
 <main id="app-main">
 
   <!-- TODAY TAB -->
-  <section id="tab-today" class="tab-panel active" aria-label="Today">
+  <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
     <h2>Today</h2>
     <p class="date-line" id="today-date"></p>
 
     <div class="card">
       <h3>Water Intake</h3>
       <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">80</span> oz goal</span></p>
-      <div class="progress-bar"><div class="progress-fill" id="water-progress"></div></div>
+      <div class="progress-bar" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="water-progressbar"><div class="progress-fill" id="water-progress"></div></div>
       <p class="percent-line" id="water-percent">0% of daily goal</p>
       <div class="quick-add">
         <button class="btn btn-small" data-water="8">+8 oz</button>
@@ -52,7 +52,7 @@
     <div class="card">
       <h3>Protein</h3>
       <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of <span id="protein-goal-display">90</span> g goal</span></p>
-      <div class="progress-bar"><div class="progress-fill" id="protein-progress"></div></div>
+      <div class="progress-bar" role="progressbar" aria-label="Protein intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="protein-progressbar"><div class="progress-fill" id="protein-progress"></div></div>
       <p class="percent-line" id="protein-percent">0% of daily goal</p>
       <div class="quick-add">
         <button class="btn btn-small" data-protein="15">+15 g</button>
@@ -105,7 +105,7 @@
   </section>
 
   <!-- INJECTIONS TAB -->
-  <section id="tab-injections" class="tab-panel" aria-label="Injections">
+  <section id="tab-injections" class="tab-panel" role="tabpanel" aria-label="Injections">
     <h2>Injections</h2>
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
 
@@ -144,7 +144,7 @@
   </section>
 
   <!-- WEIGHT TAB -->
-  <section id="tab-weight" class="tab-panel" aria-label="Weight">
+  <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
     <h2>Weight</h2>
     <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
 
@@ -220,7 +220,7 @@
   </section>
 
   <!-- JOURNAL TAB -->
-  <section id="tab-journal" class="tab-panel" aria-label="Journal">
+  <section id="tab-journal" class="tab-panel" role="tabpanel" aria-label="Journal">
     <h2>Journal</h2>
     <button class="btn btn-primary" id="show-journal-form">+ New entry</button>
 
@@ -260,7 +260,7 @@
   </section>
 
   <!-- SIDE EFFECTS TAB -->
-  <section id="tab-side-effects" class="tab-panel" aria-label="Side effects">
+  <section id="tab-side-effects" class="tab-panel" role="tabpanel" aria-label="Side effects">
     <h2>Side Effects</h2>
     <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
 
@@ -293,7 +293,7 @@
   </section>
 
   <!-- SETTINGS TAB -->
-  <section id="tab-settings" class="tab-panel" aria-label="Settings">
+  <section id="tab-settings" class="tab-panel" role="tabpanel" aria-label="Settings">
     <h2>Settings</h2>
 
     <form id="settings-form">
@@ -374,29 +374,29 @@
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
 
-<nav class="tab-bar" aria-label="Main navigation">
-  <button class="tab-btn active" data-tab="today">
-    <span class="tab-icon">&#9728;</span>
+<nav class="tab-bar" aria-label="Main navigation" role="tablist">
+  <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
+    <span class="tab-icon" aria-hidden="true">&#9728;</span>
     <span class="tab-label">Today</span>
   </button>
-  <button class="tab-btn" data-tab="injections">
-    <span class="tab-icon">&#128137;</span>
+  <button class="tab-btn" data-tab="injections" role="tab" aria-selected="false" aria-controls="tab-injections">
+    <span class="tab-icon" aria-hidden="true">&#128137;</span>
     <span class="tab-label">Injections</span>
   </button>
-  <button class="tab-btn" data-tab="weight">
-    <span class="tab-icon">&#9878;</span>
+  <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
+    <span class="tab-icon" aria-hidden="true">&#9878;</span>
     <span class="tab-label">Weight</span>
   </button>
-  <button class="tab-btn" data-tab="journal">
-    <span class="tab-icon">&#128214;</span>
+  <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
+    <span class="tab-icon" aria-hidden="true">&#128214;</span>
     <span class="tab-label">Journal</span>
   </button>
-  <button class="tab-btn" data-tab="side-effects">
-    <span class="tab-icon">&#9888;</span>
+  <button class="tab-btn" data-tab="side-effects" role="tab" aria-selected="false" aria-controls="tab-side-effects">
+    <span class="tab-icon" aria-hidden="true">&#9888;</span>
     <span class="tab-label">Side Effects</span>
   </button>
-  <button class="tab-btn" data-tab="settings">
-    <span class="tab-icon">&#9881;</span>
+  <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings">
+    <span class="tab-icon" aria-hidden="true">&#9881;</span>
     <span class="tab-label">Settings</span>
   </button>
 </nav>
