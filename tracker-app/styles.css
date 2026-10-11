@@ -68,22 +68,23 @@ h1, h2, h3 {
 .app-header {
   background: linear-gradient(135deg, var(--sage-deep) 0%, var(--sage-dark) 60%, var(--sage-deep) 100%);
   color: #fff;
-  padding: 28px 16px 22px;
+  padding: 36px 16px 28px;
   text-align: center;
   box-shadow: 0 2px 16px rgba(74, 90, 67, 0.25);
 }
 
 .app-header h1 {
   color: #fff;
-  font-size: 1.6rem;
-  margin: 0 0 6px;
+  font-size: 2rem;
+  margin: 0 0 8px;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  font-weight: 700;
 }
 
 .app-header .tagline {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 1rem;
   opacity: 0.94;
   font-style: italic;
 }
