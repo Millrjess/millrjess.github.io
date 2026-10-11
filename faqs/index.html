@@ -260,5 +260,14 @@ body.home .page > article > h1:first-child{display:none}
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="https://www.facebook.com/JessicaAMillerMA">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/">Pinterest</a></p>
   </div>
 </footer>
+<script>
+document.querySelectorAll(".nav-toggle").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var nav = btn.closest(".site-header").querySelector("nav");
+    var open = nav.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+});
+</script>
 </body>
 </html>
