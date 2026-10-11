@@ -126,11 +126,36 @@ function sumForDate(list, dateStr, field) {
   return list.filter((e) => e.date === dateStr).reduce((t, e) => t + (Number(e[field]) || 0), 0);
 }
 
+let viewOffset = 0; // 0 = today, -1 = yesterday, etc.
+
 function renderToday() {
-  const t = todayStr();
+  const t = todayStr(viewOffset);
   const dateEl = document.getElementById("today-date");
-  dateEl.textContent = new Date().toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric"
+  const viewDate = new Date();
+  viewDate.setDate(viewDate.getDate() + viewOffset);
+  const label = viewOffset === 0 ? "Today" : viewOffset === -1 ? "Yesterday"
+    : viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  dateEl.textContent = label + (viewOffset !== 0 && viewOffset !== -1
+    ? " · " + viewDate.toLocaleDateString("en-US", { month: "long", day: "numeric" }) : "");
+
+  // Show/hide nav arrows
+  document.getElementById("day-prev").style.visibility = "";
+  document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
+
+  // Disable quick-add buttons when viewing a past day
+  const isToday = viewOffset === 0;
+  document.querySelectorAll("[data-water],[data-protein],[data-exercise]").forEach((b) => {
+    b.disabled = !isToday;
+    b.style.opacity = isToday ? "" : "0.5";
+  });
+  // Disable manual entry forms and mood buttons on past days
+  ["protein-food", "protein-grams", "protein-add", "exercise-custom", "exercise-add", "photo-btn"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
+  });
+  document.querySelectorAll(".mood-btn").forEach((b) => {
+    b.disabled = !isToday;
+    b.style.opacity = isToday ? "" : "0.5";
   });
 
   const waterGoal = Number(store.settings.waterGoal) || 80;
@@ -1095,6 +1120,14 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
     e.target.value = "";
   };
   reader.readAsText(file);
+});
+
+document.getElementById("day-prev").addEventListener("click", () => {
+  viewOffset--;
+  renderToday();
+});
+document.getElementById("day-next").addEventListener("click", () => {
+  if (viewOffset < 0) { viewOffset++; renderToday(); }
 });
 
 /* ---------- First-run setup wizard ---------- */

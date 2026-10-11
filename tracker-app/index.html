@@ -83,8 +83,14 @@
 
   <!-- TODAY TAB -->
   <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
-    <h2>Today</h2>
-    <p class="date-line" id="today-date"></p>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
+      <div style="text-align:center;flex:1">
+        <h2 style="margin:0">Today</h2>
+        <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
+      </div>
+      <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
+    </div>
 
     <div class="card">
       <h3>Water Intake</h3>
