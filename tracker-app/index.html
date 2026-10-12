@@ -92,6 +92,35 @@
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
     </div>
 
+    <div class="encouragement" role="note">
+      <p id="encouragement-text" style="margin:0"></p>
+    </div>
+
+    <div class="progress-grid" aria-label="Daily progress summary">
+      <div class="progress-card">
+        <p class="pc-label">Protein</p>
+        <p class="pc-value"><span id="sum-protein-num">0</span> <span class="pc-goal">of <span id="sum-protein-goal">90</span> g</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-protein-bar"></div></div>
+      </div>
+      <div class="progress-card">
+        <p class="pc-label">Water</p>
+        <p class="pc-value"><span id="sum-water-num">0</span> <span class="pc-goal">of <span id="sum-water-goal">80</span> oz</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-water-bar"></div></div>
+      </div>
+      <div class="progress-card">
+        <p class="pc-label">Movement</p>
+        <p class="pc-value"><span id="sum-move-num">0</span> <span class="pc-goal">of <span id="sum-move-goal">30</span> min</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-move-bar"></div></div>
+      </div>
+      <div class="progress-card">
+        <p class="pc-label">Calories</p>
+        <p class="pc-value"><span id="sum-cal-num">0</span> <span class="pc-goal">of <span id="sum-cal-goal">1600</span></span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-cal-bar"></div></div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
+
     <div class="card">
       <h3>Water Intake</h3>
       <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">80</span> oz goal</span></p>
@@ -116,15 +145,18 @@
         <button class="btn btn-small" data-protein="30">+30 g shake</button>
         <button class="btn btn-small" id="undo-protein">Undo</button>
       </div>
+      <div id="recent-foods" class="recent-foods"></div>
       <form id="protein-form" class="inline-form">
         <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
         <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
         <input type="number" id="carb-grams" placeholder="Carbs g" min="0" aria-label="Carb grams">
         <input type="number" id="fat-grams" placeholder="Fat g" min="0" aria-label="Fat grams">
         <input type="number" id="calorie-count" placeholder="Cal" min="0" aria-label="Calories">
-        <button type="submit" class="btn btn-small">Log</button>
+        <button type="submit" class="btn btn-small" id="food-submit-btn">Log</button>
+        <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
       </form>
       <div id="macro-summary" style="margin-top:12px;font-size:.92rem;color:var(--muted)"></div>
+      <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
       <div id="protein-list" class="today-entries"></div>
     </div>
 
@@ -411,7 +443,7 @@
         <label>Daily water goal (oz)
           <input type="number" id="set-water-goal" min="0" step="1" placeholder="80">
         </label>
-        <p class="muted">Staying well hydrated supports digestion and may ease side effects. 80 oz is a common starting goal.</p>
+        <p class="muted">Staying well hydrated supports digestion and may ease side effects. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
       <div class="card">
@@ -419,7 +451,15 @@
         <label>Daily protein goal (g)
           <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
         </label>
-        <p class="muted">Protein helps protect muscle during weight loss. 90 g is a common starting goal.</p>
+        <p class="muted">Protein helps protect muscle during weight loss. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
+      </div>
+
+      <div class="card">
+        <h3>Daily movement goal</h3>
+        <label>Daily movement goal (min)
+          <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
+        </label>
+        <p class="muted">The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
       <div class="card">
@@ -427,7 +467,7 @@
         <label>Daily carb goal (g)
           <input type="number" id="set-carb-goal" min="0" step="1" placeholder="130">
         </label>
-        <p class="muted">Carbs are your body's preferred energy source. 130 g is a common minimum.</p>
+        <p class="muted">Carbohydrates are one of your body's energy sources. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
       <div class="card">
@@ -435,7 +475,7 @@
         <label>Daily fat goal (g)
           <input type="number" id="set-fat-goal" min="0" step="1" placeholder="65">
         </label>
-        <p class="muted">Healthy fats support hormones and satiety. 65 g is a common starting goal.</p>
+        <p class="muted">Dietary fat supports nutrient absorption and satiety. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
       <div class="card">
@@ -480,7 +520,8 @@
       <h3>Medical Disclaimer</h3>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h3>Privacy</h3>
-      <p>Your tracked data is stored only on this device. It is never sent to a server, sold, or shared. Anonymous usage statistics (such as which screens are viewed) are collected via Google Analytics to improve the app.</p>
+      <p><strong>Stays on this device:</strong> everything you track, including water, food, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
+      <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
       <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
     </div>
   </section>

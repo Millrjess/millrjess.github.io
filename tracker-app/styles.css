@@ -699,3 +699,95 @@ label textarea {
   display: block; width: 100%; margin-top: 6px; padding: 10px 12px;
   border: 1px solid var(--border, #ddd); border-radius: 10px; font-size: 1rem;
 }
+
+/* Today dashboard: encouragement banner and summary grid */
+.encouragement {
+  background: var(--sage-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  text-align: center;
+  margin: 16px 0 4px;
+}
+
+.encouragement p {
+  font-style: italic;
+  color: var(--sage-deep);
+  font-size: 1rem;
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.progress-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  min-width: 0;
+}
+
+.pc-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 4px;
+}
+
+.pc-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pc-goal {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.mini-bar {
+  background: #F0EBDD;
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.mini-fill {
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+  height: 100%;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+/* Recent foods quick-pick */
+.recent-foods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 4px;
+  align-items: center;
+}
+
+.recent-foods:empty {
+  display: none;
+}
+
+.recent-label {
+  width: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}

@@ -17,6 +17,7 @@ const DEFAULTS = {
     shotDay: "",
     waterGoal: 80,
     proteinGoal: 90,
+    movementGoal: 30,
     carbGoal: 130,
     fatGoal: 65,
     calorieGoal: 1600,
@@ -92,6 +93,125 @@ function escapeHtml(s) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/* Daily encouragement: rotate through supportive messages by day of year */
+
+const ENCOURAGEMENTS = [
+  "Every small step counts. You are doing great.",
+  "Progress is not always visible, but it is always happening.",
+  "You showed up today. That matters.",
+  "Consistency beats perfection. Keep going.",
+  "Your future self will thank you for today.",
+  "Be patient with your body. It is working hard for you.",
+  "Small habits, repeated daily, create lasting change."
+];
+
+function renderEncouragement() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  document.getElementById("encouragement-text").textContent =
+    ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
+}
+
+/* Recent foods quick-pick: the 5 most recently logged foods as tap-to-add buttons */
+
+function renderRecentFoods(isToday) {
+  const box = document.getElementById("recent-foods");
+  if (!box) return;
+  if (!isToday) {
+    box.innerHTML = "";
+    return;
+  }
+  const seen = new Map();
+  [...store.protein].reverse().forEach((e) => {
+    const key = (e.food || "Logged entry").trim().toLowerCase();
+    if (!seen.has(key)) seen.set(key, e);
+  });
+  const recent = [...seen.values()].slice(0, 5);
+  box.innerHTML = recent.length
+    ? '<p class="recent-label">Tap to log again</p>' + recent.map((e) => `
+      <button type="button" class="btn btn-small" data-recent-food="${e.id}">${escapeHtml(e.food || "Logged entry")} (${escapeHtml(e.grams)}g)</button>`).join("")
+    : "";
+  box.querySelectorAll("[data-recent-food]").forEach((b) => b.addEventListener("click", () => {
+    const src = store.protein.find((x) => x.id === b.dataset.recentFood);
+    if (!src) return;
+    store.protein.push({
+      id: uid(),
+      date: todayStr(),
+      grams: Number(src.grams) || 0,
+      carbs: Number(src.carbs) || 0,
+      fat: Number(src.fat) || 0,
+      calories: Number(src.calories) || 0,
+      food: src.food
+    });
+    saveStore();
+    renderToday();
+  }));
+}
+
+/* Remaining-today summary: goals minus logged totals */
+
+function renderRemaining(proteinGoal, proteinG, calGoal, calN) {
+  const el = document.getElementById("remaining-summary");
+  if (!el) return;
+  const pRem = proteinGoal - proteinG;
+  const cRem = calGoal - calN;
+  if (pRem <= 0 && cRem <= 0) {
+    el.textContent = "Protein and calorie goals reached for today.";
+  } else {
+    const parts = [];
+    if (pRem > 0) parts.push(Math.round(pRem) + "g protein remaining");
+    if (cRem > 0) parts.push(Math.round(cRem).toLocaleString() + " cal remaining");
+    el.textContent = parts.join(", ") + ".";
+  }
+}
+
+/* Log Food button: jump back to today and scroll to the food form */
+
+document.getElementById("log-food-btn").addEventListener("click", () => {
+  if (viewOffset !== 0) {
+    viewOffset = 0;
+    renderToday();
+  }
+  setTimeout(() => {
+    const form = document.getElementById("protein-form");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      const foodInput = document.getElementById("protein-food");
+      if (foodInput) foodInput.focus({ preventScroll: true });
+    }
+  }, 60);
+});
+
+/* Food entry editing */
+
+let editingFoodId = null;
+
+function startFoodEdit(id) {
+  const e = store.protein.find((x) => x.id === id);
+  if (!e) return;
+  editingFoodId = id;
+  document.getElementById("protein-food").value = e.food || "";
+  document.getElementById("protein-grams").value = e.grams || "";
+  document.getElementById("carb-grams").value = e.carbs || "";
+  document.getElementById("fat-grams").value = e.fat || "";
+  document.getElementById("calorie-count").value = e.calories || "";
+  document.getElementById("food-submit-btn").textContent = "Save changes";
+  document.getElementById("food-edit-cancel").classList.remove("hidden");
+  document.getElementById("protein-form").scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("protein-food").focus({ preventScroll: true });
+}
+
+function cancelFoodEdit() {
+  editingFoodId = null;
+  const form = document.getElementById("protein-form");
+  if (form) form.reset();
+  const btn = document.getElementById("food-submit-btn");
+  if (btn) btn.textContent = "Log";
+  const cancel = document.getElementById("food-edit-cancel");
+  if (cancel) cancel.classList.add("hidden");
 }
 
 /* ---------- Tab navigation ---------- */
@@ -202,9 +322,32 @@ function renderToday() {
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
 
+  // Summary cards (2x2 grid at top of dashboard)
+  const moveGoal = Number(store.settings.movementGoal) || 30;
+  document.getElementById("sum-protein-goal").textContent = proteinGoal;
+  document.getElementById("sum-water-goal").textContent = waterGoal;
+  document.getElementById("sum-move-goal").textContent = moveGoal;
+  document.getElementById("sum-cal-goal").textContent = calGoal;
+  const sumData = [
+    ["protein", proteinG, proteinGoal, ""],
+    ["water", waterOz, waterGoal, ""],
+    ["move", exMin, moveGoal, ""],
+    ["cal", calN, calGoal, ""]
+  ];
+  sumData.forEach(([key, val, goal]) => {
+    document.getElementById("sum-" + key + "-num").textContent = val;
+    const pct = Math.round((val / goal) * 100);
+    document.getElementById("sum-" + key + "-bar").style.width = Math.min(100, pct) + "%";
+  });
+
+  renderEncouragement();
+  renderRecentFoods(isToday);
+  renderRemaining(proteinGoal, proteinG, calGoal, calN);
+  cancelFoodEdit();
+
   renderNextInjection();
   renderMood();
-  renderTodayEntries(t);
+  renderTodayEntries(t, isToday);
 
   document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
   document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
@@ -213,7 +356,7 @@ function renderToday() {
 
 /* Today's water, protein, and movement entries with per-entry remove */
 
-function renderTodayEntries(t) {
+function renderTodayEntries(t, isToday) {
   const waterToday = store.water.filter((e) => e.date === t);
   document.getElementById("water-list").innerHTML = waterToday.length
     ? waterToday.map((e) => `
@@ -228,7 +371,10 @@ function renderTodayEntries(t) {
     ? proteinToday.map((e) => `
       <div class="today-entry">
         <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
-        <button class="btn btn-small btn-danger" data-del-protein="${e.id}">Remove</button>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}">Edit</button>` : ""}
+          <button class="btn btn-small btn-danger" data-del-protein="${e.id}">Remove</button>
+        </div>
       </div>`).join("")
     : "";
 
@@ -245,6 +391,7 @@ function renderTodayEntries(t) {
 }
 
 function bindTodayEntryDeletes() {
+  document.querySelectorAll("[data-edit-food]").forEach((b) => b.addEventListener("click", () => startFoodEdit(b.dataset.editFood)));
   document.querySelectorAll("[data-del-water]").forEach((b) => b.addEventListener("click", () => {
     store.water = store.water.filter((e) => e.id !== b.dataset.delWater);
     saveStore();
@@ -303,21 +450,27 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
     document.getElementById("protein-grams").placeholder = "Enter grams first";
     return;
   }
-  store.protein.push({
-    id: uid(), date: todayStr(), grams,
+  const data = {
+    id: editingFoodId || uid(),
+    date: todayStr(),
+    grams,
     carbs: Number(document.getElementById("carb-grams").value) || 0,
     fat: Number(document.getElementById("fat-grams").value) || 0,
     calories: Number(document.getElementById("calorie-count").value) || 0,
     food: food || "Logged entry"
-  });
-  document.getElementById("protein-food").value = "";
-  document.getElementById("protein-grams").value = "";
-  document.getElementById("carb-grams").value = "";
-  document.getElementById("fat-grams").value = "";
-  document.getElementById("calorie-count").value = "";
+  };
+  if (editingFoodId) {
+    const i = store.protein.findIndex((x) => x.id === editingFoodId);
+    if (i > -1) store.protein[i] = data;
+  } else {
+    store.protein.push(data);
+  }
+  cancelFoodEdit();
   saveStore();
   renderToday();
 });
+
+document.getElementById("food-edit-cancel").addEventListener("click", cancelFoodEdit);
 
 document.querySelectorAll("[data-exercise]").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -994,6 +1147,7 @@ function renderSettings() {
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 80;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
+  document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   document.getElementById("set-carb-goal").value = s.carbGoal || 130;
   document.getElementById("set-fat-goal").value = s.fatGoal || 65;
   document.getElementById("set-calorie-goal").value = s.calorieGoal || 1600;
@@ -1031,6 +1185,8 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.waterGoal = wg > 0 ? wg : 80;
   const pg = Number(document.getElementById("set-protein-goal").value);
   store.settings.proteinGoal = pg > 0 ? pg : 90;
+  const mg = Number(document.getElementById("set-movement-goal").value);
+  store.settings.movementGoal = mg > 0 ? mg : 30;
   const cg = Number(document.getElementById("set-carb-goal").value);
   store.settings.carbGoal = cg > 0 ? cg : 130;
   const fg = Number(document.getElementById("set-fat-goal").value);
