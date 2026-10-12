@@ -141,31 +141,11 @@ function renderRecentFoods(isToday) {
       id: uid(),
       date: todayStr(),
       grams: Number(src.grams) || 0,
-      carbs: Number(src.carbs) || 0,
-      fat: Number(src.fat) || 0,
-      calories: Number(src.calories) || 0,
       food: src.food
     });
     saveStore();
     renderToday();
   }));
-}
-
-/* Remaining-today summary: goals minus logged totals */
-
-function renderRemaining(proteinGoal, proteinG, calGoal, calN) {
-  const el = document.getElementById("remaining-summary");
-  if (!el) return;
-  const pRem = proteinGoal - proteinG;
-  const cRem = calGoal - calN;
-  if (pRem <= 0 && cRem <= 0) {
-    el.textContent = "Protein and calorie goals reached for today.";
-  } else {
-    const parts = [];
-    if (pRem > 0) parts.push(Math.round(pRem) + "g protein remaining");
-    if (cRem > 0) parts.push(Math.round(cRem).toLocaleString() + " cal remaining");
-    el.textContent = parts.join(", ") + ".";
-  }
 }
 
 /* Log Food button: jump back to today and scroll to the food form */
@@ -195,9 +175,6 @@ function startFoodEdit(id) {
   editingFoodId = id;
   document.getElementById("protein-food").value = e.food || "";
   document.getElementById("protein-grams").value = e.grams || "";
-  document.getElementById("carb-grams").value = e.carbs || "";
-  document.getElementById("fat-grams").value = e.fat || "";
-  document.getElementById("calorie-count").value = e.calories || "";
   document.getElementById("food-submit-btn").textContent = "Save changes";
   document.getElementById("food-edit-cancel").classList.remove("hidden");
   document.getElementById("protein-form").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -307,32 +284,27 @@ function renderToday() {
     ? "Goal reached! Nice work."
     : proteinPct + "% of daily goal";
 
-  // Macro summary
-  const carbG = sumForDate(store.protein, t, "carbs");
-  const fatG = sumForDate(store.protein, t, "fat");
-  const calN = sumForDate(store.protein, t, "calories");
-  const carbGoal = Number(store.settings.carbGoal) || 130;
-  const fatGoal = Number(store.settings.fatGoal) || 65;
-  const calGoal = Number(store.settings.calorieGoal) || 1600;
-  document.getElementById("macro-summary").innerHTML =
-    '<div class="macro-item"><span class="macro-val">' + carbG + 'g</span><span class="macro-label">Carbs of ' + carbGoal + 'g</span></div>' +
-    '<div class="macro-item"><span class="macro-val">' + fatG + 'g</span><span class="macro-label">Fat of ' + fatGoal + 'g</span></div>' +
-    '<div class="macro-item"><span class="macro-val">' + calN + '</span><span class="macro-label">Cal of ' + calGoal + '</span></div>';
+  // Remaining protein for today
+  const pRem = proteinGoal - proteinG;
+  const el = document.getElementById("remaining-summary");
+  if (el) {
+    el.textContent = pRem <= 0
+      ? "Protein goal reached for today. Nice work."
+      : Math.round(pRem) + "g protein remaining today.";
+  }
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
 
-  // Summary cards (2x2 grid at top of dashboard)
+  // Summary cards (3 cards: protein, water, movement)
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("sum-protein-goal").textContent = proteinGoal;
   document.getElementById("sum-water-goal").textContent = waterGoal;
   document.getElementById("sum-move-goal").textContent = moveGoal;
-  document.getElementById("sum-cal-goal").textContent = calGoal;
   const sumData = [
-    ["protein", proteinG, proteinGoal, ""],
-    ["water", waterOz, waterGoal, ""],
-    ["move", exMin, moveGoal, ""],
-    ["cal", calN, calGoal, ""]
+    ["protein", proteinG, proteinGoal],
+    ["water", waterOz, waterGoal],
+    ["move", exMin, moveGoal]
   ];
   sumData.forEach(([key, val, goal]) => {
     document.getElementById("sum-" + key + "-num").textContent = val;
@@ -342,7 +314,6 @@ function renderToday() {
 
   renderEncouragement();
   renderRecentFoods(isToday);
-  renderRemaining(proteinGoal, proteinG, calGoal, calN);
   cancelFoodEdit();
 
   renderNextInjection();
@@ -454,9 +425,6 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
     id: editingFoodId || uid(),
     date: todayStr(),
     grams,
-    carbs: Number(document.getElementById("carb-grams").value) || 0,
-    fat: Number(document.getElementById("fat-grams").value) || 0,
-    calories: Number(document.getElementById("calorie-count").value) || 0,
     food: food || "Logged entry"
   };
   if (editingFoodId) {
@@ -1148,9 +1116,6 @@ function renderSettings() {
   document.getElementById("set-water-goal").value = s.waterGoal || 80;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
-  document.getElementById("set-carb-goal").value = s.carbGoal || 130;
-  document.getElementById("set-fat-goal").value = s.fatGoal || 65;
-  document.getElementById("set-calorie-goal").value = s.calorieGoal || 1600;
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -1187,12 +1152,6 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
-  const cg = Number(document.getElementById("set-carb-goal").value);
-  store.settings.carbGoal = cg > 0 ? cg : 130;
-  const fg = Number(document.getElementById("set-fat-goal").value);
-  store.settings.fatGoal = fg > 0 ? fg : 65;
-  const calg = Number(document.getElementById("set-calorie-goal").value);
-  store.settings.calorieGoal = calg > 0 ? calg : 1600;
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();

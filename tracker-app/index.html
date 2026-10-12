@@ -112,11 +112,6 @@
         <p class="pc-value"><span id="sum-move-num">0</span> <span class="pc-goal">of <span id="sum-move-goal">30</span> min</span></p>
         <div class="mini-bar"><div class="mini-fill" id="sum-move-bar"></div></div>
       </div>
-      <div class="progress-card">
-        <p class="pc-label">Calories</p>
-        <p class="pc-value"><span id="sum-cal-num">0</span> <span class="pc-goal">of <span id="sum-cal-goal">1600</span></span></p>
-        <div class="mini-bar"><div class="mini-fill" id="sum-cal-bar"></div></div>
-      </div>
     </div>
 
     <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
@@ -145,18 +140,13 @@
         <button class="btn btn-small" data-protein="30">+30 g shake</button>
         <button class="btn btn-small" id="undo-protein">Undo</button>
       </div>
-      <p class="muted" style="font-size:.8rem;margin:4px 0 0">Quick add logs protein only. Use the form below to add carbs, fat, and calories.</p>
       <div id="recent-foods" class="recent-foods"></div>
       <form id="protein-form" class="inline-form">
-        <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
+        <input type="text" id="protein-food" placeholder="What did you eat?" aria-label="Food description">
         <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
-        <input type="number" id="carb-grams" placeholder="Carbs g" min="0" aria-label="Carb grams">
-        <input type="number" id="fat-grams" placeholder="Fat g" min="0" aria-label="Fat grams">
-        <input type="number" id="calorie-count" placeholder="Cal" min="0" aria-label="Calories">
         <button type="submit" class="btn btn-small" id="food-submit-btn">Log</button>
         <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
       </form>
-      <div id="macro-summary" class="macro-grid"></div>
       <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
       <div id="protein-list" class="today-entries"></div>
     </div>
@@ -461,30 +451,6 @@
           <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
         </label>
         <p class="muted">The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
-      </div>
-
-      <div class="card">
-        <h3>Daily carb goal</h3>
-        <label>Daily carb goal (g)
-          <input type="number" id="set-carb-goal" min="0" step="1" placeholder="130">
-        </label>
-        <p class="muted">Carbohydrates are one of your body's energy sources. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
-      </div>
-
-      <div class="card">
-        <h3>Daily fat goal</h3>
-        <label>Daily fat goal (g)
-          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="65">
-        </label>
-        <p class="muted">Dietary fat supports nutrient absorption and satiety. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
-      </div>
-
-      <div class="card">
-        <h3>Daily calorie goal</h3>
-        <label>Daily calorie goal
-          <input type="number" id="set-calorie-goal" min="0" step="1" placeholder="1600">
-        </label>
-        <p class="muted">Set this with your healthcare professional's guidance.</p>
       </div>
 
       <div class="card">

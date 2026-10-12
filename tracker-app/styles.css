@@ -718,7 +718,7 @@ label textarea {
 
 .progress-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   margin: 12px 0;
 }
@@ -792,29 +792,4 @@ label textarea {
   color: var(--muted);
 }
 
-/* Macro summary grid: three clean columns instead of one cramped line */
-.macro-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-top: 12px;
-}
-.macro-item {
-  background: var(--card-bg, #faf8f4);
-  border: 1px solid var(--border, #e8e0d4);
-  border-radius: 10px;
-  padding: 8px 4px;
-  text-align: center;
-}
-.macro-val {
-  display: block;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text, #2d2a26);
-}
-.macro-label {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--muted, #8a8178);
-  margin-top: 2px;
-}
+
