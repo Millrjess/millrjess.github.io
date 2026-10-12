@@ -1349,3 +1349,117 @@ renderPhotos();
 renderJournal();
 renderSideEffects();
 renderSettings();
+
+/* ---------- AI Companion chat ---------- */
+
+// Update this URL after deploying the Worker
+const COMPANION_API_URL = "https://new-chapter-companion.YOUR_SUBDOMAIN.workers.dev/api/chat";
+
+const CHAT_KEY = "newChapterTracker.chat.v1";
+let chatHistory = loadChatHistory();
+
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem(CHAT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.slice(-20) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveChatHistory() {
+  try {
+    localStorage.setItem(CHAT_KEY, JSON.stringify(chatHistory.slice(-20)));
+  } catch {
+    /* storage unavailable; chat works for this session */
+  }
+}
+
+function renderChat() {
+  const box = document.getElementById("chat-messages");
+  if (!box) return;
+  box.innerHTML = "";
+  if (chatHistory.length === 0) {
+    const welcome = document.createElement("div");
+    welcome.className = "chat-msg assistant";
+    welcome.textContent = "Hi, I am your wellness companion. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going.";
+    box.appendChild(welcome);
+    return;
+  }
+  chatHistory.forEach((m) => {
+    const div = document.createElement("div");
+    div.className = "chat-msg " + (m.role === "user" ? "user" : "assistant");
+    div.textContent = m.content;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const box = document.getElementById("chat-messages");
+  if (!box) return null;
+  const div = document.createElement("div");
+  div.className = "chat-msg assistant typing";
+  div.id = "chat-typing";
+  div.textContent = "Thinking...";
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+
+  // Add user message
+  chatHistory.push({ role: "user", content: text });
+  saveChatHistory();
+  renderChat();
+
+  // Show typing indicator
+  const typing = addTypingIndicator();
+  const sendBtn = document.getElementById("chat-send");
+  sendBtn.disabled = true;
+
+  try {
+    const res = await fetch(COMPANION_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: chatHistory }),
+    });
+
+    const data = await res.json();
+
+    if (typing) typing.remove();
+
+    if (data.reply) {
+      chatHistory.push({ role: "assistant", content: data.reply });
+    } else if (data.message) {
+      // Rate limit message from Worker
+      chatHistory.push({ role: "assistant", content: data.message });
+    } else {
+      chatHistory.push({
+        role: "assistant",
+        content: "I am having trouble right now. Please try again in a moment.",
+      });
+    }
+  } catch (err) {
+    if (typing) typing.remove();
+    chatHistory.push({
+      role: "assistant",
+      content: "I could not reach the companion service. Check your connection and try again.",
+    });
+  }
+
+  saveChatHistory();
+  renderChat();
+  sendBtn.disabled = false;
+});
+
+// Render chat when tab is opened
+document.querySelector('[data-tab="chat"]').addEventListener("click", renderChat);

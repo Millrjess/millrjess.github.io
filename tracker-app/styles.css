@@ -793,3 +793,48 @@ label textarea {
 }
 
 
+
+/* AI Companion chat */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 2px 12px;
+  margin-bottom: 12px;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--gold, #C9A96A);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: var(--card-bg, #faf8f4);
+  border: 1px solid var(--border, #e8e0d4);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.typing {
+  color: var(--muted, #8a8178);
+  font-style: italic;
+}
+.chat-form {
+  display: flex;
+  gap: 8px;
+}
+.chat-form input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 12px;
+  font-size: 1rem;
+}
