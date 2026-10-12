@@ -315,9 +315,9 @@ function renderToday() {
   const fatGoal = Number(store.settings.fatGoal) || 65;
   const calGoal = Number(store.settings.calorieGoal) || 1600;
   document.getElementById("macro-summary").innerHTML =
-    "Carbs: <strong>" + carbG + "g</strong> / " + carbGoal + "g &nbsp;·&nbsp; " +
-    "Fat: <strong>" + fatG + "g</strong> / " + fatGoal + "g &nbsp;·&nbsp; " +
-    "Calories: <strong>" + calN + "</strong> / " + calGoal;
+    '<div class="macro-item"><span class="macro-val">' + carbG + 'g</span><span class="macro-label">Carbs of ' + carbGoal + 'g</span></div>' +
+    '<div class="macro-item"><span class="macro-val">' + fatG + 'g</span><span class="macro-label">Fat of ' + fatGoal + 'g</span></div>' +
+    '<div class="macro-item"><span class="macro-val">' + calN + '</span><span class="macro-label">Cal of ' + calGoal + '</span></div>';
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;

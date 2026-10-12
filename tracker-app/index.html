@@ -145,6 +145,7 @@
         <button class="btn btn-small" data-protein="30">+30 g shake</button>
         <button class="btn btn-small" id="undo-protein">Undo</button>
       </div>
+      <p class="muted" style="font-size:.8rem;margin:4px 0 0">Quick add logs protein only. Use the form below to add carbs, fat, and calories.</p>
       <div id="recent-foods" class="recent-foods"></div>
       <form id="protein-form" class="inline-form">
         <input type="text" id="protein-food" placeholder="Food description" aria-label="Food description">
@@ -155,7 +156,7 @@
         <button type="submit" class="btn btn-small" id="food-submit-btn">Log</button>
         <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
       </form>
-      <div id="macro-summary" style="margin-top:12px;font-size:.92rem;color:var(--muted)"></div>
+      <div id="macro-summary" class="macro-grid"></div>
       <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
       <div id="protein-list" class="today-entries"></div>
     </div>
