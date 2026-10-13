@@ -1353,7 +1353,7 @@ renderSettings();
 /* ---------- AI Companion chat ---------- */
 
 // Update this URL after deploying the Worker
-const COMPANION_API_URL = "https://new-chapter-companion.YOUR_SUBDOMAIN.workers.dev/api/chat";
+const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
 
 const CHAT_KEY = "newChapterTracker.chat.v1";
 let chatHistory = loadChatHistory();
