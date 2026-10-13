@@ -7,7 +7,7 @@
  */
 
 // --- Configuration ---
-const MODEL = "@cf/meta/llama-3.1-8b-instruct";
+const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
 const DAILY_CAP = 20; // messages per device per day
 const ALLOWED_ORIGINS = [
   "https://millrjess.github.io",
