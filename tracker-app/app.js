@@ -1356,7 +1356,34 @@ renderSettings();
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
 
 const CHAT_KEY = "newChapterTracker.chat.v1";
+const TOKEN_KEY = "newChapterTracker.authToken.v1";
 let chatHistory = loadChatHistory();
+
+// Capture the auth token from the buyer link (?key=...) on first visit,
+// then persist it in localStorage. The token is never in the public code.
+(function captureAuthToken() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
+    if (key && key.length >= 16) {
+      localStorage.setItem(TOKEN_KEY, key);
+      // Clean the URL so the token isn't left in the address bar
+      params.delete("key");
+      const clean = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+      window.history.replaceState({}, "", clean);
+    }
+  } catch {
+    /* URL parsing unavailable */
+  }
+})();
+
+function getAuthToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
 
 function loadChatHistory() {
   try {
@@ -1427,9 +1454,14 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   sendBtn.disabled = true;
 
   try {
+    const headers = { "Content-Type": "application/json" };
+    const token = getAuthToken();
+    if (token) {
+      headers["X-Auth-Token"] = token;
+    }
     const res = await fetch(COMPANION_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: JSON.stringify({ messages: chatHistory }),
     });
 
@@ -1437,7 +1469,13 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
     if (typing) typing.remove();
 
-    if (data.reply) {
+    if (res.status === 401) {
+      // Missing or invalid token: the buyer link wasn't used
+      chatHistory.push({
+        role: "assistant",
+        content: "The companion needs your personal app link to work. Please open the link from your welcome email.",
+      });
+    } else if (data.reply) {
       chatHistory.push({ role: "assistant", content: data.reply });
     } else if (data.message) {
       // Rate limit message from Worker
