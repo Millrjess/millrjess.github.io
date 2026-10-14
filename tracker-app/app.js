@@ -1404,6 +1404,20 @@ function saveChatHistory() {
   }
 }
 
+function renderMarkdown(text) {
+  // Escape HTML first to prevent XSS, then apply basic markdown
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return escaped
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/^- (.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
+    .replace(/\n/g, "<br>");
+}
+
 function renderChat() {
   const box = document.getElementById("chat-messages");
   if (!box) return;
@@ -1418,7 +1432,11 @@ function renderChat() {
   chatHistory.forEach((m) => {
     const div = document.createElement("div");
     div.className = "chat-msg " + (m.role === "user" ? "user" : "assistant");
-    div.textContent = m.content;
+    if (m.role === "assistant") {
+      div.innerHTML = renderMarkdown(m.content);
+    } else {
+      div.textContent = m.content;
+    }
     box.appendChild(div);
   });
   box.scrollTop = box.scrollHeight;
