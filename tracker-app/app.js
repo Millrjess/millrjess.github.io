@@ -1410,12 +1410,27 @@ function renderMarkdown(text) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-  return escaped
+  const withInline = escaped
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
-    .replace(/\n/g, "<br>");
+    .replace(/(^|\W)\*(.+?)\*/g, "$1<em>$2</em>");
+
+  // Build lists line by line so spacing stays clean
+  const lines = withInline.split("\n");
+  let html = "";
+  let inList = false;
+  for (const line of lines) {
+    const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+    if (bullet) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += "<li>" + bullet[1] + "</li>";
+    } else {
+      if (inList) { html += "</ul>"; inList = false; }
+      if (line.trim()) html += line + "<br>";
+    }
+  }
+  if (inList) html += "</ul>";
+  // Remove trailing <br>
+  return html.replace(/(<br>)+$/, "");
 }
 
 function renderChat() {

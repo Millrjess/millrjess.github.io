@@ -838,3 +838,15 @@ label textarea {
   border-radius: 12px;
   font-size: 1rem;
 }
+
+/* Companion chat markdown lists */
+.chat-msg ul {
+  margin: 8px 0 4px;
+  padding-left: 20px;
+}
+.chat-msg li {
+  margin-bottom: 6px;
+}
+.chat-msg li:last-child {
+  margin-bottom: 0;
+}
