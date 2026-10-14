@@ -1110,6 +1110,7 @@ function renderSideEffects() {
 
 function renderSettings() {
   const s = store.settings;
+  document.getElementById("set-companion-key").value = getAuthToken();
   document.getElementById("set-med").value = s.medication || "";
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
@@ -1143,6 +1144,10 @@ function renderRefillCountdown() {
 
 document.getElementById("settings-form").addEventListener("submit", (e) => {
   e.preventDefault();
+  const keyInput = document.getElementById("set-companion-key").value.trim();
+  if (keyInput) {
+    try { localStorage.setItem(TOKEN_KEY, keyInput); } catch {}
+  }
   store.settings.medication = document.getElementById("set-med").value.trim() || "Zepbound";
   store.settings.dose = document.getElementById("set-dose").value;
   store.settings.shotDay = document.getElementById("set-shot-day").value;
