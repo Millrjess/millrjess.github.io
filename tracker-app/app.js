@@ -10,6 +10,16 @@
 
 const LS_KEY = "newChapterTracker.v1";
 
+// Companion auth token storage (must be defined before any render calls)
+const TOKEN_KEY = "newChapterTracker.authToken.v1";
+function getAuthToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
 const DEFAULTS = {
   settings: {
     medication: "Zepbound",
@@ -1361,7 +1371,6 @@ renderSettings();
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
 
 const CHAT_KEY = "newChapterTracker.chat.v1";
-const TOKEN_KEY = "newChapterTracker.authToken.v1";
 let chatHistory = loadChatHistory();
 
 // Capture the auth token from the buyer link (?key=...) on first visit,
@@ -1381,14 +1390,6 @@ let chatHistory = loadChatHistory();
     /* URL parsing unavailable */
   }
 })();
-
-function getAuthToken() {
-  try {
-    return localStorage.getItem(TOKEN_KEY) || "";
-  } catch {
-    return "";
-  }
-}
 
 function loadChatHistory() {
   try {
