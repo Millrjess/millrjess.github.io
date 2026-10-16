@@ -40,7 +40,7 @@ const DEFAULTS = {
   weight: [],       // { id, date, value }
   measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
   photos: [],       // { id, date, dataUrl }
-  journal: [],      // { id, date, mood, rating, notes }
+  journal: [],      // { id, date, mood, notes }
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {}         // { "YYYY-MM-DD": "Good" }
 };
@@ -974,7 +974,6 @@ journalForm.addEventListener("submit", (e) => {
     id: editingJournalId || uid(),
     date: document.getElementById("journal-date").value,
     mood: document.getElementById("journal-mood").value,
-    rating: Number(document.getElementById("journal-rating").value),
     notes: document.getElementById("journal-notes").value.trim()
   };
   if (!entry.date || !entry.mood) return;
@@ -992,12 +991,6 @@ journalForm.addEventListener("submit", (e) => {
 
 const MOOD_EMOJI = { Great: "😄", Good: "🙂", Okay: "😐", Low: "😔" };
 
-function stars(n) {
-  let s = "";
-  for (let i = 1; i <= 5; i++) s += i <= n ? "★" : "☆";
-  return s;
-}
-
 function renderJournal() {
   const list = document.getElementById("journal-list");
   const sorted = [...store.journal].sort((a, b) => b.date.localeCompare(a.date));
@@ -1007,7 +1000,7 @@ function renderJournal() {
   }
   list.innerHTML = sorted.map((j) => `
     <div class="entry">
-      <p class="entry-title">${MOOD_EMOJI[j.mood] || ""} ${escapeHtml(j.mood)} <span class="stars">${stars(j.rating || 0)}</span></p>
+      <p class="entry-title">${MOOD_EMOJI[j.mood] || ""} ${escapeHtml(j.mood)}</p>
       <p class="entry-sub">${escapeHtml(formatDate(j.date))}</p>
       ${j.notes ? `<p class="entry-notes">${escapeHtml(j.notes)}</p>` : ""}
       <div class="entry-actions">
@@ -1023,7 +1016,6 @@ function renderJournal() {
     journalForm.querySelector("h3").textContent = "Edit Journal Entry";
     document.getElementById("journal-date").value = j.date;
     document.getElementById("journal-mood").value = j.mood;
-    document.getElementById("journal-rating").value = String(j.rating || 5);
     document.getElementById("journal-notes").value = j.notes || "";
     toggleForm(journalForm, document.getElementById("show-journal-form"), true);
     window.scrollTo(0, 0);
@@ -1238,8 +1230,8 @@ document.getElementById("export-data").addEventListener("click", () => {
 
   lines.push(...tsvSection(
     "Journal",
-    ["Date", "Mood", "Rating", "Notes"],
-    [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.rating, e.notes])
+    ["Date", "Mood", "Notes"],
+    [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.notes])
   ));
 
   lines.push(...tsvSection(
@@ -1311,6 +1303,29 @@ document.getElementById("day-prev").addEventListener("click", () => {
 });
 document.getElementById("day-next").addEventListener("click", () => {
   if (viewOffset < 0) { viewOffset++; renderToday(); }
+});
+
+// Calendar date picker: jump straight to any past day
+const dayPicker = document.getElementById("day-picker");
+document.getElementById("day-cal").addEventListener("click", () => {
+  dayPicker.value = todayStr(viewOffset);
+  dayPicker.max = todayStr(0);
+  if (typeof dayPicker.showPicker === "function") {
+    dayPicker.showPicker();
+  } else {
+    dayPicker.focus();
+    dayPicker.click();
+  }
+});
+dayPicker.addEventListener("change", () => {
+  if (!dayPicker.value) return;
+  const parts = dayPicker.value.split("-").map(Number);
+  const picked = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now = new Date();
+  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((picked - todayMid) / 86400000);
+  viewOffset = Math.min(0, diffDays); // clamp future dates to today
+  renderToday();
 });
 
 /* ---------- First-run setup wizard ---------- */

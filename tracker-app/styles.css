@@ -543,12 +543,6 @@ label textarea {
   color: #A33A1F;
 }
 
-.stars {
-  color: var(--gold);
-  font-size: 1.05rem;
-  letter-spacing: 2px;
-}
-
 .stats-row {
   display: flex;
   gap: 12px;

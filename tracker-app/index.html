@@ -89,7 +89,10 @@
         <h2 style="margin:0" id="today-heading">Today</h2>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
+      <button id="day-cal" class="btn" aria-label="Pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
+      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1"
+        style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
     <div class="encouragement" role="note">
@@ -341,15 +344,6 @@
           <option>Good</option>
           <option>Okay</option>
           <option>Low</option>
-        </select>
-      </label>
-      <label>Rating
-        <select id="journal-rating">
-          <option value="5">5 stars</option>
-          <option value="4">4 stars</option>
-          <option value="3">3 stars</option>
-          <option value="2">2 stars</option>
-          <option value="1">1 star</option>
         </select>
       </label>
       <label>Notes
