@@ -597,10 +597,13 @@ injForm.addEventListener("submit", (e) => {
   }
   editingInjectionId = null;
   saveStore();
+  injectionLimit = 10;
   renderInjections();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
 });
+
+let injectionLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderInjections() {
   const list = document.getElementById("injection-list");
@@ -609,7 +612,9 @@ function renderInjections() {
     list.innerHTML = '<p class="empty-state">No injections logged yet. Tap "Log shot" to add your first.</p>';
     return;
   }
-  list.innerHTML = sorted.map((inj) => `
+  const visible = sorted.slice(0, injectionLimit);
+  const remaining = sorted.length - visible.length;
+  list.innerHTML = visible.map((inj) => `
     <div class="entry">
       <p class="entry-title">${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg</p>
       <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)}</p>
@@ -618,7 +623,10 @@ function renderInjections() {
         <button class="btn btn-small" data-edit-inj="${inj.id}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-inj="${inj.id}">Delete</button>
       </div>
-    </div>`).join("");
+    </div>`).join("")
+    + (remaining > 0
+      ? `<button class="btn" id="more-injections" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
+      : "");
 
   list.querySelectorAll("[data-edit-inj]").forEach((b) => b.addEventListener("click", () => {
     const inj = store.injections.find((x) => x.id === b.dataset.editInj);
@@ -638,9 +646,16 @@ function renderInjections() {
     if (!confirm("Delete this injection entry?")) return;
     store.injections = store.injections.filter((x) => x.id !== b.dataset.delInj);
     saveStore();
+    injectionLimit = 10;
     renderInjections();
     renderToday();
   }));
+
+  const moreBtn = document.getElementById("more-injections");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    injectionLimit += 10;
+    renderInjections();
+  });
 }
 
 /* ---------- Weight ---------- */
@@ -985,11 +1000,14 @@ journalForm.addEventListener("submit", (e) => {
   }
   editingJournalId = null;
   saveStore();
+  journalLimit = 10;
   renderJournal();
   toggleForm(journalForm, document.getElementById("show-journal-form"), false);
 });
 
 const MOOD_EMOJI = { Great: "😄", Good: "🙂", Okay: "😐", Low: "😔" };
+
+let journalLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderJournal() {
   const list = document.getElementById("journal-list");
@@ -998,7 +1016,9 @@ function renderJournal() {
     list.innerHTML = '<p class="empty-state">No journal entries yet. Tap "New entry" to write your first.</p>';
     return;
   }
-  list.innerHTML = sorted.map((j) => `
+  const visible = sorted.slice(0, journalLimit);
+  const remaining = sorted.length - visible.length;
+  list.innerHTML = visible.map((j) => `
     <div class="entry">
       <p class="entry-title">${MOOD_EMOJI[j.mood] || ""} ${escapeHtml(j.mood)}</p>
       <p class="entry-sub">${escapeHtml(formatDate(j.date))}</p>
@@ -1007,7 +1027,10 @@ function renderJournal() {
         <button class="btn btn-small" data-edit-j="${j.id}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-j="${j.id}">Delete</button>
       </div>
-    </div>`).join("");
+    </div>`).join("")
+    + (remaining > 0
+      ? `<button class="btn" id="more-journal" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
+      : "");
 
   list.querySelectorAll("[data-edit-j]").forEach((b) => b.addEventListener("click", () => {
     const j = store.journal.find((x) => x.id === b.dataset.editJ);
@@ -1025,8 +1048,15 @@ function renderJournal() {
     if (!confirm("Delete this journal entry?")) return;
     store.journal = store.journal.filter((x) => x.id !== b.dataset.delJ);
     saveStore();
+    journalLimit = 10;
     renderJournal();
   }));
+
+  const moreBtn = document.getElementById("more-journal");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    journalLimit += 10;
+    renderJournal();
+  });
 }
 
 /* ---------- Side effects ---------- */
