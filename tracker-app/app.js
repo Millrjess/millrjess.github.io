@@ -1337,7 +1337,7 @@ document.getElementById("day-next").addEventListener("click", () => {
 
 // Calendar date picker: jump straight to any past day
 const dayPicker = document.getElementById("day-picker");
-document.getElementById("day-cal").addEventListener("click", () => {
+function openDayPicker() {
   dayPicker.value = todayStr(viewOffset);
   dayPicker.max = todayStr(0);
   if (typeof dayPicker.showPicker === "function") {
@@ -1346,6 +1346,12 @@ document.getElementById("day-cal").addEventListener("click", () => {
     dayPicker.focus();
     dayPicker.click();
   }
+}
+document.getElementById("day-cal").addEventListener("click", openDayPicker);
+// Tapping the date heading itself also opens the picker
+document.getElementById("date-tap").addEventListener("click", openDayPicker);
+document.getElementById("date-tap").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDayPicker(); }
 });
 dayPicker.addEventListener("change", () => {
   if (!dayPicker.value) return;
