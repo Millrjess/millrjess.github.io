@@ -478,10 +478,21 @@
     <form id="settings-form">
       <div class="card">
         <h3>AI coach access</h3>
-        <label>Access key
-          <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
-        </label>
-        <p class="muted">This unlocks your AI coach. It is included in your welcome link and saves automatically. Only enter it manually if your coach asks for it.</p>
+        <p class="muted" id="coach-status-line">Checking coach status...</p>
+        <div id="coach-code-entry">
+          <label>Access code
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+          </label>
+          <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:8px">Connect my coach</button>
+          <p class="muted" id="code-msg" style="min-height:1.2em"></p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 15 minutes.</p>
+        </div>
+        <details style="margin-top:8px">
+          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
+          <label style="margin-top:8px">Access key
+            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
+          </label>
+        </details>
       </div>
 
       <div class="card">

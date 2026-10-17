@@ -38,32 +38,44 @@ p { color: var(--muted); margin-bottom: 16px; }
 <body>
 <div class="card">
   <h1>You're in. Welcome.</h1>
-  <p>Your subscription to A New Chapter Tracker is active. Here's your app:</p>
-  <a class="app-link" href="../../tracker-app/?key=70c3d13fd27f4a84b589103febe4ecd3e34d00cf6ec942ee9db7aab7529fc4f1">Open My Tracker</a>
+  <p>Your subscription to A New Chapter Tracker is active. Here is how to connect your AI coach in the app:</p>
   <ol class="steps">
-    <li><span class="step-num">1</span><span><strong>Bookmark this page.</strong> This is your private access link.</span></li>
-    <li><span class="step-num">2</span><span><strong>Add to your home screen.</strong> On iPhone: Share → Add to Home Screen. On Android: menu → Add to Home Screen.</span></li>
-    <li><span class="step-num">3</span><span><strong>Complete the setup.</strong> The app will walk you through your medication, dose, and goals on first launch.</span></li>
+    <li><span class="step-num">1</span><span><strong>Get your access code</strong> below with your purchase email.</span></li>
+    <li><span class="step-num">2</span><span><strong>Open the app</strong> and go to Settings, then AI coach access.</span></li>
+    <li><span class="step-num">3</span><span><strong>Type in the 6-digit code.</strong> Your coach connects instantly.</span></li>
   </ol>
-  <div class="note">Questions? Reply to your receipt email anytime. Your data stays on your device. Nothing is uploaded.</div>
 
   <div class="note" id="recover-box" style="margin-top:16px">
-    <strong>Get your personal app link.</strong> Enter the email you purchased with. This unlocks coach memory and your personal key.
+    <strong>Get your access code.</strong> Enter the email you purchased with.
     <div style="display:flex;gap:8px;margin-top:10px">
       <input type="email" id="recover-email" placeholder="you@example.com" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:1rem" aria-label="Purchase email">
-      <button id="recover-btn" class="app-link" style="margin:0;padding:10px 20px;font-size:1rem;border:none;cursor:pointer">Find it</button>
+      <button id="recover-btn" class="app-link" style="margin:0;padding:10px 20px;font-size:1rem;border:none;cursor:pointer">Get code</button>
     </div>
     <p id="recover-msg" style="margin:10px 0 0;font-size:.9rem"></p>
+    <p id="code-display" style="display:none;margin:16px 0 0;font-size:2.5rem;font-weight:700;letter-spacing:.4em;text-align:center;color:var(--sage-dark)"></p>
+    <p id="code-hint" class="muted" style="display:none;margin:8px 0 0;font-size:.85rem">Enter this in the app under Settings, then AI coach access. It expires in 15 minutes.</p>
   </div>
+
+  <div class="note" style="margin-top:16px">
+    <strong>New to the app?</strong><br>
+    <a href="../../tracker-app/" class="app-link" style="margin:10px 0 0">Open My Tracker</a>
+    <p class="muted" style="margin:10px 0 0">On iPhone: open the link above in Safari, then Share &rarr; Add to Home Screen.</p>
+  </div>
+
+  <div class="note">Questions? Reply to your receipt email anytime. Your data stays on your device. Nothing is uploaded.</div>
   <script>
   (function(){
     var btn = document.getElementById('recover-btn');
     var input = document.getElementById('recover-email');
     var msg = document.getElementById('recover-msg');
+    var codeEl = document.getElementById('code-display');
+    var hintEl = document.getElementById('code-hint');
     btn.addEventListener('click', async function(){
       var email = input.value.trim();
       if (!email) { msg.textContent = 'Enter your email first.'; return; }
       msg.textContent = 'Looking...';
+      codeEl.style.display = 'none';
+      hintEl.style.display = 'none';
       btn.disabled = true;
       try {
         var res = await fetch('https://github-fetcher.millrjess.workers.dev/api/recover', {
@@ -72,8 +84,22 @@ p { color: var(--muted); margin-bottom: 16px; }
           body: JSON.stringify({ email: email })
         });
         var data = await res.json();
-        if (data.found && data.link) {
-          msg.innerHTML = 'Found it. <a href="' + data.link.replace(/"/g,'') + '"><strong>Open My Tracker</strong></a>';
+        if (data.found) {
+          // Email is valid, now request the access code
+          var res2 = await fetch('https://github-fetcher.millrjess.workers.dev/api/code/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          });
+          var data2 = await res2.json();
+          if (data2.found && data2.code) {
+            msg.textContent = 'Your access code:';
+            codeEl.textContent = data2.code;
+            codeEl.style.display = 'block';
+            hintEl.style.display = 'block';
+          } else {
+            msg.textContent = data2.error || 'Something went wrong. Try again.';
+          }
         } else if (data.found === false) {
           msg.textContent = 'No purchase found for that email. Check the spelling or reply to your receipt email.';
         } else {

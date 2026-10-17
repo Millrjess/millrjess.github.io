@@ -64,6 +64,16 @@ export default {
       return handleRecover(request, env);
     }
 
+    // Access code: request a 6-digit code by email (rate-limited, public)
+    if (url.pathname === "/api/code/request" && request.method === "POST") {
+      return handleCodeRequest(request, env);
+    }
+
+    // Access code: redeem a 6-digit code for the token (rate-limited, public)
+    if (url.pathname === "/api/code/redeem" && request.method === "POST") {
+      return handleCodeRedeem(request, env);
+    }
+
     // All other API routes require a valid token
     const auth = await validateToken(request, env);
     if (!auth.valid) {
@@ -245,6 +255,76 @@ async function handleRecover(request, env) {
     return corsResponse(JSON.stringify({ found: true, link: APP_URL + "?key=" + token }), request, 200);
   } catch (e) {
     console.error("Recover KV error:", e);
+    return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
+  }
+}
+
+/* ---------- Access codes (6-digit, type into the app) ---------- */
+
+async function checkPublicRateLimit(request, env, prefix, maxPerHour) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const rlKey = prefix + ":" + ip;
+  try {
+    const count = parseInt((await env.RATE_LIMITS.get(rlKey)) || "0", 10);
+    if (count >= maxPerHour) return false;
+    await env.RATE_LIMITS.put(rlKey, String(count + 1), { expirationTtl: 3600 });
+    return true;
+  } catch (e) {
+    console.error("Rate limit error:", e);
+    return true; // fail open on KV errors
+  }
+}
+
+async function handleCodeRequest(request, env) {
+  if (!(await checkPublicRateLimit(request, env, "code-req", 5))) {
+    return corsResponse(JSON.stringify({ error: "Too many attempts. Try again later." }), request, 429);
+  }
+  let body;
+  try { body = await request.json(); } catch {
+    return corsResponse(JSON.stringify({ error: "Invalid JSON" }), request, 400);
+  }
+  const email = String(body.email || "").trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    return corsResponse(JSON.stringify({ error: "Enter a valid email address." }), request, 400);
+  }
+  try {
+    const token = await env.USERS.get("email:" + email);
+    if (!token) {
+      return corsResponse(JSON.stringify({ found: false }), request, 200);
+    }
+    // 6-digit code, single-use, expires in 15 minutes
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    await env.USERS.put("code:" + code, JSON.stringify({ token, created: new Date().toISOString() }), { expirationTtl: 900 });
+    return corsResponse(JSON.stringify({ found: true, code }), request, 200);
+  } catch (e) {
+    console.error("Code request KV error:", e);
+    return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
+  }
+}
+
+async function handleCodeRedeem(request, env) {
+  if (!(await checkPublicRateLimit(request, env, "code-redeem", 10))) {
+    return corsResponse(JSON.stringify({ error: "Too many attempts. Try again later." }), request, 429);
+  }
+  let body;
+  try { body = await request.json(); } catch {
+    return corsResponse(JSON.stringify({ error: "Invalid JSON" }), request, 400);
+  }
+  const code = String(body.code || "").replace(/\D/g, "").slice(0, 6);
+  if (code.length !== 6) {
+    return corsResponse(JSON.stringify({ error: "Enter the 6-digit code." }), request, 400);
+  }
+  try {
+    const raw = await env.USERS.get("code:" + code);
+    if (!raw) {
+      return corsResponse(JSON.stringify({ error: "That code is not valid or has expired. Request a new one." }), request, 400);
+    }
+    // Single-use: delete on redeem
+    await env.USERS.delete("code:" + code);
+    const { token } = JSON.parse(raw);
+    return corsResponse(JSON.stringify({ ok: true, token }), request, 200);
+  } catch (e) {
+    console.error("Code redeem KV error:", e);
     return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
   }
 }

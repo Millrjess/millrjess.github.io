@@ -1467,6 +1467,7 @@ function renderSideEffects() {
 function renderSettings() {
   const s = store.settings;
   document.getElementById("set-companion-key").value = getAuthToken();
+  updateCoachStatus();
   document.getElementById("set-med").value = s.medication || "";
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
@@ -1522,6 +1523,62 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   renderToday();
   alert("Settings saved.");
 });
+
+/* ---------- Coach access code ---------- */
+
+const WORKER_URL = "https://github-fetcher.millrjess.workers.dev";
+
+function updateCoachStatus() {
+  const line = document.getElementById("coach-status-line");
+  const entry = document.getElementById("coach-code-entry");
+  if (!line) return;
+  const token = getAuthToken();
+  if (token && token.length >= 16) {
+    line.textContent = "Your AI coach is connected and ready.";
+    line.style.color = "var(--sage-dark)";
+    if (entry) entry.classList.add("hidden");
+  } else {
+    line.textContent = "Your AI coach is not connected yet.";
+    line.style.color = "";
+    if (entry) entry.classList.remove("hidden");
+  }
+}
+
+async function redeemAccessCode() {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  const btn = document.getElementById("redeem-code-btn");
+  const code = (input.value || "").replace(/\D/g, "").slice(0, 6);
+  if (code.length !== 6) {
+    msg.textContent = "Enter all 6 digits.";
+    return;
+  }
+  msg.textContent = "Connecting...";
+  btn.disabled = true;
+  try {
+    const res = await fetch(WORKER_URL + "/api/code/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (data.ok && data.token) {
+      try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
+      document.getElementById("set-companion-key").value = data.token;
+      msg.textContent = "";
+      input.value = "";
+      updateCoachStatus();
+      alert("Your AI coach is connected.");
+    } else {
+      msg.textContent = data.error || "That code did not work. Try again.";
+    }
+  } catch (e) {
+    msg.textContent = "Could not reach the service. Check your connection.";
+  }
+  btn.disabled = false;
+}
+
+document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
 
 /* ---------- Backup nudge ---------- */
 
