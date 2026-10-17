@@ -1,1 +1,29 @@
-{"background_color":"#F7F5F0","description":"Your GLP-1 wellness journey, beautifully tracked.","display":"standalone","icons":[{"sizes":"192x192","src":"icons/icon-192.png","type":"image/png"},{"purpose":"any","sizes":"512x512","src":"icons/icon-512.png","type":"image/png"},{"purpose":"maskable","sizes":"512x512","src":"icons/icon-512.png","type":"image/png"}],"name":"A New Chapter Tracker","orientation":"portrait","short_name":"New Chapter","start_url":"./index.html","theme_color":"#7A8B6F"}
+{
+  "background_color": "#F7F5F0",
+  "description": "Your GLP-1 wellness journey, beautifully tracked.",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "icons/icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "icons/icon-512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "icons/icon-512.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "A New Chapter Tracker",
+  "orientation": "portrait",
+  "short_name": "GLP-1 Tracker",
+  "start_url": "./index.html",
+  "theme_color": "#7A8B6F"
+}
