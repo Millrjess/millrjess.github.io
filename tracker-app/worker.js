@@ -54,6 +54,16 @@ export default {
       return handleIssueToken(request, env);
     }
 
+    // Stripe webhook: auto-issue a token on completed checkout (signature verified)
+    if (url.pathname === "/api/webhook/stripe" && request.method === "POST") {
+      return handleStripeWebhook(request, env);
+    }
+
+    // Recover app link by purchase email (rate-limited, public)
+    if (url.pathname === "/api/recover" && request.method === "POST") {
+      return handleRecover(request, env);
+    }
+
     // All other API routes require a valid token
     const auth = await validateToken(request, env);
     if (!auth.valid) {
@@ -128,6 +138,115 @@ async function handleIssueToken(request, env) {
     return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
   }
   return corsResponse(JSON.stringify({ token, user }), request, 200);
+}
+
+/* ---------- Stripe webhook: auto-issue tokens on purchase ---------- */
+
+const APP_URL = "https://millrjess.github.io/tracker-app/";
+
+async function issueUserToken(env, email, plan) {
+  const token = "nc_" + crypto.randomUUID().replace(/-/g, "").slice(0, 24);
+  const user = {
+    email: String(email || "").toLowerCase(),
+    plan: String(plan || "unknown"),
+    created: new Date().toISOString(),
+    status: "active",
+  };
+  await env.USERS.put("user:" + token, JSON.stringify(user));
+  if (user.email) {
+    await env.USERS.put("email:" + user.email, token);
+  }
+  return { token, user };
+}
+
+async function verifyStripeSignature(request, env) {
+  const secret = env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) return false;
+  const sig = request.headers.get("stripe-signature") || "";
+  const rawBody = await request.text();
+  // Parse t= and v1= from the signature header
+  const parts = Object.fromEntries(sig.split(",").map((p) => p.split("=")));
+  const t = parts.t, v1 = parts.v1;
+  if (!t || !v1) return { ok: false };
+  // Reject timestamps older than 5 minutes (replay protection)
+  if (Math.abs(Date.now() / 1000 - parseInt(t, 10)) > 300) return { ok: false };
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const mac = await crypto.subtle.sign(
+    "HMAC", key, new TextEncoder().encode(t + "." + rawBody)
+  );
+  const hex = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  let ok = hex.length === v1.length;
+  for (let i = 0; i < hex.length; i++) ok = ok && hex[i] === v1[i];
+  return { ok, body: rawBody };
+}
+
+async function handleStripeWebhook(request, env) {
+  const check = await verifyStripeSignature(request, env);
+  if (!check || !check.ok) {
+    return corsResponse(JSON.stringify({ error: "Invalid signature" }), request, 400);
+  }
+  let event;
+  try { event = JSON.parse(check.body); } catch {
+    return corsResponse(JSON.stringify({ error: "Invalid JSON" }), request, 400);
+  }
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object || {};
+    const email = (session.customer_details && session.customer_details.email) || session.customer_email || "";
+    // Detect plan from amount or metadata
+    let plan = "unknown";
+    const meta = session.metadata || {};
+    if (meta.plan) plan = String(meta.plan);
+    else if (session.amount_total === 2999) plan = "annual";
+    else if (session.amount_total === 399) plan = "monthly";
+    try {
+      const { token } = await issueUserToken(env, email, plan);
+      console.log("Issued token for purchase:", email, plan);
+      return corsResponse(JSON.stringify({ ok: true, token_issued: true }), request, 200);
+    } catch (e) {
+      console.error("Token issue on webhook failed:", e);
+      return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
+    }
+  }
+  // Acknowledge other event types without action
+  return corsResponse(JSON.stringify({ ok: true }), request, 200);
+}
+
+/* ---------- Recover app link by email ---------- */
+
+async function handleRecover(request, env) {
+  // Rate limit: 5 attempts per IP per hour (prevents email enumeration)
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const rlKey = "recover:" + ip;
+  try {
+    const count = parseInt((await env.RATE_LIMITS.get(rlKey)) || "0", 10);
+    if (count >= 5) {
+      return corsResponse(JSON.stringify({ error: "Too many attempts. Try again later." }), request, 429);
+    }
+    await env.RATE_LIMITS.put(rlKey, String(count + 1), { expirationTtl: 3600 });
+  } catch (e) { console.error("Recover rate limit error:", e); }
+
+  let body;
+  try { body = await request.json(); } catch {
+    return corsResponse(JSON.stringify({ error: "Invalid JSON" }), request, 400);
+  }
+  const email = String(body.email || "").trim().toLowerCase();
+  if (!email || !email.includes("@")) {
+    return corsResponse(JSON.stringify({ error: "Enter a valid email address." }), request, 400);
+  }
+  try {
+    const token = await env.USERS.get("email:" + email);
+    if (!token) {
+      // Same response shape whether or not the email exists (don't leak)
+      return corsResponse(JSON.stringify({ found: false }), request, 200);
+    }
+    return corsResponse(JSON.stringify({ found: true, link: APP_URL + "?key=" + token }), request, 200);
+  } catch (e) {
+    console.error("Recover KV error:", e);
+    return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
+  }
 }
 
 /* ---------- Memory (opt-in) ---------- */
