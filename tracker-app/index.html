@@ -106,10 +106,20 @@
       <p id="encouragement-text" style="margin:0"></p>
     </div>
 
-    <div class="card hidden" id="coach-insight-card" style="border-left:4px solid #7A8B6F">
-      <p style="margin:0"><strong>Your AI coach noticed:</strong> <span id="coach-insight-text"></span></p>
-      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+    <div class="card" style="margin-top:12px">
+      <h3>Next Injection</h3>
+      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
+        <button class="btn btn-link" data-goto="injections">View shot history</button>
+      </div>
     </div>
+
+    <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #7A8B6F">
+      <summary style="cursor:pointer;font-weight:600">Your AI coach noticed something</summary>
+      <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
+      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+    </details>
 
     <div class="progress-grid" aria-label="Daily progress summary">
       <div class="progress-card">
@@ -131,14 +141,7 @@
 
     <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
 
-    <div class="card" style="margin-top:12px">
-      <h3>Next Injection</h3>
-      <p id="next-injection-line">Set your shot day in Settings.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
-        <button class="btn btn-link" data-goto="injections">View shot history</button>
-      </div>
-    </div>
+
 
     <div class="card">
       <h3>Water Intake</h3>
@@ -224,14 +227,15 @@
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
 
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between">
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
-        <h3 style="margin:0" id="review-title">This month</h3>
+        <h3 style="margin:0;font-size:1rem" id="review-title">This month</h3>
         <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
       </div>
       <div id="review-body" style="margin-top:12px"></div>
-    </div>
+    </details>
   </section>
 
   <!-- INJECTIONS TAB -->
@@ -495,8 +499,11 @@
         </details>
       </div>
 
-      <div class="card">
-        <h3>Medication</h3>
+      <details class="card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
+        <div style="margin-top:12px">
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Medication</h3>
         <label>Current medication
           <input type="text" id="set-med" placeholder="e.g. Zepbound">
         </label>
@@ -505,8 +512,8 @@
         </label>
       </div>
 
-      <div class="card">
-        <h3>Weekly shot day</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Weekly shot day</h3>
         <label>Shot day
           <select id="set-shot-day">
             <option value="">Choose a day</option>
@@ -522,40 +529,40 @@
         <p class="muted">Your Today tab will show how many days until your next scheduled shot.</p>
       </div>
 
-      <div class="card">
-        <h3>Daily water goal</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Daily water goal</h3>
         <label>Daily water goal (oz)
           <input type="number" id="set-water-goal" min="0" step="1" placeholder="80">
         </label>
         <p class="muted">Staying well hydrated supports digestion and may ease side effects. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
-      <div class="card">
-        <h3>Daily protein goal</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Daily protein goal</h3>
         <label>Daily protein goal (g)
           <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
         </label>
         <p class="muted">Protein helps protect muscle during weight loss. The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
-      <div class="card">
-        <h3>Daily movement goal</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Daily movement goal</h3>
         <label>Daily movement goal (min)
           <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
         </label>
         <p class="muted">The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
       </div>
 
-      <div class="card">
-        <h3>Goal weight</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Goal weight</h3>
         <label>Goal weight (lbs)
           <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
         </label>
         <p class="muted">Your weight chart will show a goal line and track your milestones toward it. Set this with your clinician's guidance.</p>
       </div>
 
-      <div class="card">
-        <h3>Prescription refill reminder</h3>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Prescription refill reminder</h3>
         <label>Refill date
           <input type="date" id="set-refill-date">
         </label>
@@ -563,9 +570,15 @@
         <p class="muted">Set your refill date as a reminder to request your prescription before you run out.</p>
       </div>
 
+        </div>
+      </details>
+
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
     </form>
 
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
+      <div style="margin-top:12px">
     <div class="card">
       <h3>My data</h3>
       <p class="muted">Download everything you have tracked as a tab-delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
@@ -584,10 +597,16 @@
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
     </div>
 
-    <div class="card legal-card">
-      <h3>Medical Disclaimer</h3>
+      </div>
+    </details>
+
+    <details class="card legal-card">
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">About</h3></summary>
+      <div style="margin-top:12px">
+    <div>
+      <h4 style="margin:16px 0 8px">Medical Disclaimer</h3>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
-      <h3>Privacy</h3>
+      <h4 style="margin:16px 0 8px">Privacy</h3>
       <p><strong>Stays on this device:</strong> everything you track, including water, food, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
       <p><strong>AI coach messages:</strong> when you chat with your AI coach, your messages leave this device and are processed by our service to generate a reply. Messages are not stored afterward, unless you turn on coach memory.</p>
       <p><strong>Coach memory (optional, off by default):</strong> if you turn it on in the AI Coach tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>
@@ -598,6 +617,8 @@
       <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
       <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
     </div>
+      </div>
+    </details>
   </section>
 
 </main>

@@ -892,7 +892,7 @@ label textarea {
 
 /* 50+ readability and calm: larger base type, roomier tap targets */
 body {
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.55;
 }
 
@@ -921,4 +921,28 @@ body {
 }
 .tab-btn {
   min-height: 60px;
+}
+
+/* Collapsible sections: clean disclosure triangles, generous tap targets */
+details.card summary {
+  list-style: none;
+  padding: 4px 0;
+  font-size: 1.05rem;
+}
+details.card summary::-webkit-details-marker {
+  display: none;
+}
+details.card summary::before {
+  content: "\25B6";
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 0.75em;
+  color: var(--sage-dark, #5A6B52);
+  transition: transform 0.15s ease;
+}
+details.card[open] summary::before {
+  transform: rotate(90deg);
+}
+details.card summary h3 {
+  font-size: 1.05rem;
 }

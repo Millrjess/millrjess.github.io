@@ -293,6 +293,7 @@ function renderCoachInsight() {
   if (!insight) { card.classList.add("hidden"); return; }
   document.getElementById("coach-insight-text").textContent = insight;
   card.classList.remove("hidden");
+  card.open = true;
 }
 
 /* ---------- Monthly review story ---------- */
