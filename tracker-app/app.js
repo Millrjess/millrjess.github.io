@@ -31,7 +31,8 @@ const DEFAULTS = {
     carbGoal: 130,
     fatGoal: 65,
     calorieGoal: 1600,
-    refillDate: ""
+    refillDate: "",
+    goalWeight: ""
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food }
@@ -333,6 +334,8 @@ function renderToday() {
   document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
   document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
   document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
+
+  renderBackupNudge();
 }
 
 /* Today's water, protein, and movement entries with per-entry remove */
@@ -743,6 +746,38 @@ function renderWeight() {
   drawWeightChart();
 }
 
+function renderWeightMilestone() {
+  const card = document.getElementById("milestone-card");
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  if (!(goalW > 0) || !sorted.length) { card.classList.add("hidden"); return; }
+  const startW = Number(sorted[0].value);
+  const curW = Number(sorted[sorted.length - 1].value);
+  const total = startW - goalW;
+  if (total === 0) { card.classList.add("hidden"); return; }
+  let pct = total > 0
+    ? (startW - curW) / total    // working down toward goal
+    : (curW - startW) / -total;  // working up toward goal
+  pct = Math.max(0, Math.min(1, pct));
+  const pctRound = Math.round(pct * 100);
+  card.classList.remove("hidden");
+  document.getElementById("milestone-bar").style.width = pctRound + "%";
+  document.getElementById("milestone-barwrap").setAttribute("aria-valuenow", pctRound);
+  const textEl = document.getElementById("milestone-text");
+  const subEl = document.getElementById("milestone-sub");
+  if (pctRound >= 100) {
+    textEl.textContent = "Goal reached! Incredible work.";
+    subEl.textContent = "From " + startW + " to " + curW + " lbs. You did this.";
+  } else {
+    const milestone = pctRound >= 75 ? 75 : pctRound >= 50 ? 50 : pctRound >= 25 ? 25 : 0;
+    textEl.textContent = milestone > 0
+      ? "You've reached the " + milestone + "% milestone. Beautiful work."
+      : "You're on your way. Every day counts.";
+    subEl.textContent = pctRound + "% of the way from " + startW + " to your goal of " + goalW
+      + " lbs (" + Math.abs(curW - goalW).toFixed(1) + " lbs to go).";
+  }
+}
+
 function drawWeightChart() {
   const canvas = document.getElementById("weight-chart");
   const emptyMsg = document.getElementById("weight-chart-empty");
@@ -759,9 +794,14 @@ function drawWeightChart() {
   const W = canvas.width, H = canvas.height;
   const padL = 52, padR = 16, padT = 16, padB = 40;
   const values = sorted.map((w) => Number(w.value));
+  const goalW = Number(store.settings.goalWeight) || 0;
   const min = Math.min(...values), max = Math.max(...values);
   const span = Math.max(max - min, 1);
-  const lo = min - span * 0.15, hi = max + span * 0.15;
+  let lo = min - span * 0.15, hi = max + span * 0.15;
+  if (goalW > 0) {
+    lo = Math.min(lo, goalW - span * 0.1);
+    hi = Math.max(hi, goalW + span * 0.1);
+  }
 
   const x = (i) => padL + (i / (sorted.length - 1)) * (W - padL - padR);
   const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
@@ -812,6 +852,28 @@ function drawWeightChart() {
     ctx.arc(x(i), y(w.value), 7, 0, Math.PI * 2);
     ctx.fill();
   });
+
+  // Goal line
+  if (goalW > 0) {
+    const gy = y(goalW);
+    ctx.save();
+    ctx.strokeStyle = "#7A8B6F";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.moveTo(padL, gy);
+    ctx.lineTo(W - padR, gy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#7A8B6F";
+    ctx.font = "bold 18px sans-serif";
+    ctx.textAlign = "left";
+    const labelY = gy - 34 < padT ? gy + 28 : gy - 12;
+    ctx.fillText("Goal " + goalW, padL + 8, labelY);
+    ctx.restore();
+  }
+
+  renderWeightMilestone();
 }
 
 /* ---------- Measurements ---------- */
@@ -1149,6 +1211,7 @@ function renderSettings() {
   document.getElementById("set-water-goal").value = s.waterGoal || 80;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  document.getElementById("set-goal-weight").value = s.goalWeight || "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -1189,11 +1252,50 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
+  const gw = Number(document.getElementById("set-goal-weight").value);
+  store.settings.goalWeight = gw > 0 ? gw : "";
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();
   renderToday();
   alert("Settings saved.");
+});
+
+/* ---------- Backup nudge ---------- */
+
+function renderBackupNudge() {
+  const banner = document.getElementById("backup-nudge");
+  if (!banner) return;
+  let snooze = null, last = null;
+  try {
+    snooze = localStorage.getItem("nct-backup-snooze");
+    last = localStorage.getItem("nct-last-backup");
+  } catch {}
+  if (snooze && snooze >= todayStr()) { banner.classList.add("hidden"); return; }
+  if (last) {
+    const daysSince = Math.round((new Date(todayStr()) - new Date(last + "T00:00:00")) / 86400000);
+    if (daysSince < 30) { banner.classList.add("hidden"); return; }
+  }
+  const days = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (e.date) days.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => days.add(d));
+  if (days.size < 7) { banner.classList.add("hidden"); return; }
+  document.getElementById("backup-nudge-text").textContent =
+    "You've logged " + days.size + " days in your tracker. Keep your progress safe with a quick backup.";
+  banner.classList.remove("hidden");
+}
+
+document.getElementById("backup-now").addEventListener("click", () => {
+  document.getElementById("backup-data").click();
+});
+document.getElementById("backup-later").addEventListener("click", () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  const s = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  try { localStorage.setItem("nct-backup-snooze", s); } catch {}
+  document.getElementById("backup-nudge").classList.add("hidden");
 });
 
 /* ---------- Data export (tab-delimited) ---------- */
@@ -1279,6 +1381,8 @@ document.getElementById("export-data").addEventListener("click", () => {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try { localStorage.setItem("nct-last-backup", todayStr()); } catch {}
+  renderBackupNudge();
 });
 
 /* ---------- Backup & restore (JSON) ---------- */
@@ -1294,6 +1398,8 @@ document.getElementById("backup-data").addEventListener("click", () => {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try { localStorage.setItem("nct-last-backup", todayStr()); } catch {}
+  renderBackupNudge();
 });
 
 document.getElementById("restore-input").addEventListener("change", (e) => {

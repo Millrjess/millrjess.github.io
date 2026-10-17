@@ -83,6 +83,13 @@
 
   <!-- TODAY TAB -->
   <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
+    <div class="card hidden" id="backup-nudge" style="border-left:4px solid #C9A96A">
+      <p style="margin:0 0 8px" id="backup-nudge-text"></p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-small" id="backup-now">Back up now</button>
+        <button class="btn btn-small" id="backup-later">Remind me later</button>
+      </div>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Pick a date" tabindex="0">
@@ -281,6 +288,15 @@
       </div>
     </div>
 
+    <div class="card hidden" id="milestone-card">
+      <h3>Goal progress</h3>
+      <p style="margin:0 0 8px" id="milestone-text"></p>
+      <div style="background:#EDE9DF;border-radius:999px;height:14px;overflow:hidden" role="progressbar" aria-label="Progress toward goal weight" id="milestone-barwrap">
+        <div id="milestone-bar" style="height:100%;width:0%;background:#7A8B6F;border-radius:999px;transition:width .5s"></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em" id="milestone-sub"></p>
+    </div>
+
     <div class="card">
       <h3>Progress over time</h3>
       <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart"></canvas>
@@ -464,6 +480,14 @@
           <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
         </label>
         <p class="muted">The default is a starting point you can adjust. Set your own target. Your clinician or dietitian can help you choose.</p>
+      </div>
+
+      <div class="card">
+        <h3>Goal weight</h3>
+        <label>Goal weight (lbs)
+          <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
+        </label>
+        <p class="muted">Your weight chart will show a goal line and track your milestones toward it. Set this with your clinician's guidance.</p>
       </div>
 
       <div class="card">
