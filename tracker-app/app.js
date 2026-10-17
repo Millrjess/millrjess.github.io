@@ -1843,8 +1843,10 @@ document.getElementById("memory-save").addEventListener("click", async () => {
     });
     if (res.ok) {
       document.getElementById("memory-saved-msg").classList.remove("hidden");
+    } else if (res.status === 400) {
+      alert("Coach memory needs your personal key. Use the 'Get your personal app link' box on the welcome page to get one.");
     } else {
-      alert("Could not save. Make sure you are using your personal app link.");
+      alert("Could not save. Check your connection and try again.");
     }
   } catch (e) {
     alert("Could not reach the service. Check your connection and try again.");
