@@ -23,7 +23,7 @@
   ],
   "name": "A New Chapter Tracker",
   "orientation": "portrait",
-  "short_name": "New Chapter GLP-1 Tracker",
+  "short_name": "GLP-1 Tracker",
   "start_url": "./index.html",
   "theme_color": "#7A8B6F"
 }
