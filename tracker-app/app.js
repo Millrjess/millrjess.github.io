@@ -220,6 +220,7 @@ function showTab(name) {
   window.scrollTo(0, 0);
   if (name === "weight") drawWeightChart();
   if (name === "injections") renderInjectionCalendar();
+  if (name === "chat") loadCoachMemory();
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
@@ -1787,6 +1788,82 @@ renderSettings();
 
 // Update this URL after deploying the Worker
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
+const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
+
+/* ---------- Coach memory (opt-in) ---------- */
+
+function memoryHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = getAuthToken();
+  if (token) headers["X-Auth-Token"] = token;
+  return headers;
+}
+
+async function loadCoachMemory() {
+  const toggle = document.getElementById("memory-toggle");
+  if (!toggle) return;
+  try {
+    const res = await fetch(MEMORY_API_URL, { headers: memoryHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.profile) {
+      toggle.checked = true;
+      document.getElementById("memory-fields").classList.remove("hidden");
+      document.getElementById("memory-name").value = data.profile.name || "";
+      document.getElementById("memory-goals").value = data.profile.goals || "";
+      document.getElementById("memory-preferences").value = data.profile.preferences || "";
+      document.getElementById("memory-saved-msg").classList.remove("hidden");
+    }
+  } catch (e) {
+    // Memory unavailable; leave opt-in off
+  }
+}
+
+document.getElementById("memory-toggle").addEventListener("change", (e) => {
+  const on = e.target.checked;
+  document.getElementById("memory-fields").classList.toggle("hidden", !on);
+  if (!on) {
+    // Turning off deletes the stored profile
+    fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() }).catch(() => {});
+    document.getElementById("memory-saved-msg").classList.add("hidden");
+  }
+});
+
+document.getElementById("memory-save").addEventListener("click", async () => {
+  const profile = {
+    name: document.getElementById("memory-name").value.trim(),
+    goals: document.getElementById("memory-goals").value.trim(),
+    preferences: document.getElementById("memory-preferences").value.trim(),
+  };
+  try {
+    const res = await fetch(MEMORY_API_URL, {
+      method: "POST",
+      headers: memoryHeaders(),
+      body: JSON.stringify(profile),
+    });
+    if (res.ok) {
+      document.getElementById("memory-saved-msg").classList.remove("hidden");
+    } else {
+      alert("Could not save. Make sure you are using your personal app link.");
+    }
+  } catch (e) {
+    alert("Could not reach the service. Check your connection and try again.");
+  }
+});
+
+document.getElementById("forget-me").addEventListener("click", async () => {
+  if (!confirm("Delete everything your AI coach remembers about you? This cannot be undone.")) return;
+  try {
+    await fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() });
+  } catch (e) {}
+  const toggle = document.getElementById("memory-toggle");
+  if (toggle) {
+    toggle.checked = false;
+    document.getElementById("memory-fields").classList.add("hidden");
+    document.getElementById("memory-saved-msg").classList.add("hidden");
+  }
+  alert("Done. Your coach no longer remembers you.");
+});
 
 const CHAT_KEY = "newChapterTracker.chat.v1";
 let chatHistory = loadChatHistory();

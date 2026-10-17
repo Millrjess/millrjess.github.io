@@ -441,12 +441,34 @@
   <!-- AI COACH TAB -->
   <section id="tab-chat" class="tab-panel" role="tabpanel" aria-label="AI Coach">
     <h2>Your AI Coach</h2>
-    <p class="muted" style="font-size:.85rem;margin-bottom:12px">Ask about your routine, protein ideas, or staying motivated. This is encouragement, not medical advice. Your messages leave this device and are processed by our AI service.</p>
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">Ask about your routine, protein ideas, or staying motivated. This is encouragement, not medical advice. Your messages leave this device and are processed by our AI service. Your tracking data never leaves your phone. <a href="privacy.html">Privacy Policy</a></p>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <form id="chat-form" class="chat-form">
       <input type="text" id="chat-input" placeholder="Ask your AI coach..." aria-label="Type your message" autocomplete="off" maxlength="500">
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
+
+    <div class="card" style="margin-top:16px" id="memory-optin-card">
+      <h3>Coach memory</h3>
+      <p class="muted" style="font-size:.9em">Want your coach to remember you? Turn this on and it will remember your name, goals, and preferences to personalize its replies. It's off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <label style="display:flex;align-items:center;gap:10px;font-weight:600">
+        <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
+        Remember me
+      </label>
+      <div id="memory-fields" class="hidden" style="margin-top:12px">
+        <label>Your name
+          <input type="text" id="memory-name" maxlength="60" placeholder="What should your coach call you?">
+        </label>
+        <label>Your goals
+          <input type="text" id="memory-goals" maxlength="500" placeholder="e.g. Protect muscle, steady energy">
+        </label>
+        <label>Preferences
+          <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
+        </label>
+        <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
+      </div>
+      <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your coach will remember you now.</p>
+    </div>
   </section>
 
   <!-- SETTINGS TAB -->
@@ -556,6 +578,12 @@
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h3>Privacy</h3>
       <p><strong>Stays on this device:</strong> everything you track, including water, food, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
+      <p><strong>AI coach messages:</strong> when you chat with your AI coach, your messages leave this device and are processed by our service to generate a reply. Messages are not stored afterward, unless you turn on coach memory.</p>
+      <p><strong>Coach memory (optional, off by default):</strong> if you turn it on in the AI Coach tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete coach memory)</button>
+        <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
+      </div>
       <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
       <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
     </div>
