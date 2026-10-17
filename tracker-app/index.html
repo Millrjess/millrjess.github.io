@@ -102,6 +102,18 @@
         style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
+    <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-label="Pick a date">
+      <div class="modal-card" style="max-width:340px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button class="btn btn-small" id="day-cal-prev" aria-label="Previous month">←</button>
+          <strong id="day-cal-title"></strong>
+          <button class="btn btn-small" id="day-cal-next" aria-label="Next month">→</button>
+        </div>
+        <div id="day-cal-grid" class="mini-calendar" style="font-size:1.1rem"></div>
+        <button class="btn btn-secondary" id="day-cal-close" style="width:100%;margin-top:12px;padding:12px">Close</button>
+      </div>
+    </div>
+
     <div class="encouragement" role="note">
       <p id="encouragement-text" style="margin:0"></p>
     </div>
@@ -111,7 +123,7 @@
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
-        <button class="btn btn-link" data-goto="injections">View shot history</button>
+        <button class="btn btn-secondary btn-small" data-goto="injections">View shot history</button>
       </div>
     </div>
 
@@ -452,8 +464,9 @@
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
 
-    <div class="card" style="margin-top:16px" id="memory-optin-card">
-      <h3>Coach memory</h3>
+    <details class="card" style="margin-top:16px" id="memory-optin-card" open>
+      <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Coach memory</summary>
+      <div style="margin-top:12px">
       <p class="muted" style="font-size:.9em">Want your coach to remember you? Turn this on and it will remember your name, goals, and preferences to personalize its replies. It's off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
         <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
@@ -472,7 +485,8 @@
         <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
       </div>
       <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your coach will remember you now.</p>
-    </div>
+      </div>
+    </details>
   </section>
 
   <!-- SETTINGS TAB -->

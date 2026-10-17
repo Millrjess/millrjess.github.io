@@ -889,6 +889,18 @@ label textarea {
 .mini-calendar .day.scheduled {
   box-shadow: inset 0 0 0 2px #7A8B6F;
 }
+.mini-calendar .day.selected {
+  background: #7A8B6F;
+  color: #fff;
+  font-weight: 700;
+}
+.mini-calendar .day.disabled {
+  opacity: .3;
+}
+.mini-calendar .day[data-pick-date] {
+  cursor: pointer;
+  min-height: 44px;
+}
 
 /* 50+ readability and calm: larger base type, roomier tap targets */
 body {

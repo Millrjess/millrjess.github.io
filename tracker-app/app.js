@@ -1763,16 +1763,60 @@ document.getElementById("day-next").addEventListener("click", () => {
 
 // Calendar date picker: jump straight to any past day
 const dayPicker = document.getElementById("day-picker");
-function openDayPicker() {
-  dayPicker.value = todayStr(viewOffset);
-  dayPicker.max = todayStr(0);
-  if (typeof dayPicker.showPicker === "function") {
-    dayPicker.showPicker();
-  } else {
-    dayPicker.focus();
-    dayPicker.click();
+let dayCalYear, dayCalMonth;
+
+function renderDayCalModal() {
+  const now = new Date();
+  if (dayCalYear === undefined) { dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth(); }
+  document.getElementById("day-cal-title").textContent =
+    new Date(dayCalYear, dayCalMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const grid = document.getElementById("day-cal-grid");
+  const todayS = todayStr(0);
+  const viewingS = todayStr(viewOffset);
+  const startDow = new Date(dayCalYear, dayCalMonth, 1).getDay();
+  const daysInMonth = new Date(dayCalYear, dayCalMonth + 1, 0).getDate();
+  let html = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = dayCalYear + "-" + String(dayCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const cls = ["day"];
+    if (ds === todayS) cls.push("today");
+    if (ds === viewingS) cls.push("selected");
+    const future = ds > todayS;
+    html += `<div class="${cls.join(" ")}${future ? " disabled" : ""}" ${future ? "" : `data-pick-date="${ds}" role="button" tabindex="0"`}>${d}</div>`;
   }
+  grid.innerHTML = html;
+  grid.querySelectorAll("[data-pick-date]").forEach((el) => {
+    const pick = () => {
+      const picked = new Date(el.dataset.pickDate + "T12:00:00");
+      const today = new Date(); today.setHours(12, 0, 0, 0);
+      viewOffset = Math.round((picked - today) / 86400000);
+      renderToday();
+      document.getElementById("day-cal-modal").classList.add("hidden");
+    };
+    el.addEventListener("click", pick);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
 }
+
+function openDayPicker() {
+  const now = new Date();
+  dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth();
+  renderDayCalModal();
+  document.getElementById("day-cal-modal").classList.remove("hidden");
+}
+document.getElementById("day-cal-prev").addEventListener("click", () => {
+  dayCalMonth--; if (dayCalMonth < 0) { dayCalMonth = 11; dayCalYear--; } renderDayCalModal();
+});
+document.getElementById("day-cal-next").addEventListener("click", () => {
+  dayCalMonth++; if (dayCalMonth > 11) { dayCalMonth = 0; dayCalYear++; } renderDayCalModal();
+});
+document.getElementById("day-cal-close").addEventListener("click", () => {
+  document.getElementById("day-cal-modal").classList.add("hidden");
+});
+document.getElementById("day-cal-modal").addEventListener("click", (e) => {
+  if (e.target.id === "day-cal-modal") document.getElementById("day-cal-modal").classList.add("hidden");
+});
 document.getElementById("day-cal").addEventListener("click", openDayPicker);
 // Tapping the date heading itself also opens the picker
 document.getElementById("date-tap").addEventListener("click", openDayPicker);
@@ -1871,6 +1915,7 @@ async function loadCoachMemory() {
       document.getElementById("memory-goals").value = data.profile.goals || "";
       document.getElementById("memory-preferences").value = data.profile.preferences || "";
       document.getElementById("memory-saved-msg").classList.remove("hidden");
+      document.getElementById("memory-optin-card").removeAttribute("open");
     }
   } catch (e) {
     // Memory unavailable; leave opt-in off
@@ -1901,6 +1946,7 @@ document.getElementById("memory-save").addEventListener("click", async () => {
     });
     if (res.ok) {
       document.getElementById("memory-saved-msg").classList.remove("hidden");
+      document.getElementById("memory-optin-card").removeAttribute("open");
     } else if (res.status === 400) {
       alert("Coach memory needs your personal key. Use the 'Get your personal app link' box on the welcome page to get one.");
     } else {
