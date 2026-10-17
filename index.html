@@ -102,6 +102,11 @@ tr:nth-child(even) td{background:#f8fafc}
 .hero h2{color:#fff; border:0}
 .hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
 .hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
+.hero-inner{display:flex; gap:2em; align-items:center}
+.hero-text{flex:1; min-width:0}
+.hero-photo{width:clamp(120px,18vw,180px); height:clamp(120px,18vw,180px); border-radius:50%;
+  object-fit:cover; border:3px solid #f0dfae; flex-shrink:0}
+@media (max-width:640px){.hero-inner{flex-direction:column; text-align:left}.hero-photo{align-self:flex-start}}
 .btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(13,148,136,.6); transition:transform .15s, background .15s}
@@ -183,10 +188,15 @@ body.home .page > article > h1:first-child{display:none}
 <main class="wrap page">
 <article>
 <section class="hero">
+<div class="hero-inner">
+<div class="hero-text">
 <h1>Your Website Should Win You Customers, Not Cost You Sleep</h1>
 <p class="lede">Website operations consultant with 23+ years keeping business websites fast, secure, and online. WordPress, Drupal, Joomla, and custom database-driven sites. Enterprise-level oversight without the enterprise overhead.</p>
 <p class="lede">Available now for contract engagements (1099), website care plans, and one-time projects.</p>
-<p class="hero-cta"><a class="btn" href="contact/">Request a Consultation</a> <a class="btn btn-ghost" href="portfolio/">View Portfolio</a></p>
+<p class="hero-cta"><a class="btn" href="contact/">Get a Website That Wins Customers</a></p>
+</div>
+<img class="hero-photo" src="assets/img/jessica-miller-headshot.jpg" alt="Jessica A. Miller" width="180" height="180">
+</div>
 </section>
 <section><h2>Featured Capstone Projects</h2><div class="cards"><a class="card" href="case-study-mobile-app/"><h3>UX Design Mobile App</h3><p>Capstone project</p></a><a class="card" href="case-study-website/"><h3>Parish Website</h3><p>Capstone project</p></a><a class="card" href="portfolio/"><h3>All Projects &rarr;</h3><p>LinkedIn projects and case studies</p></a></div>
 </section>
