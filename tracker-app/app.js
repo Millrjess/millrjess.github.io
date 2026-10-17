@@ -1522,7 +1522,7 @@ renderJournal();
 renderSideEffects();
 renderSettings();
 
-/* ---------- AI Companion chat ---------- */
+/* ---------- AI Coach chat ---------- */
 
 // Update this URL after deploying the Worker
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
@@ -1603,7 +1603,7 @@ function renderChat() {
   if (chatHistory.length === 0) {
     const welcome = document.createElement("div");
     welcome.className = "chat-msg assistant";
-    welcome.textContent = "Hi, I am your wellness companion. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going.";
+    welcome.textContent = "Hi, I am your AI coach. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going.";
     box.appendChild(welcome);
     return;
   }
@@ -1669,7 +1669,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
       // Missing or invalid token: the buyer link wasn't used
       chatHistory.push({
         role: "assistant",
-        content: "The companion needs your personal app link to work. Please open the link from your welcome email.",
+        content: "Your AI coach needs your personal app link to work. Please open the link from your welcome email.",
       });
     } else if (data.reply) {
       chatHistory.push({ role: "assistant", content: data.reply });
@@ -1686,7 +1686,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     if (typing) typing.remove();
     chatHistory.push({
       role: "assistant",
-      content: "I could not reach the companion service. Check your connection and try again.",
+      content: "I could not reach the AI coach service. Check your connection and try again.",
     });
   }
 
