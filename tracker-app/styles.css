@@ -900,6 +900,8 @@ label textarea {
 .mini-calendar .day[data-pick-date] {
   cursor: pointer;
   min-height: 44px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* 50+ readability and calm: larger base type, roomier tap targets */
