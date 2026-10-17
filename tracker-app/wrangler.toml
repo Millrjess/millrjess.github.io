@@ -10,9 +10,6 @@ binding = "RATE_LIMITS"
 id = "63359c5ce451493fa117aad1f107bbe6"
 
 # Per-user tokens and opt-in coach memory.
-# Create this namespace in the Cloudflare dashboard (Workers & Pages > KV),
-# then replace the id below. Until then, memory endpoints return an error
-# and the master AUTH_TOKEN keeps working for chat.
 [[kv_namespaces]]
 binding = "USERS"
-id = "REPLACE_WITH_USERS_KV_NAMESPACE_ID"
+id = "bd073e34848941cb97c36dd0490f984e"
