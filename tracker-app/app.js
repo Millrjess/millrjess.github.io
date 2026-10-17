@@ -618,15 +618,51 @@ document.querySelectorAll("[data-exercise]").forEach((btn) => {
   });
 });
 
+document.getElementById("exercise-type").addEventListener("change", (e) => {
+  document.getElementById("exercise-custom").classList.toggle("hidden", e.target.value !== "Other");
+});
+
+function getCustomActivities() {
+  try { return JSON.parse(localStorage.getItem("nc_custom_activities") || "[]"); } catch { return []; }
+}
+function saveCustomActivity(name) {
+  const list = getCustomActivities();
+  if (!list.includes(name)) {
+    list.push(name);
+    try { localStorage.setItem("nc_custom_activities", JSON.stringify(list)); } catch {}
+    const sel = document.getElementById("exercise-type");
+    const opt = document.createElement("option");
+    opt.textContent = name;
+    sel.insertBefore(opt, sel.querySelector('option[value=""]') || sel.lastChild);
+  }
+}
+function loadCustomActivities() {
+  const sel = document.getElementById("exercise-type");
+  getCustomActivities().forEach((name) => {
+    if (![...sel.options].some((o) => o.text === name)) {
+      const opt = document.createElement("option");
+      opt.textContent = name;
+      sel.insertBefore(opt, sel.lastChild);
+    }
+  });
+}
+
 document.getElementById("exercise-add").addEventListener("click", () => {
-  const type = document.getElementById("exercise-type").value;
+  let type = document.getElementById("exercise-type").value;
   const mins = Number(document.getElementById("exercise-minutes").value);
+  if (type === "Other") {
+    type = document.getElementById("exercise-custom").value.trim();
+    if (!type) return;
+    saveCustomActivity(type);
+  }
   if (!type || !mins || mins < 1) return;
   store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: type });
   saveStore();
   renderToday();
   document.getElementById("exercise-type").value = "";
   document.getElementById("exercise-minutes").value = "";
+  document.getElementById("exercise-custom").value = "";
+  document.getElementById("exercise-custom").classList.add("hidden");
 });
 
 /* Next injection countdown */
@@ -1877,6 +1913,7 @@ document.getElementById("clear-all-data").addEventListener("click", () => {
 
 /* ---------- Init ---------- */
 
+loadCustomActivities();
 renderToday();
 renderInjections();
 renderWeight();
