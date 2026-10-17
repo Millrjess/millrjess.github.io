@@ -1878,10 +1878,15 @@ let chatHistory = loadChatHistory();
     const key = params.get("key");
     if (key && key.length >= 16) {
       localStorage.setItem(TOKEN_KEY, key);
-      // Clean the URL so the token isn't left in the address bar
-      params.delete("key");
-      const clean = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
-      window.history.replaceState({}, "", clean);
+      // Only scrub the key from the address bar when running as an installed
+      // app. In a browser tab, keep it so Share > Add to Home Screen carries it.
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
+      if (isStandalone) {
+        params.delete("key");
+        const clean = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+        window.history.replaceState({}, "", clean);
+      }
     }
   } catch {
     /* URL parsing unavailable */
