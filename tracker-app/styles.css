@@ -844,3 +844,81 @@ label textarea {
 .chat-msg li:last-child {
   margin-bottom: 0;
 }
+
+/* Injection calendar */
+.mini-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+}
+.mini-calendar .dow {
+  text-align: center;
+  font-size: .72em;
+  color: #8A8A8A;
+  font-weight: 700;
+  padding: 4px 0;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.mini-calendar .day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: .92em;
+  min-height: 40px;
+}
+.mini-calendar .day.other-month {
+  visibility: hidden;
+}
+.mini-calendar .day.today {
+  box-shadow: inset 0 0 0 2px #C9A96A;
+  font-weight: 700;
+}
+.mini-calendar .day.logged {
+  background: #C9A96A;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mini-calendar .day.logged.today {
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #C9A96A;
+}
+.mini-calendar .day.scheduled {
+  box-shadow: inset 0 0 0 2px #7A8B6F;
+}
+
+/* 50+ readability and calm: larger base type, roomier tap targets */
+body {
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+/* Quick-add buttons are the most-tapped controls: make them generous */
+[data-water], [data-protein], [data-exercise] {
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+/* Bigger progress numbers for at-a-glance reading */
+.pc-value {
+  font-size: 1.5rem;
+}
+.pc-goal {
+  font-size: 0.85rem;
+}
+
+/* Roomier cards */
+.card {
+  margin-bottom: 16px;
+}
+
+/* Larger, easier tab bar labels */
+.tab-label {
+  font-size: 0.72rem;
+}
+.tab-btn {
+  min-height: 60px;
+}

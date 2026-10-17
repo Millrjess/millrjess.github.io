@@ -38,7 +38,7 @@
 <div id="setup-wizard" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
   <div class="modal-card">
     <h2 id="setup-title">Welcome to A New Chapter</h2>
-    <p class="muted">Let's set up your tracker. This takes less than a minute.</p>
+    <p class="muted">Let's set up your tracker. This takes less than a minute, and you can change anything later.</p>
     <form id="setup-form">
       <label>Your medication
         <select id="setup-med">
@@ -106,6 +106,11 @@
       <p id="encouragement-text" style="margin:0"></p>
     </div>
 
+    <div class="card hidden" id="coach-insight-card" style="border-left:4px solid #7A8B6F">
+      <p style="margin:0"><strong>Your AI coach noticed:</strong> <span id="coach-insight-text"></span></p>
+      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+    </div>
+
     <div class="progress-grid" aria-label="Daily progress summary">
       <div class="progress-card">
         <p class="pc-label">Protein</p>
@@ -125,6 +130,15 @@
     </div>
 
     <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
+
+    <div class="card" style="margin-top:12px">
+      <h3>Next Injection</h3>
+      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
+        <button class="btn btn-link" data-goto="injections">View shot history</button>
+      </div>
+    </div>
 
     <div class="card">
       <h3>Water Intake</h3>
@@ -194,12 +208,6 @@
     </div>
 
     <div class="card">
-      <h3>Next Injection</h3>
-      <p id="next-injection-line">Set your shot day in Settings.</p>
-      <button class="btn btn-link" data-goto="injections">View shot history</button>
-    </div>
-
-    <div class="card">
       <h3>Daily Mood</h3>
       <div class="mood-row" id="mood-row">
         <button class="mood-btn" data-mood="Great">Great</button>
@@ -215,6 +223,15 @@
       <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
+        <h3 style="margin:0" id="review-title">This month</h3>
+        <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
+      </div>
+      <div id="review-body" style="margin-top:12px"></div>
+    </div>
   </section>
 
   <!-- INJECTIONS TAB -->
@@ -223,6 +240,20 @@
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
     <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
     <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button class="btn btn-small" id="inj-cal-prev" aria-label="Previous month">←</button>
+        <h3 style="margin:0" id="inj-cal-title">This month</h3>
+        <button class="btn btn-small" id="inj-cal-next" aria-label="Next month">→</button>
+      </div>
+      <div id="inj-calendar" class="mini-calendar" role="grid" aria-label="Injection calendar"></div>
+      <p class="muted" style="font-size:.85em;margin:8px 0 0">
+        <span style="color:#C9A96A">●</span> Shot logged &nbsp;
+        <span style="color:#7A8B6F">○</span> Next scheduled
+      </p>
+      <p style="margin:8px 0 0;font-size:.9em" id="inj-cal-detail" aria-live="polite"></p>
+    </div>
 
     <form id="injection-form" class="card hidden" aria-label="Log injection">
       <h3>Log Injection</h3>

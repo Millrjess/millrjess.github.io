@@ -109,13 +109,16 @@ function escapeHtml(s) {
 /* Daily encouragement: rotate through supportive messages by day of year */
 
 const ENCOURAGEMENTS = [
-  "Every small step counts. You are doing great.",
+  "Strong is the goal now, not small. Protein first, every day.",
+  "Muscle is your longevity. Every gram of protein protects it.",
+  "You showed up today. That matters more than any number.",
+  "Consistency beats perfection, at every age.",
+  "Energy is the real goal. The rest follows.",
+  "This is your chapter. Write it strong.",
+  "Be patient with your body. It has carried you this far.",
+  "Small habits, repeated daily, create lasting change.",
   "Progress is not always visible, but it is always happening.",
-  "You showed up today. That matters.",
-  "Consistency beats perfection. Keep going.",
-  "Your future self will thank you for today.",
-  "Be patient with your body. It is working hard for you.",
-  "Small habits, repeated daily, create lasting change."
+  "You have earned every bit of wisdom in this chapter. Your body is catching up."
 ];
 
 function renderEncouragement() {
@@ -216,6 +219,7 @@ function showTab(name) {
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
   if (name === "weight") drawWeightChart();
+  if (name === "injections") renderInjectionCalendar();
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
@@ -229,6 +233,153 @@ tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.ta
 
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
+});
+
+/* ---------- Proactive coach insights ---------- */
+
+function streakFor(key, field, goalKey) {
+  const goal = Number(store.settings[goalKey]) || 0;
+  if (!goal) return 0;
+  let streak = 0;
+  let off = sumForDate(store[key], todayStr(0), field) > 0 ? 0 : 1;
+  for (; off < 90; off++) {
+    if (sumForDate(store[key], todayStr(-off), field) >= goal) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function pickCoachInsight() {
+  // Shot day tomorrow gets top priority
+  const shotDay = store.settings.shotDay;
+  if (shotDay) {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const diff = (days.indexOf(shotDay) - new Date().getDay() + 7) % 7;
+    if (diff === 1) return "Your shot day is tomorrow. Everything is ready.";
+    if (diff === 0 && !store.injections.some((e) => e.date === todayStr())) {
+      return null; // the one-tap button covers today
+    }
+  }
+  const pStreak = streakFor("protein", "grams", "proteinGoal");
+  if (pStreak >= 3) return "You've hit your protein goal " + pStreak + " days in a row. That's how strength is built after 50.";
+  const wStreak = streakFor("water", "oz", "waterGoal");
+  if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
+  const mStreak = streakFor("exercise", "minutes", "movementGoal");
+  if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  if (goalW > 0 && sorted.length) {
+    const remaining = Math.abs(Number(sorted[sorted.length - 1].value) - goalW);
+    if (remaining > 0 && remaining <= 5) return "Only " + remaining.toFixed(1) + " lbs to your goal. You're nearly there.";
+  }
+  if (sorted.length) {
+    const lastW = sorted[sorted.length - 1].date;
+    const daysSince = Math.round((new Date(todayStr()) - new Date(lastW + "T00:00:00")) / 86400000);
+    if (daysSince >= 7) return "It's been " + daysSince + " days since you weighed in. No pressure, just whenever you're ready.";
+  }
+  if (store.journal.length) {
+    const lastJ = [...store.journal].sort((a, b) => b.date.localeCompare(a.date))[0].date;
+    const daysSince = Math.round((new Date(todayStr()) - new Date(lastJ + "T00:00:00")) / 86400000);
+    if (daysSince >= 7) return "A lot can change in " + daysSince + " days. Two minutes of journaling?";
+  }
+  return null;
+}
+
+function renderCoachInsight() {
+  const card = document.getElementById("coach-insight-card");
+  if (!card) return;
+  const insight = pickCoachInsight();
+  if (!insight) { card.classList.add("hidden"); return; }
+  document.getElementById("coach-insight-text").textContent = insight;
+  card.classList.remove("hidden");
+}
+
+/* ---------- Monthly review story ---------- */
+
+let reviewYear, reviewMonth;
+
+function renderMonthlyReview() {
+  const body = document.getElementById("review-body");
+  if (!body) return;
+  const now = new Date();
+  if (reviewYear === undefined) { reviewYear = now.getFullYear(); reviewMonth = now.getMonth(); }
+  // Don't browse into the future
+  if (reviewYear > now.getFullYear() || (reviewYear === now.getFullYear() && reviewMonth > now.getMonth())) {
+    reviewYear = now.getFullYear(); reviewMonth = now.getMonth();
+  }
+  const title = new Date(reviewYear, reviewMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  document.getElementById("review-title").textContent = title;
+
+  const daysInMonth = new Date(reviewYear, reviewMonth + 1, 0).getDate();
+  const prefix = reviewYear + "-" + String(reviewMonth + 1).padStart(2, "0") + "-";
+  const inMonth = (d) => d && d.startsWith(prefix);
+
+  const daysLogged = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (inMonth(e.date)) daysLogged.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => { if (inMonth(d)) daysLogged.add(d); });
+
+  const goalDays = (key, field, goalKey) => {
+    const goal = Number(store.settings[goalKey]) || 0;
+    if (!goal) return 0;
+    let n = 0;
+    for (let d = 1; d <= daysInMonth; d++) {
+      if (sumForDate(store[key], prefix + String(d).padStart(2, "0"), field) >= goal) n++;
+    }
+    return n;
+  };
+  const proteinDays = goalDays("protein", "grams", "proteinGoal");
+  const waterDays = goalDays("water", "oz", "waterGoal");
+  const moveDays = goalDays("exercise", "minutes", "movementGoal");
+  const shots = store.injections.filter((e) => inMonth(e.date)).length;
+  const journals = store.journal.filter((e) => inMonth(e.date)).length;
+
+  const weights = store.weight.filter((e) => inMonth(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+  let weightLine = "";
+  if (weights.length >= 2) {
+    const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+    const change = startW - endW;
+    weightLine = change > 0
+      ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+      : change < 0
+        ? "Weight went from " + startW + " to " + endW + " lbs."
+        : "Weight held steady at " + endW + " lbs.";
+  } else if (weights.length === 1) {
+    weightLine = "You logged your weight at " + weights[0].value + " lbs.";
+  }
+
+  const lines = [];
+  lines.push("You showed up " + daysLogged.size + " of " + daysInMonth + " days.");
+  if (proteinDays) lines.push("Protein goal reached " + proteinDays + " days.");
+  if (waterDays) lines.push("Water goal reached " + waterDays + " days.");
+  if (moveDays) lines.push("Movement goal reached " + moveDays + " days.");
+  if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+  if (journals) lines.push(journals + " journal " + (journals === 1 ? "entry" : "entries") + " written.");
+  if (weightLine) lines.push(weightLine);
+
+  const isCurrent = reviewYear === now.getFullYear() && reviewMonth === now.getMonth();
+  const closing = daysLogged.size === 0
+    ? "A blank page. Next month is yours to write."
+    : isCurrent
+      ? "The month isn't over yet. Keep writing."
+      : "That's a chapter worth keeping.";
+
+  body.innerHTML = lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("") +
+    `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
+
+  document.getElementById("review-next").style.visibility = isCurrent ? "hidden" : "";
+}
+
+document.getElementById("review-prev").addEventListener("click", () => {
+  reviewMonth--;
+  if (reviewMonth < 0) { reviewMonth = 11; reviewYear--; }
+  renderMonthlyReview();
+});
+document.getElementById("review-next").addEventListener("click", () => {
+  reviewMonth++;
+  if (reviewMonth > 11) { reviewMonth = 0; reviewYear++; }
+  renderMonthlyReview();
 });
 
 /* ---------- Today tab ---------- */
@@ -336,6 +487,8 @@ function renderToday() {
   document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
 
   renderBackupNudge();
+  renderCoachInsight();
+  renderMonthlyReview();
 }
 
 /* Today's water, protein, and movement entries with per-entry remove */
@@ -493,7 +646,40 @@ function renderNextInjection() {
   const lastSite = last ? " Last site: " + last.site + "." : "";
   const when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
+
+  // One-tap shot logging uses the usual medication, dose, and last site
+  const quickBtn = document.getElementById("quick-log-shot");
+  const alreadyLogged = store.injections.some((e) => e.date === todayStr());
+  quickBtn.style.display = alreadyLogged ? "none" : "";
+  if (!alreadyLogged && last && last.site) {
+    quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
+  } else {
+    quickBtn.textContent = "Log today's shot";
+  }
 }
+
+document.getElementById("quick-log-shot").addEventListener("click", () => {
+  const t = todayStr();
+  if (store.injections.some((e) => e.date === t)) return;
+  const last = [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  if (!last || !last.site) {
+    alert("Log your first shot in the Injections tab so I know your usual site. After that, one tap does it.");
+    showTab("injections");
+    return;
+  }
+  store.injections.push({
+    id: uid(),
+    date: t,
+    medication: store.settings.medication || last.medication || "Zepbound",
+    dose: Number(store.settings.dose) || Number(last.dose) || 0,
+    site: last.site,
+    notes: ""
+  });
+  saveStore();
+  renderInjections();
+  renderInjectionCalendar();
+  renderToday();
+});
 
 /* Daily mood */
 
@@ -514,6 +700,79 @@ document.querySelectorAll(".mood-btn").forEach((btn) => {
     saveStore();
     renderMood();
   });
+});
+
+/* ---------- Injection calendar ---------- */
+
+let injCalYear, injCalMonth;
+
+function nextShotDateStr() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  if (target < 0) return null;
+  const now = new Date();
+  const diff = (target - now.getDay() + 7) % 7;
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function renderInjectionCalendar() {
+  const cal = document.getElementById("inj-calendar");
+  if (!cal) return;
+  const now = new Date();
+  if (injCalYear === undefined) { injCalYear = now.getFullYear(); injCalMonth = now.getMonth(); }
+  document.getElementById("inj-cal-title").textContent =
+    new Date(injCalYear, injCalMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+  const loggedByDate = {};
+  store.injections.forEach((inj) => {
+    (loggedByDate[inj.date] = loggedByDate[inj.date] || []).push(inj);
+  });
+  const nextShot = nextShotDateStr();
+  const todayS = todayStr();
+
+  const startDow = new Date(injCalYear, injCalMonth, 1).getDay();
+  const daysInMonth = new Date(injCalYear, injCalMonth + 1, 0).getDate();
+  let html = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    .map((d) => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = injCalYear + "-" + String(injCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const cls = ["day"];
+    if (ds === todayS) cls.push("today");
+    if (loggedByDate[ds]) cls.push("logged");
+    else if (ds === nextShot) cls.push("scheduled");
+    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0"` : "";
+    html += `<div class="${cls.join(" ")}"${tap}>${d}</div>`;
+  }
+  cal.innerHTML = html;
+
+  cal.querySelectorAll("[data-cal-date]").forEach((el) => {
+    const show = () => {
+      const list = loggedByDate[el.dataset.calDate] || [];
+      document.getElementById("inj-cal-detail").textContent =
+        formatDate(el.dataset.calDate) + ": " +
+        list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ");
+    };
+    el.addEventListener("click", show);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
+    });
+  });
+  document.getElementById("inj-cal-detail").textContent = "";
+}
+
+document.getElementById("inj-cal-prev").addEventListener("click", () => {
+  injCalMonth--;
+  if (injCalMonth < 0) { injCalMonth = 11; injCalYear--; }
+  renderInjectionCalendar();
+});
+document.getElementById("inj-cal-next").addEventListener("click", () => {
+  injCalMonth++;
+  if (injCalMonth > 11) { injCalMonth = 0; injCalYear++; }
+  renderInjectionCalendar();
 });
 
 /* ---------- Injections ---------- */
@@ -602,6 +861,7 @@ injForm.addEventListener("submit", (e) => {
   saveStore();
   injectionLimit = 10;
   renderInjections();
+  renderInjectionCalendar();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
 });
@@ -651,6 +911,7 @@ function renderInjections() {
     saveStore();
     injectionLimit = 10;
     renderInjections();
+    renderInjectionCalendar();
     renderToday();
   }));
 
