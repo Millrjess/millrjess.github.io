@@ -613,7 +613,7 @@ label textarea {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  padding: 8px 2px calc(8px + env(safe-area-inset-bottom));
   z-index: 100;
   box-shadow: 0 -2px 16px rgba(78, 92, 70, 0.06);
 }
