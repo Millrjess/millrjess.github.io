@@ -22,7 +22,6 @@
     }
   ],
   "name": "A New Chapter Tracker",
-  "orientation": "portrait",
   "short_name": "GLP-1 Tracker",
   "theme_color": "#7A8B6F",
   "scope": "./"
