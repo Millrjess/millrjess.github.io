@@ -292,9 +292,9 @@ async function handleCodeRequest(request, env) {
     if (!token) {
       return corsResponse(JSON.stringify({ found: false }), request, 200);
     }
-    // 6-digit code, single-use, expires in 15 minutes
+    // 6-digit code, re-redeemable within 24 hours (covers PWA install wiping Safari storage)
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    await env.USERS.put("code:" + code, JSON.stringify({ token, created: new Date().toISOString() }), { expirationTtl: 900 });
+    await env.USERS.put("code:" + code, JSON.stringify({ token, created: new Date().toISOString() }), { expirationTtl: 86400 });
     return corsResponse(JSON.stringify({ found: true, code }), request, 200);
   } catch (e) {
     console.error("Code request KV error:", e);
@@ -319,8 +319,8 @@ async function handleCodeRedeem(request, env) {
     if (!raw) {
       return corsResponse(JSON.stringify({ error: "That code is not valid or has expired. Request a new one." }), request, 400);
     }
-    // Single-use: delete on redeem
-    await env.USERS.delete("code:" + code);
+    // Re-redeemable within TTL: do NOT delete, so users can re-enter after
+    // installing the PWA (iOS wipes Safari storage on Add to Home Screen).
     const { token } = JSON.parse(raw);
     return corsResponse(JSON.stringify({ ok: true, token }), request, 200);
   } catch (e) {
