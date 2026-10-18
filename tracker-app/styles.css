@@ -10,7 +10,7 @@
   --gold-light: #EADDC2;
   --gold-soft: #F5EDD8;
   --sage: #8A9B7E;
-  --sage-dark: #6B7D5F;
+  --sage-dark: #5F6E55;
   --sage-deep: #4E5C46;
   --sage-light: #EDF1E8;
   --sage-soft: #F2F5EE;
@@ -470,7 +470,7 @@ label textarea {
   right: 0;
   background: rgba(0,0,0,0.55);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   padding: 4px 8px;
   display: flex;
   justify-content: space-between;
@@ -483,7 +483,7 @@ label textarea {
   color: #fff;
   border-radius: 4px;
   padding: 2px 8px;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   cursor: pointer;
 }
 
@@ -727,7 +727,7 @@ label textarea {
 }
 
 .pc-label {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
@@ -931,7 +931,7 @@ body {
 
 /* Larger, easier tab bar labels */
 .tab-label {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 .tab-btn {
   min-height: 60px;
@@ -1007,6 +1007,6 @@ details.card summary h3 {
 .site-map-caption .rotation-nudge {
   display: block;
   margin-top: 4px;
-  color: var(--gold-dark);
+  color: #7A6238;
   font-weight: 600;
 }
