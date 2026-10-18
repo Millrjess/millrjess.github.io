@@ -968,7 +968,7 @@ details.card summary h3 {
 }
 #site-map {
   display: block;
-  width: 148px;
+  width: 172px;
   height: auto;
   margin: 0 auto;
 }
@@ -991,6 +991,7 @@ details.card summary h3 {
 #site-map .site-zone.selected {
   fill: var(--gold);
   stroke: var(--gold-dark);
+  stroke-width: 4;
 }
 #site-map .site-zone.last-used {
   stroke: var(--gold-dark);

@@ -286,6 +286,7 @@
       <label>Injection site
         <span class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 340" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
+            <title>Injection site map</title>
             <!-- body silhouette -->
             <circle cx="100" cy="32" r="20" class="body-part"/>
             <rect x="92" y="50" width="16" height="14" rx="4" class="body-part"/>
@@ -294,13 +295,13 @@
             <rect x="142" y="66" width="20" height="100" rx="10" class="body-part"/>
             <rect x="66" y="172" width="30" height="132" rx="13" class="body-part"/>
             <rect x="104" y="172" width="30" height="132" rx="13" class="body-part"/>
-            <!-- tappable zones -->
-            <rect x="38" y="82" width="20" height="38" rx="8" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
-            <rect x="142" y="82" width="20" height="38" rx="8" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
-            <rect x="66" y="102" width="34" height="48" rx="8" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
-            <rect x="100" y="102" width="34" height="48" rx="8" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
-            <rect x="66" y="186" width="30" height="58" rx="8" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-            <rect x="104" y="186" width="30" height="58" rx="8" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            <!-- tappable zones (sized for 24px+ touch targets at display size) -->
+            <rect x="33" y="80" width="30" height="44" rx="9" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
+            <rect x="137" y="80" width="30" height="44" rx="9" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
+            <rect x="64" y="100" width="36" height="52" rx="9" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
+            <rect x="100" y="100" width="36" height="52" rx="9" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
+            <rect x="64" y="184" width="34" height="62" rx="9" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+            <rect x="102" y="184" width="34" height="62" rx="9" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
         </span>
