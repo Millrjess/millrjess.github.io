@@ -872,7 +872,48 @@ document.getElementById("show-injection-form").addEventListener("click", () => {
   document.getElementById("inj-date").value = todayStr();
   document.getElementById("inj-med").value = store.settings.medication || "";
   toggleForm(injForm, document.getElementById("show-injection-form"), true);
+  renderSiteMap();
 });
+
+// ---- Injection site map ----
+const siteMapZones = () => [...document.querySelectorAll("#site-map .site-zone")];
+
+function lastInjection() {
+  if (!store.injections.length) return null;
+  return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+}
+
+function renderSiteMap() {
+  const select = document.getElementById("inj-site");
+  if (!select) return;
+  const chosen = select.value;
+  const last = lastInjection();
+  const caption = document.getElementById("site-map-caption");
+  siteMapZones().forEach((z) => {
+    z.classList.toggle("selected", z.dataset.site === chosen);
+    z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
+  });
+  let html = "Tap a zone to select it.";
+  if (last && last.site) {
+    html += " Last shot: <strong>" + escapeHtml(last.site) + "</strong> on " + escapeHtml(formatDate(last.date)) + ".";
+  }
+  if (last && chosen && last.site === chosen) {
+    html += '<span class="rotation-nudge">You used ' + escapeHtml(chosen) + " last time. Consider rotating to a fresh site.</span>";
+  }
+  if (caption) caption.innerHTML = html;
+}
+
+siteMapZones().forEach((z) => {
+  const pick = () => {
+    document.getElementById("inj-site").value = z.dataset.site;
+    renderSiteMap();
+  };
+  z.addEventListener("click", pick);
+  z.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); }
+  });
+});
+document.getElementById("inj-site").addEventListener("change", renderSiteMap);
 
 document.getElementById("cancel-injection").addEventListener("click", () => {
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
@@ -900,6 +941,7 @@ injForm.addEventListener("submit", (e) => {
   injectionLimit = 10;
   renderInjections();
   renderInjectionCalendar();
+  renderSiteMap();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
 });
@@ -940,6 +982,7 @@ function renderInjections() {
     document.getElementById("inj-site").value = inj.site;
     document.getElementById("inj-notes").value = inj.notes || "";
     toggleForm(injForm, document.getElementById("show-injection-form"), true);
+    renderSiteMap();
     window.scrollTo(0, 0);
   }));
 

@@ -960,3 +960,52 @@ details.card[open] summary::before {
 details.card summary h3 {
   font-size: 1.05rem;
 }
+
+/* Injection site map */
+.site-map-wrap {
+  display: block;
+  margin: 10px 0 6px;
+}
+#site-map {
+  display: block;
+  width: 148px;
+  height: auto;
+  margin: 0 auto;
+}
+#site-map .body-part {
+  fill: var(--sage-soft);
+  stroke: var(--sage);
+  stroke-width: 1.5;
+}
+#site-map .site-zone {
+  fill: var(--sage-light);
+  stroke: var(--sage-dark);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+#site-map .site-zone:hover,
+#site-map .site-zone:focus-visible {
+  fill: var(--gold-light);
+}
+#site-map .site-zone.selected {
+  fill: var(--gold);
+  stroke: var(--gold-dark);
+}
+#site-map .site-zone.last-used {
+  stroke: var(--gold-dark);
+  stroke-width: 3;
+  stroke-dasharray: 6 3;
+}
+.site-map-caption {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 8px 0 4px;
+}
+.site-map-caption .rotation-nudge {
+  display: block;
+  margin-top: 4px;
+  color: var(--gold-dark);
+  font-weight: 600;
+}
