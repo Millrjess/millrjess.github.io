@@ -981,6 +981,12 @@ details.card summary h3 {
   stroke: var(--sage);
   stroke-width: 1.5;
 }
+#site-map .body-line {
+  fill: none;
+  stroke: var(--sage);
+  stroke-width: 1;
+  opacity: 0.5;
+}
 #site-map .site-zone {
   fill: var(--sage-light);
   stroke: var(--sage-dark);

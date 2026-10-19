@@ -287,21 +287,23 @@
         <span class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 340" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
-            <!-- body silhouette -->
-            <circle cx="100" cy="32" r="20" class="body-part"/>
-            <rect x="92" y="50" width="16" height="14" rx="4" class="body-part"/>
-            <rect x="62" y="62" width="76" height="112" rx="26" class="body-part"/>
-            <rect x="38" y="66" width="20" height="100" rx="10" class="body-part"/>
-            <rect x="142" y="66" width="20" height="100" rx="10" class="body-part"/>
-            <rect x="66" y="172" width="30" height="132" rx="13" class="body-part"/>
-            <rect x="104" y="172" width="30" height="132" rx="13" class="body-part"/>
+            <!-- female body silhouette -->
+            <circle cx="100" cy="26" r="17" class="body-part"/>
+            <path d="M93 41 Q93 50 89 54 Q78 57 72 64 Q68 72 70 84 Q72 96 70 108 Q68 122 70 136 Q72 150 70 162 Q72 172 80 176 L120 176 Q128 172 130 162 Q128 150 130 136 Q132 122 130 108 Q128 96 130 84 Q132 72 128 64 Q122 57 111 54 Q107 50 107 41 Z" class="body-part"/>
+            <path d="M72 64 Q64 66 61 76 Q58 90 60 106 Q62 122 60 138 Q59 150 63 154 Q67 157 69 150 Q72 134 72 116 Q72 98 74 82 Z" class="body-part"/>
+            <path d="M128 64 Q136 66 139 76 Q142 90 140 106 Q138 122 140 138 Q141 150 137 154 Q133 157 131 150 Q128 134 128 116 Q128 98 126 82 Z" class="body-part"/>
+            <path d="M80 176 Q77 198 79 226 Q81 254 79 282 Q78 298 86 300 Q94 302 95 290 Q97 254 97 226 Q97 200 99 180 Z" class="body-part"/>
+            <path d="M120 176 Q123 198 121 226 Q119 254 121 282 Q122 298 114 300 Q106 302 105 290 Q103 254 103 226 Q103 200 101 180 Z" class="body-part"/>
+            <!-- bust and hip shading for femininity -->
+            <path d="M78 88 Q89 94 100 94 Q111 94 122 88" class="body-line"/>
+            <path d="M74 140 Q87 148 100 148 Q113 148 126 140" class="body-line"/>
             <!-- tappable zones (sized for 24px+ touch targets at display size) -->
-            <rect x="33" y="80" width="30" height="44" rx="9" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
-            <rect x="137" y="80" width="30" height="44" rx="9" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
-            <rect x="64" y="100" width="36" height="52" rx="9" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
-            <rect x="100" y="100" width="36" height="52" rx="9" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
-            <rect x="64" y="184" width="34" height="62" rx="9" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-            <rect x="102" y="184" width="34" height="62" rx="9" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            <ellipse cx="64" cy="108" rx="13" ry="22" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
+            <ellipse cx="136" cy="108" rx="13" ry="22" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
+            <ellipse cx="84" cy="126" rx="15" ry="26" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
+            <ellipse cx="116" cy="126" rx="15" ry="26" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
+            <ellipse cx="87" cy="218" rx="14" ry="32" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+            <ellipse cx="113" cy="218" rx="14" ry="32" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
         </span>
