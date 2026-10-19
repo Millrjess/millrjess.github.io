@@ -1107,3 +1107,10 @@ textarea {
   min-height: 44px;
   font-size: 16px;
 }
+
+/* ---------- Hide entry lists (steppers + undo handle corrections) ---------- */
+#water-list,
+#protein-list,
+#exercise-list {
+  display: none;
+}
