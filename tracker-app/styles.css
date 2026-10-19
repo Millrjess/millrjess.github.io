@@ -974,6 +974,7 @@ details.card summary h3 {
   display: block;
   width: 172px;
   height: auto;
+  max-height: 480px;
   margin: 0 auto;
 }
 #site-map .body-part {
@@ -988,20 +989,23 @@ details.card summary h3 {
   opacity: 0.5;
 }
 #site-map .site-zone {
-  fill: var(--sage-light);
-  stroke: var(--sage-dark);
-  stroke-width: 1.5;
+  fill: var(--gold);
+  fill-opacity: 0.25;
+  stroke: var(--gold-dark);
+  stroke-width: 3;
+  stroke-opacity: 0.6;
   cursor: pointer;
-  transition: fill 0.15s ease;
+  transition: fill-opacity 0.15s ease;
 }
 #site-map .site-zone:hover,
 #site-map .site-zone:focus-visible {
-  fill: var(--gold-light);
+  fill-opacity: 0.5;
 }
 #site-map .site-zone.selected {
-  fill: var(--gold);
+  fill-opacity: 0.65;
   stroke: var(--gold-dark);
-  stroke-width: 4;
+  stroke-opacity: 1;
+  stroke-width: 5;
 }
 #site-map .site-zone.last-used {
   stroke: var(--gold-dark);
