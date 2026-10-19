@@ -79,15 +79,6 @@ h1, h2, h3 {
   overflow: hidden;
 }
 
-.header-lotus {
-  width: 64px;
-  height: 64px;
-  display: block;
-  margin: 0 auto 12px;
-  position: relative;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
-}
-
 .app-header::before {
   content: "";
   position: absolute;
