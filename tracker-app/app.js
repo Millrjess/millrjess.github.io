@@ -1915,35 +1915,15 @@ dayPicker.addEventListener("change", () => {
 
 /* ---------- First-run setup wizard ---------- */
 
-(function setupWizard() {
+(function setupDefaults() {
   if (localStorage.getItem("nct-setup-done")) return;
-  const overlay = document.getElementById("setup-wizard");
-  const form = document.getElementById("setup-form");
-  overlay.classList.remove("hidden");
-
-  const finish = () => {
-    localStorage.setItem("nct-setup-done", "1");
-    overlay.classList.add("hidden");
-  };
-
-  document.getElementById("setup-skip").addEventListener("click", finish);
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    store.settings.medication = document.getElementById("setup-med").value || "Zepbound";
-    const dose = parseFloat(document.getElementById("setup-dose").value);
-    if (!isNaN(dose)) store.settings.dose = dose;
-    store.settings.shotDay = document.getElementById("setup-shot-day").value || "";
-    const water = parseInt(document.getElementById("setup-water").value, 10);
-    if (!isNaN(water)) store.settings.waterGoal = water;
-    const protein = parseInt(document.getElementById("setup-protein").value, 10);
-    if (!isNaN(protein)) store.settings.proteinGoal = protein;
-    saveStore();
-    renderSettings();
-    renderNextInjection();
-    renderToday();
-    finish();
-  });
+  // Set sensible defaults silently, no blocking wizard.
+  // User can change everything in Settings.
+  if (!store.settings.medication) store.settings.medication = "Zepbound";
+  if (!store.settings.waterGoal) store.settings.waterGoal = 80;
+  if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
+  saveStore();
+  localStorage.setItem("nct-setup-done", "1");
 })();
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
