@@ -125,9 +125,12 @@
       <div class="progress-bar" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="water-progressbar"><div class="progress-fill" id="water-progress"></div></div>
       <p class="percent-line" id="water-percent">0% of daily goal</p>
       <div class="quick-add">
-        <button class="btn btn-small" data-water="8">+8 oz</button>
-        <button class="btn btn-small" data-water="16">+16 oz</button>
-        <button class="btn btn-small" data-water="24">+24 oz</button>
+        <div class="stepper" role="group" aria-label="Water amount stepper">
+          <button class="btn btn-small stepper-btn" id="water-minus" aria-label="Decrease water amount">−</button>
+          <input type="number" id="water-step" value="8" min="1" max="64" aria-label="Water ounces per tap" class="stepper-input">
+          <span class="stepper-unit">oz</span>
+          <button class="btn btn-small stepper-btn" id="water-plus" aria-label="Add water">+</button>
+        </div>
         <button class="btn btn-small" id="undo-water">Undo</button>
       </div>
       <div id="water-list" class="today-entries"></div>
@@ -139,8 +142,12 @@
       <div class="progress-bar" role="progressbar" aria-label="Protein intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="protein-progressbar"><div class="progress-fill" id="protein-progress"></div></div>
       <p class="percent-line" id="protein-percent">0% of daily goal</p>
       <div class="quick-add">
-        <button class="btn btn-small" data-protein="15">+15 g</button>
-        <button class="btn btn-small" data-protein="30">+30 g shake</button>
+        <div class="stepper" role="group" aria-label="Protein amount stepper">
+          <button class="btn btn-small stepper-btn" id="protein-minus" aria-label="Decrease protein amount">−</button>
+          <input type="number" id="protein-step" value="15" min="1" max="100" aria-label="Protein grams per tap" class="stepper-input">
+          <span class="stepper-unit">g</span>
+          <button class="btn btn-small stepper-btn" id="protein-plus" aria-label="Add protein">+</button>
+        </div>
         <button class="btn btn-small" id="undo-protein">Undo</button>
       </div>
       <div id="recent-foods" class="recent-foods"></div>
@@ -179,9 +186,12 @@
         <button class="btn btn-small" id="exercise-add" style="white-space:nowrap">Add</button>
       </div>
       <div class="quick-add">
-        <button class="btn btn-small" data-exercise="15">+15 min walk</button>
-        <button class="btn btn-small" data-exercise="10">+10 min stretch</button>
-        <button class="btn btn-small" data-exercise="30">+30 min workout</button>
+        <div class="stepper" role="group" aria-label="Exercise minutes stepper">
+          <button class="btn btn-small stepper-btn" id="exercise-minus" aria-label="Decrease minutes">−</button>
+          <input type="number" id="exercise-step" value="15" min="1" max="180" aria-label="Minutes per tap" class="stepper-input">
+          <span class="stepper-unit">min</span>
+          <button class="btn btn-small stepper-btn" id="exercise-plus" aria-label="Add exercise">+</button>
+        </div>
       </div>
       <div id="exercise-list" class="today-entries"></div>
       <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>

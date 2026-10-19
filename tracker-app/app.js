@@ -572,6 +572,37 @@ document.querySelectorAll("[data-water]").forEach((btn) => {
   });
 });
 
+/* ---------- Steppers ---------- */
+function getStep(id, fallback) {
+  const el = document.getElementById(id);
+  const v = Number(el.value);
+  return v > 0 ? v : fallback;
+}
+document.getElementById("water-plus").addEventListener("click", () => {
+  store.water.push({ id: uid(), date: todayStr(), oz: getStep("water-step", 8) });
+  saveStore(); renderToday();
+});
+document.getElementById("water-minus").addEventListener("click", () => {
+  store.water.push({ id: uid(), date: todayStr(), oz: -getStep("water-step", 8) });
+  saveStore(); renderToday();
+});
+document.getElementById("protein-plus").addEventListener("click", () => {
+  store.protein.push({ id: uid(), date: todayStr(), grams: getStep("protein-step", 15), food: "Quick add" });
+  saveStore(); renderToday();
+});
+document.getElementById("protein-minus").addEventListener("click", () => {
+  store.protein.push({ id: uid(), date: todayStr(), grams: -getStep("protein-step", 15), food: "Quick adjust" });
+  saveStore(); renderToday();
+});
+document.getElementById("exercise-plus").addEventListener("click", () => {
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: getStep("exercise-step", 15), label: "Exercise" });
+  saveStore(); renderToday();
+});
+document.getElementById("exercise-minus").addEventListener("click", () => {
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: -getStep("exercise-step", 15), label: "Adjustment" });
+  saveStore(); renderToday();
+});
+
 document.querySelectorAll("[data-protein]").forEach((btn) => {
   btn.addEventListener("click", () => {
     store.protein.push({ id: uid(), date: todayStr(), grams: Number(btn.dataset.protein), food: "Quick add" });

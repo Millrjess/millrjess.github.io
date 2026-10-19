@@ -1033,3 +1033,58 @@ details.card summary h3 {
   color: #7A6238;
   font-weight: 600;
 }
+
+/* ---------- Steppers ---------- */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+.stepper-btn {
+  min-width: 44px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 8px 12px;
+}
+.stepper-input {
+  width: 64px;
+  text-align: center;
+  padding: 8px 6px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  -moz-appearance: textfield;
+}
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.stepper-unit {
+  font-size: 0.9rem;
+  color: var(--muted, #666);
+  font-weight: 600;
+}
+
+/* ---------- Overflow fix ---------- */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+.inline-form {
+  flex-wrap: wrap;
+}
+.inline-form input {
+  min-width: 0;
+}
+@media (max-width: 400px) {
+  .inline-form input {
+    flex: 1 1 100%;
+  }
+  .inline-form .btn {
+    flex: 1;
+  }
+}
