@@ -342,17 +342,20 @@ label textarea {
 
 .mood-row {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .mood-btn {
   font: inherit;
+  font-size: 0.9rem;
   border: 2px solid var(--border);
   background: #fff;
   border-radius: 20px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   cursor: pointer;
+  flex: 1;
+  white-space: nowrap;
 }
 
 .mood-btn.selected {
