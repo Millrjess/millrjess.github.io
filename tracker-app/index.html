@@ -285,16 +285,21 @@
       </label>
       <label>Injection site
         <span class="site-map-wrap">
-          <svg id="site-map" viewBox="0 0 767 2071" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
+          <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
-            <image href="bodymap-bg.png" x="0" y="0" width="767" height="2071" aria-hidden="true"/>
-            <!-- tappable zones (sized for 24px+ touch targets at display size) -->
-            <ellipse cx="138" cy="663" rx="55" ry="90" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
-            <ellipse cx="629" cy="663" rx="55" ry="90" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
-            <ellipse cx="291" cy="870" rx="70" ry="100" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
-            <ellipse cx="476" cy="870" rx="70" ry="100" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
-            <ellipse cx="276" cy="1201" rx="70" ry="115" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-            <ellipse cx="491" cy="1201" rx="70" ry="115" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            <!-- zone layout: arms top, abdomen middle, thighs bottom -->
+            <ellipse cx="55" cy="40" rx="28" ry="32" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm"/>
+            <ellipse cx="145" cy="40" rx="28" ry="32" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm"/>
+            <text x="55" y="44" text-anchor="middle" class="zone-label">Arm</text>
+            <text x="145" y="44" text-anchor="middle" class="zone-label">Arm</text>
+            <ellipse cx="65" cy="120" rx="32" ry="36" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
+            <ellipse cx="135" cy="120" rx="32" ry="36" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
+            <text x="65" y="124" text-anchor="middle" class="zone-label">Belly</text>
+            <text x="135" y="124" text-anchor="middle" class="zone-label">Belly</text>
+            <ellipse cx="65" cy="200" rx="32" ry="36" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+            <ellipse cx="135" cy="200" rx="32" ry="36" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            <text x="65" y="204" text-anchor="middle" class="zone-label">Thigh</text>
+            <text x="135" y="204" text-anchor="middle" class="zone-label">Thigh</text>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
         </span>

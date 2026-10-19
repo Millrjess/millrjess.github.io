@@ -989,23 +989,26 @@ details.card summary h3 {
   opacity: 0.5;
 }
 #site-map .site-zone {
-  fill: var(--gold);
-  fill-opacity: 0.25;
-  stroke: var(--gold-dark);
-  stroke-width: 3;
-  stroke-opacity: 0.6;
+  fill: var(--sage-soft);
+  stroke: var(--sage);
+  stroke-width: 2;
   cursor: pointer;
-  transition: fill-opacity 0.15s ease;
+  transition: fill 0.15s ease;
+}
+#site-map .zone-label {
+  font-size: 11px;
+  fill: var(--sage-dark);
+  pointer-events: none;
+  font-weight: 600;
 }
 #site-map .site-zone:hover,
 #site-map .site-zone:focus-visible {
-  fill-opacity: 0.5;
+  fill: var(--gold-light);
 }
 #site-map .site-zone.selected {
-  fill-opacity: 0.65;
+  fill: var(--gold);
   stroke: var(--gold-dark);
-  stroke-opacity: 1;
-  stroke-width: 5;
+  stroke-width: 3;
 }
 #site-map .site-zone.last-used {
   stroke: var(--gold-dark);
