@@ -1091,3 +1091,19 @@ html, body {
     flex: 1;
   }
 }
+
+/* ---------- Readable inputs ---------- */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  font-size: 16px; /* prevents iOS zoom on focus */
+  min-height: 48px; /* comfortable tap target */
+}
+.inline-form input {
+  padding: 12px;
+}
+.stepper-input {
+  min-height: 44px;
+  font-size: 16px;
+}
