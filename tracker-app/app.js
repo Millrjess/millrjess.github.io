@@ -459,9 +459,16 @@ function renderToday() {
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
+  const moveGoal = Number(store.settings.movementGoal) || 30;
+  document.getElementById("exercise-goal-display").textContent = moveGoal;
+  const exPct = Math.round((exMin / moveGoal) * 100);
+  document.getElementById("exercise-progress").style.width = Math.min(100, exPct) + "%";
+  document.getElementById("exercise-progressbar").setAttribute("aria-valuenow", Math.min(100, exPct));
+  document.getElementById("exercise-percent").textContent = exPct >= 100
+    ? "Goal reached! Nice work."
+    : exPct + "% of daily goal";
 
   // Summary cards (3 cards: protein, water, movement)
-  const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("sum-protein-goal").textContent = proteinGoal;
   document.getElementById("sum-water-goal").textContent = waterGoal;
   document.getElementById("sum-move-goal").textContent = moveGoal;

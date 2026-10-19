@@ -163,7 +163,9 @@
 
     <div class="card">
       <h3>Movement</h3>
-      <p class="big-number"><span id="exercise-today">0</span> min</p>
+      <p class="big-number"><span id="exercise-today">0</span> min <span class="goal-label">of <span id="exercise-goal-display">30</span> min goal</span></p>
+      <div class="progress-bar" role="progressbar" aria-label="Movement progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exercise-progressbar"><div class="progress-fill" id="exercise-progress"></div></div>
+      <p class="percent-line" id="exercise-percent">0% of daily goal</p>
       <p class="muted">Every minute counts.</p>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <select id="exercise-type" aria-label="Exercise type" style="flex:1;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
