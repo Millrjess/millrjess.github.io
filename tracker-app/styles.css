@@ -1001,6 +1001,12 @@ details.card summary h3 {
   pointer-events: none;
   font-weight: 600;
 }
+#site-map .zone-sublabel {
+  font-size: 9px;
+  fill: var(--sage-dark);
+  opacity: 0.7;
+  pointer-events: none;
+}
 #site-map .site-zone:hover,
 #site-map .site-zone:focus-visible {
   fill: var(--gold-light);
