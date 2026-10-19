@@ -5,19 +5,19 @@
   "icons": [
     {
       "sizes": "192x192",
-      "src": "icons/app-icon-192.png",
+      "src": "icons/lotus-icon-192.png",
       "type": "image/png"
     },
     {
       "purpose": "any",
       "sizes": "512x512",
-      "src": "icons/app-icon-512.png",
+      "src": "icons/lotus-icon-512.png",
       "type": "image/png"
     },
     {
       "purpose": "maskable",
       "sizes": "512x512",
-      "src": "icons/app-icon-512.png",
+      "src": "icons/lotus-icon-512.png",
       "type": "image/png"
     }
   ],

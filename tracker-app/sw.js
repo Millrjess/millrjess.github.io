@@ -4,7 +4,7 @@
  * https://millrjess.github.io/tracker/
  */
 
-const CACHE_NAME = "new-chapter-tracker-v73";
+const CACHE_NAME = "new-chapter-tracker-v74";
 const ASSETS = [
   "./",
   "./index.html",
