@@ -34,11 +34,11 @@
   ],
   "video": {
     "@type": "VideoObject",
-    "name": "A New Chapter Tracker demo",
+    "name": "A New Chapter Tracker walkthrough",
     "description": "Walkthrough of the A New Chapter GLP-1 tracker app showing injection logging, weight tracking, water and protein goals, side effects, journal, and settings.",
     "thumbnailUrl": "https://millrjess.github.io/tracker/assets/og-image.png",
-    "contentUrl": "https://millrjess.github.io/tracker/assets/tracker-demo.mp4",
-    "uploadDate": "2026-10-11"
+    "contentUrl": "https://millrjess.github.io/tracker/assets/tracker-walkthrough.mp4",
+    "uploadDate": "2026-10-20"
   }
 }
 </script>
@@ -65,7 +65,7 @@
     {
       "@type": "Question",
       "name": "What can I record for exercise?",
-      "acceptedAnswer": { "@type": "Answer", "text": "You can log daily movement with quick one-tap entries for walks, stretching, and exercise." }
+      "acceptedAnswer": { "@type": "Answer", "text": "You can record daily movement with quick entries you log in one tap for walks, stretching, and exercise." }
     },
     {
       "@type": "Question",
@@ -80,8 +80,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
   <meta name="description" content="GLP-1 tracker app for Zepbound, Wegovy, Ozempic, and Mounjaro. Track injection days, doses, water, protein, weight, measurements, progress photos, side effects, and daily reflections in one calm place." />
-  <link rel="icon" href="data:," />
-<link rel="icon" href="../assets/img/lotus-96.webp">
+<link rel="icon" type="image/png" sizes="96x96" href="../assets/img/lotus-96.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/lotus-favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/img/lotus-favicon-16.png">
 <link rel="apple-touch-icon" href="../assets/img/lotus-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -398,11 +399,23 @@
       </div>
     </section>
 
-    <section class="demo-video" style="padding:60px 0;text-align:center;background:var(--surface-soft)">
+    <section class="demo-video" style="padding:36px 0;text-align:center;background:var(--surface-soft)">
       <div class="wrap" style="max-width:560px;margin:auto">
-        <h2 style="font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:12px">Meet your new routine</h2>
-        <p style="color:var(--muted);margin-bottom:28px">Injection calendar, an AI coach that remembers you, and monthly reviews told as a story.</p>
-        <video controls playsinline preload="metadata" style="width:100%;max-width:420px;border-radius:20px;box-shadow:var(--shadow)" poster="">
+        <h2 style="font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:12px">Watch a shot day in the app</h2>
+        <p style="color:var(--muted);margin-bottom:24px">Real screens, start to finish. This is the app you will use every day.</p>
+        <video controls playsinline preload="metadata" style="width:100%;max-width:300px;border-radius:20px;box-shadow:var(--shadow)" poster="assets/walkthrough-poster.jpg">
+          <source src="assets/tracker-walkthrough.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <ol style="text-align:left;max-width:440px;margin:24px auto 0;line-height:1.7;color:var(--muted)">
+          <li>Open Today and see your water, protein, and movement at a glance, with your next shot in view.</li>
+          <li>Log your shot in the injection calendar and keep your dose and site history in one place.</li>
+          <li>Watch your weight chart move and mark the milestones along the way.</li>
+          <li>Close the day in your journal and note any side effects while they are fresh.</li>
+          <li>Set your goals and your shot day in Settings, and talk with your AI coach whenever you want support.</li>
+        </ol>
+        <h3 style="font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:36px 0 12px">The story behind the tracker</h3>
+        <video controls playsinline preload="metadata" style="width:100%;max-width:260px;border-radius:20px;box-shadow:var(--shadow)">
           <source src="assets/tracker-features-v7.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
@@ -434,7 +447,7 @@
         if (!ex || !min || min < 1) return;
         list.push({ex: ex, min: min});
         var li = document.createElement('li');
-        li.innerHTML = '<span style="font-size:1.2em">💪</span> ' + ex.replace(/</g,'&lt;') + ' — ' + min + ' min';
+        li.innerHTML = '<span style="font-size:1.2em">💪</span> ' + ex.replace(/</g,'&lt;') + ', ' + min + ' min';
         ul.appendChild(li);
         var total = list.reduce(function(s, e){ return s + e.min; }, 0);
         totalEl.textContent = 'Today: ' + total + ' minutes of movement. Nice work.';
@@ -452,9 +465,10 @@
           <p>No spreadsheets. No scattered notes. Just the essentials of your GLP-1 routine, visible at a glance.</p>
         </div>
         <div class="feature-list">
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m3 0h2m3 0h2m-10 3h2m3 0h2"/></svg></div><h3>Injection calendar</h3><p>Month view of every shot, your next scheduled dose, and one-tap logging. No more second-guessing.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m3 0h2m3 0h2m-10 3h2m3 0h2"/></svg></div><h3>Injection calendar</h3><p>Month view of every shot, your next scheduled dose, and logging in one tap. No more guessing.</p></article>
           <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 18 3 2 12-12-3-3L4 17v1Zm10-11 3 3m1-6 2 2M7 14l3 3"/></svg></div><h3>Dose and site history</h3><p>Medication, dose, and injection site in one organized log, with a calendar to see it all.</p></article>
           <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13Z"/><path d="M8.5 16c.7 1.4 1.8 2 3.5 2"/></svg></div><h3>Protein tracking</h3><p>Hit your daily protein target to protect muscle while you lose weight. Quick logging, adjustable goals, running totals.</p></article>
+          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3s6 6.6 6 10.8a6 6 0 0 1-12 0C6 9.6 12 3 12 3Z"/><path d="M9.3 14.4a3 3 0 0 0 2.1 3.4"/></svg></div><h3>Water tracking</h3><p>See your daily goal at a glance and add water as you drink. Your goal adjusts in Settings, so it fits the guidance you follow.</p></article>
           <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 7v10m12-10v10M3 9v6m18-6v6M6 12h12"/></svg></div><h3>Movement and strength</h3><p>Log walks, workouts, and strength sessions. Stay active to keep the muscle you have. Weight chart with goal line and milestones.</p></article>
           <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="7" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 7l1.5-3h5L16 7"/></svg></div><h3>Progress photos</h3><p>Private monthly photo timeline. Everything stays on your device.</p></article>
           <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 3h14v18H5zM8 7h8M8 11h8m-8 4h5"/></svg></div><h3>Diary and side effects</h3><p>Daily notes, mood, and side effect tracking with spreadsheet export.</p></article>
@@ -514,7 +528,7 @@
           <details><summary>Is this only for Zepbound?</summary><p>No. The tracker is designed for people using Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You can record your own medication and dose.</p></details>
           <details><summary>Does the tracker give medical advice?</summary><p>No. It is an organization and habit-tracking tool, not medical care. Medication, dose, symptoms, and treatment decisions should always be discussed with a licensed healthcare professional.</p></details>
           <details><summary>Can I change the water goal?</summary><p>Yes. The water goal is adjustable in Settings. Individual hydration needs vary, so follow any guidance your healthcare professional has given you.</p></details>
-          <details><summary>What can I record for exercise?</summary><p>You can log daily movement with quick one-tap entries for walks, stretching, and exercise.</p></details>
+          <details><summary>What can I record for exercise?</summary><p>You can record daily movement with quick entries you log in one tap for walks, stretching, and exercise.</p></details>
           <details><summary>When will it be available?</summary><p>It is available now. Subscribe above and you will receive the app link by email.</p></details>
           
         </div>
