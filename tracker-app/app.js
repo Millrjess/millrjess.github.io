@@ -1583,6 +1583,7 @@ function renderSideEffects() {
 /* ---------- Settings ---------- */
 
 function renderSettings() {
+  renderSnapshots();
   const s = store.settings;
   document.getElementById("set-companion-key").value = getAuthToken();
   updateCoachStatus();
@@ -1822,10 +1823,58 @@ document.getElementById("export-data").addEventListener("click", () => {
   renderBackupNudge();
 });
 
+
+/* ---------- In app backup snapshots ---------- */
+
+const SNAP_KEY = "nct-snapshots";
+function loadSnapshots() {
+  try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || []; } catch { return []; }
+}
+function saveSnapshot() {
+  try {
+    const raw = JSON.stringify(store);
+    if (raw.length > 2500000) return;
+    const snaps = loadSnapshots();
+    snaps.unshift({ at: new Date().toISOString(), data: raw });
+    while (snaps.length > 3) snaps.pop();
+    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+  } catch {}
+}
+function renderSnapshots() {
+  const box = document.getElementById("snapshot-list");
+  if (!box) return;
+  const snaps = loadSnapshots();
+  if (!snaps.length) { box.innerHTML = ""; return; }
+  box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
+    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '</span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
+  }).join("");
+  box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
+    const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
+    if (!snap) return;
+    if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+    try {
+      store = JSON.parse(snap.data);
+      saveStore();
+      renderToday();
+      renderInjections();
+      renderWeight();
+      renderMeasurements();
+      renderPhotos();
+      renderJournal();
+      renderSideEffects();
+      renderNextInjection();
+      renderSettings();
+      alert("Backup restored.");
+    } catch { alert("That in app backup could not be read."); }
+  }));
+}
+
 /* ---------- Backup & restore (JSON) ---------- */
 
 document.getElementById("backup-data").addEventListener("click", () => {
   const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
+  saveSnapshot();
   const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
