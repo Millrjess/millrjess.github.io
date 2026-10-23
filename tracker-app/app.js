@@ -266,7 +266,7 @@ function pickCoachInsight() {
   const wStreak = streakFor("water", "oz", "waterGoal");
   if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
   const mStreak = streakFor("exercise", "minutes", "movementGoal");
-  if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
+  if (mStreak >= 3) return mStreak + " active days in a row. Exercise is medicine.";
   const goalW = Number(store.settings.goalWeight) || 0;
   const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
   if (goalW > 0 && sorted.length) {
@@ -355,7 +355,7 @@ function renderMonthlyReview() {
   lines.push("You showed up " + daysLogged.size + " of " + daysInMonth + " days.");
   if (proteinDays) lines.push("Protein goal reached " + proteinDays + " days.");
   if (waterDays) lines.push("Water goal reached " + waterDays + " days.");
-  if (moveDays) lines.push("Movement goal reached " + moveDays + " days.");
+  if (moveDays) lines.push("Exercise goal reached " + moveDays + " days.");
   if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
   if (journals) lines.push(journals + " journal " + (journals === 1 ? "entry" : "entries") + " written.");
   if (weightLine) lines.push(weightLine);
@@ -1767,7 +1767,7 @@ document.getElementById("export-data").addEventListener("click", () => {
   ));
 
   lines.push(...tsvSection(
-    "Movement",
+    "Exercise",
     ["Date", "Activity", "Minutes"],
     [...store.exercise].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.label, e.minutes])
   ));
