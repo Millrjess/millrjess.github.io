@@ -243,6 +243,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <hr>
 <h2 id="journal">From the journal</h2>
 <p>Notes from the journey, as it happens.</p>
+<nav class="page-nav" aria-label="Journal entries">
+<a class="nav-pill" href="#hydration">Hydration matters</a>
+<a class="nav-pill" href="#muscle-loss-wish-knew">Muscle loss on Zepbound</a>
+<a class="nav-pill" href="#protein-muscle">Protein, muscle, and my 50s</a>
+<a class="nav-pill" href="#five-minute-makeup">Five minute makeup</a>
+<a class="nav-pill" href="#morning-routine">My morning routine</a>
+<a class="nav-pill" href="#gray-hair-story">My gray hair story</a>
+</nav>
 <h2 id="hydration">💦 Water, water, water! Hydration matters! 💦</h2>
 <p>When you are taking a GLP-1 medication like Zepbound and eating less, it is especially important not to forget to drink enough water! 💧 Reduced food intake can also mean you are getting less fluid from food, so staying hydrated needs to be part of your daily routine.</p>
 <p>💙 My daily goal is 80 oz of water!</p>
@@ -307,7 +315,7 @@ function setOff(){if(!n){return;}var mobile=window.innerWidth<=720;
 if(mobile){n.style.top='0px';var off2=n.offsetHeight+16;}
 else if(h){var off=h.offsetHeight+n.offsetHeight+16;n.style.top=(h.offsetHeight+6)+'px';var off2=off;}
 else{var off2=120;}
-document.querySelectorAll('#story,#turning-point,#pillars,#amazon-favorites,#healthy-metabolism-products,#style-soon,#makeup-soon,#hair-soon,#journal,#hydration,#muscle-loss-wish-knew,#gray-hair-story').forEach(function(el){el.style.scrollMarginTop=off2+'px';});}
+document.querySelectorAll('#story,#turning-point,#pillars,#amazon-favorites,#healthy-metabolism-products,#style-soon,#makeup-soon,#hair-soon,#journal,#hydration,#muscle-loss-wish-knew,#gray-hair-story,#protein-muscle,#five-minute-makeup,#morning-routine').forEach(function(el){el.style.scrollMarginTop=off2+'px';});}
 window.addEventListener('resize',setOff);window.addEventListener('load',setOff);setOff();})();
 </script>
 </main>
