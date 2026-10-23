@@ -25,7 +25,7 @@
 <style>@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('../assets/fonts/inter-latin.woff2') format('woff2')}
 
 :root{
-  --navy:#0f2340; --navy-2:#173f68; --slate:#334155; --muted:#64748b;
+  --navy:#0f2340; --navy-2:#173f68; --slate:#334155; --muted:#51637a;
   --accent:#0f2340; --accent-dark:#0b1a30; --accent-soft:#f7f3e8;
   --sage:#7a9b6d; --sage-dark:#5d7d52; --sage-soft:#eef4ea; --gold:#b9975b;
   --bg:#edf1f6; --card:#ffffff; --border:#e2e8f0; --radius:14px;
@@ -47,6 +47,7 @@ h1{font-size:clamp(1.9rem,1.3rem + 2.4vw,2.6rem); margin-top:.2em; font-weight:8
 h2{font-size:1.4rem; font-weight:700}
 h3{font-size:1.12rem; font-weight:600}
 a{color:var(--accent-dark); text-decoration:none}
+article a:not(.shop-btn):not(.nav-pill){text-decoration:underline; text-underline-offset:2px}
 a:hover{color:var(--accent); text-decoration:underline}
 a:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
 .muted{color:var(--muted); font-size:.92em}
@@ -111,7 +112,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .pillar-icon{font-size:1.6rem; line-height:1}
 .pillar-link{display:block; color:inherit; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease}
 .pillar-link:hover{transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.08)}
-.pillar-link h3{color:var(--ink)}
+.pillar-link h3{color:var(--slate)}
 .pillar-cta{display:inline-block; margin-top:.6em; font-size:.85em; font-weight:600; color:var(--sage-dark)}
 .post-list{display:grid; gap:16px; margin-top:1.1em}
 .page-nav{margin:.4em 0 1.8em; display:flex; flex-wrap:wrap; gap:10px; align-items:center;
@@ -225,25 +226,25 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h3 id="healthy-metabolism-products">Healthy Metabolism</h3>
 <p>Below are the high-protein staples actually in my kitchen right now: my morning shake, my snacks, my bars. I keep sugar and saturated fat low, and I pair it all with strength training to protect muscle and Pilates for everything else.</p>
 <div class="product-grid">
-<div class="product-card"><img src="../assets/img/products/premier.jpg" alt="Premier Protein Caf&eacute; Latte Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Premier Protein Caf&eacute; Latte Shake, 30g protein</h4><p>My morning shake. The caffeine gets me going and it is genuinely delicious.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0DFJP6LZF?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/fairlife.jpg" alt="Fairlife Nutrition Plan Chocolate Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Fairlife Nutrition Plan Chocolate Shake, 30g protein</h4><p>My other everyday shake, smooth and filling.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0BJP21C81?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/pureprotein.jpg" alt="Pure Protein Bars, Chocolate Variety Pack" loading="lazy"><div class="product-info"><h4>Pure Protein Bars, Chocolate Variety Pack</h4><p>20 to 21 grams of protein per bar, my grab-and-go.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0D1SZPWLN?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/chomps.jpg" alt="Chomps Original Beef Jerky Snack Sticks" loading="lazy"><div class="product-info"><h4>Chomps Original Beef Jerky Snack Sticks</h4><p>Clean-ingredient jerky for a savory protein snack.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07D3NS8NW?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/babybel.jpg" alt="Mini Babybel Pro, Protein + Probiotics" loading="lazy"><div class="product-info"><h4>Mini Babybel Pro, Protein + Probiotics</h4><p>Portion-controlled cheese with extra protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0H8KL213F?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/clio.png" alt="Clio Mini Greek Yogurt Bars, Variety Pack" loading="lazy"><div class="product-info"><h4>Clio Mini Greek Yogurt Bars, Variety Pack</h4><p>Tastes like a treat, eats like a snack with protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0CQHY49VB?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/premier.jpg" alt="Premier Protein Caf&eacute; Latte Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Premier Protein Caf&eacute; Latte Shake, 30g protein</h4><p>My morning shake. The caffeine gets me going and it is genuinely delicious.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0DFJP6LZF?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Premier Protein Caf&eacute; Latte Shake, 30g protein">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/fairlife.jpg" alt="Fairlife Nutrition Plan Chocolate Shake, 30g protein" loading="lazy"><div class="product-info"><h4>Fairlife Nutrition Plan Chocolate Shake, 30g protein</h4><p>My other everyday shake, smooth and filling.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0BJP21C81?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Fairlife Nutrition Plan Chocolate Shake, 30g protein">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/pureprotein.jpg" alt="Pure Protein Bars, Chocolate Variety Pack" loading="lazy"><div class="product-info"><h4>Pure Protein Bars, Chocolate Variety Pack</h4><p>20 to 21 grams of protein per bar, my grab-and-go.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0D1SZPWLN?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Pure Protein Bars, Chocolate Variety Pack">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/chomps.jpg" alt="Chomps Original Beef Jerky Snack Sticks" loading="lazy"><div class="product-info"><h4>Chomps Original Beef Jerky Snack Sticks</h4><p>Clean-ingredient jerky for a savory protein snack.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07D3NS8NW?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Chomps Original Beef Jerky Snack Sticks">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/babybel.jpg" alt="Mini Babybel Pro, Protein + Probiotics" loading="lazy"><div class="product-info"><h4>Mini Babybel Pro, Protein + Probiotics</h4><p>Portion-controlled cheese with extra protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0H8KL213F?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Mini Babybel Pro, Protein + Probiotics">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/clio.png" alt="Clio Mini Greek Yogurt Bars, Variety Pack" loading="lazy"><div class="product-info"><h4>Clio Mini Greek Yogurt Bars, Variety Pack</h4><p>Tastes like a treat, eats like a snack with protein.</p><a class="shop-btn" href="https://www.amazon.com/dp/B0CQHY49VB?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Clio Mini Greek Yogurt Bars, Variety Pack">Shop on Amazon</a></div></div>
 </div>
 <h4>My wellness staples</h4>
 <div class="product-grid">
-<div class="product-card"><img src="../assets/img/products/orgain.jpg" alt="Orgain Organic Protein Powder, Vanilla Bean" loading="lazy"><div class="product-info"><h4>Orgain Organic Protein Powder, Vanilla Bean</h4><p>The protein powder I actually use.</p><a class="shop-btn" href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/benefiber.jpg" alt="Benefiber Daily Prebiotic Fiber Supplement" loading="lazy"><div class="product-info"><h4>Benefiber Daily Prebiotic Fiber Supplement</h4><p>My daily fiber. Dissolves clear, no taste.</p><a class="shop-btn" href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/vitalproteins.jpg" alt="Vital Proteins Collagen Peptides, Unflavored" loading="lazy"><div class="product-info"><h4>Vital Proteins Collagen Peptides, Unflavored</h4><p>Stirs into coffee or shakes.</p><a class="shop-btn" href="https://www.amazon.com/dp/B09QV3XG8B?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
-<div class="product-card"><img src="../assets/img/products/coconutcult.jpg" alt="The Coconut Cult Probiotic Coconut Yogurt, Original" loading="lazy"><div class="product-info"><h4>The Coconut Cult Probiotic Coconut Yogurt, Original</h4><p>My probiotic yogurt.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07TV8BS49?tag=millrjess-20" rel="nofollow sponsored noopener">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/orgain.jpg" alt="Orgain Organic Protein Powder, Vanilla Bean" loading="lazy"><div class="product-info"><h4>Orgain Organic Protein Powder, Vanilla Bean</h4><p>The protein powder I actually use.</p><a class="shop-btn" href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Orgain Organic Protein Powder, Vanilla Bean">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/benefiber.jpg" alt="Benefiber Daily Prebiotic Fiber Supplement" loading="lazy"><div class="product-info"><h4>Benefiber Daily Prebiotic Fiber Supplement</h4><p>My daily fiber. Dissolves clear, no taste.</p><a class="shop-btn" href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Benefiber Daily Prebiotic Fiber Supplement">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/vitalproteins.jpg" alt="Vital Proteins Collagen Peptides, Unflavored" loading="lazy"><div class="product-info"><h4>Vital Proteins Collagen Peptides, Unflavored</h4><p>Stirs into coffee or shakes.</p><a class="shop-btn" href="https://www.amazon.com/dp/B09QV3XG8B?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: Vital Proteins Collagen Peptides, Unflavored">Shop on Amazon</a></div></div>
+<div class="product-card"><img src="../assets/img/products/coconutcult.jpg" alt="The Coconut Cult Probiotic Coconut Yogurt, Original" loading="lazy"><div class="product-info"><h4>The Coconut Cult Probiotic Coconut Yogurt, Original</h4><p>My probiotic yogurt.</p><a class="shop-btn" href="https://www.amazon.com/dp/B07TV8BS49?tag=millrjess-20" rel="nofollow sponsored noopener" aria-label="Shop on Amazon: The Coconut Cult Probiotic Coconut Yogurt, Original">Shop on Amazon</a></div></div>
 </div>
 
 <hr>
 <h2 id="journal">From the journal</h2>
 <p>Notes from the journey, as it happens.</p>
-<nav class="page-nav" aria-label="Journal entries">
+<nav class="page-nav" aria-label="Journal entries" style="position:static">
 <a class="nav-pill" href="#hydration">Hydration matters</a>
 <a class="nav-pill" href="#muscle-loss-wish-knew">Muscle loss on Zepbound</a>
 <a class="nav-pill" href="#protein-muscle">Protein, muscle, and my 50s</a>
@@ -251,7 +252,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <a class="nav-pill" href="#morning-routine">My morning routine</a>
 <a class="nav-pill" href="#gray-hair-story">My gray hair story</a>
 </nav>
-<h2 id="hydration">💦 Water, water, water! Hydration matters! 💦</h2>
+<h3 id="hydration">💦 Water, water, water! Hydration matters! 💦</h3>
 <p>When you are taking a GLP-1 medication like Zepbound and eating less, it is especially important not to forget to drink enough water! 💧 Reduced food intake can also mean you are getting less fluid from food, so staying hydrated needs to be part of your daily routine.</p>
 <p>💙 My daily goal is 80 oz of water!</p>
 <p>I order eight 5-gallon jugs of purified water for delivery every other month, or as needed, to keep plenty of water on hand. My daughter also has fresh water readily available in our kitchen with our bottom-loading water dispenser.</p>
