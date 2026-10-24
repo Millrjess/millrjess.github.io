@@ -96,11 +96,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .hero h1{color:#fff; margin-top:0; font-size:clamp(1.7rem,1.2rem + 2.4vw,2.4rem)}
 .hero h2{color:#fff; border:0}
 .hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
-.hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
+.hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap; align-items:center}
 .btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-secondary{background:transparent; color:var(--navy) !important; border:2px solid var(--navy); box-shadow:none}
+.btn-secondary:hover{background:var(--accent-soft); transform:translateY(-2px)}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -192,7 +194,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>Services</h1>
 <p class="lede">AI can generate a lot of things. It can&rsquo;t be accountable for your website. That&rsquo;s my job.</p>
-<p><a class="btn" href="../contact/">Request a Consultation</a> <a href="../fee-schedule/" style="margin-left:12px">View fee schedule</a></p>
+<p class="hero-cta"><a class="btn" href="../contact/">Request a Consultation</a> <a class="btn btn-secondary" href="../fee-schedule/">View fee schedule</a></p>
 
 <h2>Website Management &amp; Maintenance</h2>
 <p>Ongoing technical oversight for WordPress, Drupal, Joomla, and database driven websites, so your site stays fast, secure, and online without you ever thinking about updates, backups, or downtime.</p>
@@ -287,7 +289,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <section class="cta-band">
 <h2>Ready to stop worrying about your website?</h2>
-<p><a class="btn" href="../contact/">Request a Consultation</a> <a class="btn" href="../fee-schedule/" style="margin-left:8px;background:transparent;color:var(--navy) !important;border:2px solid var(--navy);box-shadow:none">View Fee Schedule</a></p>
+<p class="hero-cta"><a class="btn" href="../contact/">Request a Consultation</a> <a class="btn btn-secondary" href="../fee-schedule/">View Fee Schedule</a></p>
 <blockquote>
 <p>Jessica provides creativity and practicality in one package. Works well with concepts and provides good proof of concepts in a timely fashion to keep the project moving forward and within budget. I was impressed with Jessica and the project results and would recommend her for other projects.</p>
 <p class="muted">Phillip Hankins, General Manager at Bruce Technologies Inc, December 4, 2009</p>
