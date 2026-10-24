@@ -53,16 +53,6 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--cream);
-  color: var(--ink);
-  line-height: 1.5;
-  padding-bottom: 84px;
-  scroll-padding-bottom: 96px;
-}
-
 h1, h2, h3 {
   font-family: Georgia, "Times New Roman", serif;
   color: var(--ink);
@@ -135,16 +125,6 @@ main {
   color: var(--muted);
   margin-top: 0;
   font-size: 0.95rem;
-}
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 22px 20px;
-  margin: 16px 0;
-  transition: box-shadow 0.2s ease;
 }
 
 .card h3 {
@@ -249,12 +229,6 @@ main {
   min-height: 44px;
 }
 
-.mood-btn {
-  min-height: 44px;
-  min-width: 44px;
-  padding: 10px 16px;
-}
-
 .btn-primary {
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   border-color: var(--gold-dark);
@@ -296,16 +270,10 @@ main {
   padding: 6px 12px;
 }
 
-.inline-form {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
 .inline-form input {
   flex: 1;
-  min-width: 100px;
+  min-width: 0;
+  padding: 12px;
 }
 
 label {
@@ -347,6 +315,8 @@ label textarea {
 }
 
 .mood-btn {
+  min-height: 44px;
+  min-width: 44px;
   font: inherit;
   font-size: 0.9rem;
   border: 2px solid var(--border);
@@ -615,29 +585,6 @@ label textarea {
   box-shadow: 0 -2px 16px rgba(78, 92, 70, 0.06);
 }
 
-.tab-btn {
-  flex: 1;
-  border: none;
-  background: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 0;
-  color: var(--muted);
-  font: inherit;
-  cursor: pointer;
-  min-height: 58px;
-  min-width: 44px;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  transition: color 0.2s ease, background 0.2s ease;
-}
-
-.tab-btn.active {
-  color: var(--sage-deep);
-}
-
 .tab-btn.active .tab-icon {
   background: var(--sage-soft);
   border-radius: 50%;
@@ -656,12 +603,6 @@ label textarea {
 .tab-icon svg {
   width: 24px;
   height: 24px;
-}
-
-.tab-label {
-  font-size: 0.58rem;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .tab-btn.active {
@@ -739,21 +680,6 @@ label textarea {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 4px;
-}
-
-.pc-value {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin: 0 0 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pc-goal {
-  font-size: 0.82rem;
-  font-weight: 400;
-  color: var(--muted);
 }
 
 .mini-bar {
@@ -913,6 +839,12 @@ label textarea {
 
 /* 50+ readability and calm: larger base type, roomier tap targets */
 body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  padding-bottom: 84px;
+  scroll-padding-bottom: 96px;
   font-size: 18px;
   line-height: 1.55;
 }
@@ -925,22 +857,53 @@ body {
 
 /* Bigger progress numbers for at-a-glance reading */
 .pc-value {
+  font-weight: 700;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 1.5rem;
 }
 .pc-goal {
+  font-weight: 400;
+  color: var(--muted);
   font-size: 0.85rem;
 }
 
 /* Roomier cards */
 .card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  margin: 16px 0;
+  transition: box-shadow 0.2s ease;
   margin-bottom: 16px;
 }
 
 /* Larger, easier tab bar labels */
 .tab-label {
+  font-weight: 600;
+  white-space: nowrap;
   font-size: 0.82rem;
 }
 .tab-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  min-width: 44px;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, background 0.2s ease;
   min-height: 60px;
 }
 
@@ -1051,16 +1014,7 @@ details.card summary h3 {
   line-height: 1;
   padding: 8px 12px;
 }
-.stepper-input {
-  width: 64px;
-  text-align: center;
-  padding: 8px 6px;
-  border: 1px solid var(--border, #ddd);
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  -moz-appearance: textfield;
-}
+
 .stepper-input::-webkit-outer-spin-button,
 .stepper-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1078,11 +1032,12 @@ html, body {
   max-width: 100vw;
 }
 .inline-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
-.inline-form input {
-  min-width: 0;
-}
+
 @media (max-width: 400px) {
   .inline-form input {
     flex: 1 1 100%;
@@ -1100,10 +1055,15 @@ textarea {
   font-size: 16px; /* prevents iOS zoom on focus */
   min-height: 48px; /* comfortable tap target */
 }
-.inline-form input {
-  padding: 12px;
-}
+
 .stepper-input {
+  width: 64px;
+  text-align: center;
+  padding: 8px 6px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 10px;
+  font-weight: 600;
+  -moz-appearance: textfield;
   min-height: 44px;
   font-size: 16px;
 }
