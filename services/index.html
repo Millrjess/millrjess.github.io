@@ -143,6 +143,20 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 
+/* expandable summaries */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
@@ -178,46 +192,72 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>Services</h1>
 <p class="lede">AI can generate a lot of things. It can&rsquo;t be accountable for your website. That&rsquo;s my job.</p>
+<p><a class="btn" href="../contact/">Request a Consultation</a> <a href="../fee-schedule/" style="margin-left:12px">View fee schedule</a></p>
 
 <h2>Website Management &amp; Maintenance</h2>
-<p>Ongoing technical oversight for WordPress, Drupal, Joomla, and database-driven websites, so your site stays fast, secure, and online without you ever thinking about updates, backups, or downtime.</p>
+<p>Ongoing technical oversight for WordPress, Drupal, Joomla, and database driven websites, so your site stays fast, secure, and online without you ever thinking about updates, backups, or downtime.</p>
 <ul>
 <li>CMS core, theme/extension, and plugin updates, tested before they go live</li>
-<li>Daily off-site backups and uptime monitoring with rapid response</li>
+<li>Daily off site backups and uptime monitoring with rapid response</li>
 <li>Security hardening and malware scanning</li>
 <li>Monthly site health report in plain language</li>
 </ul>
 
 <h2>Site Security &amp; Incident Response</h2>
-<p>AI-generated code and automated attacks have made the web a more hostile place. I clean up compromises and make sure they don&rsquo;t happen again.</p>
+<p>AI generated code and automated attacks have made the web a more hostile place. I clean up compromises and make sure they don&rsquo;t happen again.</p>
 <ul>
 <li>Complete malware removal, vulnerability patching, and hardening</li>
 <li>Critical incidents treated as emergencies, with rapid response</li>
-<li>Post-incident review so you understand what happened and why</li>
+<li>Post incident review so you understand what happened and why</li>
 </ul>
 
 <h2>Technical SEO &amp; Performance</h2>
-<p>Search is changing fast, including AI-driven results. The fundamentals that keep you visible don&rsquo;t change: a crawlable site, clean structured data, and pages that load fast.</p>
+<p>Search is changing fast, including AI driven results. The fundamentals that keep you visible don&rsquo;t change: a crawlable site, clean structured data, and pages that load fast.</p>
 <ul>
 <li>Site health audits with a prioritized action plan</li>
-<li>Structured data, crawl fixes, and page-speed remediation</li>
+<li>Structured data, crawl fixes, and page speed remediation</li>
 <li>GA4 and reporting setup so you know what&rsquo;s working</li>
 </ul>
+
+<h2>Analytics &amp; Reporting Dashboards</h2>
+<p>Data only helps when you actually use it. I set up GA4 properly, then build custom dashboards and automated reports that show the numbers that matter to your business, in plain language, on a schedule you can rely on.</p>
+<ul>
+<li>GA4 configuration and event tracking</li>
+<li>Custom dashboards in Tableau or Power BI</li>
+<li>Automated reporting, so the data reaches you instead of sitting in a tool</li>
+</ul>
+<details class="viz-details">
+<summary><span class="entry-lede">What a dashboard engagement looks like</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p>We agree the questions the dashboard has to answer, then I connect your sources, build the views, and hand over a dashboard you can read without me. My own portfolio carries nine live Tableau dashboards built the same way, with automated reporting behind them. See <a href="../portfolio/">the portfolio</a> and <a href="../fee-schedule/">pricing from $1,000</a>.</p>
+</details>
 
 <h2>Consulting &amp; Advisory</h2>
 <p>23+ years across web operations, development, data, and security means I can verify AI output instead of trusting it, and tell you what your business actually needs.</p>
 <ul>
 <li>Technical strategy calls and second opinions</li>
-      <li>Independent contractor engagements (1099): short-term coverage, staff augmentation, or ongoing advisory</li>
-<li>Team training on security basics and AI-assisted workflows</li>
-<li>Ad-hoc development and troubleshooting, billed hourly</li>
+      <li>Independent contractor engagements (1099): short term coverage, staff augmentation, or ongoing advisory</li>
+<li>Team training on security basics and AI assisted workflows</li>
+<li>Ad hoc development and troubleshooting, billed hourly</li>
 </ul>
 
+<h2>AI Chatbots &amp; Website Agents</h2>
+<p>Your website can answer questions, qualify leads, and handle routine work while you sleep. I design and build AI chatbots and website agents that work from your own content and your own systems, not from generic scripts. Every agent I ship is checked by a person, grounded in your material, and clear about what it can and cannot do.</p>
+<ul>
+<li>Lead qualification and customer support, answered in your voice</li>
+<li>Answers grounded in your own pages, documents, and data</li>
+<li>Multi step workflows across your site and your systems</li>
+<li>Secured backends with token authenticated users and Stripe gated access</li>
+</ul>
+<details class="viz-details">
+<summary><span class="entry-lede">How an agent engagement works</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p>Every agent starts with a complimentary 15 minute discovery call and a written scope with a clear timeline before work begins. I build against your own content, test with real questions from your business, and launch with a plan for keeping the answers current. My live production example is <a href="../tracker/">A New Chapter Tracker</a>, a subscription app with an AI coach that runs on a secured backend and gives no medical advice. See <a href="../fee-schedule/">pricing from $2,500</a>.</p>
+</details>
+
 <h2>Custom Web App Development</h2>
-<p>I design and build installable web apps: offline-capable, mobile-friendly, with payment processing and analytics built in. My latest product, <a href="../tracker/">A New Chapter Tracker</a>, is a subscription PWA for women over 50 on GLP-1 medications, with Stripe billing, an AI coach with opt-in memory powered by Cloudflare Workers, and accessible design.</p>
+<p>I design and build installable web apps: offline capable, mobile friendly, with payment processing and analytics built in. My latest product, <a href="../tracker/">A New Chapter Tracker</a>, is a subscription PWA for women over 50 on GLP-1 medications, with Stripe billing, an AI coach with opt in memory powered by Cloudflare Workers, and accessible design.</p>
 <ul>
 <li>Progressive web apps that install on iPhone and Android, work offline</li>
-<li>Stripe payment integration for subscriptions and one-time purchases</li>
+<li>Stripe payment integration for subscriptions and one time purchases</li>
 <li>AI chat and companion features with secured backends (Cloudflare Workers)</li>
 <li>Custom dashboards, data tracking, and export features</li>
 <li>Accessible, responsive design that works for everyone</li>
@@ -232,6 +272,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>First screen and scrolling review based on Nielsen Norman Group research, including false floor fixes</li>
 <li>A written summary of everything corrected and anything left for your decision</li>
 </ul>
+
+<h2>How an Engagement Works</h2>
+<p>Every engagement starts with a conversation, and every engagement is scoped individually before work begins.</p>
+<ol>
+<li>Start with a complimentary 15 minute discovery call to talk through your website and your goals.</li>
+<li>You receive a written scope, a clear timeline, and a price before work begins.</li>
+<li>I do the work and you receive a written summary or a prioritized action plan.</li>
+<li>Care plans start immediately, and malware removal is treated as an emergency.</li>
+</ol>
 
 <p>See the <a href="../fee-schedule/">fee schedule</a> for pricing, or <a href="../contact/">request a consultation</a> to talk through your project.</p>
 </article>

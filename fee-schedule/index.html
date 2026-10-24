@@ -143,6 +143,27 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 
+/* expandable summaries */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+
+/* care plan comparison */
+.plan-table-wrap{overflow-x:auto; margin:1.2em 0}
+.plan-table{width:100%; border-collapse:collapse; font-size:.95em; min-width:520px}
+.plan-table th,.plan-table td{border:1px solid var(--border); padding:.6em .8em; text-align:left}
+.plan-table th{background:var(--navy); color:#fff}
+.plan-table td:first-child{font-weight:600; color:var(--navy)}
+
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
@@ -177,39 +198,70 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="lede">Straightforward pricing for keeping your website fast, secure, and online. Every engagement starts with a conversation. <a href="../contact/">Request a consultation</a>.</p>
 <p class="lede">Every engagement follows the same standards I hold my own site to: valid W3C code, WCAG 2.2 AA accessibility, and user experience grounded in published research.</p>
 
-<h2>Website Care Plans</h2>
-<p>Ongoing management for WordPress, Drupal, Joomla, and database-driven sites, so you never think about updates, backups, or downtime again. Annual prepayment saves two months.</p>
+<h2 id="care-plans">Website Care Plans</h2>
+<p>Ongoing management for WordPress, Drupal, Joomla, and database driven sites, so you never think about updates, backups, or downtime again. Annual prepayment saves two months.</p>
 <ul>
-<li><strong>Essential, $150/month:</strong> CMS core, theme, and plugin/extension updates; daily off-site backups; uptime monitoring; monthly site health report.</li>
+<li><strong>Essential, $150/month:</strong> CMS core, theme, and plugin/extension updates; daily off site backups; uptime monitoring; monthly site health report.</li>
 <li><strong>Professional, $300/month:</strong> everything in Essential, plus security hardening and malware scanning, performance checks, one hour of content or design tweaks, and priority support.</li>
 </ul>
+<div class="plan-table-wrap">
+<table class="plan-table">
+<caption style="text-align:left; font-weight:700; color:var(--navy); padding-bottom:.4em">What each plan includes</caption>
+<thead>
+<tr><th scope="col">Included</th><th scope="col">Essential, $150/month</th><th scope="col">Professional, $300/month</th></tr>
+</thead>
+<tbody>
+<tr><td>CMS core, theme, and plugin updates</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Daily off site backups</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Uptime monitoring</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Monthly site health report</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Security hardening and malware scanning</td><td>No</td><td>Yes</td></tr>
+<tr><td>Performance checks</td><td>No</td><td>Yes</td></tr>
+<tr><td>One hour of content or design tweaks</td><td>No</td><td>Yes</td></tr>
+<tr><td>Priority support</td><td>No</td><td>Yes</td></tr>
+</tbody>
+</table>
+</div>
 
-<h2>One-Time Services</h2>
+<h2 id="one-time-services">One Time Services</h2>
 <ul>
-<li><strong>AI Chatbots &amp; Website Agents, from $2,500:</strong> Custom RAG-powered chatbots and AI agents that handle lead qualification, customer support, data processing, and multi-step workflows, integrated with your site and systems. See <a href="../tracker/">A New Chapter Tracker</a> for a live production example.</li>
+<li><strong>AI Chatbots &amp; Website Agents, from $2,500:</strong> Custom RAG powered chatbots and AI agents that handle lead qualification, customer support, data processing, and multi step workflows, integrated with your site and systems. See <a href="../tracker/">A New Chapter Tracker</a> for a live production example.</li>
 <li><strong>Custom Web App Development, from $5,000:</strong> installable progressive web app with offline support, payment processing (Stripe), custom dashboards or tracking features, and accessible design. See <a href="../tracker/">A New Chapter Tracker</a> for a live example.</li>
-<li><strong>Front-End Development, from $1,500:</strong> responsive, accessible interfaces in HTML, CSS, and JavaScript. New builds or rescue work on existing sites.</li>
+<li><strong>Front End Development, from $1,500:</strong> responsive, accessible interfaces in HTML, CSS, and JavaScript. New builds or rescue work on existing sites.</li>
 <li><strong>Site Health Audit, from $500:</strong> full technical SEO, security, and performance review with a prioritized action plan. A good first step before any larger project.</li>
 <li><strong>Malware Removal &amp; Incident Response, from $500 per incident:</strong> complete cleanup, vulnerability patching, and hardening. Critical incidents treated as emergencies with rapid response.</li>
-<li><strong>Technical SEO &amp; AI Search Optimization, from $1,000:</strong> structured data, crawl fixes, page-speed remediation, and GA4/reporting setup. Optimized for both Google and AI-powered search.</li>
+<li><strong>Technical SEO &amp; AI Search Optimization, from $1,000:</strong> structured data, crawl fixes, page speed remediation, and GA4/reporting setup. Optimized for both Google and AI powered search.</li>
 <li><strong>Analytics &amp; Reporting Dashboards, from $1,000:</strong> GA4 configuration, custom dashboards, and automated reporting so you actually use your data.</li>
 <li><strong>WCAG Accessibility Audit &amp; Remediation, from $750:</strong> full accessibility review with prioritized fixes to meet WCAG 2.1 AA and reduce legal risk. The starting price covers a small business site. Larger sites and web applications are quoted individually after a short review.</li>
 <li><strong>Website Standards Pass, from $750:</strong> W3C validation, WCAG 2.2 AA accessibility corrections, and user experience fixes based on Nielsen Norman Group research for your existing site or web application. Small sites up to 10 pages from $750; medium sites from 11 to 30 pages from $1,500; large sites of 31 pages and up from $2,500. Web applications and very large sites are quoted individually after a short review.</li>
 </ul>
 
-<h2>Consultations &amp; Advisory Calls</h2>
+<h2 id="how-it-works">How an Engagement Works</h2>
+<p>Every engagement starts with a conversation, and every engagement is scoped individually before work begins.</p>
+<ol>
+<li>Start with a complimentary 15 minute discovery call to talk through your website and your goals.</li>
+<li>You receive a written scope, a clear timeline, and a price before work begins.</li>
+<li>I do the work and you receive a written summary or a prioritized action plan.</li>
+<li>Care plans start immediately, and malware removal is treated as an emergency.</li>
+</ol>
+<details class="viz-details">
+<summary><span class="entry-lede">How from prices work</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p>Prices marked from are starting prices for a small business site. Larger sites and multi site portfolios are quoted individually after a short review, and custom packages are available for larger sites and multi site portfolios. All prices in USD.</p>
+</details>
+
+<h2 id="consultations">Consultations &amp; Advisory Calls</h2>
 <p>Prefer to talk it through first? Start with a call.</p>
 <ul>
 <li><strong>Introductory Discovery Call, complimentary:</strong> a 15 minute phone or video call to talk through your website, your goals, and the problem you are trying to solve. You will leave with a clear sense of the next step and whether we are a good fit. No charge and no obligation.</li>
 <li><strong>Strategy and Technical Sessions, $200/hr:</strong> a deeper working session by phone or video for website strategy, technical reviews, troubleshooting, and planning. Book a full hour and bring your questions, your analytics, or the decision you are weighing. Sessions are scheduled in advance through the <a href="../contact/">contact page</a>.</li>
 </ul>
 
-<h2>Consulting</h2>
+<h2 id="consulting">Consulting</h2>
 <ul>
-<li><strong>Hourly Rate, $200/hr:</strong> strategy calls, technical reviews, team training, and ad-hoc development work.</li>
+<li><strong>Hourly Rate, $200/hr:</strong> strategy calls, technical reviews, team training, and ad hoc development work.</li>
 </ul>
 
-<p class="note">Custom packages are available for larger sites and multi-site portfolios. All prices in USD.</p>
+<p class="note">Custom packages are available for larger sites and multi site portfolios. All prices in USD.</p>
 
 <p style="margin-top:24px"><a class="btn" href="../contact/">Request a Consultation</a></p>
 </article>

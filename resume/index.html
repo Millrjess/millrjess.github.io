@@ -144,6 +144,20 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 
+/* expandable summaries */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
@@ -180,11 +194,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h3>Professional Summary</h3>
 
-<p>Senior expert with 23+ years of experience in secure web operations, technical SEO, and data-driven digital strategy, now shipping production AI integrations: LLM-powered chatbots and website agents on Cloudflare Workers, with token-authenticated users and Stripe-gated access. Available for contract (1099) and project engagements.</p>
+<p>Senior expert with 23+ years of experience in secure web operations, technical SEO, and data driven digital strategy, now shipping production AI integrations: LLM powered chatbots and website agents on Cloudflare Workers, with token authenticated users and Stripe gated access. Available for contract (1099) and project engagements.</p>
 
-<p><strong>Core Stack:</strong> WordPress/Drupal management, CMS security, technical SEO, site performance; SQL, BigQuery, GA4, Tableau, Power BI, Python (Pandas), automated reporting; Figma, wireframing, UI/accessibility audits, conversion optimization; AI chatbots, LLM API integration, RAG-style assistants, Cloudflare Workers, workflow automation, digital marketing &amp; e-commerce, remote operations.</p>
+<p><strong>Core Stack:</strong> WordPress/Drupal management, CMS security, technical SEO, site performance; SQL, BigQuery, GA4, Tableau, Power BI, Python (Pandas), automated reporting; Figma, wireframing, UI/accessibility audits, conversion optimization; AI chatbots, LLM API integration, RAG style assistants, Cloudflare Workers, workflow automation, digital marketing &amp; ecommerce, remote operations.</p>
 
 <h3>Certifications</h3>
+
+<p>Twelve professional certifications. <a href="../certifications/">See the full list with verification links</a>, or verify any badge in my <a href="https://www.credly.com/users/millrjess/badges/credly">Credly Badge Wallet</a>.</p>
 
 <ul>
 <li>Connect and Protect: Networks and Network Security (Google, Jun 2026)</li>
@@ -207,62 +223,89 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <li>Attract and Engage Customers with Digital Marketing (Google, Feb 2026)</li>
 
-<li>Foundations of Digital Marketing and E-commerce (Google, Feb 2026)</li>
+<li>Foundations of Digital Marketing and Ecommerce (Google, Feb 2026)</li>
 
 <li>Google Analytics 4 (GA4) Essential Training (Dec 2024)</li>
 
 </ul>
 <h3>Experience</h3>
 
-<p><strong>Website Operations Consultant</strong>, Independent Contractor, North Andover MA (2016–Present)</p>
+<p><strong>Website Operations Consultant</strong>, Independent Contractor, North Andover MA (2016 to Present)</p>
 
 <ul>
-<li>Returning to client work after a decade devoted to full-time parenting and writing; now accepting website management clients and contract engagements</li>
+<li>Returning to client work after a decade devoted to full time parenting and writing; now accepting website management clients and contract engagements</li>
 
-<li>Stayed technically current through 12 professional certifications (2024–2026) in data analytics, UX design, cybersecurity, and digital marketing</li>
+<li>Stayed technically current through 12 professional certifications (2024 to 2026) in data analytics, UX design, cybersecurity, and digital marketing</li>
 
-<li>Hands-on portfolio work: SQL/Tableau dashboards with automated reporting; UX case studies with usability research</li>
+<li>Hands on portfolio work: SQL/Tableau dashboards with automated reporting; UX case studies with usability research</li>
 
 <li>Production experience across web operations, CMS security, technical SEO, and incident response</li>
 
-<li>Designed, built, and launched <strong>A New Chapter Tracker</strong>, a subscription PWA for GLP-1 medication tracking (Oct 2026): offline-first installable web app with injection logging, weight/measurement/photo progress, side effect journaling, Stripe subscriptions ($3.99/mo, $29.99/yr), Google Analytics, and an accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance (contrast, touch targets, orientation, zoom, screen reader support)</li>
+<li>Designed, built, and launched <strong>A New Chapter Tracker</strong>, a subscription PWA for GLP-1 medication tracking (Oct 2026): offline first installable web app with injection logging, weight/measurement/photo progress, side effect journaling, Stripe subscriptions ($3.99/mo, $29.99/yr), Google Analytics, and an accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance (contrast, touch targets, orientation, zoom, screen reader support)</li>
 
-<li>Design and ship custom AI chatbots and RAG-style website agents integrated with client systems and data, from lead qualification and customer support to multi-step workflow automation</li>
+<li>Design and ship custom AI chatbots and RAG style website agents integrated with client systems and data, from lead qualification and customer support to multi step workflow automation</li>
 
 <li>Website Standards Pass: W3C validation, WCAG 2.2 AA accessibility corrections, and user experience fixes grounded in Nielsen Norman Group research for existing sites and web applications</li>
 </ul>
 
-<p><strong>Independent Author</strong>, The Ledger Series, North Andover MA (2016–Present)</p>
+<p><strong>Independent Author</strong>, The Ledger Series, North Andover MA (2016 to Present)</p>
 
 <ul>
 <li>Author of The Ledger Series, a trilogy about AI systems and the people who live with them; published via Amazon (amazon.com/author/millrjess)</li>
 </ul>
 
-<p><strong>Chief Digital Strategist</strong>, Independent, Greater Boston MA (2011–2016)</p>
+<p><strong>Chief Digital Strategist</strong>, Independent, Greater Boston MA (2011 to 2016)</p>
 
 <ul>
 <li>Directed web operations and migrations for national brands; maintained top SEO rankings</li>
 
-<li>Increased organic traffic by 25&ndash;40% via proactive technical health audits and UX improvements</li>
+<li>Increased organic traffic by 25 to 40 percent via proactive technical health audits and UX improvements</li>
 </ul>
 
 <p><strong>Senior Consultant</strong>, NTT DATA (Contract), Boston MA (2011)</p>
 
 <ul>
-<li>Conducted enterprise-level UX and usability audits for financial platforms</li>
+<li>Conducted enterprise level UX and usability audits for financial platforms</li>
 </ul>
 
-<p><strong>Digital Transformation Consultant</strong>, Independent, Greater Boston MA (2004–2010)</p>
+<p><strong>Digital Transformation Consultant</strong>, Independent, Greater Boston MA (2004 to 2010)</p>
 
 <ul>
-<li>Built scalable e-commerce platforms and full-stack SEO strategies to drive brand revenue</li>
+<li>Built scalable ecommerce platforms and full stack SEO strategies to drive brand revenue</li>
 </ul>
 
-<p><strong>Early Career, Web &amp; Digital Design</strong> (2000–2004)</p>
+<p><strong>Early Career, Web &amp; Digital Design</strong> (2000 to 2004)</p>
 
 <ul>
 <li>Developed websites and marketing assets for small businesses during early digital expansion</li>
 </ul>
+
+<h3>Selected Work</h3>
+
+<ul>
+<li><strong><a href="../tracker/">A New Chapter Tracker</a>:</strong> subscription PWA for GLP-1 medication tracking, with Stripe billing and an AI coach. See the <a href="../portfolio/">portfolio case study</a>.</li>
+<li><strong><a href="../case-study-website/">Parish Website Redesign</a>:</strong> lead UX designer. Joomla redesign for two partner parishes, with integrated online donations.</li>
+<li><strong><a href="../portfolio/">Predictive Analytics Dashboard Pipeline</a>:</strong> SQL and Tableau pipeline with automated reporting.</li>
+<li><strong><a href="../case-study-mobile-app/">Foodie Explorer</a>:</strong> end to end UX case study for a mobile meal planning app.</li>
+</ul>
+
+<h3>Recommendations</h3>
+
+<blockquote>
+<p>Jessica provides creativity and practicality in one package. Works well with concepts and provides good proof of concepts in a timely fashion to keep the project moving forward and within budget. I was impressed with Jessica and the project results and would recommend her for other projects.</p>
+<p class="muted">Phillip Hankins, General Manager at Bruce Technologies Inc, December 4, 2009</p>
+</blockquote>
+<details class="viz-details">
+<summary><span class="entry-lede">Two more recommendations</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<blockquote>
+<p>What can I say? Professional, highly detail oriented, creative and thoughtful about her product, aims to please and takes great pride in the outcome and customer satisfaction. Ms. Miller took my half-baked ideas and transformed them into a sleek, easy to use and comprehensive site which presents my art with clarity. She will not rest until the job is done just right, and brings ideas to the table to help make sure it is done speedily and pleasingly. I look forward to continued dealings with Ms. Miller, and would recommend her to anyone looking for a serious web site.</p>
+<p class="muted">Yaron Dotan, Art Instructor, December 5, 2009</p>
+</blockquote>
+<blockquote>
+<p>Ms. Jessica A. Miller is absolutely a high end professional in every sense. Her keen awareness of current trends of World Wide Web applications is unparalleled as it is exemplified in her ability to maneuver in all tiers of her craft. She is truly an artistic master and model for what one may want in a highly professional web developer. Jessica constantly employs her creative energy and passion to seek the best possible solutions in an ever changing global technological environment. Her sincere endeavor is to not only make the best possible &ldquo;product&rdquo;, but more importantly, the best possible &ldquo;creative expression and representation&rdquo; for all of her clients. She consistently finds unique solutions and re-frames the context to an amazing result. Having known Jessica for 5 years and counting, I have always admired her sensitivity to detail and artistic vision in design. As a professor of the arts, with a Bachelor of Fine Arts degree from Ringling College of Art and Design and a Master&rsquo;s degree from Yale University, I feel that Jessica has the intrinsic knowledge and visual sophistication to perform web development beyond her competitors. In such a demanding age of versatility, Ms. Miller is the epitome of what all web developers would like to be.</p>
+<p class="muted">David Kinsey, Professor of the Arts, January 15, 2014</p>
+</blockquote>
+</details>
 
 <h3>Education</h3>
 
@@ -286,8 +329,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Dashboard Development</li>
 <li>Data Analytics</li>
 <li>Data Visualization</li>
-<li>E-Commerce Platforms</li>
-<li>E-Learning Development</li>
+<li>Ecommerce Platforms</li>
+<li>Elearning Development</li>
 <li>Figma (Software)</li>
 <li>Google Analytics</li>
 <li>Multimedia Marketing Campaigns</li>
