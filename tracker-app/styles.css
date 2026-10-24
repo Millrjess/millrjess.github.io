@@ -604,6 +604,7 @@ label textarea {
   left: 0;
   right: 0;
   display: flex;
+  gap: 4px;
   overflow-x: auto;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
@@ -912,11 +913,11 @@ body {
   margin-bottom: 16px;
 }
 
-/* Larger, easier tab bar labels */
+/* Tab bar labels, sized so the longest labels clear their neighbors */
 .tab-label {
   font-weight: 600;
   white-space: nowrap;
-  font-size: 0.82rem;
+  font-size: 0.68rem;
 }
 .tab-btn {
   flex: 1;
