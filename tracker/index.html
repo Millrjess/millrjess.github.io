@@ -202,12 +202,12 @@
     .phone-stage { position: relative; min-height: 560px; display: grid; place-items: center; }
     .halo { position: absolute; width: 430px; height: 430px; border-radius: 50%; background: var(--sage-pale); }
     .phone {
-      width: 300px; min-height: 568px; position: relative; z-index: 1;
+      width: 300px; height: 900px; position: relative; z-index: 1;
       background: #f7f7f1; color: #263128; border: 9px solid #283329; border-radius: 44px;
-      box-shadow: var(--shadow); padding: 28px 20px 22px;
+      box-shadow: var(--shadow); padding: 0; overflow: hidden;
       transform: rotate(2deg);
     }
-    .phone:before { content: ""; position: absolute; width: 92px; height: 20px; border-radius: 0 0 14px 14px; background: #283329; left: 50%; top: -1px; transform: translateX(-50%); }
+    .phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .phone-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
     .phone-top small { display: block; color: #6a756c; font-size: .72rem; }
     .phone-top strong { font-family: var(--serif); font-size: 1.15rem; }
@@ -322,7 +322,7 @@
       .mini-trust { gap: 10px 18px; }
       .phone-stage { min-height: 500px; transform: scale(.91); margin: -12px -25px; }
       .halo { width: 350px; height: 350px; }
-      .phone { width: 286px; min-height: 550px; }
+      .phone { width: 286px; height: 856px; min-height: 550px; }
       .quote-note { right: -5px; bottom: 18px; }
       section { padding: 74px 0; }
       .section-head { margin-bottom: 36px; }
@@ -378,26 +378,10 @@
           </div>
         </div>
 
-        <div class="phone-stage" aria-label="Preview of the tracker dashboard">
+        <div class="phone-stage" aria-label="Screenshot of the tracker Today screen">
           <div class="halo"></div>
           <div class="phone">
-            <div class="phone-top">
-              <div><small>Good morning</small><strong>Today’s rhythm</strong></div>
-              <div class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path d="M8.5 11.5c.7 1.2 1.9 1.8 3.5 1.8s2.8-.6 3.5-1.8"/></svg></div>
-            </div>
-            <div class="shot-card">
-              <small>Next injection</small>
-              <div class="shot-row"><strong>Thursday</strong><span class="dose">5 mg</span></div>
-            </div>
-            <div class="week" aria-label="Example week">
-              <div class="day">M<b>12</b></div><div class="day">T<b>13</b></div><div class="day">W<b>14</b></div><div class="day active">T<b>15</b></div><div class="day">F<b>16</b></div><div class="day">S<b>17</b></div><div class="day">S<b>18</b></div>
-            </div>
-            <div class="metric-grid">
-              <div class="metric"><div class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12Z"/></svg></div><small>Water</small><strong>52 / 80 oz</strong><div class="bar"></div></div>
-              <div class="metric"><div class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 8h16M6 5v6m12-6v6M3 12h18M6 13v6m12-6v6"/></svg></div><small>Protein</small><strong>68 g today</strong><div class="bar"></div></div>
-              <div class="metric"><div class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 7 10 10M5 9l4-4m6 14 4-4M3 11l8-8m2 18 8-8"/></svg></div><small>Exercise</small><strong>Strength · 25 min</strong></div>
-              <div class="metric"><div class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 4h14v16H5zM8 8h8m-8 4h8m-8 4h5"/></svg></div><small>Diary</small><strong>Feeling steady</strong></div>
-            </div>
+            <img src="assets/app-today-real.png" alt="The A New Chapter Tracker Today screen, showing the next injection, water, protein, and exercise for the day">
           </div>
           <div class="quote-note"><strong>One clear place</strong>Know what you took, what you tracked, and how the week felt.</div>
         </div>
