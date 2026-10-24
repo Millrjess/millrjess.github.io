@@ -146,6 +146,23 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .viz-embed{margin:.8em 0; border:1px solid var(--border); border-radius:12px; overflow:hidden}
 .viz-embed iframe{display:block; width:100%; max-width:100%; border:0}
 .tableau-embed iframe{width:100%; border:0}
+
+/* expandable summaries, wellness journal pattern, consultant palette */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+.viz-details .viz-embed{margin-top:1em}
+.viz-details summary h3{margin-top:0}
+.role{color:var(--muted); font-size:.92em; margin:.2em 0 1em}
 @media (max-width:720px){.viz-embed iframe{height:420px !important}}
 
 /* mobile hamburger menu */
@@ -179,97 +196,156 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main class="wrap page">
 <article>
 <h1>Portfolio</h1>
-<ul>
-
-
-
-<li><a href="../case-study-website/">Capstone Project: Parish Website</a></li>
-<li><a href="../case-study-mobile-app/">Capstone Project: UX Design Mobile App</a></li>
-</ul>
 <h2>Selected Case Studies</h2>
-<p>Write-ups of my own project work. They cover the process, the decisions, and the outcomes. Correct me on any detail; nothing here is embellished.</p>
+<p>Write ups of my own project work. They cover the process, the decisions, and the outcomes. Correct me on any detail; nothing here is embellished.</p>
 
 <h3>A New Chapter Tracker: GLP-1 Coach App for Women 50+ (Independent Product)</h3>
 <p><a href="https://millrjess.github.io/tracker/"><img src="/assets/img/cards/card-new-chapter.jpg" alt="A New Chapter Tracker: GLP-1 tracking app with AI coach" loading="lazy" style="width:100%; max-width:720px; border-radius:16px; display:block; margin:0.8em 0;"></a></p>
 <p><strong>Problem:</strong> About 25% of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset found about 40% for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">trial data</a>). DXA scans measure lean tissue, which includes muscle, water, and organ tissue, and older women are most at risk. Yet no existing tracker was designed around protecting strength during GLP-1 treatment. People were tracking injections, protein, and movement across scattered notes and memory.</p>
-<p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot. Seven-tab interface (Today, Injections, Weight, Journal, Effects, AI Coach, Settings), offline-first with service worker, installable on iPhone and Android. No frameworks, no build step. Integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export. Built an AI coach on Cloudflare Workers and Workers AI with opt-in memory (remembers name, goals, preferences), rate-limited to 20 messages per user per day, origin-gated, with no API key in client code and explicit no-medical-advice guardrails. Replaced a complex link-based onboarding with a simple 6-digit access code typed into the app.</p>
-<p><strong>UX/UI:</strong> Iterated the interface based on real user testing. Added Undo and per-entry Remove controls after testing revealed users couldn't fix mistakes. Ran a full accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance: verified text contrast ratios, minimum 11pt type, 24px touch targets, keyboard and screen reader support with ARIA roles, visible focus indicators, reduced-motion support, no orientation lock, and no zoom blocking. Built an interactive injection-site body map with keyboard navigation, ARIA labels, and non-color state indicators. Built a custom design system around the brand's gold and sage palette with a hand-designed app icon, gradient header, and refined card and button styling. Mobile-first responsive layout.</p>
-<p><strong>Outcome:</strong> Designed, built, and launched as an independent product, including sales page, Stripe payment processing, AI coach with a secured Cloudflare backend, and app store-quality icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. <a href="https://millrjess.github.io/tracker/">Sales page</a>.</p>
+<p class="role">Independent product &middot; Designer and developer &middot; Live on the web</p>
+<details class="viz-details">
+<summary><span class="entry-lede">How I built it</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot. Seven tab interface (Today, Injections, Weight, Journal, Effects, AI Coach, Settings), offline first with service worker, installable on iPhone and Android. No frameworks, no build step. Integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab delimited data export. Built an AI coach on Cloudflare Workers and Workers AI with opt in memory (remembers name, goals, preferences), rate limited to 20 messages per user per day, origin gated, with no API key in client code and explicit no medical advice guardrails. Replaced a complex link based onboarding with a simple six digit access code typed into the app.</p>
+<p><strong>Design decisions:</strong> I iterated the interface based on real user testing. Added Undo and per entry Remove controls after testing revealed users could not fix mistakes. Ran a full accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance: verified text contrast ratios, minimum 11pt type, 24px touch targets, keyboard and screen reader support with ARIA roles, visible focus indicators, reduced motion support, no orientation lock, and no zoom blocking. Built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone. Built a custom design system around the brand gold and sage palette with a hand designed app icon, gradient header, and refined card and button styling. Mobile first responsive layout.</p>
+</details>
+<p><strong>Outcome:</strong> Designed, built, and launched as an independent product, including sales page, Stripe payment processing, AI coach with a secured Cloudflare backend, and app store quality icon. The data export gives users a spreadsheet ready record to share with their healthcare providers. <a href="https://millrjess.github.io/tracker/">Sales page</a>.</p>
 
 <h3>Parish Website Redesign (Joomla)</h3>
+<p class="role">Lead UX Designer &middot; January to May 2011 &middot; Capstone project</p>
 <p><strong>Problem:</strong> Two partner parishes, The Church of the Most Precious Blood and Saint Theresa of Lisieux, had websites that didn&rsquo;t convey their collaboration. Navigation was confusing, search was poor, links were broken, pages loaded slowly, and neither site met Archdiocese of Boston standards.</p>
-<p><strong>Approach:</strong> As lead UX designer, I ran user interviews and built empathy maps, then designed around a primary persona, a 62-year-old parishioner who needed to find service times, contact info, and donate online without fighting the interface. I wireframed and prototyped a redesign on Joomla (so parish staff could update content themselves), ran usability studies, and built the layout responsive and accessible.</p>
-<p><strong>Outcome:</strong> A redesigned, responsive, accessible site with simplified navigation, intuitive layout, and integrated online donations. Fully documented in the <a href="../case-study-website/">capstone PDF</a>.</p>
+<details class="viz-details">
+<summary><span class="entry-lede">How I got there</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p><strong>What I learned from users:</strong> I ran user interviews and built empathy maps. The research showed that convenience and accessibility matter most for community engagement, and poor navigation kept people from finding information and connecting with the church. The primary persona was Eleanor Vance, a 62 year old retired teacher whose goals were to find service times, contact info, and events, and to donate online. Her frustrations were difficult navigation, outdated content, cluttered design, and a poor mobile experience. The pain points fell into three groups: navigation (confusing menus, poor search, broken links), interaction (slow loading, cumbersome forms, buggy interfaces), and experience (cluttered design, unclear calls to action, poor content, no trust signals).</p>
+<p><strong>Approach:</strong> I built a sitemap to fix the information architecture, then paper and digital wireframes, then a low fidelity prototype to test the primary user flow. Usability studies found three problems to fix: participants struggled to locate key information, the donation process was confusing and lengthy with unclear instructions, and the layout broke on smaller screens. I revised the mockups around those findings, simplifying the donation process and the navigation, and finalized a high fidelity prototype. The redesign was built on Joomla so parish staff could update content themselves, with accessibility built in from the start: sufficient font size and contrast, full keyboard navigation, and screen reader compatibility.</p>
+</details>
+<p><strong>Outcome:</strong> A redesigned, responsive, accessible site with simplified navigation, intuitive layout, and integrated online donations. Fully documented in the <a href="../case-study-website/">capstone case study</a>, including the <a href="../assets/img/church_website.pdf">full capstone PDF</a>.</p>
 
 <h3>Predictive Analytics Dashboard Pipeline (SQL / Tableau)</h3>
-<p><strong>Problem:</strong> Manual reporting is slow and error-prone, and decision-makers needed a data-driven view of what drives protest activity in the US.</p>
-<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built regression models to isolate key drivers, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of eating analyst hours.</p>
+<p class="role">Data science and visualization &middot; Python, SQL, Tableau, BigQuery</p>
+<p><strong>Problem:</strong> Manual reporting is slow and error prone, and decision makers needed a data driven view of what drives protest activity in the US.</p>
+<details class="viz-details">
+<summary><span class="entry-lede">How the model works</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built regression models to isolate key drivers, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of eating analyst hours. The dashboard presents the same model through three views, each tuned to its readers: for policymakers, ranked feature importance showing which factors matter most; for community organizers, protest activity patterns by day of week and month; for the general public, an accessible overview of trends and drivers. I also cleaned up my own work before showing it: the feature importance chart had 70 plus one hot encoded city dummy variables burying the 11 factors that actually mattered, so an exclude filter brought the real drivers forward.</p>
+</details>
 <p><strong>Outcome:</strong> The model surfaced clear drivers (population impact 0.8017, unemployment impact 0.1131, positive temporal trend), and the automated pipeline improved accuracy while reducing manual reporting work. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
+<details class="viz-details">
+<summary><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <div class="tableau-embed" style="margin: 16px 0;">
 <iframe loading="lazy" src="https://public.tableau.com/views/ProtestData/Dashboard?:showVizHome=no&:embed=true" height="600" title="Protest Data Dashboard"></iframe>
 </div>
+</details>
 
-<h3>Foodie Explorer: End-to-End UX Case Study</h3>
-<p><strong>Problem:</strong> Busy professionals cite time constraints as the top pain point in meal planning and grocery shopping. The app needed to remove friction, not add features.</p>
-<p><strong>Approach:</strong> Full UX lifecycle: user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds from January to June 2025.</p>
-<p><strong>Outcome:</strong> A complete, research-backed mobile app design with a video walkthrough of every design decision. <a href="https://www.youtube.com/watch?v=3eY3yojcT4g">Case study video on YouTube</a>.</p>
+<h3>Foodie Explorer: End to End UX Case Study</h3>
+<p class="role">Lead UX Designer &middot; January to June 2025 &middot; Capstone project</p>
+<p><strong>Problem:</strong> David, a busy professional, needs a reliable and efficient way to look up recipes and order groceries online, because his schedule leaves him little time for grocery shopping. Busy professionals cite time constraints as the top pain point in meal planning and grocery shopping. The app needed to remove friction, not add features.</p>
+<details class="viz-details">
+<summary><span class="entry-lede">How I got there</span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p><strong>What I learned from users:</strong> I ran user research through surveys and usability tests. The persona was David Miller, a 42 year old freelance photographer whose goals were to save time, enjoy family time, explore new foods, support local businesses, and simplify life. His frustrations were time constraints, grocery store hassle, limited cooking time, finding quality ingredients, and inconsistent quality. The pain points were time constraints, inconsistent quality from previous delivery services, complex navigation in existing apps, and limited tailored recipe recommendations.</p>
+<p><strong>Approach:</strong> Full UX lifecycle: user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds. The design centered on smart recipe discovery (search by ingredients, dietary needs, cuisine, or cooking time), quick and easy recipes ready in 30 minutes or less, step by step visual guides, integrated grocery lists that build themselves, meal planning tools, and community features for sharing recipes. Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high contrast mode and readable fonts, voice search and screen reader compatibility, and clear navigation with large tap targets.</p>
+</details>
+<p><strong>Outcome:</strong> A complete, research backed mobile app design with a video walkthrough of every design decision. <a href="https://www.youtube.com/watch?v=3eY3yojcT4g">Case study video on YouTube</a> &middot; <a href="../case-study-mobile-app/">Full case study</a>.</p>
 
 <h2>Data Visualizations</h2>
-<p>Interactive dashboards and analyses I built in Tableau, each with a plain-language summary of what the data shows.</p>
+<p>Interactive dashboards and analyses I built in Tableau, each with a plain language summary of what the data shows. Open any dashboard to explore the live chart.</p>
 <div class="post-list">
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>Protest Data</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Decision makers can't see what's driving unrest, so this model ranks the predictive factors: day of week wins at 0.49 importance, Saturdays see the most activity, and economic variables rank near the bottom. Explore the interactive story to see what matters most.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/ProtestData/Story?:showVizHome=no" height="520" loading="lazy" title="Protest Data - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Decision makers can't see what's driving unrest, so this model ranks the predictive factors: day of week wins at 0.49 importance, Saturdays see the most activity, and economic variables rank near the bottom. Explore the interactive story to see what matters most.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/ProtestData/Story">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>TikTok: Views and Likes</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Creators chase vanity metrics, so this analysis of a TikTok dataset reveals what actually drives views and likes. Stop guessing and ask better questions.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" height="520" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Creators chase vanity metrics, so this analysis of a TikTok dataset reveals what actually drives views and likes. Stop guessing and ask better questions.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TikTokViewsandLikes_17468027625160/Story12">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>What Drives World Happiness</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Single metrics can't explain wellbeing, so this dashboard tests every factor at once. Explore what actually drives happiness.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" height="520" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Single metrics can't explain well-being, so this dashboard tests every factor at once. Explore what actually drives happiness.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/BiggestContributorsforWorldHappiness/Dashboard1">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>NYC Taxi Trips 2017</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Hidden fare anomalies go unnoticed in summaries, so this visualization exposes the outliers. Look at what the averages hide.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TotaldistanceandamountTLC2017_17467580140370/Sheet2?:showVizHome=no" height="520" loading="lazy" title="NYC Taxi Trips 2017 - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Hidden fare anomalies go unnoticed in summaries, so this visualization exposes the outliers. Look at what the averages hide.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TotaldistanceandamountTLC2017_17467580140370/Sheet2">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>Seoul Bike Rentals and Holidays</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Operators guess when demand will shift, so this dashboard maps holiday and weekday patterns. Plan with data instead of instinct.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/ConsultingDataStory/Dashboard2?:showVizHome=no" height="520" loading="lazy" title="Seoul Bike Rentals and Holidays - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Operators guess when demand will shift, so this dashboard maps holiday and weekday patterns. Plan with data instead of instinct.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/ConsultingDataStory/Dashboard2">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>CO2 Emissions Per Capita</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Total emissions mislead the climate conversation, so this map shows the per person picture over time. See the fair comparison.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/Project_17420726098930/Sheet1?:showVizHome=no" height="520" loading="lazy" title="CO2 Emissions Per Capita - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Total emissions mislead the climate conversation, so this map shows the per-person picture over time. See the fair comparison.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/Project_17420726098930/Sheet1">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>Global CO2 Emissions</h3>
+<span class="entry-lede"><strong>What it shows:</strong> The scale of emissions feels abstract, so this bubble map makes concentration impossible to miss. See where the challenge lives.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/GlobalCarbonDioxideCO2Emissions/Sheet1?:showVizHome=no" height="520" loading="lazy" title="Global CO2 Emissions - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> The scale of emissions feels abstract, so this bubble map makes concentration impossible to miss. See where the challenge lives.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/GlobalCarbonDioxideCO2Emissions/Sheet1">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>Rental Map of Athens</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Renters can't compare neighborhoods at a glance, so this map lays out average prices visually. Find where the value is.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood?:showVizHome=no" height="520" loading="lazy" title="Rental Map of Athens - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Renters can't compare neighborhoods at a glance, so this map lays out average prices visually. Find where the value is.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood">View on Tableau Public</a></p>
+</details>
 </div>
 <div class="post-card viz-card">
+<details class="viz-details">
+<summary>
 <h3>World Happiness by Country</h3>
+<span class="entry-lede"><strong>What it shows:</strong> Happiness data is hard to explore, so this interactive map lets anyone filter by score. Dive in and find the patterns yourself.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span>
+</summary>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/WorldHappinessDemo_17419853657420/Sheet2?:showVizHome=no" height="520" loading="lazy" title="World Happiness by Country - Tableau visualization"></iframe></div>
-<p><strong>What it shows:</strong> Happiness data is hard to explore, so this interactive map lets anyone filter by score. Dive in and find the patterns yourself.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/WorldHappinessDemo_17419853657420/Sheet2">View on Tableau Public</a></p>
+</details>
 </div>
 </div>
 
@@ -277,8 +353,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="post-list">
 <div class="post-card">
 <h2>Case Study: Business Intelligence for Google Fiber</h2>
-<p class="muted">May 2025 &ndash; Present</p>
-<p>I created a dashboard to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time vs. repeat calls. I worked closely with teams to make sure the tool was useful, easy to use, and followed privacy rules. The dashboard helps leaders make smarter decisions and improve service while keeping customer info safe.</p>
+<p class="muted">May 2025 to present</p>
+<p>I created a dashboard to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first time versus repeat calls. I worked closely with teams to make sure the tool was useful, easy to use, and followed privacy rules. The dashboard helps leaders make smarter decisions and improve service while keeping customer info safe.</p>
 </div>
 
 </div>
@@ -287,7 +363,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <section class="cta-band">
 <h2>Like what you see?</h2>
-<p>I am available for contract engagements, website care plans, and one-time projects.</p>
+<p>I am available for contract engagements, website care plans, and one time projects.</p>
 <p><a class="btn" href="../contact/">Request a Consultation</a></p>
 </section>
 </main>
