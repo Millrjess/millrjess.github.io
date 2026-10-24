@@ -288,7 +288,7 @@
       .phone-stage { min-height: 0; transform: scale(.91); margin: -12px -25px; }
       .halo { width: 350px; height: 350px; }
       .phone { width: 286px; height: 480px; min-height: 0; }
-      .quote-note { right: -5px; bottom: 18px; }
+      .quote-note { right: 0; bottom: 18px; }
       section { padding: 48px 0; }
       .demo-video { padding-bottom: 32px; }
       .features { padding-top: 32px; }
@@ -308,7 +308,7 @@
       .closing-inner { padding: 30px 22px; flex-direction: column; align-items: stretch; }
       .footer-row { flex-direction: column; }
       body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
-      .mobile-buy { position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 54px; padding: 8px 12px; border-radius: 7px; background: var(--sage-dark); color: var(--bg); box-shadow: 0 12px 30px rgba(26, 39, 28, .3); transform: translateY(170%); pointer-events: none; transition: transform .32s ease; }
+      .mobile-buy { position: fixed; z-index: 30; left: 12px; right: 12px; max-width: calc(100vw - 24px); bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 54px; padding: 8px 12px; border-radius: 7px; background: var(--sage-dark); color: var(--bg); box-shadow: 0 12px 30px rgba(26, 39, 28, .3); transform: translateY(170%); pointer-events: none; transition: transform .32s ease; }
       .mobile-buy.on { transform: translateY(0); pointer-events: auto; }
       .mobile-buy-text { font-size: .76rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
       .mobile-buy-btn { flex: 0 0 auto; background: #E8B54A; color: #233027; font-size: .85rem; font-weight: 700; padding: 8px 13px; border-radius: 999px; text-decoration: none; }
@@ -318,6 +318,9 @@
         .mobile-buy-btn { font-size: .82rem; padding: 8px 11px; }
       }
     }
+    nav[aria-label="Site"] a{padding-block:3px}
+    .subhead a{text-decoration:underline; text-underline-offset:2px}
+    body{overflow-wrap:break-word}
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *:before, *:after { transition-duration: .01ms !important; }
@@ -416,8 +419,8 @@
         <h2 style="margin-bottom:16px">Try it right now</h2>
         <p style="color:var(--muted);margin-bottom:18px">This is how easy logging feels in the app. Go ahead.</p>
         <div style="background:var(--surface-soft);border-radius:20px;padding:22px;box-shadow:var(--shadow);text-align:left">
-          <div style="display:flex;gap:10px;margin-bottom:16px">
-            <input type="text" id="demo-exercise" aria-label="Exercise you did" placeholder="What did you do? (e.g. Morning walk)" style="flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <input type="text" id="demo-exercise" aria-label="Exercise you did" placeholder="What did you do? (e.g. Morning walk)" style="flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
             <input type="number" id="demo-minutes" aria-label="Minutes" placeholder="Min" min="1" max="300" style="width:80px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
           </div>
           <button id="demo-save" class="button primary" style="width:100%;text-align:center">Log it</button>
