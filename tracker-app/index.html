@@ -167,8 +167,8 @@
       <div class="progress-bar" role="progressbar" aria-label="Exercise progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exercise-progressbar"><div class="progress-fill" id="exercise-progress"></div></div>
       <p class="percent-line" id="exercise-percent">0% of daily goal</p>
       <p class="muted">Every minute counts.</p>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <select id="exercise-type" aria-label="Exercise type" style="flex:1;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <select id="exercise-type" aria-label="Exercise type" style="flex:1;min-width:0;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
           <option value="">Choose activity…</option>
           <option>Walking</option>
           <option>Yoga</option>
@@ -515,7 +515,7 @@
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
           <div style="margin-bottom:16px">
-          <h4 style="margin:0 0 8px">Medication</h3>
+          <h4 style="margin:0 0 8px">Medication</h4>
         <label>Current medication
           <input type="text" id="set-med" placeholder="e.g. Zepbound">
         </label>
@@ -526,7 +526,7 @@
       <div id="snapshot-list" style="margin-top:14px"></div>
 
           <div style="margin-bottom:16px">
-          <h4 style="margin:0 0 8px">Weekly shot day</h3>
+          <h4 style="margin:0 0 8px">Weekly shot day</h4>
         <label>Shot day
           <select id="set-shot-day">
             <option value="">Choose a day</option>
@@ -570,7 +570,7 @@
       </div>
 
           <div style="margin-bottom:16px">
-          <h4 style="margin:0 0 8px">Prescription refill reminder</h3>
+          <h4 style="margin:0 0 8px">Prescription refill reminder</h4>
         <label>Refill date
           <input type="date" id="set-refill-date">
         </label>
@@ -613,9 +613,9 @@
     <div>
       <p>A New Chapter is not a calorie counter. It tracks the habits that protect muscle while the medicine works: protein, water, and exercise, plus your injections and your weight.</p>
       <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI coach. Everything in one place.</p>
-      <h4 style="margin:16px 0 8px">Medical Disclaimer</h3>
+      <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
-      <h4 style="margin:16px 0 8px">Privacy</h3>
+      <h4 style="margin:16px 0 8px">Privacy</h4>
       <p><strong>Stays on this device:</strong> everything you track, including water, food, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
       <p><strong>AI coach messages:</strong> when you chat with your AI coach, your messages leave this device and are processed by our service to generate a reply. Messages are not stored afterward, unless you turn on coach memory.</p>
       <p><strong>Coach memory (optional, off by default):</strong> if you turn it on in the AI Coach tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>

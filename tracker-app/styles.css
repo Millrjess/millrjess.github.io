@@ -39,6 +39,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -47,6 +48,10 @@
   .progress-fill {
     transition: none;
   }
+}
+
+h1, h2, h3, .card, .progress-card, .pc-label, .pc-goal {
+  overflow-wrap: break-word;
 }
 
 html {
@@ -229,8 +234,9 @@ main {
   min-height: 44px;
 }
 
+/* AA contrast: lighter gold end stop, dark button text 4.90:1 (was 3.59:1 on gold-dark) */
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, #B7955C 100%);
   border-color: var(--gold-dark);
   color: #2D2D2D;
   font-weight: 600;
@@ -311,7 +317,7 @@ label textarea {
 .mood-row {
   display: flex;
   gap: 6px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .mood-btn {
@@ -576,6 +582,7 @@ label textarea {
   left: 0;
   right: 0;
   display: flex;
+  overflow-x: auto;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -865,6 +872,7 @@ body {
   font-size: 1.5rem;
 }
 .pc-goal {
+  white-space: normal;
   font-weight: 400;
   color: var(--muted);
   font-size: 0.85rem;
