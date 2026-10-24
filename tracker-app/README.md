@@ -9,16 +9,16 @@ Your GLP-1 wellness journey, beautifully tracked. A private, installable web app
 
 ## Features
 
-- **Today dashboard** — Water intake, protein, and movement at a glance with daily goals and one-tap logging
-- **Injection tracking** — Log shots with medication, dose, site rotation, and notes; shot-day countdown with last-site reminder
-- **Weight tracking** — Weigh-ins with progress chart and total lost
-- **Body measurements** — Waist, hips, chest, arm, thigh, and neck in inches
-- **Progress photos** — Monthly photo timeline, stored privately on your device
-- **Daily journal** — Mood, star rating, and notes
-- **Side effect logging** — Symptom, severity, and what helped
-- **Refill reminders** — Prescription refill countdown
-- **Data export** — Download everything as a tab-delimited file for Excel or Google Sheets
-- **Adjustable goals** — Water and protein targets in Settings
+- **Today dashboard**: Water intake, protein, and movement at a glance with daily goals and one-tap logging
+- **Injection tracking**: Log shots with medication, dose, site rotation, and notes; shot-day countdown with last-site reminder
+- **Weight tracking**: Weigh-ins with progress chart and total lost
+- **Body measurements**: Waist, hips, chest, arm, thigh, and neck in inches
+- **Progress photos**: Monthly photo timeline, stored privately on your device
+- **Daily journal**: Mood, star rating, and notes
+- **Side effect logging**: Symptom, severity, and what helped
+- **Refill reminders**: Prescription refill countdown
+- **Data export**: Download everything as a tab-delimited file for Excel or Google Sheets
+- **Adjustable goals**: Water and protein targets in Settings
 
 ## Privacy
 

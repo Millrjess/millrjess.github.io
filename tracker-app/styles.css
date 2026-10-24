@@ -5,16 +5,16 @@
  */
 
 :root {
-  --gold: #C2A265;
-  --gold-dark: #9A7E4F;
-  --gold-light: #EADDC2;
-  --gold-soft: #F5EDD8;
-  --sage: #8A9B7E;
-  --sage-dark: #5F6E55;
-  --sage-deep: #4E5C46;
-  --sage-light: #EDF1E8;
-  --sage-soft: #F2F5EE;
-  --cream: #FAF8F3;
+  --gold: #E8B54A;
+  --gold-dark: #A78235;
+  --gold-light: #F5DEAE;
+  --gold-soft: #FDF8ED;
+  --sage: #5A6B52;
+  --sage-dark: #44503E;
+  --sage-deep: #364031;
+  --sage-light: #B5BCB1;
+  --sage-soft: #DEE1DC;
+  --cream: #FDFBF7;
   --card-bg: #FFFFFF;
   --ink: #2B2B28;
   --ink-soft: #4A4840;
@@ -236,7 +236,7 @@ main {
 
 /* AA contrast: lighter gold end stop, dark button text 4.90:1 (was 3.59:1 on gold-dark) */
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold) 0%, #B7955C 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, #87692B 100%);
   border-color: var(--gold-dark);
   color: #2D2D2D;
   font-weight: 600;
@@ -768,7 +768,7 @@ label textarea {
 }
 .chat-msg.user {
   align-self: flex-end;
-  background: var(--gold, #C9A96A);
+  background: var(--gold, #E8B54A);
   color: #fff;
   border-bottom-right-radius: 4px;
 }
@@ -836,23 +836,23 @@ label textarea {
   visibility: hidden;
 }
 .mini-calendar .day.today {
-  box-shadow: inset 0 0 0 2px #C9A96A;
+  box-shadow: inset 0 0 0 2px #E8B54A;
   font-weight: 700;
 }
 .mini-calendar .day.logged {
-  background: #C9A96A;
+  background: #E8B54A;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
 }
 .mini-calendar .day.logged.today {
-  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #C9A96A;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #E8B54A;
 }
 .mini-calendar .day.scheduled {
-  box-shadow: inset 0 0 0 2px #7A8B6F;
+  box-shadow: inset 0 0 0 2px #5A6B52;
 }
 .mini-calendar .day.selected {
-  background: #7A8B6F;
+  background: #5A6B52;
   color: #fff;
   font-weight: 700;
 }

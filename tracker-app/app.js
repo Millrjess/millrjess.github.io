@@ -1217,7 +1217,7 @@ function drawWeightChart() {
   grad.addColorStop(1, "rgba(201,169,106,0.02)");
   ctx.beginPath();
   sorted.forEach((w, i) => (i === 0 ? ctx.moveTo(x(i), y(w.value)) : ctx.lineTo(x(i), y(w.value))));
-  ctx.strokeStyle = "#C9A96A";
+  ctx.strokeStyle = "#E8B54A";
   ctx.lineWidth = 4;
   ctx.stroke();
   ctx.lineTo(x(sorted.length - 1), H - padB);
@@ -1226,7 +1226,7 @@ function drawWeightChart() {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.fillStyle = "#C9A96A";
+  ctx.fillStyle = "#E8B54A";
   sorted.forEach((w, i) => {
     ctx.beginPath();
     ctx.arc(x(i), y(w.value), 7, 0, Math.PI * 2);
@@ -1237,7 +1237,7 @@ function drawWeightChart() {
   if (goalW > 0) {
     const gy = y(goalW);
     ctx.save();
-    ctx.strokeStyle = "#7A8B6F";
+    ctx.strokeStyle = "#5A6B52";
     ctx.lineWidth = 3;
     ctx.setLineDash([10, 8]);
     ctx.beginPath();
@@ -1245,7 +1245,7 @@ function drawWeightChart() {
     ctx.lineTo(W - padR, gy);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = "#7A8B6F";
+    ctx.fillStyle = "#5A6B52";
     ctx.font = "bold 18px sans-serif";
     ctx.textAlign = "left";
     const labelY = gy - 34 < padT ? gy + 28 : gy - 12;
