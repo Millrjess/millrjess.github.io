@@ -144,6 +144,19 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .disclosure{background:var(--sage-soft); border:1px solid #d9e6d2; border-radius:var(--radius);
   padding:.9em 1.2em; color:var(--sage-dark); font-size:.92em; margin:1.2em 0}
 
+/* journal expandable entries */
+.journal-entry>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.journal-entry>summary::-webkit-details-marker{display:none}
+.journal-entry>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.journal-entry .entry-lede{display:block}
+.journal-entry .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--sage-dark); text-decoration:underline; text-underline-offset:2px}
+.journal-entry .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.journal-entry[open ] .entry-toggle::after{content:"\2212"}
+.journal-entry .show-less{display:none}
+.journal-entry[open ] .show-less{display:inline}
+.journal-entry[open ] .read-more{display:none}
+.journal-entry>summary:hover .entry-toggle{color:var(--navy)}
+
 /* footer */
 .site-footer{background:linear-gradient(180deg,#0f2340,#0b1a30); color:#c6d2e2; margin-top:44px}
 .footer-inner{padding-top:30px; padding-bottom:30px; display:flex; justify-content:space-between;
@@ -258,15 +271,20 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <a class="nav-pill" href="#morning-routine">My morning routine</a>
 <a class="nav-pill" href="#gray-hair-story">My gray hair story</a>
 </nav>
-<h3 id="hydration">💦 Water, water, water! Hydration matters! 💦</h3>
-<p>When you are taking a GLP-1 medication like Zepbound and eating less, it is especially important not to forget to drink enough water! 💧 Reduced food intake can also mean you are getting less fluid from food, so staying hydrated needs to be part of your daily routine.</p>
+<details class="journal-entry" id="hydration">
+<summary><h3>💦 Water, water, water! Hydration matters! 💦</h3>
+<span class="entry-lede">When you are taking a GLP-1 medication like Zepbound and eating less, it is especially important not to forget to drink enough water! 💧 Reduced food intake can also mean you are getting less fluid from food, so staying hydrated needs to be part of your daily routine.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>💙 My daily goal is 80 oz of water!</p>
 <p>I order eight 5-gallon jugs of purified water for delivery every other month, or as needed, to keep plenty of water on hand. My daughter also has fresh water readily available in our kitchen with our bottom-loading water dispenser.</p>
 <p>💰 Money-saving tip: Compare competing water delivery services and negotiate! Ask whether a company will match or beat a competitor&rsquo;s price. It never hurts to ask!</p>
 <p>As I focus on my GLP-1 weight loss journey, kidney health, and long-term wellness, I am reminding myself that eating less is only part of the picture. We also need to prioritize hydration, adequate protein, and proper nutrition.</p>
 <p>Small daily habits can make a big difference! 💦💪</p>
-<h3 id="muscle-loss-wish-knew">What I wish I knew about muscle loss on Zepbound</h3>
-<p>Monday is shot day for me. The scale is moving in the right direction, and I am grateful for that. But there is something nobody told me when I started, and it matters more than the number on the scale.</p>
+</details>
+<details class="journal-entry" id="muscle-loss-wish-knew">
+<summary><h3>What I wish I knew about muscle loss on Zepbound</h3>
+<span class="entry-lede">Monday is shot day for me. The scale is moving in the right direction, and I am grateful for that. But there is something nobody told me when I started, and it matters more than the number on the scale.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>When you lose weight fast, your body does not only burn fat. It breaks down muscle too. In the clinical trials, researchers measured this with DXA scans, and the numbers surprised me. In the STEP-1 trial, up to 40 percent of the weight lost was lean mass rather than fat. For Zepbound specifically, the SURMOUNT-1 trial showed about 25 percent. To be precise, the scans measure lean mass, which includes water and tissue along with muscle. The honest version is this: a meaningful share of rapid weight loss can be lean mass, not fat.</p>
 <p>That hits harder in your fifties. Muscle is what keeps you strong, steady on your feet, and burning calories at rest. After 50, muscle is independence. Losing it quietly while the scale celebrates is the part nobody warned me about.</p>
 <p>The good news is that two levers push back, and the research supports them together. A 2025 analysis in Nutrition Journal found that the muscle preserving benefit came from higher protein combined with resistance training, not from either one alone. Researchers studying older adults generally suggest around 1.0 to 1.2 grams of protein per kilogram of body weight per day during weight loss. My own target is 90 grams a day, which is the default I set in my tracker.</p>
@@ -277,29 +295,41 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>The products I actually use every day: <a href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20" rel="nofollow sponsored noopener">Orgain Organic Protein Powder, Vanilla Bean</a> (affiliate link), <a href="https://www.amazon.com/dp/B06XKWS6DX?tag=millrjess-20" rel="nofollow sponsored noopener">Benefiber Daily Prebiotic Fiber</a> (affiliate link), and <a href="https://www.amazon.com/dp/B09QV3XG8B?tag=millrjess-20" rel="nofollow sponsored noopener">Vital Proteins Collagen Peptides, Unflavored</a> (affiliate link). As an Amazon Associate I earn from qualifying purchases.</p>
 <p>Here is what I wish someone had told me in week one. The shot does half the work. Protein and muscle do the other half. Protect the muscle, and the weight you lose is the weight you actually wanted to lose.</p>
 <p><em>This is my journey, not medical advice. Talk to your clinician about what is right for you. I track my shots, protein, water, and movement in the <a href="https://millrjess.github.io/tracker/">A New Chapter Tracker</a>, because carrying the whole routine in my head stopped working.</em></p>
-<h3 id="protein-muscle">Protein, Muscle, and My 50s</h3>
-<p>Here is something nobody told me when I started this journey. When you lose weight after 50, you do not just lose fat. You lose muscle too. And muscle is everything. It keeps you strong, it keeps your metabolism going, it keeps you independent.</p>
+</details>
+<details class="journal-entry" id="protein-muscle">
+<summary><h3>Protein, Muscle, and My 50s</h3>
+<span class="entry-lede">Here is something nobody told me when I started this journey. When you lose weight after 50, you do not just lose fat. You lose muscle too. And muscle is everything. It keeps you strong, it keeps your metabolism going, it keeps you independent.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>My morning starts with a protein shake. I use Orgain vanilla bean powder blended with coffee, ice, and a little milk. It tastes like a treat and it gives me 21 grams of protein before my day even starts. I aim for protein at every meal now, not just dinner.</p>
 <p>I also do strength training twice a week. Nothing extreme. Dumbbells, resistance bands, bodyweight exercises. I started with 10-pound weights and worked up from there. The goal is not to look like a bodybuilder. The goal is to keep the muscle I have.</p>
 <p>What I have learned: protein and strength training are not optional on a GLP-1. They are the whole game. The medication helps with appetite. Protein and muscle protect everything else.</p>
-<h3 id="five-minute-makeup">Five-Minute Makeup That Loves Mature Skin</h3>
-<p>I do not have time for a 12-step routine. Here is what actually works on my 52-year-old skin in five minutes.</p>
-<p>Step one: moisturizer. Always. Mature skin needs hydration before anything else goes on. I let it sink in for a minute while I pick out clothes.</p>
+</details>
+<details class="journal-entry" id="five-minute-makeup">
+<summary><h3>Five-Minute Makeup That Loves Mature Skin</h3>
+<span class="entry-lede">I do not have time for a 12-step routine. Here is what actually works on my 52-year-old skin in five minutes.</span>
+<span class="entry-lede">Step one: moisturizer. Always. Mature skin needs hydration before anything else goes on. I let it sink in for a minute while I pick out clothes.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Step two: tinted moisturizer or light foundation. I stopped wearing heavy foundation years ago. It settles into every line. A sheer formula evens things out without looking like a mask.</p>
 <p>Step three: cream blush on the apples of my cheeks. Powder blush can look dry on mature skin. Cream melts in and looks like you just came in from a walk.</p>
 <p>Step four: mascara. One coat, top lashes only. It opens up your whole face.</p>
 <p>Step five: tinted lip balm. Color and moisture in one step.</p>
 <p>That is it. Five products, five minutes. I look like myself, just a little more awake.</p>
-<h3 id="morning-routine">My Morning Routine on Zepbound</h3>
-<p>Mornings set the tone for my whole day. Here is what mine looks like now.</p>
-<p>I wake up and drink a full glass of water before anything else. Hydration first, always. Then I make my protein coffee shake. Orgain vanilla bean, cold brew, ice, a splash of milk. I sip it while I get ready.</p>
+</details>
+<details class="journal-entry" id="morning-routine">
+<summary><h3>My Morning Routine on Zepbound</h3>
+<span class="entry-lede">Mornings set the tone for my whole day. Here is what mine looks like now.</span>
+<span class="entry-lede">I wake up and drink a full glass of water before anything else. Hydration first, always. Then I make my protein coffee shake. Orgain vanilla bean, cold brew, ice, a splash of milk. I sip it while I get ready.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <figure><img src="../assets/img/morning-shake-orgain.jpg" alt="My morning shake: Orgain vanilla bean protein powder blended with frozen berries, spinach, and almond milk" loading="lazy"><figcaption>My morning shake: Orgain vanilla bean, frozen berries, spinach, almond milk. <a href="https://www.amazon.com/dp/B00J074W7Q?tag=millrjess-20" rel="nofollow sponsored noopener">The protein powder I use</a> (affiliate link).</figcaption></figure>
 <p>I check in with my body. How am I feeling today? Any nausea? How is my energy? I jot a quick note in my tracker. It takes 30 seconds and it helps me see patterns over time.</p>
 <p>If it is a strength training day, I do 20 minutes with dumbbells after my shake settles. If not, I take a walk. Movement does not have to be intense. It just has to happen.</p>
 <p>Then I get dressed, do my five-minute makeup, and start my day. The whole routine takes about an hour, and it makes everything after it easier.</p>
 <p>The biggest change: I stopped skipping breakfast. On Zepbound, it is easy to not feel hungry in the morning. But my body needs fuel, especially protein. The shake makes it simple.</p>
-<h3 id="gray-hair-story">Embracing My Silver: My Gray Hair Story</h3>
-<p>My mom went gray at 30 and never dyed her hair. Today, it is pure white, just as it was when she was a toddler. With her crystal blue eyes, her natural coloring is stunning. My mom was ahead of her time. She never chased a trend or covered what nature gave her.</p>
+</details>
+<details class="journal-entry" id="gray-hair-story">
+<summary><h3>Embracing My Silver: My Gray Hair Story</h3>
+<span class="entry-lede">My mom went gray at 30 and never dyed her hair. Today, it is pure white, just as it was when she was a toddler. With her crystal blue eyes, her natural coloring is stunning. My mom was ahead of her time. She never chased a trend or covered what nature gave her.</span>
+<span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <figure><img src="../assets/img/gray-hair.jpg" alt="My natural silver hair, growing in after years of highlights and balayage" loading="lazy"><figcaption>My silver, growing in naturally.</figcaption></figure>
 <p>After years of babylights, highlights, and balayage, I am finally embracing my own silver. I stopped dyeing my hair because as we get older, hair naturally thins. I was highlighting and bleaching to camouflage incoming silver, but it ended up looking damaged. My hair felt dry and was even starting to fall out.</p>
 <p>Going natural is not just a style choice. It is a simpler one. Skipping the salon cycle means my hair is not processed anymore, and it shows. It feels stronger and looks healthier than it has in years. I feel more confident not worrying about toner, the right shade of blonde, or whether it is too yellow or brassy. It becomes expensive and exhausting to maintain a perfect look that still feels fake.</p>
@@ -311,6 +341,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Acure and AG Care, budget friendly and sulfate free, with apple cider vinegar for shine.</li>
 </ul>
 <p>My mom went gray at 30 and never looked back. I understand why now. Sometimes, the most beautiful thing you can do is be natural.</p>
+</details>
 <hr>
 <hr>
 <p class="muted" style="font-size:.9em;text-align:center;margin-bottom:0">Everything I share here is personal and educational. This is my journey, not medical advice. Talk to your clinician about what is right for you. As an Amazon Associate I earn from qualifying purchases.</p>
@@ -351,5 +382,26 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
   });
 });
 </script>
+<script>
+(function(){
+  function entryFromHash(){
+    var id=(location.hash||'').replace(/^#/,'');
+    if(!id){return null;}
+    var el=document.getElementById(id);
+    if(el && el.tagName==='DETAILS' && el.classList.contains('journal-entry')){
+      el.open=true;
+      return el;
+    }
+    return null;
+  }
+  entryFromHash();
+  window.addEventListener('load', function(){ entryFromHash(); });
+  window.addEventListener('hashchange', function(){
+    var el=entryFromHash();
+    if(el){ requestAnimationFrame(function(){ el.scrollIntoView(); }); }
+  });
+})();
+</script>
+
 </body>
 </html>
