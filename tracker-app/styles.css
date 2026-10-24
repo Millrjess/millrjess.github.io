@@ -132,7 +132,7 @@ main {
   font-size: 0.95rem;
 }
 
-.card h3 {
+.card h3, .card h2.card-title {
   font-size: 1.2rem;
   margin-bottom: 10px;
   letter-spacing: 0.01em;
@@ -141,7 +141,7 @@ main {
   gap: 10px;
 }
 
-.card h3::before {
+.card h3::before, .card h2.card-title::before {
   content: "";
   width: 36px;
   height: 36px;
@@ -292,6 +292,28 @@ label {
 label input,
 label select,
 label textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+/* Same label styling for the injection-site block, which uses a div
+   wrapper (a label cannot contain the site-map div). */
+.field-group {
+  display: block;
+  margin: 12px 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field-group select {
   display: block;
   width: 100%;
   margin-top: 6px;

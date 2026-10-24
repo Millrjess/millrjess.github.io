@@ -83,7 +83,7 @@
     </div>
 
     <div class="card" style="margin-top:12px">
-      <h3>Next Injection</h3>
+      <h2 class="card-title">Next Injection</h2>
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
@@ -120,7 +120,7 @@
 
 
     <div class="card">
-      <h3>Water Intake</h3>
+      <h2 class="card-title">Water Intake</h2>
       <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">80</span> oz goal</span></p>
       <div class="progress-bar" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="water-progressbar"><div class="progress-fill" id="water-progress"></div></div>
       <p class="percent-line" id="water-percent">0% of daily goal</p>
@@ -137,7 +137,7 @@
     </div>
 
     <div class="card">
-      <h3>Protein</h3>
+      <h2 class="card-title">Protein</h2>
       <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of <span id="protein-goal-display">90</span> g goal</span></p>
       <div class="progress-bar" role="progressbar" aria-label="Protein intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="protein-progressbar"><div class="progress-fill" id="protein-progress"></div></div>
       <p class="percent-line" id="protein-percent">0% of daily goal</p>
@@ -162,7 +162,7 @@
     </div>
 
     <div class="card">
-      <h3>Exercise</h3>
+      <h2 class="card-title">Exercise</h2>
       <p class="big-number"><span id="exercise-today">0</span> min <span class="goal-label">of <span id="exercise-goal-display">30</span> min goal</span></p>
       <div class="progress-bar" role="progressbar" aria-label="Exercise progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exercise-progressbar"><div class="progress-fill" id="exercise-progress"></div></div>
       <p class="percent-line" id="exercise-percent">0% of daily goal</p>
@@ -200,7 +200,7 @@
     </div>
 
     <div class="card">
-      <h3>Daily Mood</h3>
+      <h2 class="card-title">Daily Mood</h2>
       <div class="mood-row" id="mood-row">
         <button class="mood-btn" data-mood="Great">Great</button>
         <button class="mood-btn" data-mood="Good">Good</button>
@@ -211,7 +211,7 @@
     </div>
 
     <div class="card">
-      <h3>Evening Reflection</h3>
+      <h2 class="card-title">Evening Reflection</h2>
       <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
@@ -220,7 +220,7 @@
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
-        <h3 style="margin:0;font-size:1rem" id="review-title">This month</h3>
+        <h2 class="card-title" style="margin:0;font-size:1rem" id="review-title">This month</h2>
         <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
       </div>
       <div id="review-body" style="margin-top:12px"></div>
@@ -259,7 +259,8 @@
       <label>Dose (mg)
         <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
       </label>
-      <label>Injection site
+      <div class="field-group">
+        <span id="inj-site-label">Injection site</span>
         <div class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
@@ -281,7 +282,7 @@
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
         </div>
-        <select id="inj-site" required>
+        <select id="inj-site" aria-labelledby="inj-site-label" required>
           <option value="">Choose a site</option>
           <option>Left Abdomen</option>
           <option>Right Abdomen</option>
@@ -290,7 +291,7 @@
           <option>Left Upper Arm</option>
           <option>Right Upper Arm</option>
         </select>
-      </label>
+      </div>
       <label>Notes
         <textarea id="inj-notes" rows="2" placeholder="Optional notes"></textarea>
       </label>
