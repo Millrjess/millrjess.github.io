@@ -144,7 +144,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 .viz-embed{margin:.8em 0; border:1px solid var(--border); border-radius:12px; overflow:hidden}
-.viz-embed iframe{display:block; width:100%; max-width:100%}
+.viz-embed iframe{display:block; width:100%; max-width:100%; border:0}
+.tableau-embed iframe{width:100%; border:0}
 @media (max-width:720px){.viz-embed iframe{height:420px !important}}
 
 /* mobile hamburger menu */
@@ -205,7 +206,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built regression models to isolate key drivers, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of eating analyst hours.</p>
 <p><strong>Outcome:</strong> The model surfaced clear drivers (population impact 0.8017, unemployment impact 0.1131, positive temporal trend), and the automated pipeline improved accuracy while reducing manual reporting work. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
 <div class="tableau-embed" style="margin: 16px 0;">
-<iframe loading="lazy" src="https://public.tableau.com/views/ProtestData/Dashboard?:showVizHome=no&:embed=true" width="100%" height="600" frameborder="0" title="Protest Data Dashboard"></iframe>
+<iframe loading="lazy" src="https://public.tableau.com/views/ProtestData/Dashboard?:showVizHome=no&:embed=true" height="600" title="Protest Data Dashboard"></iframe>
 </div>
 
 <h3>Foodie Explorer: End-to-End UX Case Study</h3>
@@ -218,55 +219,55 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="post-list">
 <div class="post-card viz-card">
 <h3>Protest Data</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/ProtestData/Story?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="Protest Data - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/ProtestData/Story?:showVizHome=no" height="520" loading="lazy" title="Protest Data - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Decision makers can't see what's driving unrest, so this model ranks the predictive factors: day of week wins at 0.49 importance, Saturdays see the most activity, and economic variables rank near the bottom. Explore the interactive story to see what matters most.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/ProtestData/Story">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>TikTok: Views and Likes</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" height="520" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Creators chase vanity metrics, so this analysis of a TikTok dataset reveals what actually drives views and likes. Stop guessing and ask better questions.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TikTokViewsandLikes_17468027625160/Story12">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>What Drives World Happiness</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" height="520" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Single metrics can't explain well-being, so this dashboard tests every factor at once. Explore what actually drives happiness.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/BiggestContributorsforWorldHappiness/Dashboard1">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>NYC Taxi Trips 2017</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/TotaldistanceandamountTLC2017_17467580140370/Sheet2?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="NYC Taxi Trips 2017 - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/TotaldistanceandamountTLC2017_17467580140370/Sheet2?:showVizHome=no" height="520" loading="lazy" title="NYC Taxi Trips 2017 - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Hidden fare anomalies go unnoticed in summaries, so this visualization exposes the outliers. Look at what the averages hide.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TotaldistanceandamountTLC2017_17467580140370/Sheet2">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>Seoul Bike Rentals and Holidays</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/ConsultingDataStory/Dashboard2?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="Seoul Bike Rentals and Holidays - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/ConsultingDataStory/Dashboard2?:showVizHome=no" height="520" loading="lazy" title="Seoul Bike Rentals and Holidays - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Operators guess when demand will shift, so this dashboard maps holiday and weekday patterns. Plan with data instead of instinct.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/ConsultingDataStory/Dashboard2">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>CO2 Emissions Per Capita</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/Project_17420726098930/Sheet1?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="CO2 Emissions Per Capita - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/Project_17420726098930/Sheet1?:showVizHome=no" height="520" loading="lazy" title="CO2 Emissions Per Capita - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Total emissions mislead the climate conversation, so this map shows the per-person picture over time. See the fair comparison.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/Project_17420726098930/Sheet1">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>Global CO2 Emissions</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/GlobalCarbonDioxideCO2Emissions/Sheet1?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="Global CO2 Emissions - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/GlobalCarbonDioxideCO2Emissions/Sheet1?:showVizHome=no" height="520" loading="lazy" title="Global CO2 Emissions - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> The scale of emissions feels abstract, so this bubble map makes concentration impossible to miss. See where the challenge lives.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/GlobalCarbonDioxideCO2Emissions/Sheet1">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>Rental Map of Athens</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="Rental Map of Athens - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood?:showVizHome=no" height="520" loading="lazy" title="Rental Map of Athens - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Renters can't compare neighborhoods at a glance, so this map lays out average prices visually. Find where the value is.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood">View on Tableau Public</a></p>
 </div>
 <div class="post-card viz-card">
 <h3>World Happiness by Country</h3>
-<div class="viz-embed"><iframe src="https://public.tableau.com/views/WorldHappinessDemo_17419853657420/Sheet2?:showVizHome=no" width="100%" height="520" frameborder="0" loading="lazy" title="World Happiness by Country - Tableau visualization"></iframe></div>
+<div class="viz-embed"><iframe src="https://public.tableau.com/views/WorldHappinessDemo_17419853657420/Sheet2?:showVizHome=no" height="520" loading="lazy" title="World Happiness by Country - Tableau visualization"></iframe></div>
 <p><strong>What it shows:</strong> Happiness data is hard to explore, so this interactive map lets anyone filter by score. Dive in and find the patterns yourself.</p>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/WorldHappinessDemo_17419853657420/Sheet2">View on Tableau Public</a></p>
 </div>
