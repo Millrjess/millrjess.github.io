@@ -57,7 +57,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Pick a date" tabindex="0">
-        <h2 style="margin:0" id="today-heading">Today</h2>
+        <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
       <button id="day-cal" class="btn" aria-label="Pick a date" style="padding:8px 14px">📅</button>
@@ -97,7 +97,7 @@
       <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
     </details>
 
-    <div class="progress-grid" aria-label="Daily progress summary">
+    <div class="progress-grid" role="region" aria-label="Daily progress summary">
       <div class="progress-card">
         <p class="pc-label">Protein</p>
         <p class="pc-value"><span id="sum-protein-num">0</span> <span class="pc-goal">of <span id="sum-protein-goal">90</span> g</span></p>
@@ -260,7 +260,7 @@
         <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
       </label>
       <label>Injection site
-        <span class="site-map-wrap">
+        <div class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
             <!-- zone layout: arms top, abdomen middle, thighs bottom -->
@@ -280,7 +280,7 @@
             <text x="135" y="204" text-anchor="middle" class="zone-label">R Thigh</text>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
-        </span>
+        </div>
         <select id="inj-site" required>
           <option value="">Choose a site</option>
           <option>Left Abdomen</option>
