@@ -26,13 +26,19 @@ body { font-family: var(--sans); background: var(--surface); color: var(--ink); 
 .card { background: #fff; border-radius: 24px; padding: 48px 40px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 24px 60px -20px rgba(0,0,0,.15); }
 h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.8rem, 5vw, 2.4rem); margin-bottom: 12px; }
 p { color: var(--muted); margin-bottom: 16px; }
-.app-link { display: inline-block; margin: 20px 0; padding: 16px 36px; background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: #2D2D2D; font-weight: 700; font-size: 1.1rem; border-radius: 100px; text-decoration: none; }
+.app-link { display: inline-block; margin: 20px 0; padding: 16px 36px; background: linear-gradient(135deg, var(--gold), #B7955C); color: #2D2D2D; font-weight: 700; font-size: 1.1rem; border-radius: 100px; text-decoration: none; }
 .app-link:hover { transform: translateY(-2px); }
 .steps { text-align: left; margin: 28px 0; padding: 0; list-style: none; }
 .steps li { padding: 12px 0; border-bottom: 1px solid var(--surface-soft); display: flex; gap: 12px; }
 .steps li:last-child { border: none; }
-.step-num { background: var(--sage); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; font-weight: 700; flex-shrink: 0; }
+.step-num { background: var(--sage-dark); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; font-weight: 700; flex-shrink: 0; }
 .note { font-size: .9rem; background: var(--surface-soft); border-radius: 12px; padding: 16px; margin-top: 20px; }
+a:focus-visible, button:focus-visible{outline:3px solid var(--sage-dark); outline-offset:2px; border-radius:4px}
+body{overflow-wrap:break-word}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+}
 </style>
 </head>
 <body>
@@ -47,8 +53,8 @@ p { color: var(--muted); margin-bottom: 16px; }
 
   <div class="note" id="recover-box" style="margin-top:16px">
     <strong>Get your access code.</strong> Enter the email you purchased with.
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <input type="email" id="recover-email" placeholder="you@example.com" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:1rem" aria-label="Purchase email">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+      <input type="email" id="recover-email" placeholder="you@example.com" style="flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:1rem" aria-label="Purchase email">
       <button id="recover-btn" class="app-link" style="margin:0;padding:10px 20px;font-size:1rem;border:none;cursor:pointer">Get code</button>
     </div>
     <p id="recover-msg" style="margin:10px 0 0;font-size:.9rem"></p>
