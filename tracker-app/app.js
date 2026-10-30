@@ -236,7 +236,7 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
 });
 
-/* ---------- Proactive coach insights ---------- */
+/* ---------- Proactive companion insights ---------- */
 
 function streakFor(key, field, goalKey) {
   const goal = Number(store.settings[goalKey]) || 0;
@@ -384,6 +384,123 @@ document.getElementById("review-next").addEventListener("click", () => {
   renderMonthlyReview();
 });
 
+/* ---------- Weekly wellness summary (last 7 days, logged data only) ---------- */
+
+function weekWindow() {
+  const days = [];
+  for (let off = 6; off >= 0; off--) days.push(todayStr(-off));
+  return days;
+}
+
+function weekDismissKey() {
+  const days = weekWindow();
+  return "nct-week-dismiss:" + days[0] + "_" + days[days.length - 1];
+}
+
+// One manageable habit suggestion from the weakest logged area. Never shaming,
+// never medical, never a promise about weight. Static wording only, no user data.
+function weeklySuggestion(stats) {
+  if (!stats.anyLogged) return "One gentle start: log one glass of water today. Small steps count.";
+  const areas = [
+    { key: "protein", days: stats.proteinDays, total: stats.daysWithGoal.protein },
+    { key: "water", days: stats.waterDays, total: stats.daysWithGoal.water },
+    { key: "exercise", days: stats.moveDays, total: stats.daysWithGoal.exercise },
+  ].filter((a) => a.total > 0);
+  if (!areas.length) return "You are logging without set goals. One habit to try: set a protein goal in Settings so next week can show your progress.";
+  areas.sort((a, b) => (a.days / a.total) - (b.days / b.total));
+  const weakest = areas[0];
+  if (weakest.days >= weakest.total) return "You met your goals most days this week. One habit to keep: protect the routine that is already working.";
+  if (weakest.key === "protein") return "One manageable habit for next week: add a protein rich food to one meal each day.";
+  if (weakest.key === "water") return "One manageable habit for next week: keep a water bottle nearby and sip through the morning.";
+  return "One manageable habit for next week: a 10 minute walk after one meal each day.";
+}
+
+function renderWeeklySummary() {
+  const card = document.getElementById("weekly-summary-card");
+  if (!card) return;
+  const days = weekWindow();
+  const daySet = new Set(days);
+  const goal = (k) => Number(store.settings[k]) || 0;
+  const proteinGoal = goal("proteinGoal"), waterGoal = goal("waterGoal"), moveGoal = goal("movementGoal");
+  const countGoalDays = (key, field, g) => {
+    if (!g) return { met: 0, total: 0 };
+    let met = 0;
+    days.forEach((d) => { if (sumForDate(store[key] || [], d, field) >= g) met++; });
+    return { met, total: 7 };
+  };
+  const p = countGoalDays("protein", "grams", proteinGoal);
+  const w = countGoalDays("water", "oz", waterGoal);
+  const m = countGoalDays("exercise", "minutes", moveGoal);
+  document.getElementById("weekly-summary-range").textContent =
+    "Last 7 days: " + formatDate(days[0]) + " to " + formatDate(days[6]) + ".";
+
+  const lines = [];
+  const anyLogged = days.some((d) =>
+    (store.water || []).some((e) => e.date === d) || (store.protein || []).some((e) => e.date === d) ||
+    (store.exercise || []).some((e) => e.date === d) || (store.weight || []).some((e) => e.date === d) ||
+    (store.injections || []).some((e) => e.date === d) || (store.journal || []).some((e) => e.date === d) ||
+    (store.sideEffects || []).some((e) => e.date === d));
+  if (!anyLogged) {
+    lines.push("No entries in the last 7 days yet.");
+  } else {
+    if (proteinGoal) lines.push("Protein goal reached " + p.met + " of 7 days.");
+    if (waterGoal) lines.push("Water goal reached " + w.met + " of 7 days.");
+    if (moveGoal) lines.push("Exercise goal reached " + m.met + " of 7 days.");
+    const sessions = (store.exercise || []).filter((e) => daySet.has(e.date));
+    const strength = sessions.filter((e) => (e.label || "").toLowerCase().includes("strength"));
+    const totalMin = sessions.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
+    if (sessions.length) {
+      lines.push(sessions.length + " movement session" + (sessions.length === 1 ? "" : "s") +
+        " logged, " + totalMin + " minutes total" +
+        (strength.length ? ", including " + strength.length + " strength session" + (strength.length === 1 ? "" : "s") : "") + ".");
+    }
+    const shots = (store.injections || []).filter((e) => daySet.has(e.date)).length;
+    if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+    const weights = (store.weight || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (weights.length >= 2) {
+      const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+      const change = startW - endW;
+      lines.push(change > 0
+        ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+        : change < 0
+          ? "Weight went from " + startW + " to " + endW + " lbs."
+          : "Weight held steady at " + endW + " lbs.");
+    } else if (weights.length === 1) {
+      lines.push("You logged your weight at " + weights[0].value + " lbs.");
+    }
+    const meas = (store.measurements || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (meas.length) lines.push("Measurements logged on " + formatDate(meas[meas.length - 1].date) + ".");
+    const effects = (store.sideEffects || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (effects.length) {
+      const last = effects[effects.length - 1];
+      lines.push(effects.length + " side effect" + (effects.length === 1 ? "" : "s") +
+        " logged, most recent: " + escapeHtml(last.symptom || "Not named") +
+        " (" + escapeHtml(last.severity || "No severity") + ").");
+    } else {
+      lines.push("No side effects logged.");
+    }
+  }
+  document.getElementById("weekly-summary-body").innerHTML =
+    lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("");
+
+  const stats = { proteinDays: p.met, waterDays: w.met, moveDays: m.met, anyLogged,
+    daysWithGoal: { protein: p.total, water: w.total, exercise: m.total } };
+  document.getElementById("weekly-suggestion-text").textContent = weeklySuggestion(stats);
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(weekDismissKey()) === "1"; } catch (err) {}
+  document.getElementById("weekly-suggestion-wrap").classList.toggle("hidden", dismissed);
+  document.getElementById("weekly-dismissed-note").classList.toggle("hidden", !dismissed);
+}
+
+document.getElementById("weekly-dismiss").addEventListener("click", () => {
+  try { localStorage.setItem(weekDismissKey(), "1"); } catch (err) {}
+  renderWeeklySummary();
+});
+document.getElementById("weekly-show-suggestion").addEventListener("click", () => {
+  try { localStorage.removeItem(weekDismissKey()); } catch (err) {}
+  renderWeeklySummary();
+});
+
 /* ---------- Today tab ---------- */
 
 function sumForDate(list, dateStr, field) {
@@ -498,6 +615,7 @@ function renderToday() {
   renderBackupNudge();
   renderCoachInsight();
   renderMonthlyReview();
+  renderWeeklySummary();
 }
 
 /* Today's water, protein, and movement entries with per-entry remove */
@@ -1643,7 +1761,7 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   alert("Settings saved.");
 });
 
-/* ---------- Coach access code ---------- */
+/* ---------- Companion access code ---------- */
 
 const WORKER_URL = "https://github-fetcher.millrjess.workers.dev";
 
@@ -1653,11 +1771,11 @@ function updateCoachStatus() {
   if (!line) return;
   const token = getAuthToken();
   if (token && token.length >= 16) {
-    line.textContent = "Your AI coach is connected and ready.";
+    line.textContent = "Your AI Wellness Companion is connected and ready.";
     line.style.color = "var(--sage-dark)";
     if (entry) entry.classList.add("hidden");
   } else {
-    line.textContent = "Your AI coach is not connected yet.";
+    line.textContent = "Your AI Wellness Companion is not connected yet.";
     line.style.color = "";
     if (entry) entry.classList.remove("hidden");
   }
@@ -1687,7 +1805,7 @@ async function redeemAccessCode() {
       msg.textContent = "";
       input.value = "";
       updateCoachStatus();
-      alert("Your AI coach is connected.");
+      alert("Your AI Wellness Companion is connected.");
     } else {
       msg.textContent = data.error || "That code did not work. Try again.";
     }
@@ -2015,8 +2133,13 @@ dayPicker.addEventListener("change", () => {
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
   if (!confirm("Delete ALL your data? This cannot be undone. Consider downloading a backup first.")) return;
-  if (!confirm("Are you sure? All water, protein, injections, weight, journal, and side effect entries will be permanently deleted.")) return;
+  if (!confirm("Are you sure? This deletes your tracked entries, backups saved in this app, chat history, and custom activities. Your companion access stays connected.")) return;
   localStorage.removeItem(LS_KEY);
+  localStorage.removeItem("nct-snapshots");
+  localStorage.removeItem("nc_custom_activities");
+  localStorage.removeItem("nct-last-backup");
+  localStorage.removeItem("nct-backup-snooze");
+  localStorage.removeItem(CHAT_KEY);
   localStorage.removeItem("nct-setup-done");
   location.reload();
 });
@@ -2033,13 +2156,13 @@ renderJournal();
 renderSideEffects();
 renderSettings();
 
-/* ---------- AI Coach chat ---------- */
+/* ---------- AI Wellness Companion chat ---------- */
 
 // Update this URL after deploying the Worker
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
 const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
 
-/* ---------- Coach memory (opt-in) ---------- */
+/* ---------- Companion memory (opt-in) ---------- */
 
 function memoryHeaders() {
   const headers = { "Content-Type": "application/json" };
@@ -2095,7 +2218,7 @@ document.getElementById("memory-save").addEventListener("click", async () => {
       document.getElementById("memory-saved-msg").classList.remove("hidden");
       document.getElementById("memory-optin-card").removeAttribute("open");
     } else if (res.status === 400) {
-      alert("Coach memory needs your personal key. Use the 'Get your personal app link' box on the welcome page to get one.");
+      alert("Companion memory needs your personal key. Use the 'Get your personal app link' box on the welcome page to get one.");
     } else {
       alert("Could not save. Check your connection and try again.");
     }
@@ -2105,7 +2228,7 @@ document.getElementById("memory-save").addEventListener("click", async () => {
 });
 
 document.getElementById("forget-me").addEventListener("click", async () => {
-  if (!confirm("Delete everything your AI coach remembers about you? This cannot be undone.")) return;
+  if (!confirm("Delete everything your AI Wellness Companion remembers about you? This cannot be undone.")) return;
   try {
     await fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() });
   } catch (e) {}
@@ -2115,7 +2238,7 @@ document.getElementById("forget-me").addEventListener("click", async () => {
     document.getElementById("memory-fields").classList.add("hidden");
     document.getElementById("memory-saved-msg").classList.add("hidden");
   }
-  alert("Done. Your coach no longer remembers you.");
+  alert("Done. Your companion no longer remembers you.");
 });
 
 const CHAT_KEY = "newChapterTracker.chat.v1";
@@ -2199,7 +2322,7 @@ function renderChat() {
   if (chatHistory.length === 0) {
     const welcome = document.createElement("div");
     welcome.className = "chat-msg assistant";
-    welcome.textContent = "Hi, I am your AI coach. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going.";
+    welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going. I do not see your tracker entries, so anything you want me to know, tell me here.";
     box.appendChild(welcome);
     return;
   }
@@ -2265,7 +2388,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
       // Missing or invalid token: the buyer link wasn't used
       chatHistory.push({
         role: "assistant",
-        content: "Your AI coach needs your personal app link to work. Please open the link from your welcome email.",
+        content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
       });
     } else if (data.reply) {
       chatHistory.push({ role: "assistant", content: data.reply });
@@ -2282,7 +2405,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     if (typing) typing.remove();
     chatHistory.push({
       role: "assistant",
-      content: "I could not reach the AI coach service. Check your connection and try again.",
+      content: "I could not reach the AI Wellness Companion service. Check your connection and try again.",
     });
   }
 

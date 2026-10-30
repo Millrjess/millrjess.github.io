@@ -1,5 +1,5 @@
 {
-  "background_color": "#F7F5F0",
+  "background_color": "#FDFBF7",
   "description": "Your GLP-1 wellness journey, beautifully tracked.",
   "display": "standalone",
   "icons": [
@@ -23,6 +23,6 @@
   ],
   "name": "A New Chapter Tracker",
   "short_name": "GLP-1 Tracker",
-  "theme_color": "#7A8B6F",
+  "theme_color": "#5A6B52",
   "scope": "./"
 }

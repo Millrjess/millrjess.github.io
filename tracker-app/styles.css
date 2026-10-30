@@ -920,7 +920,7 @@ body {
   font-size: 0.68rem;
 }
 .tab-btn {
-  flex: 1;
+  flex: 1 0 auto;
   border: none;
   background: none;
   display: flex;
