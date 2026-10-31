@@ -267,7 +267,7 @@ function pickCoachInsight() {
   const wStreak = streakFor("water", "oz", "waterGoal");
   if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
   const mStreak = streakFor("exercise", "minutes", "movementGoal");
-  if (mStreak >= 3) return mStreak + " active days in a row. Exercise is medicine.";
+  if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
   const goalW = Number(store.settings.goalWeight) || 0;
   const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
   if (goalW > 0 && sorted.length) {
@@ -356,7 +356,7 @@ function renderMonthlyReview() {
   lines.push("You showed up " + daysLogged.size + " of " + daysInMonth + " days.");
   if (proteinDays) lines.push("Protein goal reached " + proteinDays + " days.");
   if (waterDays) lines.push("Water goal reached " + waterDays + " days.");
-  if (moveDays) lines.push("Exercise goal reached " + moveDays + " days.");
+  if (moveDays) lines.push("Movement goal reached " + moveDays + " days.");
   if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
   if (journals) lines.push(journals + " journal " + (journals === 1 ? "entry" : "entries") + " written.");
   if (weightLine) lines.push(weightLine);
@@ -446,7 +446,7 @@ function renderWeeklySummary() {
   } else {
     if (proteinGoal) lines.push("Protein goal reached " + p.met + " of 7 days.");
     if (waterGoal) lines.push("Water goal reached " + w.met + " of 7 days.");
-    if (moveGoal) lines.push("Exercise goal reached " + m.met + " of 7 days.");
+    if (moveGoal) lines.push("Movement goal reached " + m.met + " of 7 days.");
     const sessions = (store.exercise || []).filter((e) => daySet.has(e.date));
     const strength = sessions.filter((e) => (e.label || "").toLowerCase().includes("strength"));
     const totalMin = sessions.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
@@ -647,7 +647,7 @@ function renderTodayEntries(t, isToday) {
   document.getElementById("exercise-list").innerHTML = exToday.length
     ? exToday.map((e) => `
       <div class="today-entry">
-        <span>${escapeHtml(e.label || "Exercise")} &middot; ${escapeHtml(e.minutes)} min</span>
+        <span>${escapeHtml(e.label || "Movement")} &middot; ${escapeHtml(e.minutes)} min</span>
         <button class="btn btn-small btn-danger" data-del-exercise="${e.id}">Remove</button>
       </div>`).join("")
     : "";
@@ -721,7 +721,7 @@ document.getElementById("protein-minus").addEventListener("click", () => {
   saveStore(); renderToday();
 });
 document.getElementById("exercise-plus").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: todayStr(), minutes: getStep("exercise-step", 15), label: "Exercise" });
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: getStep("exercise-step", 15), label: "Movement" });
   saveStore(); renderToday();
 });
 document.getElementById("exercise-minus").addEventListener("click", () => {
@@ -767,9 +767,9 @@ document.getElementById("food-edit-cancel").addEventListener("click", cancelFood
 
 document.querySelectorAll("[data-exercise]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const labels = { 15: "Walk", 10: "Stretch", 30: "Exercise" };
+    const labels = { 15: "Walk", 10: "Stretch", 30: "Movement" };
     const mins = Number(btn.dataset.exercise);
-    store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: labels[mins] || "Exercise" });
+    store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: labels[mins] || "Movement" });
     saveStore();
     renderToday();
   });
@@ -2127,7 +2127,7 @@ document.getElementById("export-data").addEventListener("click", () => {
   ));
 
   lines.push(...tsvSection(
-    "Exercise",
+    "Movement",
     ["Date", "Activity", "Minutes"],
     [...store.exercise].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.label, e.minutes])
   ));
