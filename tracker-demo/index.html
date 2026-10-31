@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sample Demo: New Chapter: GLP-1 Tracker</title>
+<meta name="description" content="Your GLP-1 wellness journey, beautifully tracked. Injection logging, weight, measurements, progress photos, side effects, and daily journal for Zepbound, Wegovy, Ozempic, and Mounjaro.">
+<meta name="author" content="Jessica A. Miller">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://millrjess.github.io/tracker-demo/">
+<meta property="og:title" content="New Chapter: GLP-1 Tracker">
+<meta property="og:description" content="Your GLP-1 wellness journey, beautifully tracked.">
+<meta property="og:image" content="https://millrjess.github.io/tracker-demo/icons/lotus-icon-512.png">
+<meta property="og:url" content="https://millrjess.github.io/tracker-demo/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="New Chapter: GLP-1 Tracker">
+<meta name="twitter:description" content="Your GLP-1 wellness journey, beautifully tracked.">
+<meta name="twitter:image" content="https://millrjess.github.io/tracker-demo/icons/lotus-icon-512.png">
+<meta name="theme-color" content="#5A6B52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
+<link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+.demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
+.demo-banner strong{color:#E8B54A}
+.demo-banner a{color:#FDFBF7;font-weight:700;text-decoration:underline}
+.demo-sample-note{background:#FDFBF7;border-left:4px solid #E8B54A;color:#2B2B28;padding:10px 12px;margin:0 0 12px;font-size:.95rem;text-align:left}
+</style>
+
+</head>
+<body>
+<div class="demo-banner" role="note"><strong>Sample demo.</strong> Try it here, then get the real app. <a href="https://millrjess.github.io/tracker/">Get the real app</a>. This demo is not a download. The real app will be on Google Play late December to early January. For now, use the web app. No sign in, no purchase, no code needed here. All data on this page is sample only.</div>
+
+
+<header class="app-header">
+  <h1>New Chapter: GLP-1 Tracker™</h1>
+  <p class="tagline">Your wellness journey, beautifully tracked.</p>
+</header>
+
+<main id="app-main">
+
+  <!-- TODAY TAB -->
+  <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
+    <div class="card hidden" id="backup-nudge" style="border-left:4px solid #E8B54A">
+      <p style="margin:0 0 8px" id="backup-nudge-text"></p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-small" id="backup-now">Back up now</button>
+        <button class="btn btn-small" id="backup-later">Remind me later</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
+      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Pick a date" tabindex="0">
+        <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
+        <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
+      </div>
+      <button id="day-cal" class="btn" aria-label="Pick a date" style="padding:8px 14px">📅</button>
+      <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
+      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1"
+        style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
+    </div>
+
+    <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-label="Pick a date">
+      <div class="modal-card" style="max-width:340px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button class="btn btn-small" id="day-cal-prev" aria-label="Previous month">←</button>
+          <strong id="day-cal-title"></strong>
+          <button class="btn btn-small" id="day-cal-next" aria-label="Next month">→</button>
+        </div>
+        <div id="day-cal-grid" class="mini-calendar" style="font-size:1.1rem;padding:0 4px;box-sizing:border-box"></div>
+        <button class="btn btn-secondary" id="day-cal-close" style="width:100%;margin-top:12px;padding:12px">Close</button>
+      </div>
+    </div>
+
+    <div class="encouragement" role="note">
+      <p id="encouragement-text" style="margin:0"></p>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2 class="card-title">Next Injection</h2>
+      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
+        <button class="btn btn-secondary btn-small" data-goto="injections">View shot history</button>
+      </div>
+    </div>
+
+    <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
+      <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
+      <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
+      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+    </details>
+
+    <div class="progress-grid" role="region" aria-label="Daily progress summary">
+      <div class="progress-card">
+        <p class="pc-label">Protein</p>
+        <p class="pc-value"><span id="sum-protein-num">0</span> <span class="pc-goal">of <span id="sum-protein-goal">90</span> g</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-protein-bar"></div></div>
+      </div>
+      <div class="progress-card">
+        <p class="pc-label">Water</p>
+        <p class="pc-value"><span id="sum-water-num">0</span> <span class="pc-goal">of <span id="sum-water-goal">80</span> oz</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-water-bar"></div></div>
+      </div>
+      <div class="progress-card">
+        <p class="pc-label">Movement</p>
+        <p class="pc-value"><span id="sum-move-num">0</span> <span class="pc-goal">of <span id="sum-move-goal">30</span> min</span></p>
+        <div class="mini-bar"><div class="mini-fill" id="sum-move-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52">
+      <h2 class="card-title">Your week</h2>
+      <p class="muted" id="weekly-summary-range" style="margin:0 0 8px"></p>
+      <div id="weekly-summary-body"></div>
+      <div id="weekly-suggestion-wrap" style="margin-top:12px">
+        <p style="margin:0 0 8px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
+        <button type="button" class="btn btn-small" id="weekly-dismiss">Not this week</button>
+      </div>
+      <p class="muted hidden" id="weekly-dismissed-note" style="margin:12px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
+      <p class="muted" style="margin:12px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
+
+
+
+    <div class="card">
+      <h2 class="card-title">Water Intake</h2>
+      <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">80</span> oz goal</span></p>
+      <div class="progress-bar" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="water-progressbar"><div class="progress-fill" id="water-progress"></div></div>
+      <p class="percent-line" id="water-percent">0% of daily goal</p>
+      <div class="quick-add">
+        <div class="stepper" role="group" aria-label="Water amount stepper">
+          <button class="btn btn-small stepper-btn" id="water-minus" aria-label="Decrease water amount">−</button>
+          <input type="number" id="water-step" value="8" min="1" max="64" aria-label="Water ounces per tap" class="stepper-input">
+          <span class="stepper-unit">oz</span>
+          <button class="btn btn-small stepper-btn" id="water-plus" aria-label="Add water">+</button>
+        </div>
+        <button class="btn btn-small" id="undo-water">Undo</button>
+      </div>
+      <div id="water-list" class="today-entries"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Protein</h2>
+      <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of <span id="protein-goal-display">90</span> g goal</span></p>
+      <div class="progress-bar" role="progressbar" aria-label="Protein intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="protein-progressbar"><div class="progress-fill" id="protein-progress"></div></div>
+      <p class="percent-line" id="protein-percent">0% of daily goal</p>
+      <div class="quick-add">
+        <div class="stepper" role="group" aria-label="Protein amount stepper">
+          <button class="btn btn-small stepper-btn" id="protein-minus" aria-label="Decrease protein amount">−</button>
+          <input type="number" id="protein-step" value="15" min="1" max="100" aria-label="Protein grams per tap" class="stepper-input">
+          <span class="stepper-unit">g</span>
+          <button class="btn btn-small stepper-btn" id="protein-plus" aria-label="Add protein">+</button>
+        </div>
+        <button class="btn btn-small" id="undo-protein">Undo</button>
+      </div>
+      <div id="recent-foods" class="recent-foods"></div>
+      <form id="protein-form" class="inline-form">
+        <input type="text" id="protein-food" placeholder="What did you eat?" aria-label="Food description">
+        <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
+        <button type="submit" class="btn btn-small" id="food-submit-btn">Log</button>
+        <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
+      </form>
+      <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
+      <div id="protein-list" class="today-entries"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Movement</h2>
+      <p class="big-number"><span id="exercise-today">0</span> min <span class="goal-label">of <span id="exercise-goal-display">30</span> min goal</span></p>
+      <div class="progress-bar" role="progressbar" aria-label="Movement progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exercise-progressbar"><div class="progress-fill" id="exercise-progress"></div></div>
+      <p class="percent-line" id="exercise-percent">0% of daily goal</p>
+      <p class="muted">Every minute counts.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <select id="exercise-type" aria-label="Movement type" style="flex:1;min-width:0;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+          <option value="">Choose activity…</option>
+          <option>Walking</option>
+          <option>Yoga</option>
+          <option>Pilates</option>
+          <option>Barre</option>
+          <option>Strength Training</option>
+          <option>Cardio</option>
+          <option>Spinning</option>
+          <option>Zumba</option>
+          <option>TRX</option>
+          <option>Swimming</option>
+          <option>Stretching</option>
+          <option>Other</option>
+        </select>
+        <input type="text" id="exercise-custom" placeholder="Your activity" maxlength="40" aria-label="Custom activity" class="hidden" style="padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+        <input type="number" id="exercise-minutes" placeholder="Min" min="1" max="600" aria-label="Minutes" style="width:76px;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
+        <button class="btn btn-small" id="exercise-add" style="white-space:nowrap">Add</button>
+      </div>
+      <div class="quick-add">
+        <div class="stepper" role="group" aria-label="Movement minutes stepper">
+          <button class="btn btn-small stepper-btn" id="exercise-minus" aria-label="Decrease minutes">−</button>
+          <input type="number" id="exercise-step" value="15" min="1" max="180" aria-label="Minutes per tap" class="stepper-input">
+          <span class="stepper-unit">min</span>
+          <button class="btn btn-small stepper-btn" id="exercise-plus" aria-label="Add movement">+</button>
+        </div>
+      </div>
+      <div id="exercise-list" class="today-entries"></div>
+      <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Daily Mood</h2>
+      <div class="mood-row" id="mood-row">
+        <button class="mood-btn" data-mood="Great">Great</button>
+        <button class="mood-btn" data-mood="Good">Good</button>
+        <button class="mood-btn" data-mood="Okay">Okay</button>
+        <button class="mood-btn" data-mood="Low">Low</button>
+      </div>
+      <p class="muted" id="mood-today-label">No mood logged today yet.</p>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Evening Reflection</h2>
+      <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
+      <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
+    </div>
+
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
+        <h2 class="card-title" style="margin:0;font-size:1rem" id="review-title">This month</h2>
+        <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
+      </div>
+      <div id="review-body" style="margin-top:12px"></div>
+    </details>
+  </section>
+
+  <!-- INJECTIONS TAB -->
+  <section id="tab-injections" class="tab-panel" role="tabpanel" aria-label="Injections">
+    <h2>Injections</h2>
+    <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
+    <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
+    <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button class="btn btn-small" id="inj-cal-prev" aria-label="Previous month">←</button>
+        <h3 style="margin:0" id="inj-cal-title">This month</h3>
+        <button class="btn btn-small" id="inj-cal-next" aria-label="Next month">→</button>
+      </div>
+      <div id="inj-calendar" class="mini-calendar" role="grid" aria-label="Injection calendar"></div>
+      <p class="muted" style="font-size:.85em;margin:8px 0 0">
+        <span style="color:#E8B54A">●</span> Shot logged &nbsp;
+        <span style="color:#5A6B52">○</span> Next scheduled
+      </p>
+      <p style="margin:8px 0 0;font-size:.9em" id="inj-cal-detail" aria-live="polite"></p>
+    </div>
+
+    <form id="injection-form" class="card hidden" aria-label="Log injection">
+      <h3>Log Injection</h3>
+      <label>Date
+        <input type="date" id="inj-date" required>
+      </label>
+      <label>Medication name
+        <input type="text" id="inj-med" placeholder="e.g. Zepbound" required>
+      </label>
+      <label>Dose (mg)
+        <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
+      </label>
+      <div class="field-group">
+        <span id="inj-site-label">Injection site</span>
+        <div class="site-map-wrap">
+          <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
+            <title>Injection site map</title>
+            <!-- zone layout: arms top, abdomen middle, thighs bottom -->
+            <ellipse cx="55" cy="40" rx="28" ry="32" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm"/>
+            <ellipse cx="145" cy="40" rx="28" ry="32" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm"/>
+            <text x="55" y="38" text-anchor="middle" class="zone-label">L Arm</text>
+            <text x="55" y="52" text-anchor="middle" class="zone-sublabel">back</text>
+            <text x="145" y="38" text-anchor="middle" class="zone-label">R Arm</text>
+            <text x="145" y="52" text-anchor="middle" class="zone-sublabel">back</text>
+            <ellipse cx="65" cy="120" rx="32" ry="36" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
+            <ellipse cx="135" cy="120" rx="32" ry="36" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
+            <text x="65" y="124" text-anchor="middle" class="zone-label">L Belly</text>
+            <text x="135" y="124" text-anchor="middle" class="zone-label">R Belly</text>
+            <ellipse cx="65" cy="200" rx="32" ry="36" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+            <ellipse cx="135" cy="200" rx="32" ry="36" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            <text x="65" y="204" text-anchor="middle" class="zone-label">L Thigh</text>
+            <text x="135" y="204" text-anchor="middle" class="zone-label">R Thigh</text>
+          </svg>
+          <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
+        </div>
+        <select id="inj-site" aria-labelledby="inj-site-label" required>
+          <option value="">Choose a site</option>
+          <option>Left Abdomen</option>
+          <option>Right Abdomen</option>
+          <option>Left Thigh</option>
+          <option>Right Thigh</option>
+          <option>Left Upper Arm</option>
+          <option>Right Upper Arm</option>
+        </select>
+      </div>
+      <label>Notes
+        <textarea id="inj-notes" rows="2" placeholder="Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-injection">Cancel</button>
+      </div>
+    </form>
+
+    <div id="injection-list" class="entry-list"></div>
+  </section>
+
+  <!-- WEIGHT TAB -->
+  <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
+    <h2>Weight</h2>
+    <button class="btn btn-primary" id="show-weight-form">+ Log weigh in</button>
+
+    <form id="weight-form" class="card hidden" aria-label="Log weight">
+      <h3>Log Weigh in</h3>
+      <label>Date
+        <input type="date" id="weight-date" required>
+      </label>
+      <label>Weight (lbs)
+        <input type="number" id="weight-value" step="0.1" min="0" placeholder="e.g. 184.2" required>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-weight">Cancel</button>
+      </div>
+    </form>
+
+    <div class="stats-row">
+      <div class="card stat-card">
+        <p class="stat-label">Current weight</p>
+        <p class="stat-value"><span id="current-weight">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label">Total lost</p>
+        <p class="stat-value loss"><span id="total-lost">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+    </div>
+
+    <div class="card hidden" id="milestone-card">
+      <h3>Goal progress</h3>
+      <p style="margin:0 0 8px" id="milestone-text"></p>
+      <div style="background:#EDE9DF;border-radius:999px;height:14px;overflow:hidden" role="progressbar" aria-label="Progress toward goal weight" id="milestone-barwrap">
+        <div id="milestone-bar" style="height:100%;width:0%;background:#5A6B52;border-radius:999px;transition:width .5s"></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em" id="milestone-sub"></p>
+    </div>
+
+    <div class="card">
+      <h3>Progress over time</h3>
+      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart"></canvas>
+      <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
+    </div>
+
+    <div id="weight-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Body Measurements</h3>
+      <p class="muted">Track inches lost alongside pounds. Measure monthly for the clearest picture.</p>
+      <button class="btn btn-primary" id="show-measurement-form">+ Log measurements</button>
+    </div>
+
+    <form id="measurement-form" class="card hidden" aria-label="Log measurements">
+      <h3>Log Measurements</h3>
+      <label>Date
+        <input type="date" id="meas-date" required>
+      </label>
+      <div class="measure-grid">
+        <label>Waist (in)<input type="number" id="meas-waist" step="0.1" min="0" placeholder="e.g. 34.5"></label>
+        <label>Hips (in)<input type="number" id="meas-hips" step="0.1" min="0" placeholder="e.g. 42.0"></label>
+        <label>Chest (in)<input type="number" id="meas-chest" step="0.1" min="0" placeholder="e.g. 38.0"></label>
+        <label>Arm (in)<input type="number" id="meas-arm" step="0.1" min="0" placeholder="e.g. 13.5"></label>
+        <label>Thigh (in)<input type="number" id="meas-thigh" step="0.1" min="0" placeholder="e.g. 24.0"></label>
+        <label>Neck (in)<input type="number" id="meas-neck" step="0.1" min="0" placeholder="e.g. 14.0"></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-measurement">Cancel</button>
+      </div>
+    </form>
+
+    <div id="measurement-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Progress Photos</h3>
+      <p class="muted">Photos stay on this device only. Take them monthly in similar lighting for the best comparison.</p>
+      <label class="btn btn-primary photo-upload-label">+ Add photo
+        <input type="file" id="photo-input" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div id="photo-grid" class="photo-grid"></div>
+  </section>
+
+  <!-- JOURNAL TAB -->
+  <section id="tab-journal" class="tab-panel" role="tabpanel" aria-label="Journal">
+    <h2>Journal</h2>
+    <button class="btn btn-primary" id="show-journal-form">+ New entry</button>
+
+    <form id="journal-form" class="card hidden" aria-label="New journal entry">
+      <h3>New Journal Entry</h3>
+      <label>Date
+        <input type="date" id="journal-date" required>
+      </label>
+      <label>Mood
+        <select id="journal-mood" required>
+          <option value="">Choose a mood</option>
+          <option>Great</option>
+          <option>Good</option>
+          <option>Okay</option>
+          <option>Low</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="journal-notes" rows="4" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-journal">Cancel</button>
+      </div>
+    </form>
+
+    <div id="journal-list" class="entry-list"></div>
+  </section>
+
+  <!-- SIDE EFFECTS TAB -->
+  <section id="tab-side-effects" class="tab-panel" role="tabpanel" aria-label="Side effects">
+    <h2>Side Effects</h2>
+    <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+
+    <form id="sideeffect-form" class="card hidden" aria-label="Log side effect">
+      <h3>Log Side Effect</h3>
+      <label>Date
+        <input type="date" id="se-date" required>
+      </label>
+      <label>Symptom
+        <input type="text" id="se-symptom" placeholder="e.g. Nausea" required>
+      </label>
+      <label>Severity
+        <select id="se-severity" required>
+          <option value="">Choose severity</option>
+          <option>Mild</option>
+          <option>Moderate</option>
+          <option>Severe</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="se-notes" rows="2" placeholder="What helped? Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-sideeffect">Cancel</button>
+      </div>
+    </form>
+
+    <div id="sideeffect-list" class="entry-list"></div>
+  </section>
+
+  <!-- AI WELLNESS COMPANION TAB -->
+  <section id="tab-chat" class="tab-panel" role="tabpanel" aria-label="AI Wellness Companion">
+    <h2>Your AI Wellness Companion</h2>
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">Ask about your routine, protein ideas, or staying motivated. This is encouragement, not medical advice. Your messages leave this device and are processed by our AI service. Your companion does not see your tracker entries. It only knows what you tell it here, plus your name, goals, and preferences if you turn on Companion Memory below. You can erase that anytime. <a href="privacy.html">Privacy Policy</a></p>
+    <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
+      <button type="submit" class="btn btn-small" id="chat-send">Send</button>
+    </form>
+
+    <details class="card" style="margin-top:16px" id="memory-optin-card" open>
+      <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
+      <div style="margin-top:12px">
+      <p class="muted" style="font-size:.9em">Want your companion to remember you? Turn this on and it will remember your name, goals, and preferences to personalize its replies. It's off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <label style="display:flex;align-items:center;gap:10px;font-weight:600">
+        <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
+        Remember me
+      </label>
+      <div id="memory-fields" class="hidden" style="margin-top:12px">
+        <label>Your name
+          <input type="text" id="memory-name" maxlength="60" placeholder="What should your companion call you?">
+        </label>
+        <label>Your goals
+          <input type="text" id="memory-goals" maxlength="500" placeholder="e.g. Protect muscle, steady energy">
+        </label>
+        <label>Preferences
+          <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
+        </label>
+        <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
+      </div>
+      <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your companion will remember you now.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- SETTINGS TAB -->
+  <section id="tab-settings" class="tab-panel" role="tabpanel" aria-label="Settings">
+    <h2>Settings</h2>
+
+    <form id="settings-form">
+      <div class="card">
+        <h3>AI Wellness Companion access</h3>
+        <p class="muted" id="coach-status-line">Checking companion status...</p>
+        <div id="coach-code-entry">
+          <label>Access code
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+          </label>
+          <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
+          <p class="muted" id="code-msg" style="min-height:1.2em"></p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
+        </div>
+        <details style="margin-top:8px">
+          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
+          <label style="margin-top:8px">Access key
+            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
+          </label>
+        </details>
+      </div>
+
+      <div id="play-subscription-card"></div>
+
+      <details class="card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
+        <div style="margin-top:12px">
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Medication</h4>
+        <label>Current medication
+          <input type="text" id="set-med" placeholder="e.g. Zepbound">
+        </label>
+        <label>Current dose (mg)
+          <input type="number" id="set-dose" step="0.1" min="0" placeholder="e.g. 2.5">
+        </label>
+      </div>
+      <div id="snapshot-list" style="margin-top:14px"></div>
+
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Weekly shot day</h4>
+        <label>Shot day
+          <select id="set-shot-day">
+            <option value="">Choose a day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+          </select>
+        </label>
+        <p class="muted">Your Today tab will show how many days until your next scheduled shot.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily water goal (oz)
+          <input type="number" id="set-water-goal" min="0" step="1" placeholder="80">
+        </label>
+        <p class="muted">Staying well hydrated supports digestion and may ease side effects.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily protein goal (g)
+          <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
+        </label>
+        <p class="muted">Protein helps protect muscle during weight loss.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily movement goal (min)
+          <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
+        </label>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Goal weight (lbs)
+          <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
+        </label>
+        <p class="muted">Your weight chart will show a goal line and track your milestones toward it. Set this with your clinician's guidance.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Prescription refill reminder</h4>
+        <label>Refill date
+          <input type="date" id="set-refill-date">
+        </label>
+        <p class="muted" id="refill-countdown"></p>
+        <p class="muted">A reminder to request your prescription before you run out.</p>
+      </div>
+
+        </div>
+      </details>
+
+      <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+    </form>
+
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
+      <div style="margin-top:12px">
+    <div class="card">
+      <p class="muted">Download everything you have tracked as a tab delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
+      <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
+    </div>
+
+    <div class="card">
+      <h3>Backup &amp; restore</h3>
+      <p class="muted">Download backup saves a file to this phone, in Files under Downloads, and also keeps a copy inside the app below. Restore from file opens a picker: choose On My iPhone or Downloads. A backup is not in Google Drive unless you moved a copy there yourself.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
+        <label class="btn" style="cursor:pointer">Restore backup
+          <input type="file" id="restore-input" accept=".json,application/json" hidden>
+        </label>
+      </div>
+      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
+    </div>
+
+      </div>
+    </details>
+
+    <details class="card legal-card">
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">About</h3></summary>
+      <div style="margin-top:12px">
+    <div>
+      <p>A New Chapter is not a calorie counter. It tracks the habits that protect muscle while the medicine works: protein, water, and movement, plus your injections and your weight.</p>
+      <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI Wellness Companion. Everything in one place.</p>
+      <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
+      <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
+      <h4 style="margin:16px 0 8px">Privacy</h4>
+      <p><strong>Stays on this device:</strong> everything you track, including water, food, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
+      <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your messages leave this device and are processed by our service to generate a reply. Messages are not stored on our servers afterward, unless you turn on Companion Memory. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
+      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
+        <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
+      </div>
+      <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
+      <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+    </div>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>How can we make this app better? <a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
+  <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+</footer>
+
+<nav class="tab-bar" aria-label="Main navigation" role="tablist">
+  <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg></span>
+    <span class="tab-label">Today</span>
+  </button>
+  <button class="tab-btn" data-tab="injections" role="tab" aria-selected="false" aria-controls="tab-injections">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L9 19l-5 1 1-5L17 3z"/><path d="M14 6l4 4"/><path d="M5 15l-2 5 5-2"/></svg></span>
+    <span class="tab-label">Injections</span>
+  </button>
+  <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h12l3 7H3l3-7z"/><path d="M3 10h18"/><path d="M12 10v8"/><path d="M8 21h8"/></svg></span>
+    <span class="tab-label">Weight</span>
+  </button>
+  <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
+    <span class="tab-label">Journal</span>
+  </button>
+  <button class="tab-btn" data-tab="side-effects" role="tab" aria-selected="false" aria-controls="tab-side-effects">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
+    <span class="tab-label">Effects</span>
+  </button>
+  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat" aria-label="AI Wellness Companion">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="tab-label">Companion</span>
+  </button>
+  <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings">
+    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    <span class="tab-label">Settings</span>
+  </button>
+</nav>
+
+<script src="demo-seed.js"></script>
+<script src="app.js"></script>
+<script src="demo-labels.js"></script>
+</body>
+</html>

@@ -1,0 +1,2680 @@
+/*
+ * A New Chapter Tracker
+ * Copyright (c) 2026 Jessica A. Miller. All rights reserved.
+ * https://millrjess.github.io/tracker/
+ */
+
+/* A New Chapter Tracker - app logic. Data persists in localStorage on this device only. */
+
+"use strict";
+
+const LS_KEY = "newChapterTracker.demo.v1";
+
+// Companion auth token storage (must be defined before any render calls)
+const TOKEN_KEY = "newChapterTracker.demo.authToken.v1";
+function getAuthToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+const DEFAULTS = {
+  settings: {
+    medication: "Zepbound",
+    dose: "",
+    shotDay: "",
+    waterGoal: 80,
+    proteinGoal: 90,
+    movementGoal: 30,
+    carbGoal: 130,
+    fatGoal: 65,
+    calorieGoal: 1600,
+    refillDate: "",
+    goalWeight: ""
+  },
+  water: [],        // { id, date: "YYYY-MM-DD", oz: number }
+  protein: [],      // { id, date, grams, food }
+  exercise: [],     // { id, date, minutes, label }
+  injections: [],   // { id, date, medication, dose, site, notes }
+  weight: [],       // { id, date, value }
+  measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
+  photos: [],       // { id, date, dataUrl }
+  journal: [],      // { id, date, mood, notes }
+  sideEffects: [],  // { id, date, symptom, severity, notes }
+  moods: {}         // { "YYYY-MM-DD": "Good" }
+};
+
+let store = loadStore();
+ensureEntryIds();
+
+/* Older entries saved before per-entry delete existed may lack ids. Give them one. */
+function ensureEntryIds() {
+  ["water", "protein", "exercise"].forEach((key) => {
+    if (!Array.isArray(store[key])) return;
+    store[key].forEach((e) => {
+      if (!e.id) e.id = uid();
+    });
+  });
+}
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return structuredClone(DEFAULTS);
+    const parsed = JSON.parse(raw);
+    return Object.assign(structuredClone(DEFAULTS), parsed);
+  } catch (e) {
+    return structuredClone(DEFAULTS);
+  }
+}
+
+function saveStore() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(store));
+  } catch (e) {
+    /* storage full or unavailable; app keeps working in memory */
+  }
+}
+
+function uid() {
+  return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function todayStr(offsetDays) {
+  const d = new Date();
+  if (offsetDays) d.setDate(d.getDate() + offsetDays);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
+}
+
+function formatDate(iso) {
+  if (!iso) return "";
+  const parts = iso.split("-");
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/* Daily encouragement: rotate through supportive messages by day of year */
+
+const ENCOURAGEMENTS = [
+  "Strong is the goal now, not small. Protein first, every day.",
+  "Muscle is your longevity. Every gram of protein protects it.",
+  "You showed up today. That matters more than any number.",
+  "Consistency beats perfection, at every age.",
+  "Energy is the real goal. The rest follows.",
+  "This is your chapter. Write it strong.",
+  "Be patient with your body. It has carried you this far.",
+  "Small habits, repeated daily, create lasting change.",
+  "Progress is not always visible, but it is always happening.",
+  "You have earned every bit of wisdom in this chapter. Your body is catching up."
+];
+
+function renderEncouragement() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  document.getElementById("encouragement-text").textContent =
+    ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
+}
+
+/* Recent foods quick-pick: the 5 most recently logged foods as tap-to-add buttons */
+
+function renderRecentFoods(isToday) {
+  const box = document.getElementById("recent-foods");
+  if (!box) return;
+  if (!isToday) {
+    box.innerHTML = "";
+    return;
+  }
+  const seen = new Map();
+  [...store.protein].reverse().forEach((e) => {
+    const key = (e.food || "Logged entry").trim().toLowerCase();
+    if (!seen.has(key)) seen.set(key, e);
+  });
+  const recent = [...seen.values()].slice(0, 5);
+  box.innerHTML = recent.length
+    ? '<p class="recent-label">Tap to log again</p>' + recent.map((e) => `
+      <button type="button" class="btn btn-small" data-recent-food="${e.id}">${escapeHtml(e.food || "Logged entry")} (${escapeHtml(e.grams)}g)</button>`).join("")
+    : "";
+  box.querySelectorAll("[data-recent-food]").forEach((b) => b.addEventListener("click", () => {
+    const src = store.protein.find((x) => x.id === b.dataset.recentFood);
+    if (!src) return;
+    store.protein.push({
+      id: uid(),
+      date: todayStr(),
+      grams: Number(src.grams) || 0,
+      food: src.food
+    });
+    saveStore();
+    renderToday();
+  }));
+}
+
+/* Log Food button: jump back to today and scroll to the food form */
+
+document.getElementById("log-food-btn").addEventListener("click", () => {
+  if (viewOffset !== 0) {
+    viewOffset = 0;
+    renderToday();
+  }
+  setTimeout(() => {
+    const form = document.getElementById("protein-form");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      const foodInput = document.getElementById("protein-food");
+      if (foodInput) foodInput.focus({ preventScroll: true });
+    }
+  }, 60);
+});
+
+/* Food entry editing */
+
+let editingFoodId = null;
+
+function startFoodEdit(id) {
+  const e = store.protein.find((x) => x.id === id);
+  if (!e) return;
+  editingFoodId = id;
+  document.getElementById("protein-food").value = e.food || "";
+  document.getElementById("protein-grams").value = e.grams || "";
+  document.getElementById("food-submit-btn").textContent = "Save changes";
+  document.getElementById("food-edit-cancel").classList.remove("hidden");
+  document.getElementById("protein-form").scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("protein-food").focus({ preventScroll: true });
+}
+
+function cancelFoodEdit() {
+  editingFoodId = null;
+  const form = document.getElementById("protein-form");
+  if (form) form.reset();
+  const btn = document.getElementById("food-submit-btn");
+  if (btn) btn.textContent = "Log";
+  const cancel = document.getElementById("food-edit-cancel");
+  if (cancel) cancel.classList.add("hidden");
+}
+
+/* ---------- Tab navigation ---------- */
+
+const tabButtons = document.querySelectorAll(".tab-btn");
+const panels = document.querySelectorAll(".tab-panel");
+
+function showTab(name) {
+  tabButtons.forEach((b) => {
+    const active = b.dataset.tab === name;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
+  window.scrollTo(0, 0);
+  if (name === "weight") drawWeightChart();
+  if (name === "injections") renderInjectionCalendar();
+  if (name === "chat") loadCoachMemory();
+  if (name === "settings") renderPlaySubscription();
+  try {
+    gtag("event", "page_view", {
+      page_title: "Tracker - " + name,
+      page_location: location.href.split("#")[0] + "#" + name,
+      page_path: "/tracker-app/#" + name
+    });
+  } catch (e) { /* analytics unavailable; app keeps working */ }
+}
+
+tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+document.querySelectorAll("[data-goto]").forEach((el) => {
+  el.addEventListener("click", () => showTab(el.dataset.goto));
+});
+
+/* ---------- Proactive companion insights ---------- */
+
+function streakFor(key, field, goalKey) {
+  const goal = Number(store.settings[goalKey]) || 0;
+  if (!goal) return 0;
+  let streak = 0;
+  let off = sumForDate(store[key], todayStr(0), field) > 0 ? 0 : 1;
+  for (; off < 90; off++) {
+    if (sumForDate(store[key], todayStr(-off), field) >= goal) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function pickCoachInsight() {
+  // Shot day tomorrow gets top priority
+  const shotDay = store.settings.shotDay;
+  if (shotDay) {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const diff = (days.indexOf(shotDay) - new Date().getDay() + 7) % 7;
+    if (diff === 1) return "Your shot day is tomorrow. Everything is ready.";
+    if (diff === 0 && !store.injections.some((e) => e.date === todayStr())) {
+      return null; // the one-tap button covers today
+    }
+  }
+  const pStreak = streakFor("protein", "grams", "proteinGoal");
+  if (pStreak >= 3) return "You've hit your protein goal " + pStreak + " days in a row. That's how strength is built after 50.";
+  const wStreak = streakFor("water", "oz", "waterGoal");
+  if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
+  const mStreak = streakFor("exercise", "minutes", "movementGoal");
+  if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  if (goalW > 0 && sorted.length) {
+    const remaining = Math.abs(Number(sorted[sorted.length - 1].value) - goalW);
+    if (remaining > 0 && remaining <= 5) return "Only " + remaining.toFixed(1) + " lbs to your goal. You're nearly there.";
+  }
+  if (sorted.length) {
+    const lastW = sorted[sorted.length - 1].date;
+    const daysSince = Math.round((new Date(todayStr()) - new Date(lastW + "T00:00:00")) / 86400000);
+    if (daysSince >= 7) return "It's been " + daysSince + " days since you weighed in. No pressure, just whenever you're ready.";
+  }
+  if (store.journal.length) {
+    const lastJ = [...store.journal].sort((a, b) => b.date.localeCompare(a.date))[0].date;
+    const daysSince = Math.round((new Date(todayStr()) - new Date(lastJ + "T00:00:00")) / 86400000);
+    if (daysSince >= 7) return "A lot can change in " + daysSince + " days. Two minutes of journaling?";
+  }
+  return null;
+}
+
+function renderCoachInsight() {
+  const card = document.getElementById("coach-insight-card");
+  if (!card) return;
+  const insight = pickCoachInsight();
+  if (!insight) { card.classList.add("hidden"); return; }
+  document.getElementById("coach-insight-text").textContent = insight;
+  card.classList.remove("hidden");
+  card.open = true;
+}
+
+/* ---------- Monthly review story ---------- */
+
+let reviewYear, reviewMonth;
+
+function renderMonthlyReview() {
+  const body = document.getElementById("review-body");
+  if (!body) return;
+  const now = new Date();
+  if (reviewYear === undefined) { reviewYear = now.getFullYear(); reviewMonth = now.getMonth(); }
+  // Don't browse into the future
+  if (reviewYear > now.getFullYear() || (reviewYear === now.getFullYear() && reviewMonth > now.getMonth())) {
+    reviewYear = now.getFullYear(); reviewMonth = now.getMonth();
+  }
+  const title = new Date(reviewYear, reviewMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  document.getElementById("review-title").textContent = title;
+
+  const daysInMonth = new Date(reviewYear, reviewMonth + 1, 0).getDate();
+  const prefix = reviewYear + "-" + String(reviewMonth + 1).padStart(2, "0") + "-";
+  const inMonth = (d) => d && d.startsWith(prefix);
+
+  const daysLogged = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (inMonth(e.date)) daysLogged.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => { if (inMonth(d)) daysLogged.add(d); });
+
+  const goalDays = (key, field, goalKey) => {
+    const goal = Number(store.settings[goalKey]) || 0;
+    if (!goal) return 0;
+    let n = 0;
+    for (let d = 1; d <= daysInMonth; d++) {
+      if (sumForDate(store[key], prefix + String(d).padStart(2, "0"), field) >= goal) n++;
+    }
+    return n;
+  };
+  const proteinDays = goalDays("protein", "grams", "proteinGoal");
+  const waterDays = goalDays("water", "oz", "waterGoal");
+  const moveDays = goalDays("exercise", "minutes", "movementGoal");
+  const shots = store.injections.filter((e) => inMonth(e.date)).length;
+  const journals = store.journal.filter((e) => inMonth(e.date)).length;
+
+  const weights = store.weight.filter((e) => inMonth(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+  let weightLine = "";
+  if (weights.length >= 2) {
+    const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+    const change = startW - endW;
+    weightLine = change > 0
+      ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+      : change < 0
+        ? "Weight went from " + startW + " to " + endW + " lbs."
+        : "Weight held steady at " + endW + " lbs.";
+  } else if (weights.length === 1) {
+    weightLine = "You logged your weight at " + weights[0].value + " lbs.";
+  }
+
+  const lines = [];
+  lines.push("You showed up " + daysLogged.size + " of " + daysInMonth + " days.");
+  if (proteinDays) lines.push("Protein goal reached " + proteinDays + " days.");
+  if (waterDays) lines.push("Water goal reached " + waterDays + " days.");
+  if (moveDays) lines.push("Movement goal reached " + moveDays + " days.");
+  if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+  if (journals) lines.push(journals + " journal " + (journals === 1 ? "entry" : "entries") + " written.");
+  if (weightLine) lines.push(weightLine);
+
+  const isCurrent = reviewYear === now.getFullYear() && reviewMonth === now.getMonth();
+  const closing = daysLogged.size === 0
+    ? "A blank page. Next month is yours to write."
+    : isCurrent
+      ? "The month isn't over yet. Keep writing."
+      : "That's a chapter worth keeping.";
+
+  body.innerHTML = lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("") +
+    `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
+
+  document.getElementById("review-next").style.visibility = isCurrent ? "hidden" : "";
+}
+
+document.getElementById("review-prev").addEventListener("click", () => {
+  reviewMonth--;
+  if (reviewMonth < 0) { reviewMonth = 11; reviewYear--; }
+  renderMonthlyReview();
+});
+document.getElementById("review-next").addEventListener("click", () => {
+  reviewMonth++;
+  if (reviewMonth > 11) { reviewMonth = 0; reviewYear++; }
+  renderMonthlyReview();
+});
+
+/* ---------- Weekly wellness summary (last 7 days, logged data only) ---------- */
+
+function weekWindow() {
+  const days = [];
+  for (let off = 6; off >= 0; off--) days.push(todayStr(-off));
+  return days;
+}
+
+function weekDismissKey() {
+  const days = weekWindow();
+  return "demo-nct-week-dismiss:" + days[0] + "_" + days[days.length - 1];
+}
+
+// One manageable habit suggestion from the weakest logged area. Never shaming,
+// never medical, never a promise about weight. Static wording only, no user data.
+function weeklySuggestion(stats) {
+  if (!stats.anyLogged) return "One gentle start: log one glass of water today. Small steps count.";
+  const areas = [
+    { key: "protein", days: stats.proteinDays, total: stats.daysWithGoal.protein },
+    { key: "water", days: stats.waterDays, total: stats.daysWithGoal.water },
+    { key: "exercise", days: stats.moveDays, total: stats.daysWithGoal.exercise },
+  ].filter((a) => a.total > 0);
+  if (!areas.length) return "You are logging without set goals. One habit to try: set a protein goal in Settings so next week can show your progress.";
+  areas.sort((a, b) => (a.days / a.total) - (b.days / b.total));
+  const weakest = areas[0];
+  if (weakest.days >= weakest.total) return "You met your goals most days this week. One habit to keep: protect the routine that is already working.";
+  if (weakest.key === "protein") return "One manageable habit for next week: add a protein rich food to one meal each day.";
+  if (weakest.key === "water") return "One manageable habit for next week: keep a water bottle nearby and sip through the morning.";
+  return "One manageable habit for next week: a 10 minute walk after one meal each day.";
+}
+
+function renderWeeklySummary() {
+  const card = document.getElementById("weekly-summary-card");
+  if (!card) return;
+  const days = weekWindow();
+  const daySet = new Set(days);
+  const goal = (k) => Number(store.settings[k]) || 0;
+  const proteinGoal = goal("proteinGoal"), waterGoal = goal("waterGoal"), moveGoal = goal("movementGoal");
+  const countGoalDays = (key, field, g) => {
+    if (!g) return { met: 0, total: 0 };
+    let met = 0;
+    days.forEach((d) => { if (sumForDate(store[key] || [], d, field) >= g) met++; });
+    return { met, total: 7 };
+  };
+  const p = countGoalDays("protein", "grams", proteinGoal);
+  const w = countGoalDays("water", "oz", waterGoal);
+  const m = countGoalDays("exercise", "minutes", moveGoal);
+  document.getElementById("weekly-summary-range").textContent =
+    "Last 7 days: " + formatDate(days[0]) + " to " + formatDate(days[6]) + ".";
+
+  const lines = [];
+  const anyLogged = days.some((d) =>
+    (store.water || []).some((e) => e.date === d) || (store.protein || []).some((e) => e.date === d) ||
+    (store.exercise || []).some((e) => e.date === d) || (store.weight || []).some((e) => e.date === d) ||
+    (store.injections || []).some((e) => e.date === d) || (store.journal || []).some((e) => e.date === d) ||
+    (store.sideEffects || []).some((e) => e.date === d));
+  if (!anyLogged) {
+    lines.push("No entries in the last 7 days yet.");
+  } else {
+    if (proteinGoal) lines.push("Protein goal reached " + p.met + " of 7 days.");
+    if (waterGoal) lines.push("Water goal reached " + w.met + " of 7 days.");
+    if (moveGoal) lines.push("Movement goal reached " + m.met + " of 7 days.");
+    const sessions = (store.exercise || []).filter((e) => daySet.has(e.date));
+    const strength = sessions.filter((e) => (e.label || "").toLowerCase().includes("strength"));
+    const totalMin = sessions.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
+    if (sessions.length) {
+      lines.push(sessions.length + " movement session" + (sessions.length === 1 ? "" : "s") +
+        " logged, " + totalMin + " minutes total" +
+        (strength.length ? ", including " + strength.length + " strength session" + (strength.length === 1 ? "" : "s") : "") + ".");
+    }
+    const shots = (store.injections || []).filter((e) => daySet.has(e.date)).length;
+    if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+    const weights = (store.weight || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (weights.length >= 2) {
+      const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+      const change = startW - endW;
+      lines.push(change > 0
+        ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+        : change < 0
+          ? "Weight went from " + startW + " to " + endW + " lbs."
+          : "Weight held steady at " + endW + " lbs.");
+    } else if (weights.length === 1) {
+      lines.push("You logged your weight at " + weights[0].value + " lbs.");
+    }
+    const meas = (store.measurements || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (meas.length) lines.push("Measurements logged on " + formatDate(meas[meas.length - 1].date) + ".");
+    const effects = (store.sideEffects || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    if (effects.length) {
+      const last = effects[effects.length - 1];
+      lines.push(effects.length + " side effect" + (effects.length === 1 ? "" : "s") +
+        " logged, most recent: " + escapeHtml(last.symptom || "Not named") +
+        " (" + escapeHtml(last.severity || "No severity") + ").");
+    } else {
+      lines.push("No side effects logged.");
+    }
+  }
+  document.getElementById("weekly-summary-body").innerHTML =
+    lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("");
+
+  const stats = { proteinDays: p.met, waterDays: w.met, moveDays: m.met, anyLogged,
+    daysWithGoal: { protein: p.total, water: w.total, exercise: m.total } };
+  document.getElementById("weekly-suggestion-text").textContent = weeklySuggestion(stats);
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(weekDismissKey()) === "1"; } catch (err) {}
+  document.getElementById("weekly-suggestion-wrap").classList.toggle("hidden", dismissed);
+  document.getElementById("weekly-dismissed-note").classList.toggle("hidden", !dismissed);
+}
+
+document.getElementById("weekly-dismiss").addEventListener("click", () => {
+  try { localStorage.setItem(weekDismissKey(), "1"); } catch (err) {}
+  renderWeeklySummary();
+});
+document.getElementById("weekly-show-suggestion").addEventListener("click", () => {
+  try { localStorage.removeItem(weekDismissKey()); } catch (err) {}
+  renderWeeklySummary();
+});
+
+/* ---------- Today tab ---------- */
+
+function sumForDate(list, dateStr, field) {
+  return list.filter((e) => e.date === dateStr).reduce((t, e) => t + (Number(e[field]) || 0), 0);
+}
+
+let viewOffset = 0; // 0 = today, -1 = yesterday, etc.
+
+function renderToday() {
+  const t = todayStr(viewOffset);
+  const dateEl = document.getElementById("today-date");
+  const viewDate = new Date();
+  viewDate.setDate(viewDate.getDate() + viewOffset);
+  const label = viewOffset === 0 ? "Today" : viewOffset === -1 ? "Yesterday"
+    : viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  document.getElementById("today-heading").textContent = label;
+  dateEl.textContent = viewOffset === 0
+    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    : viewOffset === -1
+    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    : "";
+
+  // Show/hide nav arrows
+  document.getElementById("day-prev").style.visibility = "";
+  document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
+
+  // Disable quick-add buttons when viewing a past day
+  const isToday = viewOffset === 0;
+  document.querySelectorAll("[data-water],[data-protein],[data-exercise]").forEach((b) => {
+    b.disabled = !isToday;
+    b.style.opacity = isToday ? "" : "0.5";
+  });
+  // Disable manual entry forms and mood buttons on past days
+  ["protein-food", "protein-grams", "carb-grams", "fat-grams", "calorie-count", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
+  });
+  document.querySelectorAll(".mood-btn").forEach((b) => {
+    b.disabled = !isToday;
+    b.style.opacity = isToday ? "" : "0.5";
+  });
+
+  const waterGoal = Number(store.settings.waterGoal) || 80;
+  document.getElementById("water-goal-display").textContent = waterGoal;
+  const waterOz = sumForDate(store.water, t, "oz");
+  document.getElementById("water-today").textContent = waterOz;
+  const waterPct = Math.round((waterOz / waterGoal) * 100);
+  document.getElementById("water-progress").style.width = Math.min(100, waterPct) + "%";
+  document.getElementById("water-progressbar").setAttribute("aria-valuenow", Math.min(100, waterPct));
+  document.getElementById("water-percent").textContent = waterPct >= 100
+    ? "Goal reached! Nice work."
+    : waterPct + "% of daily goal";
+
+  const proteinGoal = Number(store.settings.proteinGoal) || 90;
+  document.getElementById("protein-goal-display").textContent = proteinGoal;
+  const proteinG = sumForDate(store.protein, t, "grams");
+  document.getElementById("protein-today").textContent = proteinG;
+  const proteinPct = Math.round((proteinG / proteinGoal) * 100);
+  document.getElementById("protein-progress").style.width = Math.min(100, proteinPct) + "%";
+  document.getElementById("protein-progressbar").setAttribute("aria-valuenow", Math.min(100, proteinPct));
+  document.getElementById("protein-percent").textContent = proteinPct >= 100
+    ? "Goal reached! Nice work."
+    : proteinPct + "% of daily goal";
+
+  // Remaining protein for today
+  const pRem = proteinGoal - proteinG;
+  const el = document.getElementById("remaining-summary");
+  if (el) {
+    el.textContent = pRem <= 0
+      ? "Protein goal reached for today. Nice work."
+      : Math.round(pRem) + "g protein remaining today.";
+  }
+
+  const exMin = sumForDate(store.exercise, t, "minutes");
+  document.getElementById("exercise-today").textContent = exMin;
+  const moveGoal = Number(store.settings.movementGoal) || 30;
+  document.getElementById("exercise-goal-display").textContent = moveGoal;
+  const exPct = Math.round((exMin / moveGoal) * 100);
+  document.getElementById("exercise-progress").style.width = Math.min(100, exPct) + "%";
+  document.getElementById("exercise-progressbar").setAttribute("aria-valuenow", Math.min(100, exPct));
+  document.getElementById("exercise-percent").textContent = exPct >= 100
+    ? "Goal reached! Nice work."
+    : exPct + "% of daily goal";
+
+  // Summary cards (3 cards: protein, water, movement)
+  document.getElementById("sum-protein-goal").textContent = proteinGoal;
+  document.getElementById("sum-water-goal").textContent = waterGoal;
+  document.getElementById("sum-move-goal").textContent = moveGoal;
+  const sumData = [
+    ["protein", proteinG, proteinGoal],
+    ["water", waterOz, waterGoal],
+    ["move", exMin, moveGoal]
+  ];
+  sumData.forEach(([key, val, goal]) => {
+    document.getElementById("sum-" + key + "-num").textContent = val;
+    const pct = Math.round((val / goal) * 100);
+    document.getElementById("sum-" + key + "-bar").style.width = Math.min(100, pct) + "%";
+  });
+
+  renderEncouragement();
+  renderRecentFoods(isToday);
+  cancelFoodEdit();
+
+  renderNextInjection();
+  renderMood();
+  renderTodayEntries(t, isToday);
+
+  document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
+  document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
+  document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
+
+  renderBackupNudge();
+  renderCoachInsight();
+  renderMonthlyReview();
+  renderWeeklySummary();
+}
+
+/* Today's water, protein, and movement entries with per-entry remove */
+
+function renderTodayEntries(t, isToday) {
+  const waterToday = store.water.filter((e) => e.date === t);
+  document.getElementById("water-list").innerHTML = waterToday.length
+    ? waterToday.map((e) => `
+      <div class="today-entry">
+        <span>+${escapeHtml(e.oz)} oz</span>
+        <button class="btn btn-small btn-danger" data-del-water="${e.id}">Remove</button>
+      </div>`).join("")
+    : "";
+
+  const proteinToday = store.protein.filter((e) => e.date === t);
+  document.getElementById("protein-list").innerHTML = proteinToday.length
+    ? proteinToday.map((e) => `
+      <div class="today-entry">
+        <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}">Edit</button>` : ""}
+          <button class="btn btn-small btn-danger" data-del-protein="${e.id}">Remove</button>
+        </div>
+      </div>`).join("")
+    : "";
+
+  const exToday = store.exercise.filter((e) => e.date === t);
+  document.getElementById("exercise-list").innerHTML = exToday.length
+    ? exToday.map((e) => `
+      <div class="today-entry">
+        <span>${escapeHtml(e.label || "Movement")} &middot; ${escapeHtml(e.minutes)} min</span>
+        <button class="btn btn-small btn-danger" data-del-exercise="${e.id}">Remove</button>
+      </div>`).join("")
+    : "";
+
+  bindTodayEntryDeletes();
+}
+
+function bindTodayEntryDeletes() {
+  document.querySelectorAll("[data-edit-food]").forEach((b) => b.addEventListener("click", () => startFoodEdit(b.dataset.editFood)));
+  document.querySelectorAll("[data-del-water]").forEach((b) => b.addEventListener("click", () => {
+    store.water = store.water.filter((e) => e.id !== b.dataset.delWater);
+    saveStore();
+    renderToday();
+  }));
+  document.querySelectorAll("[data-del-protein]").forEach((b) => b.addEventListener("click", () => {
+    store.protein = store.protein.filter((e) => e.id !== b.dataset.delProtein);
+    saveStore();
+    renderToday();
+  }));
+  document.querySelectorAll("[data-del-exercise]").forEach((b) => b.addEventListener("click", () => {
+    store.exercise = store.exercise.filter((e) => e.id !== b.dataset.delExercise);
+    saveStore();
+    renderToday();
+  }));
+}
+
+function undoLastEntry(key) {
+  const t = todayStr();
+  for (let i = store[key].length - 1; i >= 0; i--) {
+    if (store[key][i].date === t) {
+      store[key].splice(i, 1);
+      break;
+    }
+  }
+  saveStore();
+  renderToday();
+}
+
+document.getElementById("undo-water").addEventListener("click", () => undoLastEntry("water"));
+document.getElementById("undo-protein").addEventListener("click", () => undoLastEntry("protein"));
+document.getElementById("undo-exercise").addEventListener("click", () => undoLastEntry("exercise"));
+
+document.querySelectorAll("[data-water]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    store.water.push({ id: uid(), date: todayStr(), oz: Number(btn.dataset.water) });
+    saveStore();
+    renderToday();
+  });
+});
+
+/* ---------- Steppers ---------- */
+function getStep(id, fallback) {
+  const el = document.getElementById(id);
+  const v = Number(el.value);
+  return v > 0 ? v : fallback;
+}
+document.getElementById("water-plus").addEventListener("click", () => {
+  store.water.push({ id: uid(), date: todayStr(), oz: getStep("water-step", 8) });
+  saveStore(); renderToday();
+});
+document.getElementById("water-minus").addEventListener("click", () => {
+  store.water.push({ id: uid(), date: todayStr(), oz: -getStep("water-step", 8) });
+  saveStore(); renderToday();
+});
+document.getElementById("protein-plus").addEventListener("click", () => {
+  store.protein.push({ id: uid(), date: todayStr(), grams: getStep("protein-step", 15), food: "Quick add" });
+  saveStore(); renderToday();
+});
+document.getElementById("protein-minus").addEventListener("click", () => {
+  store.protein.push({ id: uid(), date: todayStr(), grams: -getStep("protein-step", 15), food: "Quick adjust" });
+  saveStore(); renderToday();
+});
+document.getElementById("exercise-plus").addEventListener("click", () => {
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: getStep("exercise-step", 15), label: "Movement" });
+  saveStore(); renderToday();
+});
+document.getElementById("exercise-minus").addEventListener("click", () => {
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: -getStep("exercise-step", 15), label: "Adjustment" });
+  saveStore(); renderToday();
+});
+
+document.querySelectorAll("[data-protein]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    store.protein.push({ id: uid(), date: todayStr(), grams: Number(btn.dataset.protein), food: "Quick add" });
+    saveStore();
+    renderToday();
+  });
+});
+
+document.getElementById("protein-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const food = document.getElementById("protein-food").value.trim();
+  const grams = Number(document.getElementById("protein-grams").value);
+  if (!grams || grams <= 0) {
+    document.getElementById("protein-grams").focus();
+    document.getElementById("protein-grams").placeholder = "Enter grams first";
+    return;
+  }
+  const data = {
+    id: editingFoodId || uid(),
+    date: todayStr(),
+    grams,
+    food: food || "Logged entry"
+  };
+  if (editingFoodId) {
+    const i = store.protein.findIndex((x) => x.id === editingFoodId);
+    if (i > -1) store.protein[i] = data;
+  } else {
+    store.protein.push(data);
+  }
+  cancelFoodEdit();
+  saveStore();
+  renderToday();
+});
+
+document.getElementById("food-edit-cancel").addEventListener("click", cancelFoodEdit);
+
+document.querySelectorAll("[data-exercise]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const labels = { 15: "Walk", 10: "Stretch", 30: "Movement" };
+    const mins = Number(btn.dataset.exercise);
+    store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: labels[mins] || "Movement" });
+    saveStore();
+    renderToday();
+  });
+});
+
+document.getElementById("exercise-type").addEventListener("change", (e) => {
+  document.getElementById("exercise-custom").classList.toggle("hidden", e.target.value !== "Other");
+});
+
+function getCustomActivities() {
+  try { return JSON.parse(localStorage.getItem("demo-nc_custom_activities") || "[]"); } catch { return []; }
+}
+function saveCustomActivity(name) {
+  const list = getCustomActivities();
+  if (!list.includes(name)) {
+    list.push(name);
+    try { localStorage.setItem("demo-nc_custom_activities", JSON.stringify(list)); } catch {}
+    const sel = document.getElementById("exercise-type");
+    const opt = document.createElement("option");
+    opt.textContent = name;
+    sel.insertBefore(opt, sel.querySelector('option[value=""]') || sel.lastChild);
+  }
+}
+function loadCustomActivities() {
+  const sel = document.getElementById("exercise-type");
+  getCustomActivities().forEach((name) => {
+    if (![...sel.options].some((o) => o.text === name)) {
+      const opt = document.createElement("option");
+      opt.textContent = name;
+      sel.insertBefore(opt, sel.lastChild);
+    }
+  });
+}
+
+document.getElementById("exercise-add").addEventListener("click", () => {
+  let type = document.getElementById("exercise-type").value;
+  const mins = Number(document.getElementById("exercise-minutes").value);
+  if (type === "Other") {
+    type = document.getElementById("exercise-custom").value.trim();
+    if (!type) return;
+    saveCustomActivity(type);
+  }
+  if (!type || !mins || mins < 1) return;
+  store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: type });
+  saveStore();
+  renderToday();
+  document.getElementById("exercise-type").value = "";
+  document.getElementById("exercise-minutes").value = "";
+  document.getElementById("exercise-custom").value = "";
+  document.getElementById("exercise-custom").classList.add("hidden");
+});
+
+/* Next injection countdown */
+
+function renderNextInjection() {
+  const el = document.getElementById("next-injection-line");
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) {
+    el.textContent = "Set your shot day in Settings.";
+    return;
+  }
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  const now = new Date();
+  let diff = (target - now.getDay() + 7) % 7;
+  const med = store.settings.medication || "your medication";
+  const dose = store.settings.dose ? store.settings.dose + " mg" : "";
+  const last = [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  const lastSite = last ? " Last site: " + last.site + "." : "";
+  const when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
+  el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
+
+  // One-tap shot logging uses the usual medication, dose, and last site
+  const quickBtn = document.getElementById("quick-log-shot");
+  const alreadyLogged = store.injections.some((e) => e.date === todayStr());
+  quickBtn.style.display = alreadyLogged ? "none" : "";
+  if (!alreadyLogged && last && last.site) {
+    quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
+  } else {
+    quickBtn.textContent = "Log today's shot";
+  }
+}
+
+document.getElementById("quick-log-shot").addEventListener("click", () => {
+  const t = todayStr();
+  if (store.injections.some((e) => e.date === t)) return;
+  const last = [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  if (!last || !last.site) {
+    alert("Log your first shot in the Injections tab so I know your usual site. After that, one tap does it.");
+    showTab("injections");
+    return;
+  }
+  store.injections.push({
+    id: uid(),
+    date: t,
+    medication: store.settings.medication || last.medication || "Zepbound",
+    dose: Number(store.settings.dose) || Number(last.dose) || 0,
+    site: last.site,
+    notes: ""
+  });
+  saveStore();
+  renderInjections();
+  renderInjectionCalendar();
+  renderToday();
+});
+
+/* Daily mood */
+
+function renderMood() {
+  const t = todayStr();
+  const current = store.moods[t];
+  document.querySelectorAll(".mood-btn").forEach((b) => {
+    b.classList.toggle("selected", b.dataset.mood === current);
+  });
+  document.getElementById("mood-today-label").textContent = current
+    ? "Today you are feeling: " + current + "."
+    : "No mood logged today yet.";
+}
+
+document.querySelectorAll(".mood-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    store.moods[todayStr()] = btn.dataset.mood;
+    saveStore();
+    renderMood();
+  });
+});
+
+/* ---------- Injection calendar ---------- */
+
+let injCalYear, injCalMonth;
+
+function nextShotDateStr() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  if (target < 0) return null;
+  const now = new Date();
+  const diff = (target - now.getDay() + 7) % 7;
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function renderInjectionCalendar() {
+  const cal = document.getElementById("inj-calendar");
+  if (!cal) return;
+  const now = new Date();
+  if (injCalYear === undefined) { injCalYear = now.getFullYear(); injCalMonth = now.getMonth(); }
+  document.getElementById("inj-cal-title").textContent =
+    new Date(injCalYear, injCalMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+  const loggedByDate = {};
+  store.injections.forEach((inj) => {
+    (loggedByDate[inj.date] = loggedByDate[inj.date] || []).push(inj);
+  });
+  const nextShot = nextShotDateStr();
+  const todayS = todayStr();
+
+  const startDow = new Date(injCalYear, injCalMonth, 1).getDay();
+  const daysInMonth = new Date(injCalYear, injCalMonth + 1, 0).getDate();
+  let html = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    .map((d) => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = injCalYear + "-" + String(injCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const cls = ["day"];
+    if (ds === todayS) cls.push("today");
+    if (loggedByDate[ds]) cls.push("logged");
+    else if (ds === nextShot) cls.push("scheduled");
+    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0"` : "";
+    html += `<div class="${cls.join(" ")}"${tap}>${d}</div>`;
+  }
+  cal.innerHTML = html;
+
+  cal.querySelectorAll("[data-cal-date]").forEach((el) => {
+    const show = () => {
+      const list = loggedByDate[el.dataset.calDate] || [];
+      document.getElementById("inj-cal-detail").textContent =
+        formatDate(el.dataset.calDate) + ": " +
+        list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ");
+    };
+    el.addEventListener("click", show);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
+    });
+  });
+  document.getElementById("inj-cal-detail").textContent = "";
+}
+
+document.getElementById("inj-cal-prev").addEventListener("click", () => {
+  injCalMonth--;
+  if (injCalMonth < 0) { injCalMonth = 11; injCalYear--; }
+  renderInjectionCalendar();
+});
+document.getElementById("inj-cal-next").addEventListener("click", () => {
+  injCalMonth++;
+  if (injCalMonth > 11) { injCalMonth = 0; injCalYear++; }
+  renderInjectionCalendar();
+});
+
+/* ---------- Injections ---------- */
+
+const injForm = document.getElementById("injection-form");
+let editingInjectionId = null;
+
+function toggleForm(form, showBtn, show) {
+  form.classList.toggle("hidden", !show);
+  if (showBtn) showBtn.classList.toggle("hidden", show);
+}
+
+/* ---------- Shot reminder (calendar) ---------- */
+document.getElementById("add-shot-reminder").addEventListener("click", () => {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) {
+    alert("Set your shot day in Settings first, then come back to add the reminder.");
+    return;
+  }
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  const now = new Date();
+  const diff = (target - now.getDay() + 7) % 7;
+  const next = new Date(now);
+  next.setDate(now.getDate() + diff);
+  next.setHours(9, 0, 0, 0);
+  const fmt = (d) => {
+    const p = (n) => String(n).padStart(2, "0");
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "T" + p(d.getHours()) + p(d.getMinutes()) + "00";
+  };
+  const med = store.settings.medication || "GLP-1";
+  const dose = store.settings.dose ? " " + store.settings.dose + " mg" : "";
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//A New Chapter Tracker//EN",
+    "BEGIN:VEVENT",
+    "UID:shot-reminder-" + Date.now() + "@newchapter",
+    "DTSTAMP:" + fmt(new Date()),
+    "DTSTART:" + fmt(next),
+    "RRULE:FREQ=WEEKLY",
+    "SUMMARY:" + med + dose + " shot day",
+    "DESCRIPTION:Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker.",
+    "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([ics], { type: "text/calendar" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "shot-reminder.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+
+document.getElementById("show-injection-form").addEventListener("click", () => {
+  editingInjectionId = null;
+  injForm.querySelector("h3").textContent = "Log Injection";
+  injForm.reset();
+  document.getElementById("inj-date").value = todayStr();
+  document.getElementById("inj-med").value = store.settings.medication || "";
+  toggleForm(injForm, document.getElementById("show-injection-form"), true);
+  renderSiteMap();
+});
+
+// ---- Injection site map ----
+const siteMapZones = () => [...document.querySelectorAll("#site-map .site-zone")];
+
+function lastInjection() {
+  if (!store.injections.length) return null;
+  return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+}
+
+function renderSiteMap() {
+  const select = document.getElementById("inj-site");
+  if (!select) return;
+  const chosen = select.value;
+  const last = lastInjection();
+  const caption = document.getElementById("site-map-caption");
+  siteMapZones().forEach((z) => {
+    z.classList.toggle("selected", z.dataset.site === chosen);
+    z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
+  });
+  let html = "Tap a zone to select it.";
+  if (last && last.site) {
+    html += " Last shot: <strong>" + escapeHtml(last.site) + "</strong> on " + escapeHtml(formatDate(last.date)) + ".";
+  }
+  if (last && chosen && last.site === chosen) {
+    html += '<span class="rotation-nudge">You used ' + escapeHtml(chosen) + " last time. Consider rotating to a fresh site.</span>";
+  }
+  if (caption) caption.innerHTML = html;
+}
+
+siteMapZones().forEach((z) => {
+  const pick = () => {
+    document.getElementById("inj-site").value = z.dataset.site;
+    renderSiteMap();
+  };
+  z.addEventListener("click", pick);
+  z.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); }
+  });
+});
+document.getElementById("inj-site").addEventListener("change", renderSiteMap);
+
+document.getElementById("cancel-injection").addEventListener("click", () => {
+  toggleForm(injForm, document.getElementById("show-injection-form"), false);
+});
+
+injForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const entry = {
+    id: editingInjectionId || uid(),
+    date: document.getElementById("inj-date").value,
+    medication: document.getElementById("inj-med").value.trim(),
+    dose: Number(document.getElementById("inj-dose").value),
+    site: document.getElementById("inj-site").value,
+    notes: document.getElementById("inj-notes").value.trim()
+  };
+  if (!entry.date || !entry.medication || !entry.site) return;
+  if (editingInjectionId) {
+    const i = store.injections.findIndex((x) => x.id === editingInjectionId);
+    if (i > -1) store.injections[i] = entry;
+  } else {
+    store.injections.push(entry);
+  }
+  editingInjectionId = null;
+  saveStore();
+  injectionLimit = 10;
+  renderInjections();
+  renderInjectionCalendar();
+  renderSiteMap();
+  renderToday();
+  toggleForm(injForm, document.getElementById("show-injection-form"), false);
+});
+
+let injectionLimit = 10; // entries shown; "show more" loads older ones in batches
+
+function renderInjections() {
+  const list = document.getElementById("injection-list");
+  const sorted = [...store.injections].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="empty-state">No injections logged yet. Tap "Log shot" to add your first.</p>';
+    return;
+  }
+  const visible = sorted.slice(0, injectionLimit);
+  const remaining = sorted.length - visible.length;
+  list.innerHTML = visible.map((inj) => `
+    <div class="entry">
+      <p class="entry-title">${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg</p>
+      <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)}</p>
+      ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
+      <div class="entry-actions">
+        <button class="btn btn-small" data-edit-inj="${inj.id}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-inj="${inj.id}">Delete</button>
+      </div>
+    </div>`).join("")
+    + (remaining > 0
+      ? `<button class="btn" id="more-injections" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
+      : "");
+
+  list.querySelectorAll("[data-edit-inj]").forEach((b) => b.addEventListener("click", () => {
+    const inj = store.injections.find((x) => x.id === b.dataset.editInj);
+    if (!inj) return;
+    editingInjectionId = inj.id;
+    injForm.querySelector("h3").textContent = "Edit Injection";
+    document.getElementById("inj-date").value = inj.date;
+    document.getElementById("inj-med").value = inj.medication;
+    document.getElementById("inj-dose").value = inj.dose;
+    document.getElementById("inj-site").value = inj.site;
+    document.getElementById("inj-notes").value = inj.notes || "";
+    toggleForm(injForm, document.getElementById("show-injection-form"), true);
+    renderSiteMap();
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-inj]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this injection entry?")) return;
+    store.injections = store.injections.filter((x) => x.id !== b.dataset.delInj);
+    saveStore();
+    injectionLimit = 10;
+    renderInjections();
+    renderInjectionCalendar();
+    renderToday();
+  }));
+
+  const moreBtn = document.getElementById("more-injections");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    injectionLimit += 10;
+    renderInjections();
+  });
+}
+
+/* ---------- Weight ---------- */
+
+const weightForm = document.getElementById("weight-form");
+let editingWeightId = null;
+
+document.getElementById("show-weight-form").addEventListener("click", () => {
+  editingWeightId = null;
+  weightForm.querySelector("h3").textContent = "Log Weigh-in";
+  weightForm.reset();
+  document.getElementById("weight-date").value = todayStr();
+  toggleForm(weightForm, document.getElementById("show-weight-form"), true);
+});
+
+document.getElementById("cancel-weight").addEventListener("click", () => {
+  toggleForm(weightForm, document.getElementById("show-weight-form"), false);
+});
+
+weightForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const entry = {
+    id: editingWeightId || uid(),
+    date: document.getElementById("weight-date").value,
+    value: Number(document.getElementById("weight-value").value)
+  };
+  if (!entry.date || !entry.value || entry.value <= 0) return;
+  if (editingWeightId) {
+    const i = store.weight.findIndex((x) => x.id === editingWeightId);
+    if (i > -1) store.weight[i] = entry;
+  } else {
+    store.weight.push(entry);
+  }
+  editingWeightId = null;
+  saveStore();
+  renderWeight();
+  toggleForm(weightForm, document.getElementById("show-weight-form"), false);
+});
+
+function renderWeight() {
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  if (sorted.length) {
+    const current = sorted[sorted.length - 1].value;
+    const first = sorted[0].value;
+    document.getElementById("current-weight").textContent = current.toFixed(1);
+    const lost = first - current;
+    document.getElementById("total-lost").textContent = (lost >= 0 ? "-" : "+") + Math.abs(lost).toFixed(1);
+  } else {
+    document.getElementById("current-weight").textContent = "--";
+    document.getElementById("total-lost").textContent = "--";
+  }
+
+  const list = document.getElementById("weight-list");
+  const desc = [...sorted].reverse();
+  list.innerHTML = desc.length
+    ? desc.map((w) => `
+      <div class="entry">
+        <p class="entry-title">${escapeHtml(Number(w.value).toFixed(1))} lbs</p>
+        <p class="entry-sub">${escapeHtml(formatDate(w.date))}</p>
+        <div class="entry-actions">
+          <button class="btn btn-small" data-edit-w="${w.id}">Edit</button>
+          <button class="btn btn-small btn-danger" data-del-w="${w.id}">Delete</button>
+        </div>
+      </div>`).join("")
+    : '<p class="empty-state">No weigh-ins yet. Tap "Log weigh-in" to add your first.</p>';
+
+  list.querySelectorAll("[data-edit-w]").forEach((b) => b.addEventListener("click", () => {
+    const w = store.weight.find((x) => x.id === b.dataset.editW);
+    if (!w) return;
+    editingWeightId = w.id;
+    weightForm.querySelector("h3").textContent = "Edit Weigh-in";
+    document.getElementById("weight-date").value = w.date;
+    document.getElementById("weight-value").value = w.value;
+    toggleForm(weightForm, document.getElementById("show-weight-form"), true);
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-w]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this weigh-in?")) return;
+    store.weight = store.weight.filter((x) => x.id !== b.dataset.delW);
+    saveStore();
+    renderWeight();
+  }));
+
+  drawWeightChart();
+}
+
+function renderWeightMilestone() {
+  const card = document.getElementById("milestone-card");
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  if (!(goalW > 0) || !sorted.length) { card.classList.add("hidden"); return; }
+  const startW = Number(sorted[0].value);
+  const curW = Number(sorted[sorted.length - 1].value);
+  const total = startW - goalW;
+  if (total === 0) { card.classList.add("hidden"); return; }
+  let pct = total > 0
+    ? (startW - curW) / total    // working down toward goal
+    : (curW - startW) / -total;  // working up toward goal
+  pct = Math.max(0, Math.min(1, pct));
+  const pctRound = Math.round(pct * 100);
+  card.classList.remove("hidden");
+  document.getElementById("milestone-bar").style.width = pctRound + "%";
+  document.getElementById("milestone-barwrap").setAttribute("aria-valuenow", pctRound);
+  const textEl = document.getElementById("milestone-text");
+  const subEl = document.getElementById("milestone-sub");
+  if (pctRound >= 100) {
+    textEl.textContent = "Goal reached! Incredible work.";
+    subEl.textContent = "From " + startW + " to " + curW + " lbs. You did this.";
+  } else {
+    const milestone = pctRound >= 75 ? 75 : pctRound >= 50 ? 50 : pctRound >= 25 ? 25 : 0;
+    textEl.textContent = milestone > 0
+      ? "You've reached the " + milestone + "% milestone. Beautiful work."
+      : "You're on your way. Every day counts.";
+    subEl.textContent = pctRound + "% of the way from " + startW + " to your goal of " + goalW
+      + " lbs (" + Math.abs(curW - goalW).toFixed(1) + " lbs to go).";
+  }
+}
+
+function drawWeightChart() {
+  const canvas = document.getElementById("weight-chart");
+  const emptyMsg = document.getElementById("weight-chart-empty");
+  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (sorted.length < 2) {
+    emptyMsg.style.display = "";
+    return;
+  }
+  emptyMsg.style.display = "none";
+
+  const W = canvas.width, H = canvas.height;
+  const padL = 52, padR = 16, padT = 16, padB = 40;
+  const values = sorted.map((w) => Number(w.value));
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const min = Math.min(...values), max = Math.max(...values);
+  const span = Math.max(max - min, 1);
+  let lo = min - span * 0.15, hi = max + span * 0.15;
+  if (goalW > 0) {
+    lo = Math.min(lo, goalW - span * 0.1);
+    hi = Math.max(hi, goalW + span * 0.1);
+  }
+
+  const x = (i) => padL + (i / (sorted.length - 1)) * (W - padL - padR);
+  const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
+
+  ctx.strokeStyle = "#E5E0D5";
+  ctx.fillStyle = "#8A8A8A";
+  ctx.font = "20px sans-serif";
+  ctx.textAlign = "right";
+  for (let g = 0; g <= 4; g++) {
+    const gv = lo + ((hi - lo) / 4) * g;
+    ctx.beginPath();
+    ctx.moveTo(padL, y(gv));
+    ctx.lineTo(W - padR, y(gv));
+    ctx.stroke();
+    ctx.fillText(gv.toFixed(0), padL - 8, y(gv) + 7);
+  }
+
+  ctx.textAlign = "center";
+  const labelEvery = Math.max(1, Math.ceil(sorted.length / 5));
+  sorted.forEach((w, i) => {
+    if (i % labelEvery === 0 || i === sorted.length - 1) {
+      const lx = x(i);
+      // Right-align the last label so it doesn't clip at the edge
+      ctx.textAlign = i === sorted.length - 1 ? "right" : i === 0 ? "left" : "center";
+      ctx.fillText(formatDate(w.date).replace(", 2026", "").replace(", 2027", ""), 
+        i === sorted.length - 1 ? W - 4 : i === 0 ? 4 : lx, H - 12);
+      ctx.textAlign = "center";
+    }
+  });
+
+  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
+  grad.addColorStop(0, "rgba(201,169,106,0.35)");
+  grad.addColorStop(1, "rgba(201,169,106,0.02)");
+  ctx.beginPath();
+  sorted.forEach((w, i) => (i === 0 ? ctx.moveTo(x(i), y(w.value)) : ctx.lineTo(x(i), y(w.value))));
+  ctx.strokeStyle = "#E8B54A";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  ctx.lineTo(x(sorted.length - 1), H - padB);
+  ctx.lineTo(x(0), H - padB);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.fillStyle = "#E8B54A";
+  sorted.forEach((w, i) => {
+    ctx.beginPath();
+    ctx.arc(x(i), y(w.value), 7, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Goal line
+  if (goalW > 0) {
+    const gy = y(goalW);
+    ctx.save();
+    ctx.strokeStyle = "#5A6B52";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.moveTo(padL, gy);
+    ctx.lineTo(W - padR, gy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#5A6B52";
+    ctx.font = "bold 18px sans-serif";
+    ctx.textAlign = "left";
+    const labelY = gy - 34 < padT ? gy + 28 : gy - 12;
+    ctx.fillText("Goal " + goalW, padL + 8, labelY);
+    ctx.restore();
+  }
+
+  renderWeightMilestone();
+}
+
+/* ---------- Measurements ---------- */
+
+const measForm = document.getElementById("measurement-form");
+let editingMeasId = null;
+
+document.getElementById("show-measurement-form").addEventListener("click", () => {
+  editingMeasId = null;
+  measForm.querySelector("h3").textContent = "Log Measurements";
+  measForm.reset();
+  document.getElementById("meas-date").value = todayStr();
+  toggleForm(measForm, document.getElementById("show-measurement-form"), true);
+});
+
+document.getElementById("cancel-measurement").addEventListener("click", () => {
+  toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+});
+
+measForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const num = (id) => {
+    const v = Number(document.getElementById(id).value);
+    return v > 0 ? v : null;
+  };
+  const entry = {
+    id: editingMeasId || uid(),
+    date: document.getElementById("meas-date").value,
+    waist: num("meas-waist"),
+    hips: num("meas-hips"),
+    chest: num("meas-chest"),
+    arm: num("meas-arm"),
+    thigh: num("meas-thigh"),
+    neck: num("meas-neck")
+  };
+  if (!entry.date) return;
+  if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
+    alert("Enter at least one measurement.");
+    return;
+  }
+  if (editingMeasId) {
+    const i = store.measurements.findIndex((x) => x.id === editingMeasId);
+    if (i > -1) store.measurements[i] = entry;
+  } else {
+    store.measurements.push(entry);
+  }
+  editingMeasId = null;
+  saveStore();
+  renderMeasurements();
+  toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+});
+
+const MEAS_LABELS = { waist: "Waist", hips: "Hips", chest: "Chest", arm: "Arm", thigh: "Thigh", neck: "Neck" };
+
+function renderMeasurements() {
+  const list = document.getElementById("measurement-list");
+  const sorted = [...store.measurements].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = "";
+    return;
+  }
+  list.innerHTML = sorted.map((m) => {
+    const parts = Object.keys(MEAS_LABELS)
+      .filter((k) => m[k] != null)
+      .map((k) => MEAS_LABELS[k] + " " + Number(m[k]).toFixed(1) + "&Prime;");
+    return `
+    <div class="entry">
+      <p class="entry-title">${escapeHtml(formatDate(m.date))}</p>
+      <p class="entry-sub">${parts.join(" &middot; ")}</p>
+      <div class="entry-actions">
+        <button class="btn btn-small" data-edit-meas="${m.id}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-meas="${m.id}">Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll("[data-edit-meas]").forEach((b) => b.addEventListener("click", () => {
+    const m = store.measurements.find((x) => x.id === b.dataset.editMeas);
+    if (!m) return;
+    editingMeasId = m.id;
+    measForm.querySelector("h3").textContent = "Edit Measurements";
+    document.getElementById("meas-date").value = m.date;
+    ["waist", "hips", "chest", "arm", "thigh", "neck"].forEach((k) => {
+      document.getElementById("meas-" + k).value = m[k] != null ? m[k] : "";
+    });
+    toggleForm(measForm, document.getElementById("show-measurement-form"), true);
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-meas]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete these measurements?")) return;
+    store.measurements = store.measurements.filter((x) => x.id !== b.dataset.delMeas);
+    saveStore();
+    renderMeasurements();
+  }));
+}
+
+/* ---------- Progress photos ---------- */
+
+document.getElementById("photo-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 800;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        const scale = maxDim / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      try {
+        store.photos.push({ id: uid(), date: todayStr(), dataUrl });
+        saveStore();
+      } catch (err) {
+        store.photos.pop();
+        alert("Not enough storage on this device for more photos. Try exporting your data first.");
+        return;
+      }
+      renderPhotos();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+});
+
+function renderPhotos() {
+  const grid = document.getElementById("photo-grid");
+  const sorted = [...store.photos].sort((a, b) => a.date.localeCompare(b.date));
+  grid.innerHTML = sorted.map((p) => `
+    <div class="photo-item">
+      <img src="${p.dataUrl}" alt="Progress photo from ${escapeHtml(formatDate(p.date))}" loading="lazy">
+      <div class="photo-date">
+        <span>${escapeHtml(formatDate(p.date))}</span>
+        <button data-del-photo="${p.id}" aria-label="Delete photo">Delete</button>
+      </div>
+    </div>`).join("");
+
+  grid.querySelectorAll("[data-del-photo]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this photo?")) return;
+    store.photos = store.photos.filter((x) => x.id !== b.dataset.delPhoto);
+    saveStore();
+    renderPhotos();
+  }));
+}
+
+/* ---------- Journal ---------- */
+
+const journalForm = document.getElementById("journal-form");
+let editingJournalId = null;
+
+document.getElementById("show-journal-form").addEventListener("click", () => {
+  editingJournalId = null;
+  journalForm.querySelector("h3").textContent = "New Journal Entry";
+  journalForm.reset();
+  document.getElementById("journal-date").value = todayStr();
+  toggleForm(journalForm, document.getElementById("show-journal-form"), true);
+});
+
+document.getElementById("cancel-journal").addEventListener("click", () => {
+  toggleForm(journalForm, document.getElementById("show-journal-form"), false);
+});
+
+journalForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const entry = {
+    id: editingJournalId || uid(),
+    date: document.getElementById("journal-date").value,
+    mood: document.getElementById("journal-mood").value,
+    notes: document.getElementById("journal-notes").value.trim()
+  };
+  if (!entry.date || !entry.mood) return;
+  if (editingJournalId) {
+    const i = store.journal.findIndex((x) => x.id === editingJournalId);
+    if (i > -1) store.journal[i] = entry;
+  } else {
+    store.journal.push(entry);
+  }
+  editingJournalId = null;
+  saveStore();
+  journalLimit = 10;
+  renderJournal();
+  toggleForm(journalForm, document.getElementById("show-journal-form"), false);
+});
+
+const MOOD_EMOJI = { Great: "😄", Good: "🙂", Okay: "😐", Low: "😔" };
+
+let journalLimit = 10; // entries shown; "show more" loads older ones in batches
+
+function renderJournal() {
+  const list = document.getElementById("journal-list");
+  const sorted = [...store.journal].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="empty-state">No journal entries yet. Tap "New entry" to write your first.</p>';
+    return;
+  }
+  const visible = sorted.slice(0, journalLimit);
+  const remaining = sorted.length - visible.length;
+  list.innerHTML = visible.map((j) => `
+    <div class="entry">
+      <p class="entry-title">${MOOD_EMOJI[j.mood] || ""} ${escapeHtml(j.mood)}</p>
+      <p class="entry-sub">${escapeHtml(formatDate(j.date))}</p>
+      ${j.notes ? `<p class="entry-notes">${escapeHtml(j.notes)}</p>` : ""}
+      <div class="entry-actions">
+        <button class="btn btn-small" data-edit-j="${j.id}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-j="${j.id}">Delete</button>
+      </div>
+    </div>`).join("")
+    + (remaining > 0
+      ? `<button class="btn" id="more-journal" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
+      : "");
+
+  list.querySelectorAll("[data-edit-j]").forEach((b) => b.addEventListener("click", () => {
+    const j = store.journal.find((x) => x.id === b.dataset.editJ);
+    if (!j) return;
+    editingJournalId = j.id;
+    journalForm.querySelector("h3").textContent = "Edit Journal Entry";
+    document.getElementById("journal-date").value = j.date;
+    document.getElementById("journal-mood").value = j.mood;
+    document.getElementById("journal-notes").value = j.notes || "";
+    toggleForm(journalForm, document.getElementById("show-journal-form"), true);
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-j]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this journal entry?")) return;
+    store.journal = store.journal.filter((x) => x.id !== b.dataset.delJ);
+    saveStore();
+    journalLimit = 10;
+    renderJournal();
+  }));
+
+  const moreBtn = document.getElementById("more-journal");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    journalLimit += 10;
+    renderJournal();
+  });
+}
+
+/* ---------- Side effects ---------- */
+
+const seForm = document.getElementById("sideeffect-form");
+let editingSeId = null;
+
+document.getElementById("show-sideeffect-form").addEventListener("click", () => {
+  editingSeId = null;
+  seForm.querySelector("h3").textContent = "Log Side Effect";
+  seForm.reset();
+  document.getElementById("se-date").value = todayStr();
+  toggleForm(seForm, document.getElementById("show-sideeffect-form"), true);
+});
+
+document.getElementById("cancel-sideeffect").addEventListener("click", () => {
+  toggleForm(seForm, document.getElementById("show-sideeffect-form"), false);
+});
+
+seForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const entry = {
+    id: editingSeId || uid(),
+    date: document.getElementById("se-date").value,
+    symptom: document.getElementById("se-symptom").value.trim(),
+    severity: document.getElementById("se-severity").value,
+    notes: document.getElementById("se-notes").value.trim()
+  };
+  if (!entry.date || !entry.symptom || !entry.severity) return;
+  if (editingSeId) {
+    const i = store.sideEffects.findIndex((x) => x.id === editingSeId);
+    if (i > -1) store.sideEffects[i] = entry;
+  } else {
+    store.sideEffects.push(entry);
+  }
+  editingSeId = null;
+  saveStore();
+  renderSideEffects();
+  toggleForm(seForm, document.getElementById("show-sideeffect-form"), false);
+});
+
+function renderSideEffects() {
+  const list = document.getElementById("sideeffect-list");
+  const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
+    return;
+  }
+  const badgeClass = { Mild: "badge-mild", Moderate: "badge-moderate", Severe: "badge-severe" };
+  list.innerHTML = sorted.map((s) => `
+    <div class="entry">
+      <p class="entry-title">${escapeHtml(s.symptom)}<span class="badge ${badgeClass[s.severity] || ""}">${escapeHtml(s.severity)}</span></p>
+      <p class="entry-sub">${escapeHtml(formatDate(s.date))}</p>
+      ${s.notes ? `<p class="entry-notes">${escapeHtml(s.notes)}</p>` : ""}
+      <div class="entry-actions">
+        <button class="btn btn-small" data-edit-se="${s.id}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-se="${s.id}">Delete</button>
+      </div>
+    </div>`).join("");
+
+  list.querySelectorAll("[data-edit-se]").forEach((b) => b.addEventListener("click", () => {
+    const s = store.sideEffects.find((x) => x.id === b.dataset.editSe);
+    if (!s) return;
+    editingSeId = s.id;
+    seForm.querySelector("h3").textContent = "Edit Side Effect";
+    document.getElementById("se-date").value = s.date;
+    document.getElementById("se-symptom").value = s.symptom;
+    document.getElementById("se-severity").value = s.severity;
+    document.getElementById("se-notes").value = s.notes || "";
+    toggleForm(seForm, document.getElementById("show-sideeffect-form"), true);
+    window.scrollTo(0, 0);
+  }));
+
+  list.querySelectorAll("[data-del-se]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Delete this side effect entry?")) return;
+    store.sideEffects = store.sideEffects.filter((x) => x.id !== b.dataset.delSe);
+    saveStore();
+    renderSideEffects();
+  }));
+}
+
+/* ---------- Settings ---------- */
+
+function renderSettings() {
+  renderSnapshots();
+  const s = store.settings;
+  document.getElementById("set-companion-key").value = getAuthToken();
+  updateCoachStatus();
+  renderPlaySubscription();
+  document.getElementById("set-med").value = s.medication || "";
+  document.getElementById("set-dose").value = s.dose || "";
+  document.getElementById("set-shot-day").value = s.shotDay || "";
+  document.getElementById("set-water-goal").value = s.waterGoal || 80;
+  document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
+  document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  document.getElementById("set-goal-weight").value = s.goalWeight || "";
+  document.getElementById("set-refill-date").value = s.refillDate || "";
+  renderRefillCountdown();
+}
+
+function renderRefillCountdown() {
+  const el = document.getElementById("refill-countdown");
+  const rd = store.settings.refillDate;
+  if (!rd) {
+    el.textContent = "";
+    return;
+  }
+  const today = new Date(todayStr());
+  const target = new Date(rd + "T00:00:00");
+  const diffDays = Math.round((target - today) / 86400000);
+  if (diffDays < 0) {
+    el.textContent = "Your refill date has passed. Consider requesting a refill soon.";
+  } else if (diffDays === 0) {
+    el.textContent = "Your refill is due today.";
+  } else if (diffDays === 1) {
+    el.textContent = "Your refill is due tomorrow.";
+  } else {
+    el.textContent = "Your refill is due in " + diffDays + " days (" + formatDate(rd) + ").";
+  }
+}
+
+document.getElementById("settings-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const keyInput = document.getElementById("set-companion-key").value.trim();
+  if (keyInput) {
+    try { localStorage.setItem(TOKEN_KEY, keyInput); } catch {}
+  }
+  store.settings.medication = document.getElementById("set-med").value.trim() || "Zepbound";
+  store.settings.dose = document.getElementById("set-dose").value;
+  store.settings.shotDay = document.getElementById("set-shot-day").value;
+  const wg = Number(document.getElementById("set-water-goal").value);
+  store.settings.waterGoal = wg > 0 ? wg : 80;
+  const pg = Number(document.getElementById("set-protein-goal").value);
+  store.settings.proteinGoal = pg > 0 ? pg : 90;
+  const mg = Number(document.getElementById("set-movement-goal").value);
+  store.settings.movementGoal = mg > 0 ? mg : 30;
+  const gw = Number(document.getElementById("set-goal-weight").value);
+  store.settings.goalWeight = gw > 0 ? gw : "";
+  store.settings.refillDate = document.getElementById("set-refill-date").value;
+  saveStore();
+  renderSettings();
+  renderToday();
+  alert("Settings saved.");
+});
+
+/* ---------- Companion access code ---------- */
+
+const WORKER_URL = "https://github-fetcher.millrjess.workers.dev";
+
+function updateCoachStatus() {
+  const line = document.getElementById("coach-status-line");
+  const entry = document.getElementById("coach-code-entry");
+  if (!line) return;
+  const token = getAuthToken();
+  if (token && token.length >= 16) {
+    line.textContent = "Your AI Wellness Companion is connected and ready.";
+    line.style.color = "var(--sage-dark)";
+    if (entry) entry.classList.add("hidden");
+  } else if (isPlayEntitled()) {
+    line.textContent = "Your Play subscription is active. Companion chat for Play subscribers is still being connected.";
+    line.style.color = "var(--sage-dark)";
+    if (entry) entry.classList.remove("hidden");
+  } else {
+    line.textContent = "Your AI Wellness Companion is not connected yet.";
+    line.style.color = "";
+    if (entry) entry.classList.remove("hidden");
+  }
+}
+
+async function redeemAccessCode() {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  const btn = document.getElementById("redeem-code-btn");
+  const code = (input.value || "").replace(/\D/g, "").slice(0, 6);
+  if (code.length !== 6) {
+    msg.textContent = "Enter all 6 digits.";
+    return;
+  }
+  msg.textContent = "Connecting...";
+  btn.disabled = true;
+  try {
+    const res = await fetch(WORKER_URL + "/api/code/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (data.ok && data.token) {
+      try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
+      document.getElementById("set-companion-key").value = data.token;
+      msg.textContent = "";
+      input.value = "";
+      updateCoachStatus();
+      alert("Your AI Wellness Companion is connected.");
+    } else {
+      msg.textContent = data.error || "That code did not work. Try again.";
+    }
+  } catch (e) {
+    msg.textContent = "Could not reach the service. Check your connection.";
+  }
+  btn.disabled = false;
+}
+
+document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+
+/* ---------- Google Play Billing (Digital Goods API) ---------- */
+
+// Play Billing is only available when the app runs inside the Google Play
+// installed app (Trusted Web Activity). On the website, in a desktop browser,
+// or in a website installed PWA, window.getDigitalGoodsService is missing and
+// this whole section stays silent: no Play card is shown, no Play call is made,
+// and the website Stripe flow is untouched. The Play card is filled in by
+// JavaScript only when Play is detected, so website users never see it.
+//
+// Subscription: anewchapter_monthly, base plan monthly. There is one base
+// plan only, so buying the product ID buys that base plan. Do not add a
+// second product or offer here without updating the purchase flow.
+// Purchase records are purchase access, not tracked content. They are kept
+// when the user deletes tracked data, the same way the companion token is kept.
+
+const PLAY_SKU = "anewchapter_monthly";
+const PLAY_STORE_ID = "https://play.google.com/billing";
+const PLAY_ENTITLEMENT_KEY = "newChapterTracker.demo.playEntitlement.v1";
+
+let playServicePromise = null;
+let playRenderInFlight = false;
+
+function getPlayEntitlement() {
+  try {
+    const raw = localStorage.getItem(PLAY_ENTITLEMENT_KEY);
+    if (!raw) return null;
+    const rec = JSON.parse(raw);
+    if (rec && rec.sku === PLAY_SKU) return rec;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function setPlayEntitlement(record) {
+  try {
+    localStorage.setItem(PLAY_ENTITLEMENT_KEY, JSON.stringify(record));
+  } catch {}
+}
+
+function clearPlayEntitlement() {
+  try {
+    localStorage.removeItem(PLAY_ENTITLEMENT_KEY);
+  } catch {}
+}
+
+function isPlayEntitled() {
+  return getPlayEntitlement() !== null;
+}
+
+// Returns the Play Digital Goods service, or null when Play Billing is not
+// available (website, desktop browser, website installed PWA). Never throws.
+async function getPlayService() {
+  if (typeof window.getDigitalGoodsService !== "function") return null;
+  if (!playServicePromise) {
+    try {
+      playServicePromise = window.getDigitalGoodsService(PLAY_STORE_ID).catch(() => null);
+    } catch {
+      return null;
+    }
+  }
+  const service = await playServicePromise;
+  if (!service) playServicePromise = null;
+  return service;
+}
+
+// Refresh the cached entitlement from Play. This is the source of truth:
+// an active purchase in listPurchases means entitled; an empty list means
+// the subscription ended and the cache is cleared. A failed check (offline,
+// Play unreachable) keeps the cache as is, so an offline user is not locked
+// out by a network error. Never throws.
+async function refreshPlayEntitlement() {
+  const service = await getPlayService();
+  if (!service) return isPlayEntitled();
+  try {
+    const purchases = await service.listPurchases();
+    const active = (purchases || []).find((p) => p.itemId === PLAY_SKU);
+    if (active) {
+      setPlayEntitlement({
+        sku: PLAY_SKU,
+        purchaseToken: active.purchaseToken || "",
+        checkedOn: todayStr(),
+      });
+      return true;
+    }
+    clearPlayEntitlement();
+    return false;
+  } catch {
+    return isPlayEntitled();
+  }
+}
+
+// True when the user has a Play subscription recorded but no companion token.
+// In that case chat cannot call the worker yet, so the chat handler shows a
+// Play specific message instead of the website welcome email message.
+function playChatBlocked() {
+  return !getAuthToken() && isPlayEntitled();
+}
+
+function playCardEl() {
+  return document.getElementById("play-subscription-card");
+}
+
+function formatPlayPrice(detail) {
+  if (!detail || !detail.price) return "";
+  const value = Number(detail.price.value);
+  const currency = detail.price.currency || "USD";
+  if (!isFinite(value)) return "";
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency }).format(value);
+  } catch {
+    return currency + " " + value;
+  }
+}
+
+// Fill the Play subscription card in Settings. Does nothing on the website
+// (no card content, no error) because getPlayService returns null there.
+// All failures inside Play are shown inside the card only, never as alerts.
+async function renderPlaySubscription() {
+  const card = playCardEl();
+  if (!card) return;
+  if (playRenderInFlight) return;
+  playRenderInFlight = true;
+  try {
+    const service = await getPlayService();
+    if (!service) {
+      card.innerHTML = "";
+      return;
+    }
+    card.innerHTML = "<div class=\"card\"><h3>Google Play subscription</h3><p class=\"muted\" id=\"play-status-line\">Checking your Play subscription...</p><div id=\"play-action-area\"></div></div>";
+    const statusLine = document.getElementById("play-status-line");
+    const actionArea = document.getElementById("play-action-area");
+    let detail = null;
+    try {
+      const details = await service.getDetails([PLAY_SKU]);
+      detail = (details || []).find((d) => d.itemId === PLAY_SKU) || null;
+    } catch {
+      detail = null;
+    }
+    let entitled = false;
+    try {
+      entitled = await refreshPlayEntitlement();
+    } catch {
+      entitled = isPlayEntitled();
+    }
+    const bindRefresh = () => {
+      const refreshBtn = document.getElementById("play-refresh-btn");
+      if (refreshBtn) refreshBtn.addEventListener("click", () => renderPlaySubscription());
+    };
+    if (entitled) {
+      const token = getAuthToken();
+      if (token && token.length >= 16) {
+        statusLine.textContent = "Your Play subscription is active, and your AI Wellness Companion is connected.";
+      } else {
+        statusLine.textContent = "Your Play subscription is active. Companion chat for Play subscribers is still being connected.";
+      }
+      statusLine.style.color = "var(--sage-dark)";
+      actionArea.innerHTML = "<p class=\"muted\">Manage your subscription in the Play Store app under Payments and subscriptions.</p><button type=\"button\" class=\"btn\" id=\"play-refresh-btn\">Refresh status</button>";
+      bindRefresh();
+      return;
+    }
+    if (!detail) {
+      statusLine.textContent = "The Play subscription is not available yet.";
+      statusLine.style.color = "";
+      actionArea.innerHTML = "<button type=\"button\" class=\"btn\" id=\"play-refresh-btn\">Refresh status</button>";
+      bindRefresh();
+      return;
+    }
+    const price = formatPlayPrice(detail);
+    statusLine.textContent = "You are not subscribed through Google Play yet.";
+    statusLine.style.color = "";
+    const priceLabel = price ? " for " + price + " a month" : "";
+    actionArea.innerHTML = "<button type=\"button\" class=\"btn-primary\" id=\"play-subscribe-btn\" style=\"margin-top:12px;width:100%;padding:16px;font-size:1.1rem\">Subscribe" + priceLabel + "</button><p class=\"muted\" id=\"play-purchase-msg\" style=\"min-height:1.2em\"></p>";
+    const subBtn = document.getElementById("play-subscribe-btn");
+    if (subBtn) subBtn.addEventListener("click", () => startPlayPurchase());
+  } finally {
+    playRenderInFlight = false;
+  }
+}
+
+async function startPlayPurchase() {
+  const msg = document.getElementById("play-purchase-msg");
+  const btn = document.getElementById("play-subscribe-btn");
+  if (btn) btn.disabled = true;
+  if (msg) msg.textContent = "Opening Google Play...";
+  let response = null;
+  try {
+    if (typeof PaymentRequest === "undefined") {
+      throw new Error("PaymentRequest unavailable");
+    }
+    const methods = [{ supportedMethods: PLAY_STORE_ID, data: { sku: PLAY_SKU } }];
+    // Total is required by the Payment Request API but ignored by Play,
+    // which charges the price set in Play Console.
+    const details = { total: { label: "Total", amount: { currency: "USD", value: "0" } } };
+    const request = new PaymentRequest(methods, details);
+    response = await request.show();
+    const purchaseToken = response.details ? response.details.purchaseToken : "";
+    if (!purchaseToken) {
+      throw new Error("No purchase token returned");
+    }
+    // Record the entitlement on this device first, then close the payment
+    // sheet. Server side verification and acknowledgement are a separate
+    // follow up step: without acknowledgement within three days, Play
+    // refunds an unacknowledged purchase. See the build report.
+    setPlayEntitlement({ sku: PLAY_SKU, purchaseToken: purchaseToken, checkedOn: todayStr() });
+    try { await response.complete("success"); } catch {}
+    response = null;
+    await refreshPlayEntitlement();
+    renderPlaySubscription();
+    updateCoachStatus();
+    alert("Thank you. Your Play subscription is active.");
+  } catch (err) {
+    if (response) {
+      try { await response.complete("fail"); } catch {}
+      response = null;
+    }
+    const name = (err && err.name) || "";
+    const message = (err && err.message) || "";
+    if (name === "AbortError" || /cancel/i.test(message) || /abort/i.test(message)) {
+      if (msg) msg.textContent = "Purchase canceled. Nothing was charged.";
+    } else if (/already/i.test(message) || /subscribed/i.test(message)) {
+      if (msg) msg.textContent = "You already have an active subscription.";
+      renderPlaySubscription();
+    } else {
+      if (msg) msg.textContent = "Purchase did not complete. Please try again.";
+    }
+  }
+  if (btn) btn.disabled = false;
+}
+
+// Warm the Play detection cache on load so later checks are fast. Silent:
+// on the website this resolves to null immediately and does nothing, and
+// getPlayService never rejects, so there is no unhandled rejection.
+getPlayService();
+
+/* ---------- Backup nudge ---------- */
+
+function renderBackupNudge() {
+  const banner = document.getElementById("backup-nudge");
+  if (!banner) return;
+  let snooze = null, last = null;
+  try {
+    snooze = localStorage.getItem("demo-nct-backup-snooze");
+    last = localStorage.getItem("demo-nct-last-backup");
+  } catch {}
+  if (snooze && snooze >= todayStr()) { banner.classList.add("hidden"); return; }
+  if (last) {
+    const daysSince = Math.round((new Date(todayStr()) - new Date(last + "T00:00:00")) / 86400000);
+    if (daysSince < 30) { banner.classList.add("hidden"); return; }
+  }
+  const days = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (e.date) days.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => days.add(d));
+  if (days.size < 7) { banner.classList.add("hidden"); return; }
+  document.getElementById("backup-nudge-text").textContent =
+    "You've logged " + days.size + " days in your tracker. Keep your progress safe with a quick backup.";
+  banner.classList.remove("hidden");
+}
+
+document.getElementById("backup-now").addEventListener("click", () => {
+  document.getElementById("backup-data").click();
+});
+document.getElementById("backup-later").addEventListener("click", () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  const s = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  try { localStorage.setItem("demo-nct-backup-snooze", s); } catch {}
+  document.getElementById("backup-nudge").classList.add("hidden");
+});
+
+/* ---------- Data export (tab-delimited) ---------- */
+
+function tsvCell(v) {
+  return String(v == null ? "" : v).replace(/\t/g, " ").replace(/\r?\n/g, " ");
+}
+
+function tsvSection(title, headers, rows) {
+  const out = [title, headers.join("\t")];
+  rows.forEach((r) => out.push(r.map(tsvCell).join("\t")));
+  out.push("");
+  return out;
+}
+
+document.getElementById("export-data").addEventListener("click", () => {
+  const lines = [];
+  lines.push("New Chapter: GLP-1 Tracker - data export");
+  lines.push("Exported " + new Date().toLocaleString("en-US"));
+  lines.push("");
+
+  lines.push(...tsvSection(
+    "Water Intake",
+    ["Date", "Amount (oz)"],
+    [...store.water].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.oz])
+  ));
+
+  lines.push(...tsvSection(
+    "Protein",
+    ["Date", "Food", "Grams"],
+    [...store.protein].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.food, e.grams])
+  ));
+
+  lines.push(...tsvSection(
+    "Movement",
+    ["Date", "Activity", "Minutes"],
+    [...store.exercise].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.label, e.minutes])
+  ));
+
+  lines.push(...tsvSection(
+    "Injections",
+    ["Date", "Medication", "Dose (mg)", "Site", "Notes"],
+    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.notes])
+  ));
+
+  lines.push(...tsvSection(
+    "Weight",
+    ["Date", "Weight (lbs)"],
+    [...store.weight].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.value])
+  ));
+
+  lines.push(...tsvSection(
+    "Measurements",
+    ["Date", "Waist (in)", "Hips (in)", "Chest (in)", "Arm (in)", "Thigh (in)", "Neck (in)"],
+    [...(store.measurements || [])].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.waist, e.hips, e.chest, e.arm, e.thigh, e.neck])
+  ));
+
+  lines.push("Progress Photos");
+  lines.push(["Date", "Note"].join("\t"));
+  [...(store.photos || [])].sort((a, b) => a.date.localeCompare(b.date)).forEach((p) => {
+    lines.push([p.date, "Photo stored in app (not included in export)"].join("\t"));
+  });
+  lines.push("");
+
+  lines.push(...tsvSection(
+    "Journal",
+    ["Date", "Mood", "Notes"],
+    [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.notes])
+  ));
+
+  lines.push(...tsvSection(
+    "Side Effects",
+    ["Date", "Symptom", "Severity", "Notes"],
+    [...store.sideEffects].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.symptom, e.severity, e.notes])
+  ));
+
+  const blob = new Blob([lines.join("\n")], { type: "text/tab-separated-values;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "new-chapter-tracker-" + todayStr() + ".tsv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try { localStorage.setItem("demo-nct-last-backup", todayStr()); } catch {}
+  renderBackupNudge();
+});
+
+
+/* ---------- In app backup snapshots ---------- */
+
+const SNAP_KEY = "demo-nct-snapshots";
+function loadSnapshots() {
+  try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || []; } catch { return []; }
+}
+function saveSnapshot() {
+  try {
+    const raw = JSON.stringify(store);
+    if (raw.length > 2500000) return;
+    const snaps = loadSnapshots();
+    snaps.unshift({ at: new Date().toISOString(), data: raw });
+    while (snaps.length > 3) snaps.pop();
+    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+  } catch {}
+}
+function renderSnapshots() {
+  const box = document.getElementById("snapshot-list");
+  if (!box) return;
+  const snaps = loadSnapshots();
+  if (!snaps.length) { box.innerHTML = ""; return; }
+  box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
+    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '</span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
+  }).join("");
+  box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
+    const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
+    if (!snap) return;
+    if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+    try {
+      store = JSON.parse(snap.data);
+      saveStore();
+      renderToday();
+      renderInjections();
+      renderWeight();
+      renderMeasurements();
+      renderPhotos();
+      renderJournal();
+      renderSideEffects();
+      renderNextInjection();
+      renderSettings();
+      alert("Backup restored.");
+    } catch { alert("That in app backup could not be read."); }
+  }));
+}
+
+/* ---------- Backup & restore (JSON) ---------- */
+
+document.getElementById("backup-data").addEventListener("click", () => {
+  const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
+  saveSnapshot();
+  const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "new-chapter-backup-" + todayStr() + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try { localStorage.setItem("demo-nct-last-backup", todayStr()); } catch {}
+  renderBackupNudge();
+});
+
+document.getElementById("restore-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const backup = JSON.parse(reader.result);
+      if (!backup || backup.app !== "new-chapter-tracker" || !backup.store) {
+        throw new Error("not a tracker backup");
+      }
+      if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+      store = backup.store;
+      saveStore();
+      renderToday();
+      renderInjections();
+      renderWeight();
+      renderMeasurements();
+      renderPhotos();
+      renderJournal();
+      renderSideEffects();
+      renderNextInjection();
+      renderSettings();
+      alert("Backup restored.");
+    } catch (err) {
+      alert("Could not read that backup file. Make sure it is a backup downloaded from this app.");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("day-prev").addEventListener("click", () => {
+  viewOffset--;
+  renderToday();
+});
+document.getElementById("day-next").addEventListener("click", () => {
+  if (viewOffset < 0) { viewOffset++; renderToday(); }
+});
+
+// Calendar date picker: jump straight to any past day
+const dayPicker = document.getElementById("day-picker");
+let dayCalYear, dayCalMonth;
+
+function renderDayCalModal() {
+  const now = new Date();
+  if (dayCalYear === undefined) { dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth(); }
+  document.getElementById("day-cal-title").textContent =
+    new Date(dayCalYear, dayCalMonth, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const grid = document.getElementById("day-cal-grid");
+  const todayS = todayStr(0);
+  const viewingS = todayStr(viewOffset);
+  const startDow = new Date(dayCalYear, dayCalMonth, 1).getDay();
+  const daysInMonth = new Date(dayCalYear, dayCalMonth + 1, 0).getDate();
+  let html = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = dayCalYear + "-" + String(dayCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const cls = ["day"];
+    if (ds === todayS) cls.push("today");
+    if (ds === viewingS) cls.push("selected");
+    const future = ds > todayS;
+    html += `<div class="${cls.join(" ")}${future ? " disabled" : ""}" ${future ? "" : `data-pick-date="${ds}" role="button" tabindex="0"`}>${d}</div>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll("[data-pick-date]").forEach((el) => {
+    const pick = () => {
+      const picked = new Date(el.dataset.pickDate + "T12:00:00");
+      const today = new Date(); today.setHours(12, 0, 0, 0);
+      viewOffset = Math.round((picked - today) / 86400000);
+      renderToday();
+      document.getElementById("day-cal-modal").classList.add("hidden");
+    };
+    el.addEventListener("click", pick);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+}
+
+function openDayPicker() {
+  const now = new Date();
+  dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth();
+  renderDayCalModal();
+  document.getElementById("day-cal-modal").classList.remove("hidden");
+}
+document.getElementById("day-cal-prev").addEventListener("click", () => {
+  dayCalMonth--; if (dayCalMonth < 0) { dayCalMonth = 11; dayCalYear--; } renderDayCalModal();
+});
+document.getElementById("day-cal-next").addEventListener("click", () => {
+  dayCalMonth++; if (dayCalMonth > 11) { dayCalMonth = 0; dayCalYear++; } renderDayCalModal();
+});
+document.getElementById("day-cal-close").addEventListener("click", () => {
+  document.getElementById("day-cal-modal").classList.add("hidden");
+});
+document.getElementById("day-cal-modal").addEventListener("click", (e) => {
+  if (e.target.id === "day-cal-modal") document.getElementById("day-cal-modal").classList.add("hidden");
+});
+document.getElementById("day-cal").addEventListener("click", openDayPicker);
+// Tapping the date heading itself also opens the picker
+document.getElementById("date-tap").addEventListener("click", openDayPicker);
+document.getElementById("date-tap").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDayPicker(); }
+});
+dayPicker.addEventListener("change", () => {
+  if (!dayPicker.value) return;
+  const parts = dayPicker.value.split("-").map(Number);
+  const picked = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now = new Date();
+  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((picked - todayMid) / 86400000);
+  viewOffset = Math.min(0, diffDays); // clamp future dates to today
+  renderToday();
+});
+
+/* ---------- First-run setup wizard ---------- */
+
+(function setupDefaults() {
+  if (localStorage.getItem("demo-nct-setup-done")) return;
+  // Set sensible defaults silently, no blocking wizard.
+  // User can change everything in Settings.
+  if (!store.settings.medication) store.settings.medication = "Zepbound";
+  if (!store.settings.waterGoal) store.settings.waterGoal = 80;
+  if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
+  saveStore();
+  localStorage.setItem("demo-nct-setup-done", "1");
+})();
+
+document.getElementById("clear-all-data").addEventListener("click", () => {
+  if (!confirm("Delete ALL your data? This cannot be undone. Consider downloading a backup first.")) return;
+  if (!confirm("Are you sure? This deletes your tracked entries, backups saved in this app, chat history, and custom activities. Your companion access stays connected.")) return;
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem("demo-nct-snapshots");
+  localStorage.removeItem("demo-nc_custom_activities");
+  localStorage.removeItem("demo-nct-last-backup");
+  localStorage.removeItem("demo-nct-backup-snooze");
+  localStorage.removeItem(CHAT_KEY);
+  localStorage.removeItem("demo-nct-setup-done");
+  location.reload();
+});
+
+/* ---------- Init ---------- */
+
+loadCustomActivities();
+renderToday();
+renderInjections();
+renderWeight();
+renderMeasurements();
+renderPhotos();
+renderJournal();
+renderSideEffects();
+renderSettings();
+
+/* ---------- AI Wellness Companion chat ---------- */
+
+// Update this URL after deploying the Worker
+const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
+const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
+
+/* ---------- Companion memory (opt-in) ---------- */
+
+function memoryHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = getAuthToken();
+  if (token) headers["X-Auth-Token"] = token;
+  return headers;
+}
+
+async function loadCoachMemory() {
+  const toggle = document.getElementById("memory-toggle");
+  if (!toggle) return;
+  try {
+    const res = await fetch(MEMORY_API_URL, { headers: memoryHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.profile) {
+      toggle.checked = true;
+      document.getElementById("memory-fields").classList.remove("hidden");
+      document.getElementById("memory-name").value = data.profile.name || "";
+      document.getElementById("memory-goals").value = data.profile.goals || "";
+      document.getElementById("memory-preferences").value = data.profile.preferences || "";
+      document.getElementById("memory-saved-msg").classList.remove("hidden");
+      document.getElementById("memory-optin-card").removeAttribute("open");
+    }
+  } catch (e) {
+    // Memory unavailable; leave opt-in off
+  }
+}
+
+document.getElementById("memory-toggle").addEventListener("change", (e) => {
+  const on = e.target.checked;
+  document.getElementById("memory-fields").classList.toggle("hidden", !on);
+  if (!on) {
+    // Turning off deletes the stored profile
+    fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() }).catch(() => {});
+    document.getElementById("memory-saved-msg").classList.add("hidden");
+  }
+});
+
+document.getElementById("memory-save").addEventListener("click", async () => {
+  const profile = {
+    name: document.getElementById("memory-name").value.trim(),
+    goals: document.getElementById("memory-goals").value.trim(),
+    preferences: document.getElementById("memory-preferences").value.trim(),
+  };
+  try {
+    const res = await fetch(MEMORY_API_URL, {
+      method: "POST",
+      headers: memoryHeaders(),
+      body: JSON.stringify(profile),
+    });
+    if (res.ok) {
+      document.getElementById("memory-saved-msg").classList.remove("hidden");
+      document.getElementById("memory-optin-card").removeAttribute("open");
+    } else if (res.status === 400) {
+      alert("Companion memory needs your personal key. Use the 'Get your personal app link' box on the welcome page to get one.");
+    } else {
+      alert("Could not save. Check your connection and try again.");
+    }
+  } catch (e) {
+    alert("Could not reach the service. Check your connection and try again.");
+  }
+});
+
+document.getElementById("forget-me").addEventListener("click", async () => {
+  if (!confirm("Delete everything your AI Wellness Companion remembers about you? This cannot be undone.")) return;
+  try {
+    await fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() });
+  } catch (e) {}
+  const toggle = document.getElementById("memory-toggle");
+  if (toggle) {
+    toggle.checked = false;
+    document.getElementById("memory-fields").classList.add("hidden");
+    document.getElementById("memory-saved-msg").classList.add("hidden");
+  }
+  alert("Done. Your companion no longer remembers you.");
+});
+
+const CHAT_KEY = "newChapterTracker.demo.chat.v1";
+let chatHistory = loadChatHistory();
+
+// Capture the auth token from the buyer link (?key=...) on first visit,
+// then persist it in localStorage. The token is never in the public code.
+(function captureAuthToken() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
+    if (key && key.length >= 16) {
+      localStorage.setItem(TOKEN_KEY, key);
+      // Only scrub the key from the address bar when running as an installed
+      // app. In a browser tab, keep it so Share > Add to Home Screen carries it.
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
+      if (isStandalone) {
+        params.delete("key");
+        const clean = window.location.pathname + (params.toString() ? "?" + params.toString() : "") + window.location.hash;
+        window.history.replaceState({}, "", clean);
+      }
+    }
+  } catch {
+    /* URL parsing unavailable */
+  }
+})();
+
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem(CHAT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.slice(-20) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveChatHistory() {
+  try {
+    localStorage.setItem(CHAT_KEY, JSON.stringify(chatHistory.slice(-20)));
+  } catch {
+    /* storage unavailable; chat works for this session */
+  }
+}
+
+function renderMarkdown(text) {
+  // Escape HTML first to prevent XSS, then apply basic markdown
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const withInline = escaped
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|\W)\*(.+?)\*/g, "$1<em>$2</em>");
+
+  // Build lists line by line so spacing stays clean
+  const lines = withInline.split("\n");
+  let html = "";
+  let inList = false;
+  for (const line of lines) {
+    const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+    if (bullet) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += "<li>" + bullet[1] + "</li>";
+    } else {
+      if (inList) { html += "</ul>"; inList = false; }
+      if (line.trim()) html += line + "<br>";
+    }
+  }
+  if (inList) html += "</ul>";
+  // Remove trailing <br>
+  return html.replace(/(<br>)+$/, "");
+}
+
+function renderChat() {
+  const box = document.getElementById("chat-messages");
+  if (!box) return;
+  box.innerHTML = "";
+  if (chatHistory.length === 0) {
+    const welcome = document.createElement("div");
+    welcome.className = "chat-msg assistant";
+    welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going. I do not see your tracker entries, so anything you want me to know, tell me here.";
+    box.appendChild(welcome);
+    return;
+  }
+  chatHistory.forEach((m) => {
+    const div = document.createElement("div");
+    div.className = "chat-msg " + (m.role === "user" ? "user" : "assistant");
+    if (m.role === "assistant") {
+      div.innerHTML = renderMarkdown(m.content);
+    } else {
+      div.textContent = m.content;
+    }
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const box = document.getElementById("chat-messages");
+  if (!box) return null;
+  const div = document.createElement("div");
+  div.className = "chat-msg assistant typing";
+  div.id = "chat-typing";
+  div.textContent = "Thinking...";
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+
+  // Add user message
+  chatHistory.push({ role: "user", content: text });
+  saveChatHistory();
+  renderChat();
+
+  // Play subscribers without a companion token cannot call the worker yet.
+  // Show a Play specific message instead of the website welcome email message.
+  if (playChatBlocked()) {
+    chatHistory.push({
+      role: "assistant",
+      content: "Your Play subscription is active, but companion chat for Play subscribers is still being connected. You can enter a companion key in Settings if you have one from the website.",
+    });
+    saveChatHistory();
+    renderChat();
+    return;
+  }
+
+  // Show typing indicator
+  const typing = addTypingIndicator();
+  const sendBtn = document.getElementById("chat-send");
+  sendBtn.disabled = true;
+
+  try {
+    const headers = { "Content-Type": "application/json" };
+    const token = getAuthToken();
+    if (token) {
+      headers["X-Auth-Token"] = token;
+    }
+    const res = await fetch(COMPANION_API_URL, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({ messages: chatHistory }),
+    });
+
+    const data = await res.json();
+
+    if (typing) typing.remove();
+
+    if (res.status === 401) {
+      // Missing or invalid token. Play users get Play guidance, website
+      // users get the welcome email guidance.
+      const playService = await getPlayService();
+      if (playService) {
+        chatHistory.push({
+          role: "assistant",
+          content: "Your AI Wellness Companion is not connected yet. Subscribe in Settings, or enter a companion key if you have one from the website.",
+        });
+      } else {
+        chatHistory.push({
+          role: "assistant",
+          content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
+        });
+      }
+    } else if (data.reply) {
+      chatHistory.push({ role: "assistant", content: data.reply });
+    } else if (data.message) {
+      // Rate limit message from Worker
+      chatHistory.push({ role: "assistant", content: data.message });
+    } else {
+      chatHistory.push({
+        role: "assistant",
+        content: "I am having trouble right now. Please try again in a moment.",
+      });
+    }
+  } catch (err) {
+    if (typing) typing.remove();
+    chatHistory.push({
+      role: "assistant",
+      content: "I could not reach the AI Wellness Companion service. Check your connection and try again.",
+    });
+  }
+
+  saveChatHistory();
+  renderChat();
+  sendBtn.disabled = false;
+});
+
+// Render chat when tab is opened
+document.querySelector('[data-tab="chat"]').addEventListener("click", renderChat);
