@@ -143,17 +143,16 @@
     button { color: inherit; }
     .wrap { width: min(1140px, calc(100% - 40px)); margin-inline: auto; }
     .hero {
-      min-height: 760px;
       position: relative;
       display: grid;
       align-items: center;
-      padding: 80px 0 64px;
+      padding: 64px 0 48px;
       background:
         radial-gradient(circle at 90% 5%, color-mix(in srgb, var(--gold-pale) 72%, transparent) 0, transparent 29%),
         linear-gradient(155deg, var(--surface) 0 58%, var(--surface-soft) 58% 100%);
       border-bottom: 1px solid var(--line);
     }
-    .hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 72px; align-items: center; }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 0; align-items: center; max-width: 68ch; }
     .eyebrow { display: flex; gap: 12px; align-items: center; color: var(--sage-dark); font-weight: 700; font-size: .9rem; letter-spacing: .03em; }
     .eyebrow:before { content: ""; width: 34px; height: 2px; background: var(--gold); }
     h1, h2, h3, p { margin-top: 0; }
@@ -342,14 +341,14 @@
           <p><strong>Protein. Water. Movement. Never miss a shot.</strong> Your whole routine in one calm place, without judgment.</p>
           <div class="actions">
             <a class="button primary" href="#pricing">Start protecting your strength <span aria-hidden="true">→</span></a>
+            <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try a sample demo, no sign in, sample data only <span aria-hidden="true">→</span></a>
           </div>
           <p class="cta-note">$3.99/month or $29.99/year. Cancel anytime.</p>
-          <p style="margin-top:18px"><a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try a sample demo, no sign in, sample data only <span aria-hidden="true">→</span></a></p>
-          <div class="mini-trust" role="region" aria-label="Product highlights">
-            <span><i></i>Created from lived Zepbound experience</span>
-            <span><i></i>No complicated spreadsheets</span>
-            <span><i></i>Start at any stage</span>
-          </div>
+          <ul class="mini-trust" role="region" aria-label="Product highlights" style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:8px">
+            <li><span><i></i>Created from lived Zepbound experience</span></li>
+            <li><span><i></i>No complicated spreadsheets</span></li>
+            <li><span><i></i>Start at any stage</span></li>
+          </ul>
         </div>
 
       </div>
