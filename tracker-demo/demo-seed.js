@@ -97,9 +97,9 @@
   var realFetch = window.fetch.bind(window);
   window.fetch = function (url, options) {
     var u = String(url || "");
-    if (u.indexOf("github-fetcher") !== -1 || u.indexOf("/api/") !== -1) {
+    if (u.indexOf("github-fetcher") !== -1 || u.indexOf("/api/") !== -1 || u.indexOf("/demo-api") !== -1) {
       var body;
-      if (u.indexOf("/api/chat") !== -1) {
+      if (u.indexOf("/api/chat") !== -1 || u.indexOf("api/chat") !== -1) {
         body = { reply: "Sample reply only. In the real app, your AI Wellness Companion would answer here. Try eggs with spinach and cheese, with whole grain toast. This is encouragement, not medical advice." };
       } else {
         body = { found: false, error: "Sample demo only. No real Companion connection in this demo." };

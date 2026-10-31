@@ -1765,7 +1765,7 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
 
 /* ---------- Companion access code ---------- */
 
-const WORKER_URL = "https://github-fetcher.millrjess.workers.dev";
+const WORKER_URL = "/demo-api";
 
 function updateCoachStatus() {
   const line = document.getElementById("coach-status-line");
@@ -2400,8 +2400,8 @@ renderSettings();
 /* ---------- AI Wellness Companion chat ---------- */
 
 // Update this URL after deploying the Worker
-const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
-const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
+const COMPANION_API_URL = "/demo-api/chat";
+const MEMORY_API_URL = "/demo-api/memory";
 
 /* ---------- Companion memory (opt-in) ---------- */
 
