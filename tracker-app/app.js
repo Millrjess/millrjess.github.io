@@ -221,6 +221,7 @@ function showTab(name) {
   if (name === "weight") drawWeightChart();
   if (name === "injections") renderInjectionCalendar();
   if (name === "chat") loadCoachMemory();
+  if (name === "settings") renderPlaySubscription();
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
@@ -1007,7 +1008,7 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
     "DTSTART:" + fmt(next),
     "RRULE:FREQ=WEEKLY",
     "SUMMARY:" + med + dose + " shot day",
-    "DESCRIPTION:Time for your weekly injection. Log it in A New Chapter Tracker.",
+    "DESCRIPTION:Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker.",
     "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "END:VALARM",
     "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
@@ -1705,6 +1706,7 @@ function renderSettings() {
   const s = store.settings;
   document.getElementById("set-companion-key").value = getAuthToken();
   updateCoachStatus();
+  renderPlaySubscription();
   document.getElementById("set-med").value = s.medication || "";
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
@@ -1774,6 +1776,10 @@ function updateCoachStatus() {
     line.textContent = "Your AI Wellness Companion is connected and ready.";
     line.style.color = "var(--sage-dark)";
     if (entry) entry.classList.add("hidden");
+  } else if (isPlayEntitled()) {
+    line.textContent = "Your Play subscription is active. Companion chat for Play subscribers is still being connected.";
+    line.style.color = "var(--sage-dark)";
+    if (entry) entry.classList.remove("hidden");
   } else {
     line.textContent = "Your AI Wellness Companion is not connected yet.";
     line.style.color = "";
@@ -1816,6 +1822,241 @@ async function redeemAccessCode() {
 }
 
 document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+
+/* ---------- Google Play Billing (Digital Goods API) ---------- */
+
+// Play Billing is only available when the app runs inside the Google Play
+// installed app (Trusted Web Activity). On the website, in a desktop browser,
+// or in a website installed PWA, window.getDigitalGoodsService is missing and
+// this whole section stays silent: no Play card is shown, no Play call is made,
+// and the website Stripe flow is untouched. The Play card is filled in by
+// JavaScript only when Play is detected, so website users never see it.
+//
+// Subscription: anewchapter_monthly, base plan monthly. There is one base
+// plan only, so buying the product ID buys that base plan. Do not add a
+// second product or offer here without updating the purchase flow.
+// Purchase records are purchase access, not tracked content. They are kept
+// when the user deletes tracked data, the same way the companion token is kept.
+
+const PLAY_SKU = "anewchapter_monthly";
+const PLAY_STORE_ID = "https://play.google.com/billing";
+const PLAY_ENTITLEMENT_KEY = "newChapterTracker.playEntitlement.v1";
+
+let playServicePromise = null;
+let playRenderInFlight = false;
+
+function getPlayEntitlement() {
+  try {
+    const raw = localStorage.getItem(PLAY_ENTITLEMENT_KEY);
+    if (!raw) return null;
+    const rec = JSON.parse(raw);
+    if (rec && rec.sku === PLAY_SKU) return rec;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function setPlayEntitlement(record) {
+  try {
+    localStorage.setItem(PLAY_ENTITLEMENT_KEY, JSON.stringify(record));
+  } catch {}
+}
+
+function clearPlayEntitlement() {
+  try {
+    localStorage.removeItem(PLAY_ENTITLEMENT_KEY);
+  } catch {}
+}
+
+function isPlayEntitled() {
+  return getPlayEntitlement() !== null;
+}
+
+// Returns the Play Digital Goods service, or null when Play Billing is not
+// available (website, desktop browser, website installed PWA). Never throws.
+async function getPlayService() {
+  if (typeof window.getDigitalGoodsService !== "function") return null;
+  if (!playServicePromise) {
+    try {
+      playServicePromise = window.getDigitalGoodsService(PLAY_STORE_ID).catch(() => null);
+    } catch {
+      return null;
+    }
+  }
+  const service = await playServicePromise;
+  if (!service) playServicePromise = null;
+  return service;
+}
+
+// Refresh the cached entitlement from Play. This is the source of truth:
+// an active purchase in listPurchases means entitled; an empty list means
+// the subscription ended and the cache is cleared. A failed check (offline,
+// Play unreachable) keeps the cache as is, so an offline user is not locked
+// out by a network error. Never throws.
+async function refreshPlayEntitlement() {
+  const service = await getPlayService();
+  if (!service) return isPlayEntitled();
+  try {
+    const purchases = await service.listPurchases();
+    const active = (purchases || []).find((p) => p.itemId === PLAY_SKU);
+    if (active) {
+      setPlayEntitlement({
+        sku: PLAY_SKU,
+        purchaseToken: active.purchaseToken || "",
+        checkedOn: todayStr(),
+      });
+      return true;
+    }
+    clearPlayEntitlement();
+    return false;
+  } catch {
+    return isPlayEntitled();
+  }
+}
+
+// True when the user has a Play subscription recorded but no companion token.
+// In that case chat cannot call the worker yet, so the chat handler shows a
+// Play specific message instead of the website welcome email message.
+function playChatBlocked() {
+  return !getAuthToken() && isPlayEntitled();
+}
+
+function playCardEl() {
+  return document.getElementById("play-subscription-card");
+}
+
+function formatPlayPrice(detail) {
+  if (!detail || !detail.price) return "";
+  const value = Number(detail.price.value);
+  const currency = detail.price.currency || "USD";
+  if (!isFinite(value)) return "";
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency }).format(value);
+  } catch {
+    return currency + " " + value;
+  }
+}
+
+// Fill the Play subscription card in Settings. Does nothing on the website
+// (no card content, no error) because getPlayService returns null there.
+// All failures inside Play are shown inside the card only, never as alerts.
+async function renderPlaySubscription() {
+  const card = playCardEl();
+  if (!card) return;
+  if (playRenderInFlight) return;
+  playRenderInFlight = true;
+  try {
+    const service = await getPlayService();
+    if (!service) {
+      card.innerHTML = "";
+      return;
+    }
+    card.innerHTML = "<div class=\"card\"><h3>Google Play subscription</h3><p class=\"muted\" id=\"play-status-line\">Checking your Play subscription...</p><div id=\"play-action-area\"></div></div>";
+    const statusLine = document.getElementById("play-status-line");
+    const actionArea = document.getElementById("play-action-area");
+    let detail = null;
+    try {
+      const details = await service.getDetails([PLAY_SKU]);
+      detail = (details || []).find((d) => d.itemId === PLAY_SKU) || null;
+    } catch {
+      detail = null;
+    }
+    let entitled = false;
+    try {
+      entitled = await refreshPlayEntitlement();
+    } catch {
+      entitled = isPlayEntitled();
+    }
+    const bindRefresh = () => {
+      const refreshBtn = document.getElementById("play-refresh-btn");
+      if (refreshBtn) refreshBtn.addEventListener("click", () => renderPlaySubscription());
+    };
+    if (entitled) {
+      const token = getAuthToken();
+      if (token && token.length >= 16) {
+        statusLine.textContent = "Your Play subscription is active, and your AI Wellness Companion is connected.";
+      } else {
+        statusLine.textContent = "Your Play subscription is active. Companion chat for Play subscribers is still being connected.";
+      }
+      statusLine.style.color = "var(--sage-dark)";
+      actionArea.innerHTML = "<p class=\"muted\">Manage your subscription in the Play Store app under Payments and subscriptions.</p><button type=\"button\" class=\"btn\" id=\"play-refresh-btn\">Refresh status</button>";
+      bindRefresh();
+      return;
+    }
+    if (!detail) {
+      statusLine.textContent = "The Play subscription is not available yet.";
+      statusLine.style.color = "";
+      actionArea.innerHTML = "<button type=\"button\" class=\"btn\" id=\"play-refresh-btn\">Refresh status</button>";
+      bindRefresh();
+      return;
+    }
+    const price = formatPlayPrice(detail);
+    statusLine.textContent = "You are not subscribed through Google Play yet.";
+    statusLine.style.color = "";
+    const priceLabel = price ? " for " + price + " a month" : "";
+    actionArea.innerHTML = "<button type=\"button\" class=\"btn-primary\" id=\"play-subscribe-btn\" style=\"margin-top:12px;width:100%;padding:16px;font-size:1.1rem\">Subscribe" + priceLabel + "</button><p class=\"muted\" id=\"play-purchase-msg\" style=\"min-height:1.2em\"></p>";
+    const subBtn = document.getElementById("play-subscribe-btn");
+    if (subBtn) subBtn.addEventListener("click", () => startPlayPurchase());
+  } finally {
+    playRenderInFlight = false;
+  }
+}
+
+async function startPlayPurchase() {
+  const msg = document.getElementById("play-purchase-msg");
+  const btn = document.getElementById("play-subscribe-btn");
+  if (btn) btn.disabled = true;
+  if (msg) msg.textContent = "Opening Google Play...";
+  let response = null;
+  try {
+    if (typeof PaymentRequest === "undefined") {
+      throw new Error("PaymentRequest unavailable");
+    }
+    const methods = [{ supportedMethods: PLAY_STORE_ID, data: { sku: PLAY_SKU } }];
+    // Total is required by the Payment Request API but ignored by Play,
+    // which charges the price set in Play Console.
+    const details = { total: { label: "Total", amount: { currency: "USD", value: "0" } } };
+    const request = new PaymentRequest(methods, details);
+    response = await request.show();
+    const purchaseToken = response.details ? response.details.purchaseToken : "";
+    if (!purchaseToken) {
+      throw new Error("No purchase token returned");
+    }
+    // Record the entitlement on this device first, then close the payment
+    // sheet. Server side verification and acknowledgement are a separate
+    // follow up step: without acknowledgement within three days, Play
+    // refunds an unacknowledged purchase. See the build report.
+    setPlayEntitlement({ sku: PLAY_SKU, purchaseToken: purchaseToken, checkedOn: todayStr() });
+    try { await response.complete("success"); } catch {}
+    response = null;
+    await refreshPlayEntitlement();
+    renderPlaySubscription();
+    updateCoachStatus();
+    alert("Thank you. Your Play subscription is active.");
+  } catch (err) {
+    if (response) {
+      try { await response.complete("fail"); } catch {}
+      response = null;
+    }
+    const name = (err && err.name) || "";
+    const message = (err && err.message) || "";
+    if (name === "AbortError" || /cancel/i.test(message) || /abort/i.test(message)) {
+      if (msg) msg.textContent = "Purchase canceled. Nothing was charged.";
+    } else if (/already/i.test(message) || /subscribed/i.test(message)) {
+      if (msg) msg.textContent = "You already have an active subscription.";
+      renderPlaySubscription();
+    } else {
+      if (msg) msg.textContent = "Purchase did not complete. Please try again.";
+    }
+  }
+  if (btn) btn.disabled = false;
+}
+
+// Warm the Play detection cache on load so later checks are fast. Silent:
+// on the website this resolves to null immediately and does nothing, and
+// getPlayService never rejects, so there is no unhandled rejection.
+getPlayService();
 
 /* ---------- Backup nudge ---------- */
 
@@ -1869,7 +2110,7 @@ function tsvSection(title, headers, rows) {
 
 document.getElementById("export-data").addEventListener("click", () => {
   const lines = [];
-  lines.push("A New Chapter Tracker - data export");
+  lines.push("New Chapter: GLP-1 Tracker - data export");
   lines.push("Exported " + new Date().toLocaleString("en-US"));
   lines.push("");
 
@@ -2363,6 +2604,18 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   saveChatHistory();
   renderChat();
 
+  // Play subscribers without a companion token cannot call the worker yet.
+  // Show a Play specific message instead of the website welcome email message.
+  if (playChatBlocked()) {
+    chatHistory.push({
+      role: "assistant",
+      content: "Your Play subscription is active, but companion chat for Play subscribers is still being connected. You can enter a companion key in Settings if you have one from the website.",
+    });
+    saveChatHistory();
+    renderChat();
+    return;
+  }
+
   // Show typing indicator
   const typing = addTypingIndicator();
   const sendBtn = document.getElementById("chat-send");
@@ -2385,11 +2638,20 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     if (typing) typing.remove();
 
     if (res.status === 401) {
-      // Missing or invalid token: the buyer link wasn't used
-      chatHistory.push({
-        role: "assistant",
-        content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
-      });
+      // Missing or invalid token. Play users get Play guidance, website
+      // users get the welcome email guidance.
+      const playService = await getPlayService();
+      if (playService) {
+        chatHistory.push({
+          role: "assistant",
+          content: "Your AI Wellness Companion is not connected yet. Subscribe in Settings, or enter a companion key if you have one from the website.",
+        });
+      } else {
+        chatHistory.push({
+          role: "assistant",
+          content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
+        });
+      }
     } else if (data.reply) {
       chatHistory.push({ role: "assistant", content: data.reply });
     } else if (data.message) {

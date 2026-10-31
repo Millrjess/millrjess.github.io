@@ -1,11 +1,11 @@
-# A New Chapter Tracker
+# New Chapter: GLP-1 Tracker
 
 Your GLP-1 wellness journey, beautifully tracked. A private, installable web app designed for people on Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications.
 
 **Live app:** https://millrjess.github.io/tracker-app/
 **Sales page:** https://millrjess.github.io/tracker/
 
-![A New Chapter Tracker screenshot](screenshot.png)
+![New Chapter: GLP-1 Tracker screenshot](screenshot.png)
 
 ## Features
 
