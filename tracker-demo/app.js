@@ -2137,7 +2137,7 @@ function renderBackupNudge() {
   if (snooze && snooze >= todayStr()) { banner.classList.add("hidden"); return; }
   if (last) {
     const daysSince = Math.round((new Date(todayStr()) - new Date(last + "T00:00:00")) / 86400000);
-    if (daysSince < 180) { banner.classList.add("hidden"); return; } // 6 months
+    if (daysSince < 30) { banner.classList.add("hidden"); return; } // monthly
   }
   const days = new Set();
   ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
