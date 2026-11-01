@@ -1049,7 +1049,7 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
     "DTSTART:" + fmt(next),
     "RRULE:FREQ=WEEKLY",
     "SUMMARY:" + med + dose + " shot day",
-    "DESCRIPTION:Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker.",
+    "DESCRIPTION:Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker™.",
     "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "END:VALARM",
     "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
@@ -2197,7 +2197,7 @@ function tsvSection(title, headers, rows) {
 
 document.getElementById("export-data").addEventListener("click", () => {
   const lines = [];
-  lines.push("New Chapter: GLP-1 Tracker - data export");
+  lines.push("New Chapter: GLP-1 Tracker™ - data export");
   lines.push("Exported " + new Date().toLocaleString("en-US"));
   lines.push("");
 
