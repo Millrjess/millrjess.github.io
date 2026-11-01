@@ -2271,7 +2271,7 @@ function renderSnapshots() {
   const snaps = loadSnapshots();
   if (!snaps.length) { box.innerHTML = ""; return; }
   box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
-    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "");
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '</span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
