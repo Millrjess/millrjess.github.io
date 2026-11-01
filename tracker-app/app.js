@@ -1217,6 +1217,8 @@ weightForm.addEventListener("submit", (e) => {
   toggleForm(weightForm, document.getElementById("show-weight-form"), false);
 });
 
+let weightLimit = 10; // entries shown; "show more" loads older ones in batches
+
 function renderWeight() {
   const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
   if (sorted.length) {
@@ -1232,8 +1234,10 @@ function renderWeight() {
 
   const list = document.getElementById("weight-list");
   const desc = [...sorted].reverse();
+  const visibleWeight = desc.slice(0, weightLimit);
+  const remainingWeight = desc.length - visibleWeight.length;
   list.innerHTML = desc.length
-    ? desc.map((w) => `
+    ? visibleWeight.map((w) => `
       <div class="entry">
         <p class="entry-title">${escapeHtml(Number(w.value).toFixed(1))} lbs</p>
         <p class="entry-sub">${escapeHtml(formatDate(w.date))}</p>
@@ -1242,6 +1246,9 @@ function renderWeight() {
           <button class="btn btn-small btn-danger" data-del-w="${w.id}">Delete</button>
         </div>
       </div>`).join("")
+      + (remainingWeight > 0
+        ? `<button class="btn" id="more-weight" style="width:100%;margin-top:8px">Show older (${remainingWeight} more)</button>`
+        : "")
     : '<p class="empty-state">No weigh-ins yet. Tap "Log weigh-in" to add your first.</p>';
 
   list.querySelectorAll("[data-edit-w]").forEach((b) => b.addEventListener("click", () => {
@@ -1259,8 +1266,15 @@ function renderWeight() {
     if (!confirm("Delete this weigh-in?")) return;
     store.weight = store.weight.filter((x) => x.id !== b.dataset.delW);
     saveStore();
+    weightLimit = 10;
     renderWeight();
   }));
+
+  const moreWeightBtn = document.getElementById("more-weight");
+  if (moreWeightBtn) moreWeightBtn.addEventListener("click", () => {
+    weightLimit += 10;
+    renderWeight();
+  });
 
   drawWeightChart();
 }
@@ -1447,14 +1461,18 @@ measForm.addEventListener("submit", (e) => {
 
 const MEAS_LABELS = { waist: "Waist", hips: "Hips", chest: "Chest", arm: "Arm", thigh: "Thigh", neck: "Neck" };
 
+let measLimit = 10; // entries shown; "show more" loads older ones in batches
+
 function renderMeasurements() {
   const list = document.getElementById("measurement-list");
   const sorted = [...store.measurements].sort((a, b) => b.date.localeCompare(a.date));
   if (!sorted.length) {
-    list.innerHTML = "";
+    list.innerHTML = '<p class="empty-state">No measurements yet. Tap "+ Log measurements" to add your first.</p>';
     return;
   }
-  list.innerHTML = sorted.map((m) => {
+  const visibleMeas = sorted.slice(0, measLimit);
+  const remainingMeas = sorted.length - visibleMeas.length;
+  list.innerHTML = visibleMeas.map((m) => {
     const parts = Object.keys(MEAS_LABELS)
       .filter((k) => m[k] != null)
       .map((k) => MEAS_LABELS[k] + " " + Number(m[k]).toFixed(1) + "&Prime;");
@@ -1467,7 +1485,10 @@ function renderMeasurements() {
         <button class="btn btn-small btn-danger" data-del-meas="${m.id}">Delete</button>
       </div>
     </div>`;
-  }).join("");
+  }).join("")
+    + (remainingMeas > 0
+      ? `<button class="btn" id="more-meas" style="width:100%;margin-top:8px">Show older (${remainingMeas} more)</button>`
+      : "");
 
   list.querySelectorAll("[data-edit-meas]").forEach((b) => b.addEventListener("click", () => {
     const m = store.measurements.find((x) => x.id === b.dataset.editMeas);
@@ -1486,8 +1507,15 @@ function renderMeasurements() {
     if (!confirm("Delete these measurements?")) return;
     store.measurements = store.measurements.filter((x) => x.id !== b.dataset.delMeas);
     saveStore();
+    measLimit = 10;
     renderMeasurements();
   }));
+
+  const moreMeasBtn = document.getElementById("more-meas");
+  if (moreMeasBtn) moreMeasBtn.addEventListener("click", () => {
+    measLimit += 10;
+    renderMeasurements();
+  });
 }
 
 /* ---------- Progress photos ---------- */
@@ -1529,7 +1557,11 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
 
 function renderPhotos() {
   const grid = document.getElementById("photo-grid");
-  const sorted = [...store.photos].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...store.photos].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    grid.innerHTML = '<p class="empty-state">No progress photos yet. Tap "+ Add photo" to add your first.</p>';
+    return;
+  }
   grid.innerHTML = sorted.map((p) => `
     <div class="photo-item">
       <img src="${p.dataUrl}" alt="Progress photo from ${escapeHtml(formatDate(p.date))}" loading="lazy">
@@ -1679,6 +1711,8 @@ seForm.addEventListener("submit", (e) => {
   toggleForm(seForm, document.getElementById("show-sideeffect-form"), false);
 });
 
+let seLimit = 10; // entries shown; "show more" loads older ones in batches
+
 function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
   const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
@@ -1686,8 +1720,10 @@ function renderSideEffects() {
     list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
     return;
   }
+  const visibleSe = sorted.slice(0, seLimit);
+  const remainingSe = sorted.length - visibleSe.length;
   const badgeClass = { Mild: "badge-mild", Moderate: "badge-moderate", Severe: "badge-severe" };
-  list.innerHTML = sorted.map((s) => `
+  list.innerHTML = visibleSe.map((s) => `
     <div class="entry">
       <p class="entry-title">${escapeHtml(s.symptom)}<span class="badge ${badgeClass[s.severity] || ""}">${escapeHtml(s.severity)}</span></p>
       <p class="entry-sub">${escapeHtml(formatDate(s.date))}</p>
@@ -1696,7 +1732,10 @@ function renderSideEffects() {
         <button class="btn btn-small" data-edit-se="${s.id}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-se="${s.id}">Delete</button>
       </div>
-    </div>`).join("");
+    </div>`).join("")
+    + (remainingSe > 0
+      ? `<button class="btn" id="more-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
+      : "");
 
   list.querySelectorAll("[data-edit-se]").forEach((b) => b.addEventListener("click", () => {
     const s = store.sideEffects.find((x) => x.id === b.dataset.editSe);
@@ -1715,8 +1754,15 @@ function renderSideEffects() {
     if (!confirm("Delete this side effect entry?")) return;
     store.sideEffects = store.sideEffects.filter((x) => x.id !== b.dataset.delSe);
     saveStore();
+    seLimit = 10;
     renderSideEffects();
   }));
+
+  const moreSeBtn = document.getElementById("more-se");
+  if (moreSeBtn) moreSeBtn.addEventListener("click", () => {
+    seLimit += 10;
+    renderSideEffects();
+  });
 }
 
 /* ---------- Settings ---------- */
