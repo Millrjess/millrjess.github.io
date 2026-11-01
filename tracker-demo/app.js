@@ -82,6 +82,7 @@ function saveStore() {
 /* Automatic daily snapshot, once per day, max 3 versions, for Settings restore. Demo keys only, so demo snapshots never touch real app storage. */
 function saveDailySnapshot() {
   try {
+    if (countStoreEntries(store) === 0) return;
     const today = todayStr();
     if (localStorage.getItem("demo-nct-last-snapshot-day") === today) return;
     const raw = JSON.stringify(store);
@@ -2269,6 +2270,25 @@ document.getElementById("export-data").addEventListener("click", () => {
 });
 
 
+
+function countStoreEntries(s) {
+  if (!s) return 0;
+  const keys = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects"];
+  let total = 0;
+  keys.forEach((k) => { if (Array.isArray(s[k])) total += s[k].length; });
+  if (s.moods) total += Object.keys(s.moods).length;
+  return total;
+}
+function snapshotSummary(s) {
+  if (!s) return "Could not be read";
+  const parts = [];
+  const labels = [["weight", "weigh-ins"], ["injections", "injections"], ["journal", "journal entries"], ["sideEffects", "side effects"], ["measurements", "measurements"], ["photos", "photos"], ["water", "water entries"], ["protein", "protein entries"], ["exercise", "movement entries"]];
+  labels.forEach(([k, label]) => { if (Array.isArray(s[k]) && s[k].length) parts.push(s[k].length + " " + label); });
+  if (s.moods && Object.keys(s.moods).length) parts.push(Object.keys(s.moods).length + " moods");
+  if (!parts.length) return "Empty, no entries";
+  return parts.join(", ");
+}
+
 /* ---------- In app backup snapshots ---------- */
 
 const SNAP_KEY = "demo-nct-snapshots";
@@ -2277,6 +2297,7 @@ function loadSnapshots() {
 }
 function saveSnapshot() {
   try {
+    if (countStoreEntries(store) === 0) return;
     const raw = JSON.stringify(store);
     if (raw.length > 2500000) return;
     const snaps = loadSnapshots();
@@ -2292,12 +2313,20 @@ function renderSnapshots() {
   if (!snaps.length) { box.innerHTML = ""; return; }
   box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
     const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "");
-    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '</span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
+    let summary = "Could not be read";
+    try { summary = snapshotSummary(JSON.parse(sn.data)); } catch {}
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
     const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
     if (!snap) return;
-    if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+    let snapStore = null;
+    try { snapStore = JSON.parse(snap.data); } catch {}
+    const snapSummary = snapshotSummary(snapStore);
+    const snapLabel = new Date(snap.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" });
+    if (countStoreEntries(snapStore) === 0) {
+      if (!confirm("This snapshot from " + snapLabel + " is empty, no entries. Restoring it will replace your current data with nothing. Are you sure you want to restore an empty snapshot?")) return;
+    } else if (!confirm("Restore this snapshot from " + snapLabel + "? It contains " + snapSummary + ". Your current data will be replaced. Download a backup of your current data first if you want to keep it.")) return;
     try {
       store = Object.assign(structuredClone(DEFAULTS), JSON.parse(snap.data));
       saveStore();
@@ -2344,7 +2373,10 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
       if (!backup || backup.app !== "new-chapter-tracker" || !backup.store) {
         throw new Error("not a tracker backup");
       }
-      if (!confirm("Restore this backup? Your current data will be replaced.")) return;
+      const fileSummary = snapshotSummary(backup.store);
+      if (countStoreEntries(backup.store) === 0) {
+        if (!confirm("This backup file is empty, no entries. Restoring it will replace your current data with nothing. Are you sure you want to restore an empty backup?")) return;
+      } else if (!confirm("Restore this backup file? It contains " + fileSummary + ". Your current data will be replaced. Download a backup of your current data first if you want to keep it.")) return;
       store = Object.assign(structuredClone(DEFAULTS), backup.store);
       saveStore();
       renderToday();
@@ -2651,7 +2683,7 @@ function renderChat() {
   if (chatHistory.length === 0) {
     const welcome = document.createElement("div");
     welcome.className = "chat-msg assistant";
-    welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about staying on track with protein, water, or movement, or just tell me how your day is going. I do not see your tracker entries, so anything you want me to know, tell me here.";
+    welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about protein, water, or movement, or tell me how your day is going.";
     box.appendChild(welcome);
     return;
   }
