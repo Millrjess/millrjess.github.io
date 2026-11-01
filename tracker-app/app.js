@@ -76,6 +76,26 @@ function saveStore() {
   } catch (e) {
     /* storage full or unavailable; app keeps working in memory */
   }
+  saveDailySnapshot();
+}
+
+/* Automatic daily snapshot, once per day, max 3 versions, for Settings restore. */
+function saveDailySnapshot() {
+  try {
+    const today = todayStr();
+    if (localStorage.getItem("nct-last-snapshot-day") === today) return;
+    const raw = JSON.stringify(store);
+    if (raw.length > 2500000) return;
+    const snaps = loadSnapshots();
+    if (snaps.length && snaps[0].data === raw) {
+      localStorage.setItem("nct-last-snapshot-day", today);
+      return;
+    }
+    snaps.unshift({ at: new Date().toISOString(), data: raw });
+    while (snaps.length > 3) snaps.pop();
+    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+    localStorage.setItem("nct-last-snapshot-day", today);
+  } catch {}
 }
 
 function uid() {
@@ -2213,7 +2233,7 @@ function renderSnapshots() {
     if (!snap) return;
     if (!confirm("Restore this backup? Your current data will be replaced.")) return;
     try {
-      store = JSON.parse(snap.data);
+      store = Object.assign(structuredClone(DEFAULTS), JSON.parse(snap.data));
       saveStore();
       renderToday();
       renderInjections();
@@ -2245,6 +2265,7 @@ document.getElementById("backup-data").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   try { localStorage.setItem("nct-last-backup", todayStr()); } catch {}
   renderBackupNudge();
+  renderSnapshots();
 });
 
 document.getElementById("restore-input").addEventListener("change", (e) => {
@@ -2258,7 +2279,7 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
         throw new Error("not a tracker backup");
       }
       if (!confirm("Restore this backup? Your current data will be replaced.")) return;
-      store = backup.store;
+      store = Object.assign(structuredClone(DEFAULTS), backup.store);
       saveStore();
       renderToday();
       renderInjections();
@@ -2377,6 +2398,7 @@ document.getElementById("clear-all-data").addEventListener("click", () => {
   if (!confirm("Are you sure? This deletes your tracked entries, backups saved in this app, chat history, and custom activities. Your companion access stays connected.")) return;
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem("nct-snapshots");
+  localStorage.removeItem("nct-last-snapshot-day");
   localStorage.removeItem("nc_custom_activities");
   localStorage.removeItem("nct-last-backup");
   localStorage.removeItem("nct-backup-snooze");
