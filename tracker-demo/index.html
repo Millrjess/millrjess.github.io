@@ -538,8 +538,6 @@
           <input type="number" id="set-dose" step="0.1" min="0" placeholder="e.g. 2.5">
         </label>
       </div>
-      <div id="snapshot-list" style="margin-top:14px"></div>
-
           <div style="margin-bottom:16px">
           <h4 style="margin:0 0 8px">Weekly shot day</h4>
         <label>Shot day
@@ -599,7 +597,7 @@
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
     </form>
 
-    <details class="card">
+    <details class="card" open>
       <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
       <div style="margin-top:12px">
     <div class="card">
@@ -616,6 +614,7 @@
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
       </div>
+      <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
     </div>
 
