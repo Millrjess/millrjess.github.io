@@ -138,7 +138,27 @@ const ENCOURAGEMENTS = [
   "Be patient with your body. It has carried you this far.",
   "Small habits, repeated daily, create lasting change.",
   "Progress is not always visible, but it is always happening.",
-  "You have earned every bit of wisdom in this chapter. Your body is catching up."
+  "You have earned every bit of wisdom in this chapter. Your body is catching up.",
+  "Protein at every meal is a small choice that protects a lot.",
+  "Water first, then the rest of the day feels easier.",
+  "Movement does not have to be big to count. A short walk counts.",
+  "Staying on your routine is what keeps the progress steady.",
+  "Strength grows quietly, day by day, while you keep showing up.",
+  "Rest is part of training, not a break from it.",
+  "You are not starting over. You are continuing.",
+  "A slow day still counts if you showed up for one good habit.",
+  "Celebrate what your body can do today, not only what the scale says.",
+  "One good meal, one good walk, one good night of sleep. That is enough for today.",
+  "Muscle protects your independence. That is worth the effort.",
+  "Keep your routine simple enough to repeat tomorrow.",
+  "Progress does not require perfection, only persistence.",
+  "Drink your water, eat your protein, move your body, and let the rest follow.",
+  "Today is a new chapter, not a test.",
+  "Good days are built, one choice at a time.",
+  "Your strength is not measured by one weigh-in.",
+  "Take care of the body that carries your life.",
+  "You are doing this for the life you want to live, not for a number.",
+  "Strong today, stronger tomorrow, one habit at a time."
 ];
 
 function renderEncouragement() {
