@@ -25,7 +25,7 @@ const DEFAULTS = {
     medication: "Zepbound",
     dose: "",
     shotDay: "",
-    waterGoal: 80,
+    waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
     carbGoal: 130,
@@ -585,7 +585,7 @@ function renderToday() {
     b.style.opacity = isToday ? "" : "0.5";
   });
 
-  const waterGoal = Number(store.settings.waterGoal) || 80;
+  const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
   document.getElementById("water-today").textContent = waterOz;
@@ -1797,7 +1797,7 @@ function renderSettings() {
   document.getElementById("set-med").value = s.medication || "";
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
-  document.getElementById("set-water-goal").value = s.waterGoal || 80;
+  document.getElementById("set-water-goal").value = s.waterGoal || 92;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
@@ -1836,7 +1836,7 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.dose = document.getElementById("set-dose").value;
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
-  store.settings.waterGoal = wg > 0 ? wg : 80;
+  store.settings.waterGoal = wg > 0 ? wg : 92;
   const pg = Number(document.getElementById("set-protein-goal").value);
   store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
@@ -2485,7 +2485,7 @@ dayPicker.addEventListener("change", () => {
   // Set sensible defaults silently, no blocking wizard.
   // User can change everything in Settings.
   if (!store.settings.medication) store.settings.medication = "Zepbound";
-  if (!store.settings.waterGoal) store.settings.waterGoal = 80;
+  if (!store.settings.waterGoal) store.settings.waterGoal = 92;
   if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
   saveStore();
   localStorage.setItem("nct-setup-done", "1");

@@ -21,7 +21,7 @@
           medication: "Zepbound",
           dose: "",
           shotDay: "",
-          waterGoal: 80,
+          waterGoal: 92,
           proteinGoal: 90,
           movementGoal: 30,
           carbGoal: 130,
