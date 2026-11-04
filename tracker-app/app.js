@@ -828,19 +828,26 @@ async function startScanCamera() {
       status.textContent = "Loading the iPhone camera reader...";
       await new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/dist/index.min.js";
+        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
         s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
       });
     }
     const ZX = window.ZXingBrowser;
     scanZxingReader = new ZX.BrowserMultiFormatReader();
-    scanZxingReader.decodeFromVideoDevice(null, video, (result) => {
+    status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
+    const onResult = (result) => {
       if (result) {
         const code = result.getText();
         document.getElementById("scan-barcode-input").value = code;
         stopScanCamera(); lookupBarcode(code);
       }
-    });
+    };
+    // Use the rear camera stream already opened, so iPhone does not switch to the front camera.
+    if (typeof scanZxingReader.decodeFromStream === "function") {
+      scanZxingReader.decodeFromStream(scanStream, video, onResult);
+    } else {
+      scanZxingReader.decodeFromVideoDevice(null, video, onResult);
+    }
   } catch (e) {
     status.textContent = "Camera is not available here. Type the barcode number below instead.";
   }
