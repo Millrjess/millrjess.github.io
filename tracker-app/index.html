@@ -116,6 +116,20 @@
       </div>
     </div>
 
+    <div id="macro-scan-wrap" class="hidden" style="margin:10px 0">
+      <button type="button" class="btn btn-primary btn-block" id="scan-food-btn">Scan barcode</button>
+      <p class="muted" style="margin:6px 0 0">Free barcode lookup from Open Food Facts. Only the barcode number is sent, no personal data.</p>
+    </div>
+
+    <div class="card hidden" id="macro-card">
+      <h2 class="card-title">Today's macros</h2>
+      <p class="muted">Macros for balanced nutrition, not a calorie deficit. Grams only. No calories are shown.</p>
+      <canvas id="macro-pie" width="300" height="300" aria-label="Today's macro pie chart, protein, carbs, and fat in grams"></canvas>
+      <div id="macro-legend" style="margin-top:10px"></div>
+      <div id="macro-remaining" style="margin-top:10px;font-weight:600"></div>
+      <p class="muted">Set your own targets in Settings, with your dietician. The pie shows grams, not calories.</p>
+    </div>
+
     <div class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52">
       <h2 class="card-title">Your week</h2>
       <p class="muted" id="weekly-summary-range" style="margin:0 0 8px"></p>
@@ -176,11 +190,6 @@
       <div id="protein-list" class="today-entries"></div>
     </div>
 
-    <div id="macro-scan-wrap" class="hidden" style="margin:10px 0">
-      <button type="button" class="btn btn-primary btn-block" id="scan-food-btn">Scan barcode</button>
-      <p class="muted" style="margin:6px 0 0">Free barcode lookup from Open Food Facts. Only the barcode number is sent, no personal data.</p>
-    </div>
-
     <div class="card">
       <h2 class="card-title">Movement</h2>
       <p class="big-number"><span id="exercise-today">0</span> min <span class="goal-label">of <span id="exercise-goal-display">30</span> min goal</span></p>
@@ -217,15 +226,6 @@
       </div>
       <div id="exercise-list" class="today-entries"></div>
       <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>
-    </div>
-
-    <div class="card hidden" id="macro-card">
-      <h2 class="card-title">Today's macros</h2>
-      <p class="muted">Macros for balanced nutrition, not a calorie deficit. Grams only. No calories are shown.</p>
-      <canvas id="macro-pie" width="300" height="300" aria-label="Today's macro pie chart, protein, carbs, and fat in grams"></canvas>
-      <div id="macro-legend" style="margin-top:10px"></div>
-      <div id="macro-remaining" style="margin-top:10px;font-weight:600"></div>
-      <p class="muted">Set your own targets in Settings, with your dietician. The pie shows grams, not calories.</p>
     </div>
 
     <div class="card">
@@ -745,7 +745,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=117"></script>
+<script src="app.js?v=118"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
