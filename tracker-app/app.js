@@ -924,6 +924,7 @@ function renderMood() {
   const current = store.moods[t];
   document.querySelectorAll(".mood-btn").forEach((b) => {
     b.classList.toggle("selected", b.dataset.mood === current);
+    b.setAttribute("aria-pressed", b.dataset.mood === current ? "true" : "false");
   });
   document.getElementById("mood-today-label").textContent = current
     ? "Today you are feeling: " + current + "."

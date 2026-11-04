@@ -38,7 +38,7 @@
 <body>
 
 
-<header class="app-header">
+<header class="app-header" role="banner" aria-label="App header">
   <h1>New Chapter: GLP-1 Tracker™</h1>
   <p class="tagline">Your wellness journey, beautifully tracked.</p>
 </header>
@@ -56,11 +56,11 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
-      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Pick a date" tabindex="0">
+      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
         <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
-      <button id="day-cal" class="btn" aria-label="Pick a date" style="padding:8px 14px">📅</button>
+      <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
       <input type="date" id="day-picker" aria-hidden="true" tabindex="-1"
         style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
@@ -127,7 +127,7 @@
       <p class="muted" style="margin:12px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
     </div>
 
-    <button type="button" class="btn btn-primary btn-block" id="log-food-btn">Log Food</button>
+    <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log food, go to protein entry">Log Food</button>
 
 
 
@@ -166,7 +166,7 @@
       <form id="protein-form" class="inline-form">
         <input type="text" id="protein-food" placeholder="What did you eat?" aria-label="Food description">
         <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
-        <button type="submit" class="btn btn-small" id="food-submit-btn">Log</button>
+        <button type="submit" class="btn btn-small" id="food-submit-btn" aria-label="Log food entry">Log</button>
         <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
       </form>
       <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
@@ -197,7 +197,7 @@
         </select>
         <input type="text" id="exercise-custom" placeholder="Your activity" maxlength="40" aria-label="Custom activity" class="hidden" style="padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
         <input type="number" id="exercise-minutes" placeholder="Min" min="1" max="600" aria-label="Minutes" style="width:76px;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
-        <button class="btn btn-small" id="exercise-add" style="white-space:nowrap">Add</button>
+        <button class="btn btn-small" id="exercise-add" aria-label="Add movement entry" style="white-space:nowrap">Add</button>
       </div>
       <div class="quick-add">
         <div class="stepper" role="group" aria-label="Movement minutes stepper">
@@ -646,12 +646,12 @@
 
 </main>
 
-<footer class="app-footer">
+<footer class="app-footer" role="contentinfo" aria-label="App footer">
   <p>How can we make this app better? <a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
 
-<nav class="tab-bar" aria-label="Main navigation" role="tablist">
+<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
   <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
     <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg></span>
     <span class="tab-label">Today</span>
@@ -680,7 +680,7 @@
     <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="tab-label">Settings</span>
   </button>
-</nav>
+</div></nav>
 
 <script src="app.js"></script>
 <script>
