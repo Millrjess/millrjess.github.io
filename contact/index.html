@@ -247,7 +247,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   }
   errBox.hidden = true; errBox.innerHTML = '';
   btn.disabled = true; btn.textContent = 'Sending\u2026';
-  fetch('https://formsubmit.co/ajax/millrjess@gmail.com', {
+  fetch('https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec', {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
     body: JSON.stringify({
@@ -255,10 +255,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
       email: f.email.value.trim(),
       service: f.service.value,
       message: f.details.value.trim(),
-      _subject: 'New consultation request from millrjess.github.io',
       _honey: f._honey.value,
-      _captcha: 'true',
-      _template: 'table'
     })
   }).then(function(r){ return r.json(); }).then(function(data){
     if (String(data.success) !== 'true') { throw new Error('Form service did not accept the message.'); }
