@@ -197,7 +197,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>Consultation Request Form</h2>
 <p>Tell me about your project and I personally read and reply to every inquiry. Fields marked * are required.</p>
-<form id="consult-form" class="consult-form">
+<form id="consult-form" class="consult-form" novalidate>
 <label>Your name *
 <input type="text" name="name" required autocomplete="name"></label>
 <label>Your email *
@@ -217,6 +217,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <label>Project details *
 <textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+<p id="consult-errors" role="alert" aria-live="assertive" hidden></p>
 <p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
 <p class="muted" id="consult-note" role="status" aria-live="polite">Your message is sent straight to my inbox via a secure form service. Nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me on LinkedIn</a>.</p>
 <p>Please do not include passwords, payment information, or other sensitive details in your initial message.</p>
@@ -224,7 +225,27 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <script>
 document.getElementById('consult-form').addEventListener('submit', function(e){
   e.preventDefault();
-  var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note');
+  var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note'), errBox = document.getElementById('consult-errors');
+  var fields = [
+    {el: f.name, label: 'Your name', hint: 'Please enter your full name.'},
+    {el: f.email, label: 'Your email', hint: 'Please enter a valid email address, for example name@example.com.'},
+    {el: f.service, label: 'What do you need help with', hint: 'Please choose a topic from the list.'},
+    {el: f.details, label: 'Project details', hint: 'Please describe your project, including your website URL and what you would like to achieve.'}
+  ];
+  var errors = [];
+  fields.forEach(function(item){
+    var bad = !item.el.value.trim() || (item.el.type === 'email' && item.el.value.trim().indexOf('@') < 1);
+    item.el.setAttribute('aria-invalid', bad ? 'true' : 'false');
+    if (bad) errors.push(item);
+  });
+  if (errors.length) {
+    errBox.hidden = false;
+    errBox.innerHTML = 'Please fix ' + errors.length + ' field' + (errors.length > 1 ? 's' : '') + ': ' + errors.map(function(item){ return item.label + ' - ' + item.hint; }).join(' ');
+    fields.forEach(function(item){ item.el.setAttribute('aria-describedby', 'consult-errors'); });
+    errors[0].el.focus();
+    return;
+  }
+  errBox.hidden = true; errBox.innerHTML = '';
   btn.disabled = true; btn.textContent = 'Sending\u2026';
   fetch('https://formsubmit.co/ajax/millrjess@gmail.com', {
     method: 'POST',
