@@ -511,10 +511,10 @@
         <p class="muted" id="coach-status-line">Checking companion status...</p>
         <div id="coach-code-entry">
           <label>Access code
-            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
           </label>
           <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
-          <p class="muted" id="code-msg" style="min-height:1.2em"></p>
+          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
           <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
         </div>
         <details style="margin-top:8px">
@@ -596,6 +596,7 @@
       </details>
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+      <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
     </form>
 
     <details class="card" open>
@@ -683,7 +684,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=122"></script>
+<script src="app.js?v=123"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

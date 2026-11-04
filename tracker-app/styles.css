@@ -179,6 +179,25 @@ main {
   font-size: 0.9rem;
 }
 
+/* Status and error messages: never muted grey, so they meet contrast and are not missed */
+.code-msg {
+  color: var(--danger);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.code-msg.success {
+  color: var(--sage-dark);
+}
+input[aria-invalid="true"] {
+  border: 2px solid var(--danger);
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
+}
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
 .big-number {
   font-size: 1.85rem;
   font-weight: 700;

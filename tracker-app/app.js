@@ -1860,7 +1860,11 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   saveStore();
   renderSettings();
   renderToday();
-  alert("Settings saved.");
+  const savedMsg = document.getElementById("settings-saved-msg");
+  if (savedMsg) {
+    savedMsg.textContent = "Settings saved.";
+    savedMsg.classList.add("success");
+  }
 });
 
 /* ---------- Companion access code ---------- */
@@ -1887,15 +1891,29 @@ function updateCoachStatus() {
   }
 }
 
+function setCodeError(text) {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  if (!msg) return;
+  msg.textContent = text;
+  msg.classList.remove("success");
+  if (input) {
+    input.setAttribute("aria-invalid", "true");
+    input.focus();
+  }
+}
+
 async function redeemAccessCode() {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
   const btn = document.getElementById("redeem-code-btn");
   const code = (input.value || "").replace(/\D/g, "").slice(0, 6);
   if (code.length !== 6) {
-    msg.textContent = "Enter all 6 digits.";
+    setCodeError("Enter all 6 digits.");
     return;
   }
+  if (input) input.setAttribute("aria-invalid", "false");
+  msg.classList.remove("success");
   msg.textContent = "Connecting...";
   btn.disabled = true;
   try {
@@ -1908,20 +1926,29 @@ async function redeemAccessCode() {
     if (data.ok && data.token) {
       try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
       document.getElementById("set-companion-key").value = data.token;
-      msg.textContent = "";
+      msg.textContent = "Your AI Wellness Companion is connected.";
+      msg.classList.add("success");
+      if (input) input.setAttribute("aria-invalid", "false");
       input.value = "";
       updateCoachStatus();
-      alert("Your AI Wellness Companion is connected.");
     } else {
-      msg.textContent = data.error || "That code did not work. Try again.";
+      setCodeError(data.error || "That code did not work. Try again.");
     }
   } catch (e) {
-    msg.textContent = "Could not reach the service. Check your connection.";
+    setCodeError("Could not reach the service. Check your connection.");
   }
   btn.disabled = false;
 }
 
 document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+document.getElementById("set-access-code").addEventListener("input", () => {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  if (input && input.getAttribute("aria-invalid") === "true") {
+    input.setAttribute("aria-invalid", "false");
+    if (msg) msg.textContent = "";
+  }
+});
 
 /* ---------- Google Play Billing (Digital Goods API) ---------- */
 
