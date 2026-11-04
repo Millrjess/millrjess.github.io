@@ -572,12 +572,12 @@ label textarea {
 
 .badge-mild {
   background: #DFF0DC;
-  color: #2F7A33;
+  color: #256B28;
 }
 
 .badge-moderate {
   background: #FBEFD2;
-  color: #9A6B1A;
+  color: #8A5A00;
 }
 
 .badge-severe {
@@ -808,7 +808,7 @@ label textarea {
 .chat-msg.user {
   align-self: flex-end;
   background: var(--gold, #E8B54A);
-  color: #fff;
+  color: var(--ink);
   border-bottom-right-radius: 4px;
 }
 .chat-msg.assistant {
@@ -855,7 +855,7 @@ label textarea {
 .mini-calendar .dow {
   text-align: center;
   font-size: .72em;
-  color: #8A8A8A;
+  color: var(--muted);
   font-weight: 700;
   padding: 4px 0;
   text-transform: uppercase;

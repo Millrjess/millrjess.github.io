@@ -1394,7 +1394,7 @@ function drawWeightChart() {
   const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
 
   ctx.strokeStyle = "#E5E0D5";
-  ctx.fillStyle = "#8A8A8A";
+  ctx.fillStyle = "#6E6A5E";
   ctx.font = "20px sans-serif";
   ctx.textAlign = "right";
   for (let g = 0; g <= 4; g++) {
