@@ -158,12 +158,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
 }
+.skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
+.skip-link:focus{left:8px}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"The Ledger Series","author":{"@type":"Person","name":"Jessica A. Miller","url":"https://www.amazon.com/author/millrjess"},"url":"https://millrjess.github.io/books/","description":"A literary dystopian trilogy about memory, identity, and the systems we agree to serve.","bookFormat":"https://schema.org/EBook","inLanguage":"en"}
 </script>
 </head>
 <body>
+<a class=\"skip-link\" href=\"#main\">Skip to main content</a>
 <header class="site-header">
   <div class="wrap header-inner">
     <div class="brand">
@@ -174,7 +177,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../about/">About</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
   </div>
 </header>
-<main class="wrap page">
+<main id="main" class="wrap page">
 <article>
 <h1>Books by Jessica A. Miller</h1>
 <div class="hero">

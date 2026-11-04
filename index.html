@@ -170,12 +170,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
 }
+.skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
+.skip-link:focus{left:8px}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"Jessica A. Miller | Website Operations Consultant","url":"https://millrjess.github.io/","description":"Website operations consultant with 20 years keeping business websites fast, secure, and online. WordPress, Drupal, and Joomla management, malware removal, technical SEO, and GA4 reporting.","founder":{"@type":"Person","name":"Jessica A. Miller","url":"https://millrjess.github.io/about/","sameAs":["https://www.linkedin.com/in/millrjess","https://github.com/Millrjess","https://www.amazon.com/author/millrjess"]},"areaServed":["North Andover MA","Andover MA","Lawrence MA","Haverhill MA"],"priceRange":"$$"}
 </script>
 </head>
 <body class="home">
+<a class=\"skip-link\" href=\"#main\">Skip to main content</a>
 <header class="site-header">
   <div class="wrap header-inner">
     <div class="brand">
@@ -186,7 +189,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="./" class="active">Home</a></li><li><a href="services/">Services</a></li><li><a href="portfolio/">Portfolio</a></li><li><a href="fee-schedule/">Fee Schedule</a></li><li><a href="about/">About</a></li><li><a href="contact/">Contact</a></li></ul></nav>
   </div>
 </header>
-<main class="wrap page">
+<main id="main" class="wrap page">
 <article>
 <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0">Jessica A. Miller, Website Operations Consultant</h1>
 <section class="hero">
