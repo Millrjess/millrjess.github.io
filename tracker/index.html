@@ -228,7 +228,7 @@
     .period { color: var(--muted); font-size: .9rem; }
     .price-card ul { list-style: none; padding: 0; margin: 18px 0 20px; color: var(--muted); }
     .price-card li { padding: 6px 0 6px 25px; position: relative; }
-    .price-card li:before { content: "✓"; color: var(--sage); position: absolute; left: 0; font-weight: 700; }
+    .price-card li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
     .price-card .button { width: 100%; }
     .payment-note { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 22px; }
 
@@ -245,8 +245,8 @@
     details:last-child { border-bottom: 1px solid var(--line); }
     summary { list-style: none; cursor: pointer; font-weight: 700; padding: 18px 45px 18px 0; position: relative; }
     summary::-webkit-details-marker { display: none; }
-    summary:after { content: "+"; position: absolute; right: 5px; top: 13px; color: var(--sage); font-family: var(--serif); font-size: 1.8rem; font-weight: 400; }
-    details[open] summary:after { content: "−"; }
+    summary .faq-icon:after { content: "+"; position: absolute; right: 5px; top: 13px; color: var(--sage); font-family: var(--serif); font-size: 1.8rem; font-weight: 400; }
+    details[open] summary .faq-icon:after { content: "−"; }
     details p { color: var(--muted); padding: 0 30px 18px 0; margin: 0; }
 
     .closing-inner { background: var(--gold-pale); color: var(--ink); padding: 62px; border-radius: 38px 6px 38px 6px; display: flex; align-items: center; justify-content: space-between; gap: 42px; }
@@ -347,11 +347,11 @@
             <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try a sample demo, no sign in, sample data only <span aria-hidden="true">→</span></a>
           </div>
           <p class="cta-note">$3.99/month or $29.99/year. Cancel anytime.</p>
-          <ul class="mini-trust" role="region" aria-label="Product highlights" style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:8px">
+          <section aria-label="Product highlights"><ul class="mini-trust" style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:8px">
             <li><span><i></i>Created from lived Zepbound experience</span></li>
             <li><span><i></i>No complicated spreadsheets</span></li>
             <li><span><i></i>Start at any stage</span></li>
-          </ul>
+          </ul></section>
         </div>
 
       </div>
@@ -402,26 +402,26 @@
         <div class="price-grid">
           <div class="price-card">
             <h3>Monthly</h3>
-            <div class="amount" aria-label="$3.99 per month">$3<sup aria-hidden="true">.99</sup></div>
+            <div class="amount">$3<sup>.99</sup></div>
             <div class="period">per month, cancel anytime</div>
             <ul>
-              <li>Full tracker access</li>
-              <li>All seven tabs including Companion</li>
-              <li>All future upgrades included</li>
-              <li>Works on any phone</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>Full tracker access</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>All seven tabs including Companion</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>All future upgrades included</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>Works on any phone</li>
             </ul>
             <a class="button primary" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe Monthly</a>
           </div>
           <div class="price-card featured">
-            <span class="save">Save 37%</span>
             <h3>Annual</h3>
-            <div class="amount" aria-label="$29.99 per year">$29<sup aria-hidden="true">.99</sup></div>
+            <span class="save">Save 37%</span>
+            <div class="amount">$29<sup>.99</sup></div>
             <div class="period">per year, cancel anytime, save 37% versus monthly</div>
             <ul>
-              <li>Full tracker access</li>
-              <li>All seven tabs including Companion</li>
-              <li>All future upgrades included</li>
-              <li>Works on any phone</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>Full tracker access</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>All seven tabs including Companion</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>All future upgrades included</li>
+              <li><span aria-hidden="true" class="check-mark">✓</span>Works on any phone</li>
             </ul>
             <a class="button primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01">Subscribe Annual</a>
           </div>
@@ -443,11 +443,11 @@
       <div class="wrap faq-grid">
         <div class="faq-copy"><h2>Questions, answered.</h2><p>Clear information before you decide.</p></div>
         <div class="accordion">
-          <details><summary>Is this only for Zepbound?</summary><p>No. The tracker is designed for people using Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You can record your own medication and dose.</p></details>
-          <details><summary>When will it be available?</summary><p>It is available now. Subscribe above and you will receive the app link by email.</p></details>
-          <details><summary>Does the tracker give medical advice?</summary><p>No. It is an organization and habit tracking tool, not medical care. Medication, dose, symptoms, and treatment decisions should always be discussed with a licensed healthcare professional.</p></details>
-          <details><summary>Can I change the water goal?</summary><p>Yes. The water goal is adjustable in Settings. Individual hydration needs vary, so follow any guidance your healthcare professional has given you.</p></details>
-          <details><summary>What can I record for movement?</summary><p>You can record daily movement with quick entries you log in one tap for walks, stretching, and movement.</p></details>
+          <details><summary>Is this only for Zepbound?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. The tracker is designed for people using Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You can record your own medication and dose.</p></details>
+          <details><summary>When will it be available?<span aria-hidden="true" class="faq-icon"></span></summary><p>It is available now. Subscribe above and you will receive the app link by email.</p></details>
+          <details><summary>Does the tracker give medical advice?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. It is an organization and habit tracking tool, not medical care. Medication, dose, symptoms, and treatment decisions should always be discussed with a licensed healthcare professional.</p></details>
+          <details><summary>Can I change the water goal?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The water goal is adjustable in Settings. Individual hydration needs vary, so follow any guidance your healthcare professional has given you.</p></details>
+          <details><summary>What can I record for movement?<span aria-hidden="true" class="faq-icon"></span></summary><p>You can record daily movement with quick entries you log in one tap for walks, stretching, and movement.</p></details>
           
         </div>
       </div>
