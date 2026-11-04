@@ -183,14 +183,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
 .skip-link:focus{left:8px}
 .site-footer a:focus-visible{outline:3px solid #f0dfae; outline-offset:3px; border-radius:4px}
+.viz-details summary h4{display:inline; font-size:1em; margin:0}
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="site-header" role="banner">
+<header class="site-header" role="banner" aria-label="Site header">
   <div class="wrap header-inner">
     <div class="brand">
-      <a href="../"><img src="../assets/img/logo-96.webp" alt="" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
+      <a href="../"><img src="../assets/img/logo-96.webp" alt="" class="brand-logo" aria-hidden="true" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
@@ -208,7 +209,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p><strong>Problem:</strong> About 25% of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset found about 40% for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">trial data</a>). DXA scans measure lean tissue, which includes muscle, water, and organ tissue, and older women are most at risk. Yet no existing tracker was designed around protecting strength during GLP-1 treatment. People were tracking injections, protein, and movement across scattered notes and memory.</p>
 <p class="role">Founder &middot; Designer and developer &middot; Live on the web</p>
 <details class="viz-details">
-<summary><span class="entry-lede">How I built it</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h4 class="entry-lede">How I built it: New Chapter: GLP-1 Tracker</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot. Seven tab interface (Today, Injections, Weight, Journal, Effects, Companion, Settings), offline first with service worker, installable on iPhone and Android. No frameworks, no build step. Integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab delimited data export. Built an AI Wellness Companion on Cloudflare Workers and Workers AI with opt in memory (remembers name, goals, preferences), rate limited to 20 messages per user per day, origin gated, with no API key in client code and explicit no medical advice guardrails. Replaced a complex link based onboarding with a simple six digit access code typed into the app.</p>
 <p><strong>Design decisions:</strong> I iterated the interface based on real user testing. Added Undo and per entry Remove controls after testing revealed users could not fix mistakes. Ran a full accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance: verified text contrast ratios, minimum 11pt type, 24px touch targets, keyboard and screen reader support with ARIA roles, visible focus indicators, reduced motion support, no orientation lock, and no zoom blocking. Built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone. Built a custom design system around the brand gold and sage palette with a hand designed app icon, gradient header, and refined card and button styling. Mobile first responsive layout.</p>
 </details>
@@ -218,7 +219,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="role">Lead UX Designer &middot; January to May 2011 &middot; Capstone project</p>
 <p><strong>Problem:</strong> Two partner parishes, The Church of the Most Precious Blood and Saint Theresa of Lisieux, had websites that didn&rsquo;t convey their collaboration. Navigation was confusing, search was poor, links were broken, pages loaded slowly, and neither site met Archdiocese of Boston standards.</p>
 <details class="viz-details">
-<summary><span class="entry-lede">How I got there: Parish Website Redesign</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h4 class="entry-lede">How I got there: Parish Website Redesign</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><strong>What I learned from users:</strong> I ran user interviews and built empathy maps. The research showed that convenience and accessibility matter most for community engagement, and poor navigation kept people from finding information and connecting with the church. The primary persona was Eleanor Vance, a 62 year old retired teacher whose goals were to find service times, contact info, and events, and to donate online. Her frustrations were difficult navigation, outdated content, cluttered design, and a poor mobile experience. The pain points fell into three groups: navigation (confusing menus, poor search, broken links), interaction (slow loading, cumbersome forms, buggy interfaces), and experience (cluttered design, unclear calls to action, poor content, no trust signals).</p>
 <p><strong>Approach:</strong> I built a sitemap to fix the information architecture, then paper and digital wireframes, then a low fidelity prototype to test the primary user flow. Usability studies found three problems to fix: participants struggled to locate key information, the donation process was confusing and lengthy with unclear instructions, and the layout broke on smaller screens. I revised the mockups around those findings, simplifying the donation process and the navigation, and finalized a high fidelity prototype. The redesign was built on Joomla so parish staff could update content themselves, with accessibility built in from the start: sufficient font size and contrast, full keyboard navigation, and screen reader compatibility.</p>
 </details>
@@ -228,12 +229,12 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="role">Data science and visualization &middot; Python, SQL, Tableau, BigQuery</p>
 <p><strong>Problem:</strong> Manual reporting is slow and error prone, and decision makers needed a data driven view of what drives protest activity in the US.</p>
 <details class="viz-details">
-<summary><span class="entry-lede">How the model works</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h4 class="entry-lede">How the model works: Predictive Analytics Dashboard</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built regression models to isolate key drivers, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of eating analyst hours. The dashboard presents the same model through three views, each tuned to its readers: for policymakers, ranked feature importance showing which factors matter most; for community organizers, protest activity patterns by day of week and month; for the general public, an accessible overview of trends and drivers. I also cleaned up my own work before showing it: the feature importance chart had 70 plus one hot encoded city dummy variables burying the 11 factors that actually mattered, so an exclude filter brought the real drivers forward.</p>
 </details>
 <p><strong>Outcome:</strong> The model surfaced clear drivers (population impact 0.8017, unemployment impact 0.1131, positive temporal trend), and the automated pipeline improved accuracy while reducing manual reporting work. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
 <details class="viz-details">
-<summary><span class="entry-lede">Protest Data Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h4 class="entry-lede">Protest Data Dashboard</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <div class="tableau-embed" style="margin: 16px 0;">
 <iframe loading="lazy" src="https://public.tableau.com/views/ProtestData/Dashboard?:showVizHome=no&:embed=true" height="600" title="Protest Data Dashboard"></iframe>
 </div>
@@ -243,7 +244,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="role">Lead UX Designer &middot; January to June 2025 &middot; Capstone project</p>
 <p><strong>Problem:</strong> David, a busy professional, needs a reliable and efficient way to look up recipes and order groceries online, because his schedule leaves him little time for grocery shopping. Busy professionals cite time constraints as the top pain point in meal planning and grocery shopping. The app needed to remove friction, not add features.</p>
 <details class="viz-details">
-<summary><span class="entry-lede">How I got there: Foodie Explorer</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h4 class="entry-lede">How I got there: Foodie Explorer</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><strong>What I learned from users:</strong> I ran user research through surveys and usability tests. The persona was David Miller, a 42 year old freelance photographer whose goals were to save time, enjoy family time, explore new foods, support local businesses, and simplify life. His frustrations were time constraints, grocery store hassle, limited cooking time, finding quality ingredients, and inconsistent quality. The pain points were time constraints, inconsistent quality from previous delivery services, complex navigation in existing apps, and limited tailored recipe recommendations.</p>
 <p><strong>Approach:</strong> Full UX lifecycle: user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds. The design centered on smart recipe discovery (search by ingredients, dietary needs, cuisine, or cooking time), quick and easy recipes ready in 30 minutes or less, step by step visual guides, integrated grocery lists that build themselves, meal planning tools, and community features for sharing recipes. Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high contrast mode and readable fonts, voice search and screen reader compatibility, and clear navigation with large tap targets.</p>
 </details>
@@ -370,7 +371,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p><a class="btn" href="../contact/">Request a Consultation</a></p>
 </section>
 </main>
-<footer class="site-footer" role="contentinfo">
+<footer class="site-footer" role="contentinfo" aria-label="Site footer">
   <div class="wrap footer-inner">
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="/books/">Books</a></p>
@@ -385,6 +386,6 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
   });
 });
 </script>
-<script src="../assets/js/help-chat.js"></script>
+<script src="../assets/js/help-chat.js?v=2"></script>
 </body>
 </html>
