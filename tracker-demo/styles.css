@@ -1123,6 +1123,7 @@ textarea {
 }
 .skip-link:focus {
   top: 12px;
+  z-index: 1000;
   outline-offset: 2px;
   border-radius: 6px;
 }
