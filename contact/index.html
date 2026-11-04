@@ -247,25 +247,32 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   }
   errBox.hidden = true; errBox.innerHTML = '';
   btn.disabled = true; btn.textContent = 'Sending\u2026';
-  fetch('https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-    body: JSON.stringify({
-      name: f.name.value.trim(),
-      email: f.email.value.trim(),
-      service: f.service.value,
-      message: f.details.value.trim(),
-      _honey: f._honey.value,
-    })
-  }).then(function(r){ return r.json(); }).then(function(data){
-    if (String(data.success) !== 'true') { throw new Error('Form service did not accept the message.'); }
+  var iframe = document.getElementById('consult-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'consult-iframe'; iframe.name = 'consult-iframe';
+    iframe.style.display = 'none'; iframe.setAttribute('aria-hidden', 'true'); iframe.tabIndex = -1;
+    document.body.appendChild(iframe);
+  }
+  var submitted = true; var timedOut = false;
+  var timer = setTimeout(function(){
+    if (submitted) {
+      timedOut = true; submitted = false;
+      var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')\n\n' + f.details.value.trim());
+      note.innerHTML = 'Something went wrong sending your message through the form service. <a href="' + mailto + '">Send this same message by email instead</a>, or email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
+      btn.disabled = false; btn.textContent = 'Send Request';
+    }
+  }, 30000);
+  iframe.onload = function(){
+    if (!submitted || timedOut) return;
+    submitted = false; clearTimeout(timer);
     f.reset();
     note.innerHTML = 'Thanks \u2014 your message is on its way. I read and reply to every inquiry personally.';
-  }).catch(function(){
-    var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')\n\n' + f.details.value.trim());
-    note.innerHTML = 'Something went wrong sending your message through the form service. <a href="' + mailto + '">Send this same message by email instead</a>, or email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
-  }).finally(function(){ btn.disabled = false; btn.textContent = 'Send Request'; });
-});
+    btn.disabled = false; btn.textContent = 'Send Request';
+  };
+  f.action = 'https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec';
+  f.method = 'POST'; f.target = 'consult-iframe';
+  f.submit();
 </script>
 </article>
 </main>
