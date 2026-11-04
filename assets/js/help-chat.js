@@ -24,8 +24,8 @@
     return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. I cannot confirm a booking, change a price, or start work in this chat.";
   }
   var btn=document.createElement("button");
-  btn.textContent="Ask a question";
-  btn.setAttribute("aria-label","Open help chat");
+  btn.textContent="Try it: AI help chat";
+  btn.setAttribute("aria-label","Open AI help chat");
   btn.style.cssText="position:fixed;right:20px;bottom:20px;z-index:100;background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:999px;padding:.7em 1.2em;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(15,35,64,.35);font-family:inherit";
   var panel=document.createElement("div");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:76px;z-index:100;width:320px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
