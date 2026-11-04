@@ -782,13 +782,18 @@ async function lookupBarcode(code) {
     const fat = pick("fat_serving", "fat_100g");
     const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Scanned food";
     document.getElementById("scan-product-name").textContent = name;
-    document.getElementById("scan-product-serving").textContent = p.serving_size ? `Serving: ${p.serving_size}. Values below are per serving when available, otherwise per 100 g. Edit them to match your portion.` : "Values below are per serving when available, otherwise per 100 g. Edit them to match your portion.";
+    const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
+    document.getElementById("scan-product-serving").textContent = hasServing
+      ? (p.serving_size ? `Serving: ${p.serving_size}. Values below are per serving. Edit them to match your portion.` : "Values below are per serving. Edit them to match your portion.")
+      : "These values are per 100 g, not per serving. Scale them to your portion before logging.";
     document.getElementById("scan-food").value = name;
     document.getElementById("scan-protein").value = protein || "";
     document.getElementById("scan-carbs").value = carbs || "";
     document.getElementById("scan-fat").value = fat || "";
     document.getElementById("scan-result").classList.remove("hidden");
-    status.textContent = "Found. Check the label and edit the grams before logging. No calories are shown or logged.";
+    status.textContent = hasServing
+      ? "Found. Check the label and edit the grams before logging. No calories are shown or logged."
+      : "Found, but only per 100 g values were available. Scale them to your portion before logging. No calories are shown or logged.";
   } catch (e) {
     status.textContent = "Lookup failed. Check your connection, or enter the grams by hand.";
   }
