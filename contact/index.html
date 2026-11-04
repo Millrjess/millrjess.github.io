@@ -231,7 +231,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
       message: f.details.value.trim(),
       _subject: 'New consultation request from millrjess.github.io',
       _honey: f._honey.value,
-      _captcha: 'false',
+      _captcha: 'true',
       _template: 'table'
     })
   }).then(function(r){ return r.json(); }).then(function(){
