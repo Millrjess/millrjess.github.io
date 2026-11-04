@@ -55,19 +55,20 @@
   var btn=document.createElement("button");
   btn.textContent="Try it: AI help chat";
   btn.setAttribute("aria-label","Open AI help chat");
+  btn.setAttribute("aria-expanded","false");
   btn.style.cssText="position:fixed;right:20px;bottom:20px;z-index:100;background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:999px;padding:.7em 1.2em;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(15,35,64,.35);font-family:inherit";
   var panel=document.createElement("div");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:76px;z-index:100;width:320px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat, AI agent</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am an AI agent, not Jessica. I can answer from published pages on this site, and link you to the page that covers your question. I cannot confirm a booking, change a price, or start work.</p><div id='hc-log' style='font-size:.95em'></div><div style='display:flex;gap:8px;margin-top:12px'><input id='hc-q' type='text' placeholder='Ask about prices or booking' style='flex:1;padding:.6em;border:1px solid #e2e8f0;border-radius:10px;font:inherit'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.6em 1em;cursor:pointer;font:inherit'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat, AI agent</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am an AI agent, not Jessica. I can answer from published pages on this site, and link you to the page that covers your question. I cannot confirm a booking, change a price, or start work.</p><div id='hc-log' style='font-size:.95em'></div><div style='display:flex;gap:8px;margin-top:12px'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask a question about prices or booking</label><input id='hc-q' type='text' aria-label='Ask a question about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.6em;border:1px solid #e2e8f0;border-radius:10px;font:inherit'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.6em 1em;cursor:pointer;font:inherit'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
   document.body.appendChild(btn); document.body.appendChild(panel);
   function ask(){
     var inp=document.getElementById("hc-q"); var q=inp.value.trim(); if(!q) return;
     var log=document.getElementById("hc-log");
     var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+q.replace(/</g,"&lt;")+"</p><p style='margin:8px 0'>"+find(q)+"</p>"; log.appendChild(d); inp.value="";
   }
-  btn.onclick=function(){ panel.style.display = panel.style.display==="none" ? "block" : "none"; };
-  document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; };
-  document.addEventListener("keydown", function(e){ if(e.key==="Escape") panel.style.display="none"; });
+  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "block" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
+  document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); };
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
   document.getElementById("hc-send").onclick=ask;
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter") ask(); });
 })();
