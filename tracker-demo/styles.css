@@ -1108,3 +1108,21 @@ textarea {
 #recent-foods {
   display: none;
 }
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  background: #0b1a30;
+  color: #f0dfae;
+  padding: 12px 16px;
+  border-radius: 8px;
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 700;
+}
+.skip-link:focus {
+  top: 12px;
+  outline-offset: 2px;
+  border-radius: 6px;
+}

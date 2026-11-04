@@ -273,6 +273,17 @@ function showTab(name) {
 }
 
 tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+tabButtons.forEach((b, i) => b.addEventListener("keydown", (e) => {
+  let next = null;
+  if (e.key === "ArrowRight") next = (i + 1) % tabButtons.length;
+  else if (e.key === "ArrowLeft") next = (i - 1 + tabButtons.length) % tabButtons.length;
+  else if (e.key === "Home") next = 0;
+  else if (e.key === "End") next = tabButtons.length - 1;
+  if (next === null) return;
+  e.preventDefault();
+  tabButtons[next].focus();
+  showTab(tabButtons[next].dataset.tab);
+}));
 
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
@@ -1089,6 +1100,7 @@ function renderSiteMap() {
   const last = lastInjection();
   const caption = document.getElementById("site-map-caption");
   siteMapZones().forEach((z) => {
+    z.setAttribute("aria-pressed", z.dataset.site === chosen ? "true" : "false");
     z.classList.toggle("selected", z.dataset.site === chosen);
     z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
   });

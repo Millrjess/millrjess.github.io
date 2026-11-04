@@ -273,6 +273,17 @@ function showTab(name) {
 }
 
 tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+tabButtons.forEach((b, i) => b.addEventListener("keydown", (e) => {
+  let next = null;
+  if (e.key === "ArrowRight") next = (i + 1) % tabButtons.length;
+  else if (e.key === "ArrowLeft") next = (i - 1 + tabButtons.length) % tabButtons.length;
+  else if (e.key === "Home") next = 0;
+  else if (e.key === "End") next = tabButtons.length - 1;
+  if (next === null) return;
+  e.preventDefault();
+  tabButtons[next].focus();
+  showTab(tabButtons[next].dataset.tab);
+}));
 
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
@@ -668,7 +679,7 @@ function renderTodayEntries(t, isToday) {
     ? waterToday.map((e) => `
       <div class="today-entry">
         <span>+${escapeHtml(e.oz)} oz</span>
-        <button class="btn btn-small btn-danger" data-del-water="${e.id}">Remove</button>
+        <button class="btn btn-small btn-danger" data-del-water="${e.id}" aria-label="Remove water entry: ${escapeHtml(e.oz)} ounces">Remove</button>
       </div>`).join("")
     : "";
 
@@ -678,8 +689,8 @@ function renderTodayEntries(t, isToday) {
       <div class="today-entry">
         <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
         <div style="display:flex;gap:6px;flex-shrink:0">
-          ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}">Edit</button>` : ""}
-          <button class="btn btn-small btn-danger" data-del-protein="${e.id}">Remove</button>
+          ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Edit</button>` : ""}
+          <button class="btn btn-small btn-danger" data-del-protein="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Remove</button>
         </div>
       </div>`).join("")
     : "";
@@ -689,7 +700,7 @@ function renderTodayEntries(t, isToday) {
     ? exToday.map((e) => `
       <div class="today-entry">
         <span>${escapeHtml(e.label || "Movement")} &middot; ${escapeHtml(e.minutes)} min</span>
-        <button class="btn btn-small btn-danger" data-del-exercise="${e.id}">Remove</button>
+        <button class="btn btn-small btn-danger" data-del-exercise="${e.id}" aria-label="Remove movement entry: ${escapeHtml(e.label || "Movement")} ${escapeHtml(e.minutes)} minutes">Remove</button>
       </div>`).join("")
     : "";
 
@@ -980,8 +991,8 @@ function renderInjectionCalendar() {
     if (ds === todayS) cls.push("today");
     if (loggedByDate[ds]) cls.push("logged");
     else if (ds === nextShot) cls.push("scheduled");
-    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0"` : "";
-    html += `<div class="${cls.join(" ")}"${tap}>${d}</div>`;
+    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0" aria-label="Shot logged, ${formatDate(ds)}"` : (ds === nextShot ? ` aria-label="Next scheduled shot, ${formatDate(ds)}"` : "");
+    html += `<div class="${cls.join(" ")}" role="gridcell"${tap}>${d}</div>`;
   }
   cal.innerHTML = html;
 
@@ -1088,6 +1099,7 @@ function renderSiteMap() {
   const last = lastInjection();
   const caption = document.getElementById("site-map-caption");
   siteMapZones().forEach((z) => {
+    z.setAttribute("aria-pressed", z.dataset.site === chosen ? "true" : "false");
     z.classList.toggle("selected", z.dataset.site === chosen);
     z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
   });
@@ -1161,8 +1173,8 @@ function renderInjections() {
       <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)}</p>
       ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
       <div class="entry-actions">
-        <button class="btn btn-small" data-edit-inj="${inj.id}">Edit</button>
-        <button class="btn btn-small btn-danger" data-del-inj="${inj.id}">Delete</button>
+        <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-inj="${inj.id}" aria-label="Delete injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Delete</button>
       </div>
     </div>`).join("")
     + (remaining > 0
@@ -1263,8 +1275,8 @@ function renderWeight() {
         <p class="entry-title">${escapeHtml(Number(w.value).toFixed(1))} lbs</p>
         <p class="entry-sub">${escapeHtml(formatDate(w.date))}</p>
         <div class="entry-actions">
-          <button class="btn btn-small" data-edit-w="${w.id}">Edit</button>
-          <button class="btn btn-small btn-danger" data-del-w="${w.id}">Delete</button>
+          <button class="btn btn-small" data-edit-w="${w.id}" aria-label="Edit weigh-in: ${escapeHtml(Number(w.value).toFixed(1))} lbs on ${escapeHtml(formatDate(w.date))}">Edit</button>
+          <button class="btn btn-small btn-danger" data-del-w="${w.id}" aria-label="Delete weigh-in: ${escapeHtml(Number(w.value).toFixed(1))} lbs on ${escapeHtml(formatDate(w.date))}">Delete</button>
         </div>
       </div>`).join("")
       + (remainingWeight > 0
@@ -1502,8 +1514,8 @@ function renderMeasurements() {
       <p class="entry-title">${escapeHtml(formatDate(m.date))}</p>
       <p class="entry-sub">${parts.join(" &middot; ")}</p>
       <div class="entry-actions">
-        <button class="btn btn-small" data-edit-meas="${m.id}">Edit</button>
-        <button class="btn btn-small btn-danger" data-del-meas="${m.id}">Delete</button>
+        <button class="btn btn-small" data-edit-meas="${m.id}" aria-label="Edit measurements on ${escapeHtml(formatDate(m.date))}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-meas="${m.id}" aria-label="Delete measurements on ${escapeHtml(formatDate(m.date))}">Delete</button>
       </div>
     </div>`;
   }).join("")
@@ -1658,8 +1670,8 @@ function renderJournal() {
       <p class="entry-sub">${escapeHtml(formatDate(j.date))}</p>
       ${j.notes ? `<p class="entry-notes">${escapeHtml(j.notes)}</p>` : ""}
       <div class="entry-actions">
-        <button class="btn btn-small" data-edit-j="${j.id}">Edit</button>
-        <button class="btn btn-small btn-danger" data-del-j="${j.id}">Delete</button>
+        <button class="btn btn-small" data-edit-j="${j.id}" aria-label="Edit journal entry: ${escapeHtml(j.mood)} on ${escapeHtml(formatDate(j.date))}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-j="${j.id}" aria-label="Delete journal entry: ${escapeHtml(j.mood)} on ${escapeHtml(formatDate(j.date))}">Delete</button>
       </div>
     </div>`).join("")
     + (remaining > 0
@@ -1750,8 +1762,8 @@ function renderSideEffects() {
       <p class="entry-sub">${escapeHtml(formatDate(s.date))}</p>
       ${s.notes ? `<p class="entry-notes">${escapeHtml(s.notes)}</p>` : ""}
       <div class="entry-actions">
-        <button class="btn btn-small" data-edit-se="${s.id}">Edit</button>
-        <button class="btn btn-small btn-danger" data-del-se="${s.id}">Delete</button>
+        <button class="btn btn-small" data-edit-se="${s.id}" aria-label="Edit side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-se="${s.id}" aria-label="Delete side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Delete</button>
       </div>
     </div>`).join("")
     + (remainingSe > 0
@@ -2427,7 +2439,7 @@ function renderDayCalModal() {
     if (ds === todayS) cls.push("today");
     if (ds === viewingS) cls.push("selected");
     const future = ds > todayS;
-    html += `<div class="${cls.join(" ")}${future ? " disabled" : ""}" ${future ? "" : `data-pick-date="${ds}" role="button" tabindex="0"`}>${d}</div>`;
+    html += `<div class="${cls.join(" ")}${future ? " disabled" : ""}" ${future ? `aria-disabled="true" aria-label="${formatDate(ds)}, not available yet"` : `data-pick-date="${ds}" role="button" tabindex="0" aria-label="Pick ${formatDate(ds)}"`}>${d}</div>`;
   }
   grid.innerHTML = html;
   grid.querySelectorAll("[data-pick-date]").forEach((el) => {
