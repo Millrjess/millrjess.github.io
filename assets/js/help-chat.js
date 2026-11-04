@@ -55,7 +55,7 @@
   }
   var btn=document.createElement("button");
   btn.id="hc-toggle";
-  btn.textContent="Try it: Help chat";
+  btn.textContent="Help chat";
   btn.setAttribute("aria-expanded","false");
   btn.style.cssText="position:fixed;outline-offset:2px;right:20px;bottom:20px;z-index:100;background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:999px;padding:.7em 1.2em;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(15,35,64,.35);font-family:inherit";
   var panel=document.createElement("div");
