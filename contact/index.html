@@ -260,11 +260,13 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
       _captcha: 'true',
       _template: 'table'
     })
-  }).then(function(r){ return r.json(); }).then(function(){
+  }).then(function(r){ return r.json(); }).then(function(data){
+    if (String(data.success) !== 'true') { throw new Error('Form service did not accept the message.'); }
     f.reset();
     note.innerHTML = 'Thanks \u2014 your message is on its way. I read and reply to every inquiry personally.';
   }).catch(function(){
-    note.innerHTML = 'Something went wrong sending your message. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>.';
+    var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')\n\n' + f.details.value.trim());
+    note.innerHTML = 'Something went wrong sending your message through the form service. <a href="' + mailto + '">Send this same message by email instead</a>, or email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
   }).finally(function(){ btn.disabled = false; btn.textContent = 'Send Request'; });
 });
 </script>
