@@ -151,6 +151,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .viz-details>summary::-webkit-details-marker{display:none}
 .viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
 .viz-details .entry-lede{display:block}
+.viz-details summary h2.entry-lede{display:inline; font-size:1em; margin:0}
 .viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
 .viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
 .viz-details[open] .entry-toggle::after{content:"\2212"}
@@ -198,7 +199,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../fee-schedule/" class="active">Fee Schedule</a></li><li><a href="../about/">About</a></li><li><a href="../contact/">Contact</a></li></ul></nav>
   </div>
 </header>
-<main id="main" class="wrap page">
+<main id="main" tabindex="-1" class="wrap page">
 <article>
 <h1>Fee Schedule</h1>
 <p>Your website should be secure, accessible, fast, and reliable. Whether you need ongoing maintenance, emergency support, or a custom web solution, I help businesses and organizations keep their websites working for them instead of becoming another item on their to-do list.</p>
@@ -266,7 +267,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </ol>
 <p>Care plan start dates are confirmed during onboarding. Incident response timing depends on severity, access, and availability.</p>
 <details class="viz-details">
-<summary><span class="entry-lede">How Starting Prices Work</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">How Starting Prices Work</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Prices marked from are starting prices, not fixed quotes for every website. Final pricing depends on the size, complexity, condition, and requirements of the project. Larger websites, web applications, and multi site portfolios are quoted individually. All prices are in USD.</p>
 </details>
 
@@ -277,7 +278,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </ul>
 
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Sources</strong></span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Sources</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Market context only, not a quote for any project. Final pricing is defined in your written proposal. Only three sources are used for pricing context on this page. No source publishes a rate for North Andover 01845 alone, so the Boston area and Massachusetts are the closest published areas. All rates below are for web development, not web design alone:</p>
 <ul>
 <li><a href="https://www.bls.gov/ooh/computer-and-information-technology/web-developers.htm">U.S. Bureau of Labor Statistics, Web Developers and Digital Designers</a>: 2025 median pay $99,520 per year, $47.85 per hour, for employees, not a freelance billing rate. Boston-Cambridge-Newton, MA-NH is one of the metro areas with the highest concentration of web and digital interface designers. For why a contractor rate is higher than an employee wage, see also <a href="https://www.bls.gov/news.release/ecec.t01.htm">BLS, Employer Costs for Employee Compensation, June 2026</a>: private industry benefits were $14.07 per hour, 30.0 percent of total compensation, on top of $32.82 per hour in wages.</li>

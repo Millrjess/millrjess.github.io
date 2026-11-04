@@ -177,7 +177,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Portfolio</a></li><li><a href="../fee-schedule/">Fee Schedule</a></li><li><a href="../about/">About</a></li><li><a href="../contact/" class="active">Contact</a></li></ul></nav>
   </div>
 </header>
-<main id="main" class="wrap page">
+<main id="main" tabindex="-1" class="wrap page">
 <article>
 <h1>Contact</h1>
 <h2>Let’s Work Together</h2>
@@ -196,13 +196,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </ul>
 
 <h2>Consultation Request Form</h2>
-<p>Tell me about your project and I personally read and reply to every inquiry.</p>
+<p>Tell me about your project and I personally read and reply to every inquiry. Fields marked * are required.</p>
 <form id="consult-form" class="consult-form">
-<label>Your name
+<label>Your name *
 <input type="text" name="name" required autocomplete="name"></label>
-<label>Your email
+<label>Your email *
 <input type="email" name="email" required autocomplete="email"></label>
-<label>What do you need help with?
+<label>What do you need help with? *
 <select name="service" required>
 <option value="" selected>Choose a topic</option>
 <option>Custom website agents &amp; workflow automation</option>
@@ -214,7 +214,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <option>Accessibility (WCAG) audit &amp; remediation</option>
 <option>Something else</option>
 </select></label>
-<label>Project details
+<label>Project details *
 <textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 <p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
