@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=127">
+<link rel="stylesheet" href="styles.css?v=128">
 </head>
 <body>
 
@@ -63,7 +63,7 @@
       </div>
       <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
-      <input type="date" id="day-picker" tabindex="-1" aria-label="Pick a date"
+      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1" aria-label="Pick a date"
         style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
@@ -313,6 +313,7 @@
         <button type="button" class="btn" id="cancel-injection">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="inj-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="injection-list" class="entry-list"></div>
   </section>
@@ -335,6 +336,7 @@
         <button type="button" class="btn" id="cancel-weight">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="weight-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div class="stats-row">
       <div class="card stat-card">
@@ -387,7 +389,9 @@
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn" id="cancel-measurement">Cancel</button>
       </div>
+      <p class="code-msg" id="meas-msg" style="min-height:1.2em"></p>
     </form>
+    <p class="code-msg" id="meas-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="measurement-list" class="entry-list"></div>
 
@@ -429,6 +433,7 @@
         <button type="button" class="btn" id="cancel-journal">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="journal-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="journal-list" class="entry-list"></div>
   </section>
@@ -462,6 +467,7 @@
         <button type="button" class="btn" id="cancel-sideeffect">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="se-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="sideeffect-list" class="entry-list"></div>
   </section>
@@ -475,6 +481,7 @@
       <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
+    <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
 
     <details class="card" style="margin-top:16px" id="memory-optin-card" open>
       <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
@@ -684,7 +691,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=127"></script>
+<script src="app.js?v=128"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

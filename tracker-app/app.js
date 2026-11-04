@@ -950,6 +950,14 @@ document.querySelectorAll(".mood-btn").forEach((btn) => {
   });
 });
 
+/* ---------- Form status helper ---------- */
+function setFormStatus(el, text, isError) {
+  if (!el) return;
+  el.setAttribute("role", isError ? "alert" : "status");
+  el.classList.toggle("success", !isError);
+  el.textContent = text;
+}
+
 /* ---------- Injection calendar ---------- */
 
 let injCalYear, injCalMonth;
@@ -992,8 +1000,12 @@ function renderInjectionCalendar() {
     if (ds === todayS) cls.push("today");
     if (loggedByDate[ds]) cls.push("logged");
     else if (ds === nextShot) cls.push("scheduled");
-    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0" aria-label="Shot logged, ${formatDate(ds)}"` : (ds === nextShot ? ` aria-label="Next scheduled shot, ${formatDate(ds)}"` : "");
-    html += `<div class="${cls.join(" ")}" role="gridcell"${tap}>${d}</div>`;
+    const states = [];
+    if (ds === todayS) states.push("today");
+    if (loggedByDate[ds]) states.push("shot logged");
+    if (ds === nextShot) states.push("next scheduled shot");
+    const label = formatDate(ds) + (states.length ? ", " + states.join(", ") : "");
+    html += `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
   }
   cal.innerHTML = html;
 
@@ -1001,8 +1013,10 @@ function renderInjectionCalendar() {
     const show = () => {
       const list = loggedByDate[el.dataset.calDate] || [];
       document.getElementById("inj-cal-detail").textContent =
-        formatDate(el.dataset.calDate) + ": " +
-        list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ");
+        list.length
+          ? formatDate(el.dataset.calDate) + ": " +
+            list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ")
+          : "No shot logged on " + formatDate(el.dataset.calDate) + ".";
     };
     el.addEventListener("click", show);
     el.addEventListener("keydown", (e) => {
@@ -1100,9 +1114,13 @@ function renderSiteMap() {
   const last = lastInjection();
   const caption = document.getElementById("site-map-caption");
   siteMapZones().forEach((z) => {
+    const isLast = !!last && !!last.site && z.dataset.site === last.site;
     z.setAttribute("aria-pressed", z.dataset.site === chosen ? "true" : "false");
     z.classList.toggle("selected", z.dataset.site === chosen);
-    z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
+    z.classList.toggle("last-used", isLast && z.dataset.site !== chosen);
+    const baseLabel = z.getAttribute("aria-label") || z.dataset.site;
+    const cleanLabel = baseLabel.replace(/, last shot.*$/, "");
+    z.setAttribute("aria-label", isLast ? cleanLabel + ", last shot" : cleanLabel);
   });
   let html = "Tap a zone to select it.";
   if (last && last.site) {
@@ -1155,6 +1173,7 @@ injForm.addEventListener("submit", (e) => {
   renderSiteMap();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
+  setFormStatus(document.getElementById("inj-saved-msg"), "Injection saved.", false);
 });
 
 let injectionLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1249,6 +1268,7 @@ weightForm.addEventListener("submit", (e) => {
   saveStore();
   renderWeight();
   toggleForm(weightForm, document.getElementById("show-weight-form"), false);
+  setFormStatus(document.getElementById("weight-saved-msg"), "Weigh-in saved.", false);
 });
 
 let weightLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1478,7 +1498,8 @@ measForm.addEventListener("submit", (e) => {
   };
   if (!entry.date) return;
   if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
-    alert("Enter at least one measurement.");
+    setFormStatus(document.getElementById("meas-msg"), "Enter at least one measurement.", true);
+    document.getElementById("meas-waist").focus();
     return;
   }
   if (editingMeasId) {
@@ -1491,6 +1512,7 @@ measForm.addEventListener("submit", (e) => {
   saveStore();
   renderMeasurements();
   toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+  setFormStatus(document.getElementById("meas-saved-msg"), "Measurements saved.", false);
 });
 
 const MEAS_LABELS = { waist: "Waist", hips: "Hips", chest: "Chest", arm: "Arm", thigh: "Thigh", neck: "Neck" };
@@ -1650,6 +1672,7 @@ journalForm.addEventListener("submit", (e) => {
   journalLimit = 10;
   renderJournal();
   toggleForm(journalForm, document.getElementById("show-journal-form"), false);
+  setFormStatus(document.getElementById("journal-saved-msg"), "Journal entry saved.", false);
 });
 
 const MOOD_EMOJI = { Great: "😄", Good: "🙂", Okay: "😐", Low: "😔" };
@@ -1743,6 +1766,7 @@ seForm.addEventListener("submit", (e) => {
   saveStore();
   renderSideEffects();
   toggleForm(seForm, document.getElementById("show-sideeffect-form"), false);
+  setFormStatus(document.getElementById("se-saved-msg"), "Side effect saved.", false);
 });
 
 let seLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1895,6 +1919,9 @@ function setCodeError(text) {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
   if (!msg) return;
+  // Clear first so a repeated empty click still produces a fresh alert announcement.
+  msg.textContent = "";
+  void msg.offsetHeight;
   msg.textContent = text;
   msg.classList.remove("success");
   if (input) {
@@ -2355,7 +2382,7 @@ function renderSnapshots() {
     const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "");
     let summary = "Could not be read";
     try { summary = snapshotSummary(JSON.parse(sn.data)); } catch {}
-    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
     const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
@@ -2476,11 +2503,17 @@ function renderDayCalModal() {
       const today = new Date(); today.setHours(12, 0, 0, 0);
       viewOffset = Math.round((picked - today) / 86400000);
       renderToday();
-      document.getElementById("day-cal-modal").classList.add("hidden");
+      closeDayCalModal();
     };
     el.addEventListener("click", pick);
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
   });
+}
+
+function closeDayCalModal() {
+  document.getElementById("day-cal-modal").classList.add("hidden");
+  const opener = document.getElementById("day-cal");
+  if (opener) opener.focus();
 }
 
 function openDayPicker() {
@@ -2495,11 +2528,15 @@ document.getElementById("day-cal-prev").addEventListener("click", () => {
 document.getElementById("day-cal-next").addEventListener("click", () => {
   dayCalMonth++; if (dayCalMonth > 11) { dayCalMonth = 0; dayCalYear++; } renderDayCalModal();
 });
-document.getElementById("day-cal-close").addEventListener("click", () => {
-  document.getElementById("day-cal-modal").classList.add("hidden");
-});
+document.getElementById("day-cal-close").addEventListener("click", closeDayCalModal);
 document.getElementById("day-cal-modal").addEventListener("click", (e) => {
-  if (e.target.id === "day-cal-modal") document.getElementById("day-cal-modal").classList.add("hidden");
+  if (e.target.id === "day-cal-modal") closeDayCalModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("day-cal-modal").classList.contains("hidden")) {
+    e.preventDefault();
+    closeDayCalModal();
+  }
 });
 document.getElementById("day-cal").addEventListener("click", openDayPicker);
 // Tapping the date heading itself also opens the picker
@@ -2756,7 +2793,12 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = document.getElementById("chat-input");
   const text = input.value.trim();
-  if (!text) return;
+  if (!text) {
+    setFormStatus(document.getElementById("chat-msg"), "Type a message before sending.", true);
+    input.focus();
+    return;
+  }
+  setFormStatus(document.getElementById("chat-msg"), "", false);
   input.value = "";
 
   // Add user message
