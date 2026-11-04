@@ -14,6 +14,34 @@
     {k:["start","begin","contact","email","phone"],a:"Start on the booking page, or email millrjess@gmail.com, or call (978) 267-5304. I read and reply to every inquiry personally."},
     {k:["agent","website agent","chatbot"],a:"Website Agents start from $2,500, for lead qualification, customer support, data processing, and multi step workflows. Integrations, permitted actions, and human review requirements are defined before development begins."}
   ];
+
+  var siteIndex=[
+    {k:["home","consultant","website operations"],u:"../",d:"Home: Jessica A. Miller, Website Operations Consultant, 20 years keeping business websites fast, secure, and online."},
+    {k:["service","care plan","maintenance","seo","agent","audit","standards"],u:"../services/",d:"Services: care plans, one time projects, Website Agents, Standards Pass, technical SEO, and performance."},
+    {k:["fee","price","pricing","cost"],u:"../fee-schedule/",d:"Fee schedule: published prices for care plans, audits, development, agents, and strategy sessions, with pricing sources."},
+    {k:["book","consultation","discovery","session","appointment"],u:"../booking/",d:"Booking: complimentary 15 minute discovery call, and 1 hour strategy session, $200 paid in advance, approval before confirmation."},
+    {k:["contact","email","phone","message"],u:"../contact/",d:"Contact: email millrjess@gmail.com, call (978) 267-5304, North Andover, MA."},
+    {k:["faq","question","how"],u:"../faqs/",d:"FAQs: project timing, support, working with a team, prices, booking, refund, care plans, remote work, and platforms."},
+    {k:["about","story","background","experience"],u:"../about/",d:"About: 20 years of website work, a six year break for full time parenting and writing, and a return to client work in 2026."},
+    {k:["certif","course","credential"],u:"../certifications/",d:"Certifications: twelve course certificates with verification links."},
+    {k:["recommend","testimonial","review"],u:"../testimonials/",d:"Testimonials: dated LinkedIn recommendations."},
+    {k:["portfolio","project","case study","capstone"],u:"../portfolio/",d:"Portfolio: projects and case studies, including capstone work."},
+    {k:["tracker","glp-1","new chapter","app"],u:"../tracker/",d:"New Chapter: GLP-1 Tracker, an independent product by Jessica, separate from consulting services."},
+    {k:["book","ledger","novel","author","fiction"],u:"../books/",d:"Books: The Ledger Series, The Second Account, The Echo Trace, and The Ghost Index."},
+    {k:["checkr","background"],u:"https://checkr.com/profiles/jessica-miller-aa27",d:"Checkr public profile: identity verified, Website Operations Consultant, North Andover, MA."}
+  ];
+  function siteSearch(q){
+    var hits=[];
+    for(var i=0;i<siteIndex.length;i++){
+      for(var j=0;j<siteIndex[i].k.length;j++){
+        if(q.indexOf(siteIndex[i].k[j])>-1){ hits.push(siteIndex[i]); break; }
+      }
+    }
+    if(!hits.length) return null;
+    var out="I found this on the site: ";
+    for(var h=0;h<Math.min(hits.length,3);h++){ out += "<a href='"+hits[h].u+"'>"+hits[h].d+"</a> "; }
+    return out;
+  }
   function find(q){
     q=q.toLowerCase();
     for(var i=0;i<answers.length;i++){
@@ -21,6 +49,7 @@
         if(q.indexOf(answers[i].k[j])>-1) return answers[i].a;
       }
     }
+    var s=siteSearch(q); if(s) return s;
     return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. I cannot confirm a booking, change a price, or start work in this chat.";
   }
   var btn=document.createElement("button");
@@ -29,7 +58,7 @@
   btn.style.cssText="position:fixed;right:20px;bottom:20px;z-index:100;background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:999px;padding:.7em 1.2em;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(15,35,64,.35);font-family:inherit";
   var panel=document.createElement("div");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:76px;z-index:100;width:320px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat, AI agent</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1.2em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.35em .6em;min-width:48px;min-height:48px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am an AI agent, not Jessica. I can only answer from published services, prices, and booking information. I cannot confirm a booking, change a price, or start work.</p><div id='hc-log' style='font-size:.95em'></div><div style='display:flex;gap:8px;margin-top:12px'><input id='hc-q' type='text' placeholder='Ask about prices or booking' style='flex:1;padding:.6em;border:1px solid #e2e8f0;border-radius:10px;font:inherit'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.6em 1em;cursor:pointer;font:inherit'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat, AI agent</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1.2em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.35em .6em;min-width:48px;min-height:48px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am an AI agent, not Jessica. I can answer from published pages on this site, and link you to the page that covers your question. I cannot confirm a booking, change a price, or start work.</p><div id='hc-log' style='font-size:.95em'></div><div style='display:flex;gap:8px;margin-top:12px'><input id='hc-q' type='text' placeholder='Ask about prices or booking' style='flex:1;padding:.6em;border:1px solid #e2e8f0;border-radius:10px;font:inherit'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.6em 1em;cursor:pointer;font:inherit'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
   document.body.appendChild(btn); document.body.appendChild(panel);
   function ask(){
     var inp=document.getElementById("hc-q"); var q=inp.value.trim(); if(!q) return;
