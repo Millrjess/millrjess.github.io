@@ -745,7 +745,9 @@ function renderMacros(t) {
 
 let scanStream = null;
 let scanZxingReader = null;
+let scanHtml5 = null;
 async function stopScanCamera() {
+  try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
   try { if (scanZxingReader) scanZxingReader.reset(); } catch {}
   if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
 }
@@ -823,9 +825,44 @@ async function startScanCamera() {
         loop(); return;
       } catch {}
     }
-    // iPhone fallback: load ZXing from CDN, only when camera scanning is used.
+    // iPhone camera reader: html5-qrcode first, because it is built for mobile browsers.
+    // ZXing is kept as a fallback if html5-qrcode fails to start.
+    try {
+      if (!window.Html5Qrcode) {
+        status.textContent = "Loading the iPhone camera reader...";
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
+          s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+        });
+      }
+      // Stop the plain video stream first, so html5-qrcode can open the rear camera itself.
+      if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
+      video.srcObject = null;
+      scanHtml5 = new Html5Qrcode("scan-reader");
+      status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
+      await scanHtml5.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+          document.getElementById("scan-barcode-input").value = decodedText;
+          stopScanCamera(); lookupBarcode(decodedText);
+        },
+        () => {}
+      );
+      return;
+    } catch (e) {
+      status.textContent = "Camera reader did not start. Trying the backup reader, or type the number below.";
+      try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
+    }
+    // Backup reader: ZXing, using the rear camera stream if one is still open.
+    if (!scanStream) {
+      try {
+        scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = scanStream; await video.play();
+      } catch {}
+    }
     if (!window.ZXingBrowser) {
-      status.textContent = "Loading the iPhone camera reader...";
       await new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
@@ -834,7 +871,7 @@ async function startScanCamera() {
     }
     const ZX = window.ZXingBrowser;
     scanZxingReader = new ZX.BrowserMultiFormatReader();
-    status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
+    status.textContent = "Backup camera reader loaded. Hold the barcode steady. If nothing happens, type the number below instead.";
     const onResult = (result) => {
       if (result) {
         const code = result.getText();
@@ -842,8 +879,7 @@ async function startScanCamera() {
         stopScanCamera(); lookupBarcode(code);
       }
     };
-    // Use the rear camera stream already opened, so iPhone does not switch to the front camera.
-    if (typeof scanZxingReader.decodeFromStream === "function") {
+    if (scanStream && typeof scanZxingReader.decodeFromStream === "function") {
       scanZxingReader.decodeFromStream(scanStream, video, onResult);
     } else {
       scanZxingReader.decodeFromVideoDevice(null, video, onResult);

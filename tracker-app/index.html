@@ -685,6 +685,7 @@
     <h2 style="margin-top:0">Scan barcode</h2>
     <p class="muted">Point your iPhone camera at a food barcode. Free lookup from Open Food Facts. If camera scanning is not available, type the barcode number below.</p>
     <video id="scan-video" playsinline muted style="width:100%;border-radius:12px;background:#000"></video>
+    <div id="scan-reader" style="width:100%"></div>
     <p id="scan-status" class="muted" role="status"></p>
     <label>Barcode number
       <input type="text" id="scan-barcode-input" inputmode="numeric" placeholder="e.g. 3017620422003" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:1rem">
@@ -745,7 +746,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=120"></script>
+<script src="app.js?v=121"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
