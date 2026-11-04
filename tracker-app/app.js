@@ -26,11 +26,11 @@ const DEFAULTS = {
     dose: "",
     shotDay: "",
     waterGoal: 92,
-    proteinGoal: 112,
+    proteinGoal: 90,
     movementGoal: 30,
     macrosEnabled: false,
-    carbGoal: 123,
-    fatGoal: 51,
+    carbGoal: 0,
+    fatGoal: 0,
     calorieGoal: 1600,
     refillDate: "",
     goalWeight: ""
@@ -612,7 +612,7 @@ function renderToday() {
     ? "Goal reached! Nice work."
     : waterPct + "% of daily goal";
 
-  const proteinGoal = Number(store.settings.proteinGoal) || 112;
+  const proteinGoal = Number(store.settings.proteinGoal) || 90;
   document.getElementById("protein-goal-display").textContent = proteinGoal;
   const proteinG = sumForDate(store.protein, t, "grams");
   document.getElementById("protein-today").textContent = proteinG;
@@ -733,9 +733,9 @@ function renderMacros(t) {
   }
   const rem = document.getElementById("macro-remaining");
   if (rem) {
-    const pg = Number(store.settings.proteinGoal) || 112;
-    const cg = Number(store.settings.carbGoal) || 123;
-    const fg = Number(store.settings.fatGoal) || 51;
+    const pg = Number(store.settings.proteinGoal) || 90;
+    const cg = Number(store.settings.carbGoal) || 0;
+    const fg = Number(store.settings.fatGoal) || 0;
     const line = (label, goal, logged) => goal > 0
       ? (goal - logged <= 0 ? `${label}: over by ${Math.round(logged - goal)} g` : `${label}: ${Math.round(goal - logged)} g left`)
       : `${label}: ${logged} g logged`;
@@ -1987,11 +1987,11 @@ function renderSettings() {
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
-  document.getElementById("set-protein-goal").value = s.proteinGoal || 112;
+  document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   const me = document.getElementById("set-macros-enabled"); if (me) me.checked = !!s.macrosEnabled;
-  const cg = document.getElementById("set-carb-goal"); if (cg) cg.value = s.carbGoal || 123;
-  const fg = document.getElementById("set-fat-goal"); if (fg) fg.value = s.fatGoal || 51;
+  const cg = document.getElementById("set-carb-goal"); if (cg) cg.value = s.carbGoal || "";
+  const fg = document.getElementById("set-fat-goal"); if (fg) fg.value = s.fatGoal || "";
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
@@ -2030,7 +2030,7 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 92;
   const pg = Number(document.getElementById("set-protein-goal").value);
-  store.settings.proteinGoal = pg > 0 ? pg : 112;
+  store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
   const me2 = document.getElementById("set-macros-enabled"); if (me2) store.settings.macrosEnabled = me2.checked;
@@ -2681,7 +2681,7 @@ dayPicker.addEventListener("change", () => {
   // User can change everything in Settings.
   if (!store.settings.medication) store.settings.medication = "Zepbound";
   if (!store.settings.waterGoal) store.settings.waterGoal = 92;
-  if (!store.settings.proteinGoal) store.settings.proteinGoal = 112;
+  if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
   saveStore();
   localStorage.setItem("nct-setup-done", "1");
 })();
