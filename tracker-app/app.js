@@ -753,12 +753,13 @@ function openScanModal() {
   const m = document.getElementById("scan-modal");
   if (!m) return;
   m.classList.remove("hidden");
+  m.style.display = "flex";
   document.getElementById("scan-status").textContent = "Camera scanning works on iPhone with the fallback reader. If camera scanning is not available, type the barcode number.";
 }
 function closeScanModal() {
   stopScanCamera();
   const m = document.getElementById("scan-modal");
-  if (m) m.classList.add("hidden");
+  if (m) { m.classList.add("hidden"); m.style.display = "none"; }
 }
 async function lookupBarcode(code) {
   const status = document.getElementById("scan-status");
