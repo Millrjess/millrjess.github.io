@@ -28,9 +28,8 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
-    macrosEnabled: false,
-    carbGoal: 0,
-    fatGoal: 0,
+    carbGoal: 130,
+    fatGoal: 65,
     calorieGoal: 1600,
     refillDate: "",
     goalWeight: ""
@@ -197,8 +196,6 @@ function renderRecentFoods(isToday) {
       id: uid(),
       date: todayStr(),
       grams: Number(src.grams) || 0,
-      carbs: Number(src.carbs) || 0,
-      fat: Number(src.fat) || 0,
       food: src.food
     });
     saveStore();
@@ -233,8 +230,6 @@ function startFoodEdit(id) {
   editingFoodId = id;
   document.getElementById("protein-food").value = e.food || "";
   document.getElementById("protein-grams").value = e.grams || "";
-  const cg = document.getElementById("carb-grams"); if (cg) cg.value = e.carbs || "";
-  const fg = document.getElementById("fat-grams"); if (fg) fg.value = e.fat || "";
   document.getElementById("food-submit-btn").textContent = "Save changes";
   document.getElementById("food-edit-cancel").classList.remove("hidden");
   document.getElementById("protein-form").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -658,7 +653,6 @@ function renderToday() {
     document.getElementById("sum-" + key + "-bar").style.width = Math.min(100, pct) + "%";
   });
 
-  renderMacros(t);
   renderEncouragement();
   renderRecentFoods(isToday);
   cancelFoodEdit();
@@ -677,218 +671,6 @@ function renderToday() {
   renderWeeklySummary();
 }
 
-
-/* ---------- Macros, grams only, and barcode scanner ---------- */
-function macrosEnabled() {
-  return !!(store.settings && store.settings.macrosEnabled);
-}
-
-function renderMacros(t) {
-  const card = document.getElementById("macro-card");
-  const scanWrap = document.getElementById("macro-scan-wrap");
-  const enabled = macrosEnabled();
-  if (card) card.classList.toggle("hidden", !enabled);
-  if (scanWrap) scanWrap.classList.toggle("hidden", !enabled);
-  document.querySelectorAll(".macro-field").forEach((el) => el.classList.toggle("hidden", !enabled));
-  if (!enabled) return;
-  const proteinG = sumForDate(store.protein, t, "grams");
-  const carbG = sumForDate(store.protein, t, "carbs");
-  const fatG = sumForDate(store.protein, t, "fat");
-  const total = proteinG + carbG + fatG;
-  const canvas = document.getElementById("macro-pie");
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const cx = 150, cy = 150, r = 110;
-    const parts = [
-      { label: "Protein", grams: proteinG, color: "#5A6B52" },
-      { label: "Carbs", grams: carbG, color: "#E8B54A" },
-      { label: "Fat", grams: fatG, color: "#C6D2E2" }
-    ];
-    if (total <= 0) {
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = "#eee"; ctx.fill();
-      ctx.fillStyle = "#666"; ctx.font = "16px sans-serif"; ctx.textAlign = "center";
-      ctx.fillText("No macros logged yet", cx, cy);
-    } else {
-      let start = -Math.PI / 2;
-      parts.forEach((p) => {
-        const slice = (p.grams / total) * Math.PI * 2;
-        if (slice <= 0) return;
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, start, start + slice); ctx.closePath();
-        ctx.fillStyle = p.color; ctx.fill(); start += slice;
-      });
-    }
-  }
-  const legend = document.getElementById("macro-legend");
-  if (legend) {
-    const parts = [
-      { label: "Protein", grams: proteinG },
-      { label: "Carbs", grams: carbG },
-      { label: "Fat", grams: fatG }
-    ];
-    legend.innerHTML = parts.map((p) => {
-      const pct = total > 0 ? Math.round((p.grams / total) * 100) : 0;
-      return `<p style="margin:4px 0">${escapeHtml(p.label)}: ${p.grams} g, ${pct}% of macro grams today</p>`;
-    }).join("");
-  }
-  const rem = document.getElementById("macro-remaining");
-  if (rem) {
-    const pg = Number(store.settings.proteinGoal) || 90;
-    const cg = Number(store.settings.carbGoal) || 0;
-    const fg = Number(store.settings.fatGoal) || 0;
-    const line = (label, goal, logged) => goal > 0
-      ? (goal - logged <= 0 ? `${label}: over by ${Math.round(logged - goal)} g` : `${label}: ${Math.round(goal - logged)} g left`)
-      : `${label}: ${logged} g logged`;
-    rem.innerHTML = [line("Protein", pg, proteinG), line("Carbs", cg, carbG), line("Fat", fg, fatG)].map((s) => `<p style="margin:4px 0">${escapeHtml(s)}</p>`).join("");
-  }
-}
-
-let scanStream = null;
-let scanZxingReader = null;
-let scanHtml5 = null;
-async function stopScanCamera() {
-  try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
-  try { if (scanZxingReader) scanZxingReader.reset(); } catch {}
-  if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
-}
-function openScanModal() {
-  const m = document.getElementById("scan-modal");
-  if (!m) return;
-  m.classList.remove("hidden");
-  m.style.display = "flex";
-  document.getElementById("scan-status").textContent = "Camera scanning works on iPhone with the fallback reader. If camera scanning is not available, type the barcode number.";
-}
-function closeScanModal() {
-  stopScanCamera();
-  const m = document.getElementById("scan-modal");
-  if (m) { m.classList.add("hidden"); m.style.display = "none"; }
-}
-async function lookupBarcode(code) {
-  const status = document.getElementById("scan-status");
-  code = (code || "").trim().replace(/[^0-9]/g, "");
-  if (!code) { status.textContent = "Enter a barcode number first."; return; }
-  status.textContent = "Looking up barcode, free from Open Food Facts...";
-  try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_size,quantity`);
-    const data = await res.json();
-    if (!data || data.status !== 1 || !data.product) { status.textContent = "Barcode not found in Open Food Facts. Check the number, or enter the grams by hand."; return; }
-    const p = data.product;
-    const n = p.nutriments || {};
-    const pick = (servingKey, hundredKey) => {
-      if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
-      if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
-      return 0;
-    };
-    // Prefer per serving values when present, otherwise per 100 g values, which the user can edit.
-    const protein = pick("proteins_serving", "proteins_100g");
-    const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
-    const fat = pick("fat_serving", "fat_100g");
-    const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Scanned food";
-    document.getElementById("scan-product-name").textContent = name;
-    const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
-    document.getElementById("scan-product-serving").textContent = hasServing
-      ? (p.serving_size ? `Serving: ${p.serving_size}. Values below are per serving. Edit them to match your portion.` : "Values below are per serving. Edit them to match your portion.")
-      : "These values are per 100 g, not per serving. Scale them to your portion before logging.";
-    document.getElementById("scan-food").value = name;
-    document.getElementById("scan-protein").value = protein || "";
-    document.getElementById("scan-carbs").value = carbs || "";
-    document.getElementById("scan-fat").value = fat || "";
-    document.getElementById("scan-result").classList.remove("hidden");
-    status.textContent = hasServing
-      ? "Found. Check the label and edit the grams before logging. No calories are shown or logged."
-      : "Found, but only per 100 g values were available. Scale them to your portion before logging. No calories are shown or logged.";
-  } catch (e) {
-    status.textContent = "Lookup failed. Check your connection, or enter the grams by hand.";
-  }
-}
-async function startScanCamera() {
-  const status = document.getElementById("scan-status");
-  const video = document.getElementById("scan-video");
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-    scanStream = stream; video.srcObject = stream; await video.play();
-    status.textContent = "Camera on. Hold the barcode steady in view.";
-    if ("BarcodeDetector" in window) {
-      try {
-        const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
-        const loop = async () => {
-          if (!scanStream) return;
-          try {
-            const codes = await detector.detect(video);
-            if (codes && codes.length) {
-              document.getElementById("scan-barcode-input").value = codes[0].rawValue;
-              stopScanCamera(); lookupBarcode(codes[0].rawValue); return;
-            }
-          } catch {}
-          setTimeout(loop, 500);
-        };
-        loop(); return;
-      } catch {}
-    }
-    // iPhone camera reader: html5-qrcode first, because it is built for mobile browsers.
-    // ZXing is kept as a fallback if html5-qrcode fails to start.
-    try {
-      if (!window.Html5Qrcode) {
-        status.textContent = "Loading the iPhone camera reader...";
-        await new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
-          s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
-        });
-      }
-      // Stop the plain video stream first, so html5-qrcode can open the rear camera itself.
-      if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
-      video.srcObject = null;
-      scanHtml5 = new Html5Qrcode("scan-reader");
-      status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
-      await scanHtml5.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
-        (decodedText) => {
-          document.getElementById("scan-barcode-input").value = decodedText;
-          stopScanCamera(); lookupBarcode(decodedText);
-        },
-        () => {}
-      );
-      return;
-    } catch (e) {
-      status.textContent = "Camera reader did not start. Trying the backup reader, or type the number below.";
-      try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
-    }
-    // Backup reader: ZXing, using the rear camera stream if one is still open.
-    if (!scanStream) {
-      try {
-        scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        video.srcObject = scanStream; await video.play();
-      } catch {}
-    }
-    if (!window.ZXingBrowser) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
-        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
-      });
-    }
-    const ZX = window.ZXingBrowser;
-    scanZxingReader = new ZX.BrowserMultiFormatReader();
-    status.textContent = "Backup camera reader loaded. Hold the barcode steady. If nothing happens, type the number below instead.";
-    const onResult = (result) => {
-      if (result) {
-        const code = result.getText();
-        document.getElementById("scan-barcode-input").value = code;
-        stopScanCamera(); lookupBarcode(code);
-      }
-    };
-    if (scanStream && typeof scanZxingReader.decodeFromStream === "function") {
-      scanZxingReader.decodeFromStream(scanStream, video, onResult);
-    } else {
-      scanZxingReader.decodeFromVideoDevice(null, video, onResult);
-    }
-  } catch (e) {
-    status.textContent = "Camera is not available here. Type the barcode number below instead.";
-  }
-}
-
 /* Today's water, protein, and movement entries with per-entry remove */
 
 function renderTodayEntries(t, isToday) {
@@ -905,7 +687,7 @@ function renderTodayEntries(t, isToday) {
   document.getElementById("protein-list").innerHTML = proteinToday.length
     ? proteinToday.map((e) => `
       <div class="today-entry">
-        <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g${(Number(e.carbs) || 0) || (Number(e.fat) || 0) ? ` &middot; ${Number(e.carbs) || 0}g carbs &middot; ${Number(e.fat) || 0}g fat` : ""}</span>
+        <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
         <div style="display:flex;gap:6px;flex-shrink:0">
           ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Edit</button>` : ""}
           <button class="btn btn-small btn-danger" data-del-protein="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Remove</button>
@@ -1020,8 +802,6 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
     id: editingFoodId || uid(),
     date: todayStr(),
     grams,
-    carbs: Number(document.getElementById("carb-grams")?.value) || 0,
-    fat: Number(document.getElementById("fat-grams")?.value) || 0,
     food: food || "Logged entry"
   };
   if (editingFoodId) {
@@ -2033,9 +1813,6 @@ function renderSettings() {
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
-  const me = document.getElementById("set-macros-enabled"); if (me) me.checked = !!s.macrosEnabled;
-  const cg = document.getElementById("set-carb-goal"); if (cg) cg.value = s.carbGoal || "";
-  const fg = document.getElementById("set-fat-goal"); if (fg) fg.value = s.fatGoal || "";
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
@@ -2077,9 +1854,6 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
-  const me2 = document.getElementById("set-macros-enabled"); if (me2) store.settings.macrosEnabled = me2.checked;
-  const cg2 = Number(document.getElementById("set-carb-goal")?.value); if (cg2 > 0) store.settings.carbGoal = cg2;
-  const fg2 = Number(document.getElementById("set-fat-goal")?.value); if (fg2 > 0) store.settings.fatGoal = fg2;
   const gw = Number(document.getElementById("set-goal-weight").value);
   store.settings.goalWeight = gw > 0 ? gw : "";
   store.settings.refillDate = document.getElementById("set-refill-date").value;
@@ -3037,32 +2811,3 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
 // Render chat when tab is opened
 document.querySelector('[data-tab="chat"]').addEventListener("click", renderChat);
-
-
-/* Barcode scanner wiring */
-(function () {
-  const scanBtn = document.getElementById("scan-food-btn");
-  if (scanBtn) scanBtn.addEventListener("click", openScanModal);
-  const closeBtn = document.getElementById("scan-close-btn");
-  if (closeBtn) closeBtn.addEventListener("click", closeScanModal);
-  const startBtn = document.getElementById("scan-start-btn");
-  if (startBtn) startBtn.addEventListener("click", startScanCamera);
-  const lookupBtn = document.getElementById("scan-lookup-btn");
-  if (lookupBtn) lookupBtn.addEventListener("click", () => lookupBarcode(document.getElementById("scan-barcode-input").value));
-  const logBtn = document.getElementById("scan-log-btn");
-  if (logBtn) logBtn.addEventListener("click", () => {
-    const food = document.getElementById("scan-food").value.trim() || "Scanned food";
-    const grams = Number(document.getElementById("scan-protein").value) || 0;
-    if (!grams && !Number(document.getElementById("scan-carbs").value) && !Number(document.getElementById("scan-fat").value)) {
-      document.getElementById("scan-status").textContent = "Enter at least one macro gram value first.";
-      return;
-    }
-    store.protein.push({
-      id: uid(), date: todayStr(), grams,
-      carbs: Number(document.getElementById("scan-carbs").value) || 0,
-      fat: Number(document.getElementById("scan-fat").value) || 0,
-      food
-    });
-    saveStore(); closeScanModal(); renderToday();
-  });
-})();
