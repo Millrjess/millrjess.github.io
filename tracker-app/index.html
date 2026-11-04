@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=125">
+<link rel="stylesheet" href="styles.css?v=126">
 </head>
 <body>
 
@@ -63,7 +63,7 @@
       </div>
       <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
-      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1"
+      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1" aria-label="Pick a date"
         style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
@@ -684,7 +684,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=125"></script>
+<script src="app.js?v=126"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
