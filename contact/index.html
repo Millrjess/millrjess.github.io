@@ -167,10 +167,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="site-header">
+<header class="site-header" role="banner">
   <div class="wrap header-inner">
     <div class="brand">
-      <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
+      <a href="../"><img src="../assets/img/logo-96.webp" alt="" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
@@ -180,12 +180,12 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main id="main" class="wrap page">
 <article>
 <h1>Contact</h1>
-<p><br><strong>Let’s Work Together</strong></p>
+<h2>Let’s Work Together</h2>
 
 <p>I help businesses keep their websites fast, secure, and reliable through ongoing care plans, contract engagements, and one time projects. Tell me about your website, what you need help with, and any deadlines. If you are unsure where to start, request a complimentary 15 minute discovery call.</p>
 <p><a class="btn btn-book" href="../booking/">Book a Consultation</a></p>
 
-<p><strong>Get in Touch</strong></p>
+<h2>Get in Touch</h2>
 
 <ul>
 <li>Email: <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a></li>
@@ -203,7 +203,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <label>Your email
 <input type="email" name="email" required autocomplete="email"></label>
 <label>What do you need help with?
-<select name="service">
+<select name="service" required>
+<option value="" selected>Choose a topic</option>
 <option>Custom website agents &amp; workflow automation</option>
 <option>Custom web app development (PWA, dashboards, database driven sites)</option>
 <option>Website maintenance &amp; security (WordPress, Drupal, Joomla)</option>
@@ -215,9 +216,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </select></label>
 <label>Project details
 <textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
-<input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+<input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 <p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
-<p class="muted" id="consult-note">Your message is sent straight to my inbox via a secure form service. Nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me there</a>.</p>
+<p class="muted" id="consult-note">Your message is sent straight to my inbox via a secure form service. Nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me on LinkedIn</a>.</p>
 <p>Please do not include passwords, payment information, or other sensitive details in your initial message.</p>
 </form>
 <script>
@@ -248,7 +249,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
 </script>
 </article>
 </main>
-<footer class="site-footer">
+<footer class="site-footer" role="contentinfo">
   <div class="wrap footer-inner">
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="/books/">Books</a></p>

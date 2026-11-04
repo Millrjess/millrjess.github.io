@@ -3,7 +3,7 @@
     {k:["strategy session","strategy"],a:"A 1 hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, you choose your time. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
     {k:["price","cost","fee","charge","rate"],a:"A 1 hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full fee schedule for every price."},
     {k:["book","consultation","session","appointment"],a:"Book on the booking page. A 15 minute discovery call is complimentary. A 1 hour strategy session is $200, paid in advance at booking. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
-    {k:["free"],a:"The 15 minute discovery call is complimentary, with no charge and no obligation. It is a phone or video call to discuss your website, your goals, and the problem you want to solve."},
+    {k:["free"],a:"The 15 minute discovery call is complimentary, with no charge and no obligation. It is a phone call to discuss your website, your goals, and the problem you want to solve."},
     {k:["200","paid","pay","stripe","refund"],a:"A 1 hour strategy session is $200, paid in advance through Stripe, with a receipt. No session starts until payment is received. Pay to reserve your session, then choose your time. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
     {k:["care plan","maintenance","support","monthly"],a:"Essential, $150 per month, includes CMS updates, daily off site backups, uptime monitoring, and a monthly site health report. Professional, $300 per month, adds security hardening and malware scanning, performance checks, one hour of content or design tweaks, and priority support."},
     {k:["audit","health"],a:"A Site Health Audit starts from $500 and reviews technical SEO, security configuration, and website performance, with a prioritized action plan."},
@@ -56,7 +56,6 @@
   var btn=document.createElement("button");
   btn.id="hc-toggle";
   btn.textContent="Try it: AI help chat";
-  btn.setAttribute("aria-label","Open AI help chat");
   btn.setAttribute("aria-expanded","false");
   btn.style.cssText="position:fixed;outline-offset:2px;right:20px;bottom:20px;z-index:100;background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:999px;padding:.7em 1.2em;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(15,35,64,.35);font-family:inherit";
   var panel=document.createElement("div");

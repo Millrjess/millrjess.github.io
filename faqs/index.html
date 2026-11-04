@@ -217,14 +217,27 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
 .skip-link:focus{left:8px}
 .site-footer a:focus-visible{outline:3px solid #f0dfae; outline-offset:3px; border-radius:4px}
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+.viz-details summary h2,.viz-details summary h3{display:inline; font-size:1em; margin:0}
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
-<header class="site-header">
+<header class="site-header" role="banner">
   <div class="wrap header-inner">
     <div class="brand">
-      <a href="../"><img src="../assets/img/logo-96.webp" alt="Jessica A. Miller logo" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
+      <a href="../"><img src="../assets/img/logo-96.webp" alt="" class="brand-logo" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
@@ -235,85 +248,85 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>FAQs</h1>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>How long does a typical project take?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">How long does a typical project take?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>It depends on scope. Every engagement is scoped individually, with a clear timeline before work begins.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Do you provide ongoing support?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Do you provide ongoing support?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Yes. That&rsquo;s the core of what I do. WordPress care plans cover updates, backups, security monitoring, and support every month, so small issues never become emergencies.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Can you work with my existing team or developer?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Can you work with my existing team or developer?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Absolutely. I often serve as the technical oversight layer: reviewing work, handling security and infrastructure, and making sure nothing falls through the cracks.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Why hire a consultant instead of doing it yourself?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Why hire a consultant instead of doing it yourself?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>You are hiring accountability, not just output. A consultant judges whether work is correct and safe before it goes live, responds promptly when your site is compromised, within the response expectations agreed in your proposal, and understands your business well enough to advise it.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>What have you been doing, and are you taking clients now?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">What have you been doing, and are you taking clients now?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Yes, I am taking on website management clients and contract engagements, and I bring 20 years of production experience with me. Since the pandemic, my full time focus was raising my daughter and writing The Ledger Series novels, and I kept my technical edge the whole way, earning 12 course certificates between 2024 and 2026, and you can read the full story on my <a href="../about/">About page</a>.</p>
 
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>How much do you charge?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">How much do you charge?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Website care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit, from $750 for a Website Standards Pass or a WCAG Accessibility Audit, and from $1,000 for Technical SEO or Analytics Dashboards. Strategy sessions are $200 per hour, paid in advance. See the full <a href="../fee-schedule/">fee schedule</a> for every price.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>How do I book a consultation?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">How do I book a consultation?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Book on the <a href="../booking/">booking page</a>. A 15 minute discovery call is complimentary. A 1 hour strategy session is $200, paid in advance through Stripe. After payment, you choose your time. I approve every booking before it is confirmed.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Do I pay before we meet?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Do I pay before we meet?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>For a paid strategy session, yes. Payment is $200 in advance, through Stripe, with a receipt, and no session starts until payment is received. Independent contractors cost more per hour than employees, because a contractor pays the full self-employment tax and her own health coverage, retirement, paid time off, tools, and software.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>What if we cannot find a time?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">What if we cannot find a time?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>If we cannot find a time that works, or I do not approve the booking, you will be refunded.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>What is included in a care plan?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">What is included in a care plan?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Essential, $150 per month, includes CMS updates, daily off site backups, uptime monitoring, and a monthly site health report. Professional, $300 per month, adds security hardening and malware scanning, performance checks, one hour of content or design tweaks, and priority support.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>Do you work remotely?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">Do you work remotely?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Yes. Based in North Andover, MA 01845, serving Boston, Greater Boston's North Shore, and the Merrimack Valley, plus remote clients nationwide. Sessions are on Zoom, nationwide, and onsite by arrangement in Boston, Greater Boston's North Shore, and the Merrimack Valley, including the Andovers.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>What platforms do you work with?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">What platforms do you work with?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>WordPress, Drupal, Joomla, and custom database driven websites.</p>
 
 
 </details>
 <details class="viz-details">
-<summary><span class="entry-lede"><strong>How do we start?</strong></span><span class="entry-toggle"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<summary><h2 class="entry-lede">How do we start?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><a href="../booking/">Book a consultation</a>, or <a href="../contact/">contact me</a>. Tell me about your site and what&rsquo;s worrying you. I&rsquo;ll reply personally.</p>
 </details>
 </article>
 </main>
-<footer class="site-footer">
+<footer class="site-footer" role="contentinfo">
   <div class="wrap footer-inner">
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="/books/">Books</a></p>
