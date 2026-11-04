@@ -193,6 +193,9 @@ input[aria-invalid="true"] {
   outline: 2px solid var(--danger);
   outline-offset: 1px;
 }
+input[aria-invalid="true"]:focus-visible {
+  outline: 3px solid var(--danger);
+}
 ::placeholder {
   color: var(--muted);
   opacity: 1;
