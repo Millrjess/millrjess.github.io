@@ -1110,8 +1110,9 @@ function showSiteMapView(view) {
   const flip = document.getElementById("site-map-flip");
   if (!front || !back) return;
   const isBack = view === "back";
-  front.hidden = isBack;
-  back.hidden = !isBack;
+  /* W3C: hidden is not allowed on SVG g, use display instead */
+  front.style.display = isBack ? "none" : "";
+  back.style.display = isBack ? "" : "none";
   if (flip) {
     flip.textContent = isBack ? "Flip to Front" : "Flip to Back";
     flip.setAttribute("aria-label", isBack ? "Flip injection site map to front view" : "Flip injection site map to back view");
@@ -1158,7 +1159,7 @@ siteMapZones().forEach((z) => {
 document.getElementById("inj-site").addEventListener("change", renderSiteMap);
 document.getElementById("site-map-flip").addEventListener("click", () => {
   const back = document.getElementById("map-back");
-  showSiteMapView(back && !back.hidden ? "front" : "back");
+  showSiteMapView(back && back.style.display !== "none" ? "front" : "back");
 });
 
 document.getElementById("cancel-injection").addEventListener("click", () => {
