@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=129">
+<link rel="stylesheet" href="styles.css?v=130">
 </head>
 <body>
 
@@ -277,23 +277,25 @@
         <div class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
-            <!-- zone layout: arms top, abdomen middle, thighs bottom -->
-            <ellipse cx="55" cy="40" rx="28" ry="32" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm"/>
-            <ellipse cx="145" cy="40" rx="28" ry="32" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm"/>
-            <text x="55" y="38" text-anchor="middle" class="zone-label">L Arm</text>
-            <text x="55" y="52" text-anchor="middle" class="zone-sublabel">back</text>
-            <text x="145" y="38" text-anchor="middle" class="zone-label">R Arm</text>
-            <text x="145" y="52" text-anchor="middle" class="zone-sublabel">back</text>
-            <ellipse cx="65" cy="120" rx="32" ry="36" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
-            <ellipse cx="135" cy="120" rx="32" ry="36" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
-            <text x="65" y="124" text-anchor="middle" class="zone-label">L Belly</text>
-            <text x="135" y="124" text-anchor="middle" class="zone-label">R Belly</text>
-            <ellipse cx="65" cy="200" rx="32" ry="36" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-            <ellipse cx="135" cy="200" rx="32" ry="36" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
-            <text x="65" y="204" text-anchor="middle" class="zone-label">L Thigh</text>
-            <text x="135" y="204" text-anchor="middle" class="zone-label">R Thigh</text>
+            <!-- Front view: abdomen and thighs. Back view: upper arms. Slim body outline, like the reference: no head, neck stub, grey outline. -->
+            <g id="map-front">
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen" d="M100 92 C80 92 68 103 68 118 C68 133 80 144 100 144 Z"/>
+              <path class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen" d="M100 92 C120 92 132 103 132 118 C132 133 120 144 100 144 Z"/>
+              <circle cx="100" cy="118" r="7" class="body-outline" fill="#fff"/>
+              <circle cx="100" cy="118" r="2" fill="#8A8A8A"/>
+              <ellipse cx="76" cy="196" rx="20" ry="30" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+              <ellipse cx="124" cy="196" rx="20" ry="30" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            </g>
+            <g id="map-back" hidden>
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="body-outline" d="M74 146 C84 154 94 154 100 148 C106 154 116 154 126 146"/>
+              <path class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm" d="M52 62 C40 62 34 74 34 88 C34 102 40 112 52 112 C54 98 54 78 52 62 Z"/>
+              <path class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm" d="M148 62 C160 62 166 74 166 88 C166 102 160 112 148 112 C146 98 146 78 148 62 Z"/>
+            </g>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
+          <button type="button" class="btn btn-small" id="site-map-flip" style="display:block;margin:6px auto 0" aria-label="Flip injection site map to back view">Flip to Back</button>
         </div>
         <select id="inj-site" aria-labelledby="inj-site-label" required>
           <option value="">Choose a site</option>
@@ -691,7 +693,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=129"></script>
+<script src="app.js?v=130"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

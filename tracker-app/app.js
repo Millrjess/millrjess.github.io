@@ -1107,10 +1107,26 @@ function lastInjection() {
   return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
+function showSiteMapView(view) {
+  const front = document.getElementById("map-front");
+  const back = document.getElementById("map-back");
+  const flip = document.getElementById("site-map-flip");
+  if (!front || !back) return;
+  const isBack = view === "back";
+  front.hidden = isBack;
+  back.hidden = !isBack;
+  if (flip) {
+    flip.textContent = isBack ? "Flip to Front" : "Flip to Back";
+    flip.setAttribute("aria-label", isBack ? "Flip injection site map to front view" : "Flip injection site map to back view");
+  }
+}
+
 function renderSiteMap() {
   const select = document.getElementById("inj-site");
   if (!select) return;
   const chosen = select.value;
+  if (chosen === "Left Upper Arm" || chosen === "Right Upper Arm") showSiteMapView("back");
+  else if (chosen) showSiteMapView("front");
   const last = lastInjection();
   const caption = document.getElementById("site-map-caption");
   siteMapZones().forEach((z) => {
@@ -1143,6 +1159,10 @@ siteMapZones().forEach((z) => {
   });
 });
 document.getElementById("inj-site").addEventListener("change", renderSiteMap);
+document.getElementById("site-map-flip").addEventListener("click", () => {
+  const back = document.getElementById("map-back");
+  showSiteMapView(back && !back.hidden ? "front" : "back");
+});
 
 document.getElementById("cancel-injection").addEventListener("click", () => {
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
