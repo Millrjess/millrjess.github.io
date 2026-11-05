@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=132">
+<link rel="stylesheet" href="styles.css?v=133">
 </head>
 <body>
 
@@ -279,19 +279,18 @@
             <title>Injection site map</title>
             <!-- Front view: abdomen and thighs. Back view: upper arms. Slim body outline, like the reference: no head, neck stub, grey outline. -->
             <g id="map-front">
-              <path class="body-outline" d="M86 6 C86 12 82 16 80 19 C70 25 64 34 62 48 C60 62 62 78 64 92 C66 108 62 126 60 144 C58 164 60 184 64 204 C66 216 68 228 70 238 M114 6 C114 12 118 16 120 19 C130 25 136 34 138 48 C140 62 138 78 136 92 C134 108 138 126 140 144 C142 164 140 184 136 204 C134 216 132 228 130 238 M100 150 C98 178 98 206 100 238"/>
-              <path class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen" d="M100 99 C86 99 78 106 78 118 C78 130 86 137 100 137 Z"/>
-              <path class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen" d="M100 99 C114 99 122 106 122 118 C122 130 114 137 100 137 Z"/>
+              <path class="body-outline" d="M86 6 C86 12 82 16 80 19 C70 25 66 32 64 48 C62 70 64 92 64 114 C64 140 62 170 62 200 C62 214 64 226 66 238 M114 6 C114 12 118 16 120 19 C130 25 134 32 136 48 C138 70 136 92 136 114 C136 140 138 170 138 200 C138 214 136 226 134 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen" d="M100 98 C87 98 76 106 76 118 C76 130 87 138 100 138 Z"/>
+              <path class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen" d="M100 98 C113 98 124 106 124 118 C124 130 113 138 100 138 Z"/>
               <circle cx="100" cy="118" r="7" class="body-outline" fill="#fff"/>
               <circle cx="100" cy="118" r="2" fill="#8A8A8A"/>
-              <ellipse cx="83" cy="196" rx="12" ry="20" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-              <ellipse cx="117" cy="196" rx="12" ry="20" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+              <ellipse cx="82" cy="196" rx="13" ry="22" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+              <ellipse cx="118" cy="196" rx="13" ry="22" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
             </g>
             <g id="map-back" hidden>
-              <path class="body-outline" d="M86 6 C86 12 82 16 80 19 C70 25 64 34 62 48 C60 62 62 78 64 92 C66 108 62 126 60 144 C58 164 60 184 64 204 C66 216 68 228 70 238 M114 6 C114 12 118 16 120 19 C130 25 136 34 138 48 C140 62 138 78 136 92 C134 108 138 126 140 144 C142 164 140 184 136 204 C134 216 132 228 130 238 M100 150 C98 178 98 206 100 238"/>
-              <path class="body-outline" d="M74 146 C84 154 94 154 100 148 C106 154 116 154 126 146"/>
-              <path class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm" d="M62 70 C54 70 49 78 49 88 C49 98 54 104 62 104 C64 94 64 80 62 70 Z"/>
-              <path class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm" d="M138 70 C146 70 151 78 151 88 C151 98 146 104 138 104 C136 94 136 80 138 70 Z"/>
+              <path class="body-outline" d="M86 6 C86 12 82 16 80 19 C70 25 66 32 64 48 C62 70 64 92 64 114 C64 140 62 170 62 200 C62 214 64 226 66 238 M114 6 C114 12 118 16 120 19 C130 25 134 32 136 48 C138 70 136 92 136 114 C136 140 138 170 138 200 C138 214 136 226 134 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm" d="M64 70 C56 70 51 78 51 88 C51 98 56 104 64 104 C66 94 66 80 64 70 Z"/>
+              <path class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm" d="M136 70 C144 70 149 78 149 88 C149 98 144 104 136 104 C134 94 134 80 136 70 Z"/>
             </g>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
@@ -693,7 +692,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=132"></script>
+<script src="app.js?v=133"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
