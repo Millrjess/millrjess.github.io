@@ -34,7 +34,7 @@ const DEFAULTS = {
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food }
   exercise: [],     // { id, date, minutes, label }
-  injections: [],   // { id, date, medication, dose, site, notes }
+  injections: [],   // { id, date, medication, dose, site, notes, status: "On time" | "Missed" | "Delayed" }
   weight: [],       // { id, date, value }
   measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
   photos: [],       // { id, date, dataUrl }
@@ -917,6 +917,7 @@ document.getElementById("quick-log-shot").addEventListener("click", () => {
     medication: store.settings.medication || last.medication || "Zepbound",
     dose: Number(store.settings.dose) || Number(last.dose) || 0,
     site: last.site,
+    status: "On time",
     notes: ""
   });
   saveStore();
@@ -1092,16 +1093,26 @@ document.getElementById("show-injection-form").addEventListener("click", () => {
   injForm.reset();
   document.getElementById("inj-date").value = todayStr();
   document.getElementById("inj-med").value = store.settings.medication || "";
+  document.getElementById("inj-status").value = "On time";
+  document.getElementById("inj-status-note").classList.add("hidden");
   toggleForm(injForm, document.getElementById("show-injection-form"), true);
   renderSiteMap();
+});
+
+/* Show the clinician wording when a dose is marked Missed or Delayed. */
+document.getElementById("inj-status").addEventListener("change", (e) => {
+  const missedOrDelayed = e.target.value === "Missed" || e.target.value === "Delayed";
+  document.getElementById("inj-status-note").classList.toggle("hidden", !missedOrDelayed);
 });
 
 // ---- Injection site map ----
 const siteMapZones = () => [...document.querySelectorAll("#site-map .site-zone")];
 
 function lastInjection() {
-  if (!store.injections.length) return null;
-  return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  /* A missed dose was not taken, so it is not a "last shot". */
+  const taken = store.injections.filter((e) => (e.status || "On time") !== "Missed");
+  if (!taken.length) return null;
+  return [...taken].sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
 function showSiteMapView(view) {
@@ -1174,6 +1185,7 @@ injForm.addEventListener("submit", (e) => {
     medication: document.getElementById("inj-med").value.trim(),
     dose: Number(document.getElementById("inj-dose").value),
     site: document.getElementById("inj-site").value,
+    status: document.getElementById("inj-status").value || "On time",
     notes: document.getElementById("inj-notes").value.trim()
   };
   if (!entry.date || !entry.medication || !entry.site) return;
@@ -1205,16 +1217,21 @@ function renderInjections() {
   }
   const visible = sorted.slice(0, injectionLimit);
   const remaining = sorted.length - visible.length;
-  list.innerHTML = visible.map((inj) => `
+  list.innerHTML = visible.map((inj) => {
+    const status = inj.status || "On time";
+    const missedOrDelayed = status === "Missed" || status === "Delayed";
+    return `
     <div class="entry">
       <p class="entry-title">${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg</p>
-      <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)}</p>
+      <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)} &middot; ${escapeHtml(status)}</p>
       ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
+      ${missedOrDelayed ? `<p class="entry-notes">Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>` : ""}
       <div class="entry-actions">
         <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-inj="${inj.id}" aria-label="Delete injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Delete</button>
       </div>
-    </div>`).join("")
+    </div>`;
+  }).join("")
     + (remaining > 0
       ? `<button class="btn" id="more-injections" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
       : "");
@@ -1228,6 +1245,9 @@ function renderInjections() {
     document.getElementById("inj-med").value = inj.medication;
     document.getElementById("inj-dose").value = inj.dose;
     document.getElementById("inj-site").value = inj.site;
+    document.getElementById("inj-status").value = inj.status || "On time";
+    const missedOrDelayed = (inj.status || "On time") === "Missed" || (inj.status || "On time") === "Delayed";
+    document.getElementById("inj-status-note").classList.toggle("hidden", !missedOrDelayed);
     document.getElementById("inj-notes").value = inj.notes || "";
     toggleForm(injForm, document.getElementById("show-injection-form"), true);
     renderSiteMap();
@@ -1293,15 +1313,42 @@ let weightLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderWeight() {
   const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const noteEl = document.getElementById("weight-change-note");
   if (sorted.length) {
     const current = sorted[sorted.length - 1].value;
-    const first = sorted[0].value;
-    document.getElementById("current-weight").textContent = current.toFixed(1);
-    const lost = first - current;
-    document.getElementById("total-lost").textContent = (lost >= 0 ? "-" : "+") + Math.abs(lost).toFixed(1);
+    const first = sorted[0];
+    document.getElementById("current-weight").textContent = Number(current).toFixed(1);
+    /* Starting weight is the first weigh-in, with its date. It is never
+       overwritten: it is read from the log, not stored separately. */
+    document.getElementById("starting-weight").textContent = Number(first.value).toFixed(1);
+    document.getElementById("starting-weight-date").textContent = formatDate(first.date);
   } else {
     document.getElementById("current-weight").textContent = "--";
+    document.getElementById("starting-weight").textContent = "--";
+    document.getElementById("starting-weight-date").textContent = "";
+  }
+  if (sorted.length >= 2) {
+    /* Total and percent show only with at least two weigh-ins. A gain is
+       shown honestly as a gain, never as a negative loss. */
+    const start = Number(sorted[0].value);
+    const current = Number(sorted[sorted.length - 1].value);
+    const change = start - current;
+    const gained = change < 0;
+    const amount = Math.abs(change).toFixed(1);
+    const pct = (Math.abs(change) / start * 100).toFixed(1);
+    document.getElementById("total-lost-label").textContent = gained ? "Total gained" : "Total lost";
+    document.getElementById("total-lost").textContent = (gained ? "+" : "-") + amount;
+    document.getElementById("percent-lost-label").textContent = gained ? "Percent gained" : "Percent lost";
+    document.getElementById("percent-lost").textContent = pct;
+    noteEl.textContent = "";
+  } else {
+    document.getElementById("total-lost-label").textContent = "Total lost";
     document.getElementById("total-lost").textContent = "--";
+    document.getElementById("percent-lost-label").textContent = "Percent lost";
+    document.getElementById("percent-lost").textContent = "--";
+    noteEl.textContent = sorted.length === 1
+      ? "Log a second weigh-in to see your change."
+      : "Log a weigh-in to get started.";
   }
 
   const list = document.getElementById("weight-list");
@@ -2306,8 +2353,8 @@ document.getElementById("export-data").addEventListener("click", () => {
 
   lines.push(...tsvSection(
     "Injections",
-    ["Date", "Medication", "Dose (mg)", "Site", "Notes"],
-    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.notes])
+    ["Date", "Medication", "Dose (mg)", "Site", "Status", "Notes"],
+    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.status || "On time", e.notes])
   ));
 
   lines.push(...tsvSection(

@@ -274,6 +274,14 @@
       <label>Dose (mg)
         <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
       </label>
+      <label>Dose status
+        <select id="inj-status">
+          <option>On time</option>
+          <option>Missed</option>
+          <option>Delayed</option>
+        </select>
+      </label>
+      <p class="muted hidden" id="inj-status-note" style="font-size:.85em">If a dose was missed or delayed, always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <div class="field-group">
         <span id="inj-site-label">Injection site</span>
         <div class="site-map-wrap">
@@ -344,14 +352,24 @@
 
     <div class="stats-row">
       <div class="card stat-card">
+        <p class="stat-label">Starting weight</p>
+        <p class="stat-value"><span id="starting-weight">--</span> <span class="stat-unit">lbs</span></p>
+        <p class="stat-label" id="starting-weight-date" style="margin-top:2px"></p>
+      </div>
+      <div class="card stat-card">
         <p class="stat-label">Current weight</p>
         <p class="stat-value"><span id="current-weight">--</span> <span class="stat-unit">lbs</span></p>
       </div>
       <div class="card stat-card">
-        <p class="stat-label">Total lost</p>
+        <p class="stat-label" id="total-lost-label">Total lost</p>
         <p class="stat-value loss"><span id="total-lost">--</span> <span class="stat-unit">lbs</span></p>
       </div>
+      <div class="card stat-card">
+        <p class="stat-label" id="percent-lost-label">Percent lost</p>
+        <p class="stat-value loss"><span id="percent-lost">--</span> <span class="stat-unit">%</span></p>
+      </div>
     </div>
+    <p class="muted" id="weight-change-note" style="font-size:.9em"></p>
 
     <div class="card hidden" id="milestone-card">
       <h3>Goal progress</h3>
