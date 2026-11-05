@@ -24,9 +24,6 @@
           waterGoal: 92,
           proteinGoal: 90,
           movementGoal: 30,
-          carbGoal: 130,
-          fatGoal: 65,
-          calorieGoal: 1600,
           refillDate: "",
           goalWeight: "160"
         },
@@ -56,9 +53,9 @@
           { id: id("e5"), date: iso(-5), minutes: 15, label: "Walking" }
         ],
         injections: [
-          { id: id("i1"), date: iso(-21), medication: "Zepbound", dose: "", site: "L Arm back", notes: "Sample entry" },
-          { id: id("i2"), date: iso(-14), medication: "Zepbound", dose: "", site: "R Arm back", notes: "Sample entry" },
-          { id: id("i3"), date: iso(-7), medication: "Zepbound", dose: "", site: "L Belly", notes: "Sample entry" }
+          { id: id("i1"), date: iso(-21), medication: "Zepbound", dose: "", site: "Left Upper Arm", notes: "Sample entry" },
+          { id: id("i2"), date: iso(-14), medication: "Zepbound", dose: "", site: "Right Upper Arm", notes: "Sample entry" },
+          { id: id("i3"), date: iso(-7), medication: "Zepbound", dose: "", site: "Left Abdomen", notes: "Sample entry" }
         ],
         weight: [
           { id: id("wt1"), date: iso(-28), value: 180 },

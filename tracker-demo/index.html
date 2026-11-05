@@ -26,19 +26,18 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <link rel="stylesheet" href="styles.css">
-<style>
-.demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
-.demo-banner strong{color:#FDFBF7}
-.demo-banner a{color:#FDFBF7;font-weight:700;text-decoration:underline}
-.demo-sample-note{background:#FDFBF7;border-left:4px solid #E8B54A;color:#2B2B28;padding:10px 12px;margin:0 0 12px;font-size:.95rem;text-align:left}
-</style>
-
+    <style>
+      .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
+      .demo-banner strong{color:#FDFBF7}
+      .demo-banner a{color:#FDFBF7;font-weight:700;text-decoration:underline}
+      .demo-sample-note{background:#FDFBF7;border-left:4px solid #E8B54A;color:#2B2B28;padding:10px 12px;margin:0 0 12px;font-size:.95rem;text-align:left}
+    </style>
 </head>
 <body>
+
+
 <a class="skip-link" href="#app-main">Skip to main content</a>
-<div class="demo-banner" role="note"><strong>Sample demo.</strong> Try it here, then get the real app. <a href="https://millrjess.github.io/tracker/">Get the real app</a>. This demo is not a download. The real app will be on Google Play late December to early January. For now, use the web app. No sign in, no purchase, no code needed here. All data on this page is sample only.</div>
-
-
+    <div class="demo-banner" role="note"><strong>Sample demo.</strong> Try it here, then get the real app. <a href="https://millrjess.github.io/tracker/">Get the real app</a>. This demo is not a download. The real app will be on Google Play late December to early January. For now, use the web app. No sign in, no purchase, no code needed here. All data on this page is sample only.</div>
 <header class="app-header" role="banner" aria-label="App header">
   <h1>New Chapter: GLP-1 Tracker™</h1>
   <p class="tagline">Your wellness journey, beautifully tracked.</p>
@@ -63,7 +62,7 @@
       </div>
       <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
-      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1"
+      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1" aria-label="Pick a date"
         style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
@@ -116,17 +115,19 @@
       </div>
     </div>
 
-    <div class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52">
-      <h2 class="card-title">Your week</h2>
-      <p class="muted" id="weekly-summary-range" style="margin:0 0 8px"></p>
+    <details class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52;padding:14px 16px;margin:10px 0">
+      <summary style="cursor:pointer;font-weight:600"><h2 class="card-title" style="display:inline;margin:0">Your week</h2></summary>
+      <div style="margin-top:10px;font-size:.95rem">
+      <p class="muted" id="weekly-summary-range" style="margin:0 0 6px"></p>
       <div id="weekly-summary-body"></div>
-      <div id="weekly-suggestion-wrap" style="margin-top:12px">
-        <p style="margin:0 0 8px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
+      <div id="weekly-suggestion-wrap" style="margin-top:8px">
+        <p style="margin:0 0 6px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
         <button type="button" class="btn btn-small" id="weekly-dismiss">Not this week</button>
       </div>
-      <p class="muted hidden" id="weekly-dismissed-note" style="margin:12px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
-      <p class="muted" style="margin:12px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
-    </div>
+      <p class="muted hidden" id="weekly-dismissed-note" style="margin:8px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
+      </div>
+    </details>
 
     <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log food, go to protein entry">Log Food</button>
 
@@ -250,7 +251,7 @@
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <button class="btn btn-small" id="inj-cal-prev" aria-label="Previous month">←</button>
-        <h3 style="margin:0" id="inj-cal-title">Injection calendar</h3>
+        <h3 style="margin:0" id="inj-cal-title">This month</h3>
         <button class="btn btn-small" id="inj-cal-next" aria-label="Next month">→</button>
       </div>
       <div id="inj-calendar" class="mini-calendar" role="grid" aria-label="Injection calendar"></div>
@@ -277,23 +278,25 @@
         <div class="site-map-wrap">
           <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
             <title>Injection site map</title>
-            <!-- zone layout: arms top, abdomen middle, thighs bottom -->
-            <ellipse cx="55" cy="40" rx="28" ry="32" class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm"/>
-            <ellipse cx="145" cy="40" rx="28" ry="32" class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm"/>
-            <text x="55" y="38" text-anchor="middle" class="zone-label">L Arm</text>
-            <text x="55" y="52" text-anchor="middle" class="zone-sublabel">back</text>
-            <text x="145" y="38" text-anchor="middle" class="zone-label">R Arm</text>
-            <text x="145" y="52" text-anchor="middle" class="zone-sublabel">back</text>
-            <ellipse cx="65" cy="120" rx="32" ry="36" class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen"/>
-            <ellipse cx="135" cy="120" rx="32" ry="36" class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen"/>
-            <text x="65" y="124" text-anchor="middle" class="zone-label">L Belly</text>
-            <text x="135" y="124" text-anchor="middle" class="zone-label">R Belly</text>
-            <ellipse cx="65" cy="200" rx="32" ry="36" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
-            <ellipse cx="135" cy="200" rx="32" ry="36" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
-            <text x="65" y="204" text-anchor="middle" class="zone-label">L Thigh</text>
-            <text x="135" y="204" text-anchor="middle" class="zone-label">R Thigh</text>
+            <!-- Front view: abdomen and thighs. Back view: upper arms. Slim body outline, like the reference: no head, neck stub, grey outline. -->
+            <g id="map-front">
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen" d="M100 98 C87 98 76 106 76 118 C76 130 87 138 100 138 Z"/>
+              <path class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen" d="M100 98 C113 98 124 106 124 118 C124 130 113 138 100 138 Z"/>
+              <circle cx="100" cy="118" r="7" class="body-outline" fill="#fff"/>
+              <circle cx="100" cy="118" r="2" fill="#8A8A8A"/>
+              <ellipse cx="82" cy="196" rx="13" ry="22" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+              <ellipse cx="118" cy="196" rx="13" ry="22" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            </g>
+            <g id="map-back" hidden>
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="body-outline" d="M74 146 C84 154 94 154 100 148 C106 154 116 154 126 146"/>
+              <path class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm" d="M64 70 C56 70 51 78 51 88 C51 98 56 104 64 104 C66 94 66 80 64 70 Z"/>
+              <path class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm" d="M136 70 C144 70 149 78 149 88 C149 98 144 104 136 104 C134 94 134 80 136 70 Z"/>
+            </g>
           </svg>
           <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
+          <button type="button" class="btn btn-small" id="site-map-flip" style="display:block;margin:6px auto 0" aria-label="Flip injection site map to back view">Flip to Back</button>
         </div>
         <select id="inj-site" aria-labelledby="inj-site-label" required>
           <option value="">Choose a site</option>
@@ -313,6 +316,7 @@
         <button type="button" class="btn" id="cancel-injection">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="inj-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="injection-list" class="entry-list"></div>
   </section>
@@ -335,6 +339,7 @@
         <button type="button" class="btn" id="cancel-weight">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="weight-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div class="stats-row">
       <div class="card stat-card">
@@ -387,7 +392,9 @@
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn" id="cancel-measurement">Cancel</button>
       </div>
+      <p class="code-msg" id="meas-msg" style="min-height:1.2em"></p>
     </form>
+    <p class="code-msg" id="meas-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="measurement-list" class="entry-list"></div>
 
@@ -429,6 +436,7 @@
         <button type="button" class="btn" id="cancel-journal">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="journal-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="journal-list" class="entry-list"></div>
   </section>
@@ -462,6 +470,7 @@
         <button type="button" class="btn" id="cancel-sideeffect">Cancel</button>
       </div>
     </form>
+    <p class="code-msg" id="se-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="sideeffect-list" class="entry-list"></div>
   </section>
@@ -475,6 +484,7 @@
       <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
+    <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
 
     <details class="card" style="margin-top:16px" id="memory-optin-card" open>
       <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
@@ -511,10 +521,10 @@
         <p class="muted" id="coach-status-line">Checking companion status...</p>
         <div id="coach-code-entry">
           <label>Access code
-            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
           </label>
           <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
-          <p class="muted" id="code-msg" style="min-height:1.2em"></p>
+          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
           <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
         </div>
         <details style="margin-top:8px">
@@ -596,6 +606,7 @@
       </details>
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+      <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
     </form>
 
     <details class="card" open>
@@ -628,6 +639,12 @@
     <div>
       <p>A New Chapter is not a calorie counter. It tracks the habits that protect muscle while the medicine works: protein, water, and movement, plus your injections and your weight.</p>
       <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI Wellness Companion. Everything in one place.</p>
+      <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
+      <p><strong>Who it is for:</strong> For women and adults over 50 navigating GLP-1 treatment.</p>
+      <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
+      <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while supporting your bones, heart, brain, skin, digestive health, and overall nutritional status. Think whole-body nutrition, not just weight loss. The tracker supports these areas through the habits it tracks, protein, water, and movement, plus injections, weight, and side effects.</p>
+      <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
+      <p>Track medication, injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h4 style="margin:16px 0 8px">Privacy</h4>
@@ -652,39 +669,39 @@
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
 
-<nav class="tab-bar" aria-label="Main navigation" role="tablist">
+<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
   <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><title>Today</title><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg></span>
     <span class="tab-label">Today</span>
   </button>
   <button class="tab-btn" data-tab="injections" role="tab" aria-selected="false" aria-controls="tab-injections">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L9 19l-5 1 1-5L17 3z"/><path d="M14 6l4 4"/><path d="M5 15l-2 5 5-2"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Injections</title><path d="M17 3l4 4L9 19l-5 1 1-5L17 3z"/><path d="M14 6l4 4"/><path d="M5 15l-2 5 5-2"/></svg></span>
     <span class="tab-label">Injections</span>
   </button>
   <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h12l3 7H3l3-7z"/><path d="M3 10h18"/><path d="M12 10v8"/><path d="M8 21h8"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><title>Weight</title><path d="M6 3h12l3 7H3l3-7z"/><path d="M3 10h18"/><path d="M12 10v8"/><path d="M8 21h8"/></svg></span>
     <span class="tab-label">Weight</span>
   </button>
   <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Journal</title><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
     <span class="tab-label">Journal</span>
   </button>
   <button class="tab-btn" data-tab="side-effects" role="tab" aria-selected="false" aria-controls="tab-side-effects">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Effects</title><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
     <span class="tab-label">Effects</span>
   </button>
   <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat" aria-label="AI Wellness Companion">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
     <span class="tab-label">Companion</span>
   </button>
   <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings">
-    <span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Settings</title><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="tab-label">Settings</span>
   </button>
-</nav>
+</div></nav>
 
 <script src="demo-seed.js"></script>
-<script src="app.js?v=20261104"></script>
+<script src="app.js?v=20261105"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

@@ -28,9 +28,6 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
-    carbGoal: 130,
-    fatGoal: 65,
-    calorieGoal: 1600,
     refillDate: "",
     goalWeight: ""
   },
@@ -267,7 +264,7 @@ function showTab(name) {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
       page_location: location.href.split("#")[0] + "#" + name,
-      page_path: "/tracker-app/#" + name
+      page_path: "/tracker-demo/#" + name
     });
   } catch (e) { /* analytics unavailable; app keeps working */ }
 }
@@ -534,7 +531,7 @@ function renderWeeklySummary() {
     }
   }
   document.getElementById("weekly-summary-body").innerHTML =
-    lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("");
+    lines.map((l) => `<p style="margin:0 0 4px">${l}</p>`).join("");
 
   const stats = { proteinDays: p.met, waterDays: w.met, moveDays: m.met, anyLogged,
     daysWithGoal: { protein: p.total, water: w.total, exercise: m.total } };
@@ -587,7 +584,7 @@ function renderToday() {
     b.style.opacity = isToday ? "" : "0.5";
   });
   // Disable manual entry forms and mood buttons on past days
-  ["protein-food", "protein-grams", "carb-grams", "fat-grams", "calorie-count", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
+  ["protein-food", "protein-grams", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
   });
@@ -935,6 +932,7 @@ function renderMood() {
   const current = store.moods[t];
   document.querySelectorAll(".mood-btn").forEach((b) => {
     b.classList.toggle("selected", b.dataset.mood === current);
+    b.setAttribute("aria-pressed", b.dataset.mood === current ? "true" : "false");
   });
   document.getElementById("mood-today-label").textContent = current
     ? "Today you are feeling: " + current + "."
@@ -948,6 +946,14 @@ document.querySelectorAll(".mood-btn").forEach((btn) => {
     renderMood();
   });
 });
+
+/* ---------- Form status helper ---------- */
+function setFormStatus(el, text, isError) {
+  if (!el) return;
+  el.setAttribute("role", isError ? "alert" : "status");
+  el.classList.toggle("success", !isError);
+  el.textContent = text;
+}
 
 /* ---------- Injection calendar ---------- */
 
@@ -991,8 +997,12 @@ function renderInjectionCalendar() {
     if (ds === todayS) cls.push("today");
     if (loggedByDate[ds]) cls.push("logged");
     else if (ds === nextShot) cls.push("scheduled");
-    const tap = loggedByDate[ds] ? ` data-cal-date="${ds}" role="button" tabindex="0" aria-label="Shot logged, ${formatDate(ds)}"` : (ds === nextShot ? ` aria-label="Next scheduled shot, ${formatDate(ds)}"` : "");
-    html += `<div class="${cls.join(" ")}" role="gridcell"${tap}>${d}</div>`;
+    const states = [];
+    if (ds === todayS) states.push("today");
+    if (loggedByDate[ds]) states.push("shot logged");
+    if (ds === nextShot) states.push("next scheduled shot");
+    const label = formatDate(ds) + (states.length ? ", " + states.join(", ") : "");
+    html += `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
   }
   cal.innerHTML = html;
 
@@ -1000,8 +1010,10 @@ function renderInjectionCalendar() {
     const show = () => {
       const list = loggedByDate[el.dataset.calDate] || [];
       document.getElementById("inj-cal-detail").textContent =
-        formatDate(el.dataset.calDate) + ": " +
-        list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ");
+        list.length
+          ? formatDate(el.dataset.calDate) + ": " +
+            list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ")
+          : "No shot logged on " + formatDate(el.dataset.calDate) + ".";
     };
     el.addEventListener("click", show);
     el.addEventListener("keydown", (e) => {
@@ -1092,16 +1104,36 @@ function lastInjection() {
   return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
+function showSiteMapView(view) {
+  const front = document.getElementById("map-front");
+  const back = document.getElementById("map-back");
+  const flip = document.getElementById("site-map-flip");
+  if (!front || !back) return;
+  const isBack = view === "back";
+  front.hidden = isBack;
+  back.hidden = !isBack;
+  if (flip) {
+    flip.textContent = isBack ? "Flip to Front" : "Flip to Back";
+    flip.setAttribute("aria-label", isBack ? "Flip injection site map to front view" : "Flip injection site map to back view");
+  }
+}
+
 function renderSiteMap() {
   const select = document.getElementById("inj-site");
   if (!select) return;
   const chosen = select.value;
+  if (chosen === "Left Upper Arm" || chosen === "Right Upper Arm") showSiteMapView("back");
+  else if (chosen) showSiteMapView("front");
   const last = lastInjection();
   const caption = document.getElementById("site-map-caption");
   siteMapZones().forEach((z) => {
+    const isLast = !!last && !!last.site && z.dataset.site === last.site;
     z.setAttribute("aria-pressed", z.dataset.site === chosen ? "true" : "false");
     z.classList.toggle("selected", z.dataset.site === chosen);
-    z.classList.toggle("last-used", !!last && !!last.site && z.dataset.site === last.site && z.dataset.site !== chosen);
+    z.classList.toggle("last-used", isLast && z.dataset.site !== chosen);
+    const baseLabel = z.getAttribute("aria-label") || z.dataset.site;
+    const cleanLabel = baseLabel.replace(/, last shot.*$/, "");
+    z.setAttribute("aria-label", isLast ? cleanLabel + ", last shot" : cleanLabel);
   });
   let html = "Tap a zone to select it.";
   if (last && last.site) {
@@ -1124,6 +1156,10 @@ siteMapZones().forEach((z) => {
   });
 });
 document.getElementById("inj-site").addEventListener("change", renderSiteMap);
+document.getElementById("site-map-flip").addEventListener("click", () => {
+  const back = document.getElementById("map-back");
+  showSiteMapView(back && !back.hidden ? "front" : "back");
+});
 
 document.getElementById("cancel-injection").addEventListener("click", () => {
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
@@ -1154,6 +1190,7 @@ injForm.addEventListener("submit", (e) => {
   renderSiteMap();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
+  setFormStatus(document.getElementById("inj-saved-msg"), "Injection saved.", false);
 });
 
 let injectionLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1248,6 +1285,7 @@ weightForm.addEventListener("submit", (e) => {
   saveStore();
   renderWeight();
   toggleForm(weightForm, document.getElementById("show-weight-form"), false);
+  setFormStatus(document.getElementById("weight-saved-msg"), "Weigh-in saved.", false);
 });
 
 let weightLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1373,7 +1411,7 @@ function drawWeightChart() {
   const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
 
   ctx.strokeStyle = "#E5E0D5";
-  ctx.fillStyle = "#8A8A8A";
+  ctx.fillStyle = "#6E6A5E";
   ctx.font = "20px sans-serif";
   ctx.textAlign = "right";
   for (let g = 0; g <= 4; g++) {
@@ -1477,7 +1515,8 @@ measForm.addEventListener("submit", (e) => {
   };
   if (!entry.date) return;
   if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
-    alert("Enter at least one measurement.");
+    setFormStatus(document.getElementById("meas-msg"), "Enter at least one measurement.", true);
+    document.getElementById("meas-waist").focus();
     return;
   }
   if (editingMeasId) {
@@ -1490,6 +1529,7 @@ measForm.addEventListener("submit", (e) => {
   saveStore();
   renderMeasurements();
   toggleForm(measForm, document.getElementById("show-measurement-form"), false);
+  setFormStatus(document.getElementById("meas-saved-msg"), "Measurements saved.", false);
 });
 
 const MEAS_LABELS = { waist: "Waist", hips: "Hips", chest: "Chest", arm: "Arm", thigh: "Thigh", neck: "Neck" };
@@ -1649,6 +1689,7 @@ journalForm.addEventListener("submit", (e) => {
   journalLimit = 10;
   renderJournal();
   toggleForm(journalForm, document.getElementById("show-journal-form"), false);
+  setFormStatus(document.getElementById("journal-saved-msg"), "Journal entry saved.", false);
 });
 
 const MOOD_EMOJI = { Great: "😄", Good: "🙂", Okay: "😐", Low: "😔" };
@@ -1742,6 +1783,7 @@ seForm.addEventListener("submit", (e) => {
   saveStore();
   renderSideEffects();
   toggleForm(seForm, document.getElementById("show-sideeffect-form"), false);
+  setFormStatus(document.getElementById("se-saved-msg"), "Side effect saved.", false);
 });
 
 let seLimit = 10; // entries shown; "show more" loads older ones in batches
@@ -1859,7 +1901,11 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   saveStore();
   renderSettings();
   renderToday();
-  alert("Settings saved.");
+  const savedMsg = document.getElementById("settings-saved-msg");
+  if (savedMsg) {
+    savedMsg.textContent = "Settings saved.";
+    savedMsg.classList.add("success");
+  }
 });
 
 /* ---------- Companion access code ---------- */
@@ -1886,15 +1932,32 @@ function updateCoachStatus() {
   }
 }
 
+function setCodeError(text) {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  if (!msg) return;
+  // Clear first so a repeated empty click still produces a fresh alert announcement.
+  msg.textContent = "";
+  void msg.offsetHeight;
+  msg.textContent = text;
+  msg.classList.remove("success");
+  if (input) {
+    input.setAttribute("aria-invalid", "true");
+    input.focus();
+  }
+}
+
 async function redeemAccessCode() {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
   const btn = document.getElementById("redeem-code-btn");
   const code = (input.value || "").replace(/\D/g, "").slice(0, 6);
   if (code.length !== 6) {
-    msg.textContent = "Enter all 6 digits.";
+    setCodeError("Enter all 6 digits.");
     return;
   }
+  if (input) input.setAttribute("aria-invalid", "false");
+  msg.classList.remove("success");
   msg.textContent = "Connecting...";
   btn.disabled = true;
   try {
@@ -1907,20 +1970,29 @@ async function redeemAccessCode() {
     if (data.ok && data.token) {
       try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
       document.getElementById("set-companion-key").value = data.token;
-      msg.textContent = "";
+      msg.textContent = "Your AI Wellness Companion is connected.";
+      msg.classList.add("success");
+      if (input) input.setAttribute("aria-invalid", "false");
       input.value = "";
       updateCoachStatus();
-      alert("Your AI Wellness Companion is connected.");
     } else {
-      msg.textContent = data.error || "That code did not work. Try again.";
+      setCodeError(data.error || "That code did not work. Try again.");
     }
   } catch (e) {
-    msg.textContent = "Could not reach the service. Check your connection.";
+    setCodeError("Could not reach the service. Check your connection.");
   }
   btn.disabled = false;
 }
 
 document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+document.getElementById("set-access-code").addEventListener("input", () => {
+  const input = document.getElementById("set-access-code");
+  const msg = document.getElementById("code-msg");
+  if (input && input.getAttribute("aria-invalid") === "true") {
+    input.setAttribute("aria-invalid", "false");
+    if (msg) msg.textContent = "";
+  }
+});
 
 /* ---------- Google Play Billing (Digital Goods API) ---------- */
 
@@ -2327,7 +2399,7 @@ function renderSnapshots() {
     const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "");
     let summary = "Could not be read";
     try { summary = snapshotSummary(JSON.parse(sn.data)); } catch {}
-    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '">Restore</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
     const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
@@ -2448,11 +2520,17 @@ function renderDayCalModal() {
       const today = new Date(); today.setHours(12, 0, 0, 0);
       viewOffset = Math.round((picked - today) / 86400000);
       renderToday();
-      document.getElementById("day-cal-modal").classList.add("hidden");
+      closeDayCalModal();
     };
     el.addEventListener("click", pick);
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
   });
+}
+
+function closeDayCalModal() {
+  document.getElementById("day-cal-modal").classList.add("hidden");
+  const opener = document.getElementById("day-cal");
+  if (opener) opener.focus();
 }
 
 function openDayPicker() {
@@ -2467,11 +2545,15 @@ document.getElementById("day-cal-prev").addEventListener("click", () => {
 document.getElementById("day-cal-next").addEventListener("click", () => {
   dayCalMonth++; if (dayCalMonth > 11) { dayCalMonth = 0; dayCalYear++; } renderDayCalModal();
 });
-document.getElementById("day-cal-close").addEventListener("click", () => {
-  document.getElementById("day-cal-modal").classList.add("hidden");
-});
+document.getElementById("day-cal-close").addEventListener("click", closeDayCalModal);
 document.getElementById("day-cal-modal").addEventListener("click", (e) => {
-  if (e.target.id === "day-cal-modal") document.getElementById("day-cal-modal").classList.add("hidden");
+  if (e.target.id === "day-cal-modal") closeDayCalModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("day-cal-modal").classList.contains("hidden")) {
+    e.preventDefault();
+    closeDayCalModal();
+  }
 });
 document.getElementById("day-cal").addEventListener("click", openDayPicker);
 // Tapping the date heading itself also opens the picker
@@ -2500,20 +2582,20 @@ dayPicker.addEventListener("change", () => {
   if (!store.settings.waterGoal) store.settings.waterGoal = 92;
   if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
   saveStore();
-  localStorage.setItem("demo-nct-setup-done", "1");
+  localStorage.setItem("nct-setup-done", "1");
 })();
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
   if (!confirm("Delete ALL your data? This cannot be undone. Consider downloading a backup first.")) return;
   if (!confirm("Are you sure? This deletes your tracked entries, backups saved in this app, chat history, and custom activities. Your companion access stays connected.")) return;
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem("demo-nct-snapshots");
-  localStorage.removeItem("demo-nct-last-snapshot-day");
-  localStorage.removeItem("demo-nc_custom_activities");
-  localStorage.removeItem("demo-nct-last-backup");
-  localStorage.removeItem("demo-nct-backup-snooze");
+  localStorage.removeItem("nct-snapshots");
+  localStorage.removeItem("nct-last-snapshot-day");
+  localStorage.removeItem("nc_custom_activities");
+  localStorage.removeItem("nct-last-backup");
+  localStorage.removeItem("nct-backup-snooze");
   localStorage.removeItem(CHAT_KEY);
-  localStorage.removeItem("demo-nct-setup-done");
+  localStorage.removeItem("nct-setup-done");
   location.reload();
 });
 
@@ -2532,8 +2614,8 @@ renderSettings();
 /* ---------- AI Wellness Companion chat ---------- */
 
 // Update this URL after deploying the Worker
-const COMPANION_API_URL = "/demo-api/chat";
-const MEMORY_API_URL = "/demo-api/memory";
+const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
+const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
 
 /* ---------- Companion memory (opt-in) ---------- */
 
@@ -2614,7 +2696,7 @@ document.getElementById("forget-me").addEventListener("click", async () => {
   alert("Done. Your companion no longer remembers you.");
 });
 
-const CHAT_KEY = "newChapterTracker.demo.chat.v1";
+const CHAT_KEY = "newChapterTracker.chat.v1";
 let chatHistory = loadChatHistory();
 
 // Capture the auth token from the buyer link (?key=...) on first visit,
@@ -2728,7 +2810,12 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = document.getElementById("chat-input");
   const text = input.value.trim();
-  if (!text) return;
+  if (!text) {
+    setFormStatus(document.getElementById("chat-msg"), "Type a message before sending.", true);
+    input.focus();
+    return;
+  }
+  setFormStatus(document.getElementById("chat-msg"), "", false);
   input.value = "";
 
   // Add user message
