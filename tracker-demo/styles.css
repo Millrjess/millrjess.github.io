@@ -875,17 +875,17 @@ label textarea {
   visibility: hidden;
 }
 .mini-calendar .day.today {
-  box-shadow: inset 0 0 0 2px #E8B54A;
+  box-shadow: inset 0 0 0 2px #87692B;
   font-weight: 700;
 }
 .mini-calendar .day.logged {
   background: #E8B54A;
-  color: #fff;
+  color: #2B2B28;
   font-weight: 700;
   cursor: pointer;
 }
 .mini-calendar .day.logged.today {
-  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #E8B54A;
+  box-shadow: inset 0 0 0 2px #2B2B28;
 }
 .mini-calendar .day.scheduled {
   box-shadow: inset 0 0 0 2px #5A6B52;
