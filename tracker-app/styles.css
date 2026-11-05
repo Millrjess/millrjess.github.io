@@ -983,6 +983,24 @@ details.card summary {
   padding: 4px 0;
   font-size: 1.05rem;
 }
+
+/* WCAG 1.4.10: at 320px the 7 bottom tabs must fit without horizontal scrolling.
+   Settings was cut off at right=357. Allow tabs to shrink below 44px and
+   use smaller labels at narrow widths, so all 7 fit in 320px. */
+@media (max-width: 400px) {
+  .tab-btn {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 6px 1px;
+  }
+  .tab-label {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+  .tab-bar {
+    gap: 0;
+  }
+}
 details.card summary::-webkit-details-marker {
   display: none;
 }
