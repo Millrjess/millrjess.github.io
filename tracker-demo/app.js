@@ -1002,7 +1002,7 @@ function renderInjectionCalendar() {
     if (loggedByDate[ds]) states.push("shot logged");
     if (ds === nextShot) states.push("next scheduled shot");
     const label = formatDate(ds) + (states.length ? ", " + states.join(", ") : "");
-    html += `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
+    html += `<div class="${cls.join(" ")}" role="button" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
   }
   cal.innerHTML = html;
 
