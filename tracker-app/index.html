@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=145">
+<link rel="stylesheet" href="styles.css?v=149">
 </head>
 <body>
 
@@ -55,6 +55,18 @@
         <button class="btn btn-small" id="backup-later">Remind me later</button>
       </div>
     </div>
+    <div class="card hidden" id="restore-notice" role="status" style="border-left:4px solid #5A6B52">
+      <p style="margin:0" id="restore-notice-text"></p>
+      <button class="btn btn-small" id="restore-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="corrupt-notice" role="alert" style="border-left:4px solid #B3261E">
+      <p style="margin:0" id="corrupt-notice-text"></p>
+      <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="storage-warning" role="alert" style="border-left:4px solid #E8B54A">
+      <p style="margin:0" id="storage-warning-text"></p>
+      <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
@@ -63,11 +75,9 @@
       </div>
       <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
       <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
-      <input type="date" id="day-picker" aria-hidden="true" tabindex="-1" aria-label="Pick a date"
-        style="position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
     </div>
 
-    <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-label="Pick a date">
+    <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Pick a date">
       <div class="modal-card" style="max-width:340px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <button class="btn btn-small" id="day-cal-prev" aria-label="Previous month">←</button>
@@ -130,7 +140,9 @@
       </div>
     </details>
 
-    <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log food, go to protein entry">Log Food</button>
+    <p class="muted hidden" id="stepper-note" role="status" style="min-height:1.2em"></p>
+
+    <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log protein">Log protein</button>
 
 
 
@@ -172,6 +184,7 @@
         <button type="submit" class="btn btn-small" id="food-submit-btn" aria-label="Log food entry">Log</button>
         <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
       </form>
+      <p class="code-msg" id="protein-msg" role="status" style="min-height:1.2em"></p>
       <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
       <div id="protein-list" class="today-entries"></div>
     </div>
@@ -210,6 +223,7 @@
           <button class="btn btn-small stepper-btn" id="exercise-plus" aria-label="Add movement">+</button>
         </div>
       </div>
+      <p class="code-msg" id="exercise-msg" role="status" style="min-height:1.2em"></p>
       <div id="exercise-list" class="today-entries"></div>
       <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>
     </div>
@@ -263,7 +277,7 @@
       <p style="margin:8px 0 0;font-size:.9em" id="inj-cal-detail" aria-live="polite"></p>
     </div>
 
-    <form id="injection-form" class="card hidden" aria-label="Log injection">
+    <form id="injection-form" class="card hidden" aria-label="Log injection" novalidate>
       <h3>Log Injection</h3>
       <label>Date
         <input type="date" id="inj-date" required>
@@ -318,7 +332,7 @@
         </select>
       </div>
       <label>Notes
-        <textarea id="inj-notes" rows="2" placeholder="Optional notes"></textarea>
+        <textarea id="inj-notes" rows="2" maxlength="2000" placeholder="Optional notes"></textarea>
       </label>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
@@ -333,10 +347,10 @@
   <!-- WEIGHT TAB -->
   <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
     <h2>Weight</h2>
-    <button class="btn btn-primary" id="show-weight-form">+ Log weigh in</button>
+    <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
 
-    <form id="weight-form" class="card hidden" aria-label="Log weight">
-      <h3>Log Weigh in</h3>
+    <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
+      <h3>Log weigh-in</h3>
       <label>Date
         <input type="date" id="weight-date" required>
       </label>
@@ -382,7 +396,8 @@
 
     <div class="card">
       <h3>Progress over time</h3>
-      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart"></canvas>
+      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
+      <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
     </div>
 
@@ -433,7 +448,7 @@
     <h2>Journal</h2>
     <button class="btn btn-primary" id="show-journal-form">+ New entry</button>
 
-    <form id="journal-form" class="card hidden" aria-label="New journal entry">
+    <form id="journal-form" class="card hidden" aria-label="New journal entry" novalidate>
       <h3>New Journal Entry</h3>
       <label>Date
         <input type="date" id="journal-date" required>
@@ -448,7 +463,7 @@
         </select>
       </label>
       <label>Notes
-        <textarea id="journal-notes" rows="4" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
+        <textarea id="journal-notes" rows="4" maxlength="2000" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
       </label>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
@@ -465,7 +480,7 @@
     <h2>Side Effects</h2>
     <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
 
-    <form id="sideeffect-form" class="card hidden" aria-label="Log side effect">
+    <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
       <h3>Log Side Effect</h3>
       <label>Date
         <input type="date" id="se-date" required>
@@ -482,7 +497,7 @@
         </select>
       </label>
       <label>Notes
-        <textarea id="se-notes" rows="2" placeholder="What helped? Optional notes"></textarea>
+        <textarea id="se-notes" rows="2" maxlength="2000" placeholder="What helped? Optional notes"></textarea>
       </label>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
@@ -632,7 +647,7 @@
       <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
       <div style="margin-top:12px">
     <div class="card">
-      <p class="muted">Download everything you have tracked as a tab delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
+      <p class="muted">Download everything you have tracked as a tab-delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
       <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
     </div>
 
@@ -646,6 +661,7 @@
         </label>
       </div>
       <div id="snapshot-list" style="margin-top:14px"></div>
+      <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
     </div>
 
@@ -675,7 +691,6 @@
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
       </div>
       <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
-      <p class="copyright">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
     </div>
       </div>
     </details>
@@ -719,7 +734,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=145"></script>
+<script src="app.js?v=149"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

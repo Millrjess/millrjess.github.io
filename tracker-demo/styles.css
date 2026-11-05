@@ -343,6 +343,14 @@ label textarea {
   color: var(--ink);
 }
 
+/* The hidden attribute must always hide, even inside a label: the
+   `label input` rule above otherwise forces hidden file inputs
+   (Restore backup, Add photo) to render as visible "Choose File" fields
+   instead of their label buttons. */
+[hidden] {
+  display: none !important;
+}
+
 /* Same label styling for the injection-site block, which uses a div
    wrapper (a label cannot contain the site-map div). */
 .field-group {
@@ -511,7 +519,7 @@ label textarea {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.65);
   color: #fff;
   font-size: 0.82rem;
   padding: 4px 8px;
@@ -521,7 +529,7 @@ label textarea {
 }
 
 .photo-date button {
-  background: rgba(255,255,255,0.2);
+  background: #2B2B28;
   border: none;
   color: #fff;
   border-radius: 4px;
@@ -588,11 +596,12 @@ label textarea {
 
 .stats-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
 .stat-card {
-  flex: 1;
+  flex: 1 1 140px;
 }
 
 .stat-label {
@@ -819,7 +828,7 @@ label textarea {
   border-bottom-left-radius: 4px;
 }
 .chat-msg.typing {
-  color: var(--muted, #8a8178);
+  color: var(--muted, #6E6A5E);
   font-style: italic;
 }
 .chat-form {
@@ -876,17 +885,18 @@ label textarea {
   visibility: hidden;
 }
 .mini-calendar .day.today {
-  box-shadow: inset 0 0 0 2px #87692B;
+  box-shadow: inset 0 0 0 2px #E8B54A;
   font-weight: 700;
 }
 .mini-calendar .day.logged {
   background: #E8B54A;
-  color: #2B2B28;
+  /* WCAG 1.4.3: dark ink on gold, 7.53:1, instead of white on gold, 1.89:1 */
+  color: var(--ink);
   font-weight: 700;
   cursor: pointer;
 }
 .mini-calendar .day.logged.today {
-  box-shadow: inset 0 0 0 2px #2B2B28;
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #E8B54A;
 }
 .mini-calendar .day.scheduled {
   box-shadow: inset 0 0 0 2px #5A6B52;

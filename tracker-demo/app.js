@@ -34,7 +34,7 @@ const DEFAULTS = {
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food }
   exercise: [],     // { id, date, minutes, label }
-  injections: [],   // { id, date, medication, dose, site, notes }
+  injections: [],   // { id, date, medication, dose, site, notes, status: "On time" | "Missed" | "Delayed" }
   weight: [],       // { id, date, value }
   measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
   photos: [],       // { id, date, dataUrl }
@@ -43,57 +43,225 @@ const DEFAULTS = {
   moods: {}         // { "YYYY-MM-DD": "Good" }
 };
 
-let store = loadStore();
-ensureEntryIds();
+/* Collections that must be arrays, and the settings keys with their defaults.
+   Used to validate anything loaded from storage or from a file. */
+const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects"];
 
-/* Older entries saved before per-entry delete existed may lack ids. Give them one. */
+/* Validate a parsed store shape: arrays must be arrays (bad entries dropped),
+   settings must be an object merged key-by-key over the defaults so a bad or
+   partial settings object can never wipe a goal, moods must be an object.
+   Anything that is not an object at all is not a store; returns null.
+   Strict mode (restore files) rejects the whole store when any key that is
+   present has the wrong shape, instead of quietly repairing it into an
+   empty store that would wipe the demo data. */
+function validateStore(parsed, strict) {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  if (strict) {
+    for (const k of COLLECTION_KEYS) {
+      if (parsed[k] !== undefined && (!Array.isArray(parsed[k]) || parsed[k].some((e) => !e || typeof e !== "object"))) return null;
+    }
+    if (parsed.settings !== undefined && (typeof parsed.settings !== "object" || Array.isArray(parsed.settings))) return null;
+    if (parsed.moods !== undefined && (typeof parsed.moods !== "object" || Array.isArray(parsed.moods))) return null;
+  }
+  const out = structuredClone(DEFAULTS);
+  COLLECTION_KEYS.forEach((k) => {
+    if (Array.isArray(parsed[k])) out[k] = parsed[k].filter((e) => e && typeof e === "object");
+  });
+  if (parsed.settings && typeof parsed.settings === "object" && !Array.isArray(parsed.settings)) {
+    Object.keys(DEFAULTS.settings).forEach((k) => {
+      if (parsed.settings[k] !== undefined) out.settings[k] = parsed.settings[k];
+    });
+  }
+  if (parsed.moods && typeof parsed.moods === "object" && !Array.isArray(parsed.moods)) {
+    out.moods = parsed.moods;
+  }
+  return out;
+}
+
+/* Older entries saved before per-entry delete existed may lack ids. Give them one.
+   Covers every collection, and returns true when an id was added so the
+   caller can save the repaired store. */
 function ensureEntryIds() {
-  ["water", "protein", "exercise"].forEach((key) => {
+  let changed = false;
+  COLLECTION_KEYS.forEach((key) => {
     if (!Array.isArray(store[key])) return;
     store[key].forEach((e) => {
-      if (!e.id) e.id = uid();
+      if (e && typeof e === "object" && !e.id) { e.id = uid(); changed = true; }
     });
   });
+  return changed;
 }
+
+/* Set when the saved store cannot be parsed. While it is set, saveStore()
+   refuses to overwrite the saved copy with untouched empty defaults, so a
+   bad load can never silently destroy good saved data. Deliberate empty
+   restores clear it first (see the restore handlers); Delete all my data
+   removes the keys directly and never goes through saveStore.
+   Declared BEFORE the first loadStore() call: loadStore() assigns it, so
+   it must already be initialized when the store first loads. */
+let loadFailed = false;
+
+/* Safety net: the main store once came up empty while the in-app snapshots
+   survived. Set by maybeRestoreFromSnapshot() when it restores the newest
+   non-empty snapshot; renderRestoreNotice() tells the user. A deliberate
+   delete removes the snapshots too, so it is never resurrected by this check. */
+let restoredFromSnapshot = null;
+
+let store = loadStore();
+ensureEntryIds();
 
 function loadStore() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return structuredClone(DEFAULTS);
     const parsed = JSON.parse(raw);
-    return Object.assign(structuredClone(DEFAULTS), parsed);
+    const valid = validateStore(parsed);
+    if (!valid) {
+      // Readable JSON, but not a tracker store at all: treat it as corrupt
+      // rather than silently adopting it.
+      loadFailed = true;
+      try { localStorage.setItem(LS_KEY + ".corrupt", raw); } catch {}
+      return structuredClone(DEFAULTS);
+    }
+    return valid;
   } catch (e) {
+    // Keep the unreadable copy aside instead of silently losing it.
+    loadFailed = true;
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) localStorage.setItem(LS_KEY + ".corrupt", raw);
+    } catch {}
     return structuredClone(DEFAULTS);
   }
 }
 
-function saveStore() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(store));
-  } catch (e) {
-    /* storage full or unavailable; app keeps working in memory */
-  }
-  saveDailySnapshot();
+/* True when the last save could not be written. Shown as a plain-words
+   banner on the Today tab (see showStorageWarning). */
+let saveFailed = false;
+
+function showStorageWarning(text) {
+  const card = document.getElementById("storage-warning");
+  const line = document.getElementById("storage-warning-text");
+  if (!card || !line) return;
+  line.textContent = text;
+  card.classList.remove("hidden");
 }
 
-/* Automatic daily snapshot, once per day, max 3 versions, for Settings restore. Demo keys only, so demo snapshots never touch real app storage. */
+function saveStore() {
+  try {
+    // Second layer of the safety net: if this load could not read the saved
+    // store and nothing has changed since, do not overwrite the saved copy
+    // with empty defaults.
+    if (loadFailed && countStoreEntries(store) === 0) {
+      let unchanged = false;
+      try { unchanged = JSON.stringify(store) === JSON.stringify(DEFAULTS); } catch {}
+      if (unchanged) {
+        let savedRaw = null;
+        try { savedRaw = localStorage.getItem(LS_KEY); } catch {}
+        if (savedRaw) return true; // nothing to write; saved copy is intact
+      }
+    }
+    localStorage.setItem(LS_KEY, JSON.stringify(store));
+  } catch (e) {
+    // Storage full or unavailable: say so in plain words instead of
+    // failing silently. The demo keeps working in memory.
+    saveFailed = true;
+    showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
+    return false;
+  }
+  saveFailed = false;
+  saveDailySnapshot();
+  return true;
+}
+
+/* How many in-app snapshots to keep (about a week of daily snapshots). */
+const SNAPSHOT_KEEP = 7;
+/* Warn when a snapshot is this large; photos are stripped before saving. */
+const SNAPSHOT_WARN_BYTES = 2000000;
+
+/* Build the JSON for a snapshot. Photo pictures are left out (only the date
+   is kept) because base64 photos are what push a snapshot over the size
+   limit; everything else is saved in full, so a too-large store still gets
+   a usable snapshot of all its non-photo data. */
+function buildSnapshotRaw(s) {
+  const stripped = Object.assign({}, s, {
+    photos: (Array.isArray(s.photos) ? s.photos : []).map((p) => ({ id: p.id, date: p.date, photo: true }))
+  });
+  const raw = JSON.stringify(stripped);
+  return { raw, photosOmitted: (Array.isArray(s.photos) ? s.photos.length : 0) > 0, nearCap: raw.length > SNAPSHOT_WARN_BYTES };
+}
+
+/* Automatic daily snapshot, once per day, max 7 versions, for Settings restore. Demo keys only, so demo snapshots never touch real app storage. */
 function saveDailySnapshot() {
   try {
     if (countStoreEntries(store) === 0) return;
     const today = todayStr();
     if (localStorage.getItem("demo-nct-last-snapshot-day") === today) return;
-    const raw = JSON.stringify(store);
-    if (raw.length > 2500000) return;
+    const built = buildSnapshotRaw(store);
+    if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
     const snaps = loadSnapshots();
-    if (snaps.length && snaps[0].data === raw) {
+    if (snaps.length && snaps[0].data === built.raw) {
       localStorage.setItem("demo-nct-last-snapshot-day", today);
       return;
     }
-    snaps.unshift({ at: new Date().toISOString(), data: raw });
-    while (snaps.length > 3) snaps.pop();
+    snaps.unshift({ at: new Date().toISOString(), data: built.raw });
+    while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
     localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
     localStorage.setItem("demo-nct-last-snapshot-day", today);
   } catch {}
+}
+
+/* Safety snapshot taken right before a restore or a delete, labelled so the
+   list in Settings says what it is. Bypasses the once-a-day guard. */
+function takeSafetySnapshot(label) {
+  try {
+    if (countStoreEntries(store) === 0) return false;
+    const built = buildSnapshotRaw(store);
+    const snaps = loadSnapshots();
+    snaps.unshift({ at: new Date().toISOString(), data: built.raw, label });
+    while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
+    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+    return true;
+  } catch { return false; }
+}
+
+/* Week-dismiss keys ("demo-nct-week-dismiss:...") pile up over time; clear them
+   after a restore or a delete-all so old weeks never linger. */
+function clearWeekDismissKeys() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf("demo-nct-week-dismiss:") === 0) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {}
+}
+
+/* Reset the bits of on-screen state a restore or delete leaves behind:
+   which day is shown, and any entry edit left half finished. */
+function resetViewState() {
+  viewOffset = 0;
+  editingFoodId = null;
+  editingInjectionId = null;
+  editingWeightId = null;
+  editingMeasId = null;
+  editingJournalId = null;
+  editingSeId = null;
+  clearWeekDismissKeys();
+  try { cancelFoodEdit(); } catch {}
+}
+
+/* Local-midnight helpers: day differences must be counted in whole
+   local days, not by dividing a millisecond span, or a daylight-saving
+   change can shift the count by one. */
+function localMidnight(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function daysBetween(aISO, bISO) {
+  const a = new Date(aISO + "T00:00:00");
+  const b = new Date(bISO + "T00:00:00");
+  return Math.round((localMidnight(b) - localMidnight(a)) / 86400000);
 }
 
 function uid() {
@@ -162,20 +330,16 @@ const ENCOURAGEMENTS = [
 function renderEncouragement() {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 86400000);
+  const dayOfYear = Math.round((localMidnight(now) - localMidnight(start)) / 86400000);
   document.getElementById("encouragement-text").textContent =
     ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
 }
 
 /* Recent foods quick-pick: the 5 most recently logged foods as tap-to-add buttons */
 
-function renderRecentFoods(isToday) {
+function renderRecentFoods() {
   const box = document.getElementById("recent-foods");
   if (!box) return;
-  if (!isToday) {
-    box.innerHTML = "";
-    return;
-  }
   const seen = new Map();
   [...store.protein].reverse().forEach((e) => {
     const key = (e.food || "Logged entry").trim().toLowerCase();
@@ -191,7 +355,7 @@ function renderRecentFoods(isToday) {
     if (!src) return;
     store.protein.push({
       id: uid(),
-      date: todayStr(),
+      date: viewedDateStr(),
       grams: Number(src.grams) || 0,
       food: src.food
     });
@@ -307,7 +471,7 @@ function pickCoachInsight() {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const diff = (days.indexOf(shotDay) - new Date().getDay() + 7) % 7;
     if (diff === 1) return "Your shot day is tomorrow. Everything is ready.";
-    if (diff === 0 && !store.injections.some((e) => e.date === todayStr())) {
+    if (diff === 0 && !store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed")) {
       return null; // the one-tap button covers today
     }
   }
@@ -325,12 +489,12 @@ function pickCoachInsight() {
   }
   if (sorted.length) {
     const lastW = sorted[sorted.length - 1].date;
-    const daysSince = Math.round((new Date(todayStr()) - new Date(lastW + "T00:00:00")) / 86400000);
+    const daysSince = daysBetween(lastW, todayStr());
     if (daysSince >= 7) return "It's been " + daysSince + " days since you weighed in. No pressure, just whenever you're ready.";
   }
   if (store.journal.length) {
     const lastJ = [...store.journal].sort((a, b) => b.date.localeCompare(a.date))[0].date;
-    const daysSince = Math.round((new Date(todayStr()) - new Date(lastJ + "T00:00:00")) / 86400000);
+    const daysSince = daysBetween(lastJ, todayStr());
     if (daysSince >= 7) return "A lot can change in " + daysSince + " days. Two minutes of journaling?";
   }
   return null;
@@ -395,7 +559,7 @@ function renderMonthlyReview() {
     weightLine = change > 0
       ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
       : change < 0
-        ? "Weight went from " + startW + " to " + endW + " lbs."
+        ? "Weight went from " + startW + " to " + endW + " lbs, up " + Math.abs(change).toFixed(1) + "."
         : "Weight held steady at " + endW + " lbs.";
   } else if (weights.length === 1) {
     weightLine = "You logged your weight at " + weights[0].value + " lbs.";
@@ -513,7 +677,7 @@ function renderWeeklySummary() {
       lines.push(change > 0
         ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
         : change < 0
-          ? "Weight went from " + startW + " to " + endW + " lbs."
+          ? "Weight went from " + startW + " to " + endW + " lbs, up " + Math.abs(change).toFixed(1) + "."
           : "Weight held steady at " + endW + " lbs.");
     } else if (weights.length === 1) {
       lines.push("You logged your weight at " + weights[0].value + " lbs.");
@@ -559,6 +723,12 @@ function sumForDate(list, dateStr, field) {
 
 let viewOffset = 0; // 0 = today, -1 = yesterday, etc.
 
+/* The day the Today tab is showing. Steppers, forms, mood and undo all
+   log to this day, not always to today (F13/F14/F16). */
+function viewedDateStr() {
+  return todayStr(viewOffset);
+}
+
 function renderToday() {
   const t = todayStr(viewOffset);
   const dateEl = document.getElementById("today-date");
@@ -567,31 +737,15 @@ function renderToday() {
   const label = viewOffset === 0 ? "Today" : viewOffset === -1 ? "Yesterday"
     : viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   document.getElementById("today-heading").textContent = label;
-  dateEl.textContent = viewOffset === 0
-    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
-    : viewOffset === -1
-    ? viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
-    : "";
+  dateEl.textContent = viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   // Show/hide nav arrows
   document.getElementById("day-prev").style.visibility = "";
   document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
 
-  // Disable quick-add buttons when viewing a past day
-  const isToday = viewOffset === 0;
-  document.querySelectorAll("[data-water],[data-protein],[data-exercise]").forEach((b) => {
-    b.disabled = !isToday;
-    b.style.opacity = isToday ? "" : "0.5";
-  });
-  // Disable manual entry forms and mood buttons on past days
-  ["protein-food", "protein-grams", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
-  });
-  document.querySelectorAll(".mood-btn").forEach((b) => {
-    b.disabled = !isToday;
-    b.style.opacity = isToday ? "" : "0.5";
-  });
+  // Steppers, forms and mood buttons log to the day being viewed, so they
+  // stay usable on past days (F13/F16). Nothing here is disabled by day. The
+  // old disable list targeted buttons that do not exist ([data-water] etc.).
 
   const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
@@ -651,18 +805,25 @@ function renderToday() {
   });
 
   renderEncouragement();
-  renderRecentFoods(isToday);
-  cancelFoodEdit();
+  renderRecentFoods();
+  // F18: only cancel an in-progress food edit when its day is no longer the
+  // day being viewed. A re-render must never wipe typing or an edit in progress.
+  if (editingFoodId) {
+    const editingFood = store.protein.find((x) => x.id === editingFoodId);
+    if (!editingFood || editingFood.date !== t) cancelFoodEdit();
+  }
 
   renderNextInjection();
   renderMood();
-  renderTodayEntries(t, isToday);
+  renderTodayEntries(t);
 
   document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
   document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
   document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
 
   renderBackupNudge();
+  renderCorruptNotice();
+  if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
   renderWeeklySummary();
@@ -670,7 +831,7 @@ function renderToday() {
 
 /* Today's water, protein, and movement entries with per-entry remove */
 
-function renderTodayEntries(t, isToday) {
+function renderTodayEntries(t) {
   const waterToday = store.water.filter((e) => e.date === t);
   document.getElementById("water-list").innerHTML = waterToday.length
     ? waterToday.map((e) => `
@@ -686,7 +847,7 @@ function renderTodayEntries(t, isToday) {
       <div class="today-entry">
         <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
         <div style="display:flex;gap:6px;flex-shrink:0">
-          ${isToday ? `<button class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Edit</button>` : ""}
+          <button class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Edit</button>
           <button class="btn btn-small btn-danger" data-del-protein="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Remove</button>
         </div>
       </div>`).join("")
@@ -707,16 +868,19 @@ function renderTodayEntries(t, isToday) {
 function bindTodayEntryDeletes() {
   document.querySelectorAll("[data-edit-food]").forEach((b) => b.addEventListener("click", () => startFoodEdit(b.dataset.editFood)));
   document.querySelectorAll("[data-del-water]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Remove this water entry?")) return;
     store.water = store.water.filter((e) => e.id !== b.dataset.delWater);
     saveStore();
     renderToday();
   }));
   document.querySelectorAll("[data-del-protein]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Remove this food entry?")) return;
     store.protein = store.protein.filter((e) => e.id !== b.dataset.delProtein);
     saveStore();
     renderToday();
   }));
   document.querySelectorAll("[data-del-exercise]").forEach((b) => b.addEventListener("click", () => {
+    if (!confirm("Remove this movement entry?")) return;
     store.exercise = store.exercise.filter((e) => e.id !== b.dataset.delExercise);
     saveStore();
     renderToday();
@@ -724,7 +888,7 @@ function bindTodayEntryDeletes() {
 }
 
 function undoLastEntry(key) {
-  const t = todayStr();
+  const t = viewedDateStr();
   for (let i = store[key].length - 1; i >= 0; i--) {
     if (store[key][i].date === t) {
       store[key].splice(i, 1);
@@ -739,74 +903,96 @@ document.getElementById("undo-water").addEventListener("click", () => undoLastEn
 document.getElementById("undo-protein").addEventListener("click", () => undoLastEntry("protein"));
 document.getElementById("undo-exercise").addEventListener("click", () => undoLastEntry("exercise"));
 
-document.querySelectorAll("[data-water]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    store.water.push({ id: uid(), date: todayStr(), oz: Number(btn.dataset.water) });
-    saveStore();
-    renderToday();
-  });
-});
-
 /* ---------- Steppers ---------- */
+/* Steppers log to the day being viewed (F13). A minus tap trims that day's
+   most recent entries instead of pushing a negative entry, so totals can
+   never go below zero (F15). A typed amount above 500 is kept to 500 (F19). */
+let stepperWasClamped = false;
 function getStep(id, fallback) {
   const el = document.getElementById(id);
   const v = Number(el.value);
-  return v > 0 ? v : fallback;
+  const base = v > 0 ? v : fallback;
+  if (base > 500) { stepperWasClamped = true; return 500; }
+  stepperWasClamped = false;
+  return base;
+}
+function showStepperNote() {
+  const n = document.getElementById("stepper-note");
+  if (!n) return;
+  if (stepperWasClamped) {
+    n.textContent = "That was a very large amount, so it was kept to 500.";
+    n.classList.remove("hidden");
+  } else {
+    n.classList.add("hidden");
+  }
+}
+function trimDayEntries(key, field, date, amount) {
+  let remaining = amount;
+  for (let i = store[key].length - 1; i >= 0 && remaining > 0; i--) {
+    const e = store[key][i];
+    if (e.date !== date) continue;
+    const val = Number(e[field]) || 0;
+    if (val <= 0) continue;
+    if (val <= remaining) { remaining -= val; store[key].splice(i, 1); }
+    else { e[field] = val - remaining; remaining = 0; }
+  }
+}
+function stepperAdd(key, field, date, amount, extra) {
+  store[key].push(Object.assign({ id: uid(), date }, extra, { [field]: amount }));
+  showStepperNote();
+  saveStore(); renderToday();
+}
+function stepperMinus(key, field, date, amount) {
+  trimDayEntries(key, field, date, amount);
+  showStepperNote();
+  saveStore(); renderToday();
 }
 document.getElementById("water-plus").addEventListener("click", () => {
-  store.water.push({ id: uid(), date: todayStr(), oz: getStep("water-step", 8) });
-  saveStore(); renderToday();
+  stepperAdd("water", "oz", viewedDateStr(), getStep("water-step", 8), {});
 });
 document.getElementById("water-minus").addEventListener("click", () => {
-  store.water.push({ id: uid(), date: todayStr(), oz: -getStep("water-step", 8) });
-  saveStore(); renderToday();
+  stepperMinus("water", "oz", viewedDateStr(), getStep("water-step", 8));
 });
 document.getElementById("protein-plus").addEventListener("click", () => {
-  store.protein.push({ id: uid(), date: todayStr(), grams: getStep("protein-step", 15), food: "Quick add" });
-  saveStore(); renderToday();
+  stepperAdd("protein", "grams", viewedDateStr(), getStep("protein-step", 15), { food: "Quick add" });
 });
 document.getElementById("protein-minus").addEventListener("click", () => {
-  store.protein.push({ id: uid(), date: todayStr(), grams: -getStep("protein-step", 15), food: "Quick adjust" });
-  saveStore(); renderToday();
+  stepperMinus("protein", "grams", viewedDateStr(), getStep("protein-step", 15));
 });
 document.getElementById("exercise-plus").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: todayStr(), minutes: getStep("exercise-step", 15), label: "Movement" });
-  saveStore(); renderToday();
+  stepperAdd("exercise", "minutes", viewedDateStr(), getStep("exercise-step", 15), { label: "Movement" });
 });
 document.getElementById("exercise-minus").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: todayStr(), minutes: -getStep("exercise-step", 15), label: "Adjustment" });
-  saveStore(); renderToday();
-});
-
-document.querySelectorAll("[data-protein]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    store.protein.push({ id: uid(), date: todayStr(), grams: Number(btn.dataset.protein), food: "Quick add" });
-    saveStore();
-    renderToday();
-  });
+  stepperMinus("exercise", "minutes", viewedDateStr(), getStep("exercise-step", 15));
 });
 
 document.getElementById("protein-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const food = document.getElementById("protein-food").value.trim();
   const grams = Number(document.getElementById("protein-grams").value);
+  const proteinMsg = document.getElementById("protein-msg");
   if (!grams || grams <= 0) {
+    setFormStatus(proteinMsg, "Add the grams of protein first.", true);
     document.getElementById("protein-grams").focus();
-    document.getElementById("protein-grams").placeholder = "Enter grams first";
     return;
   }
+  const existing = editingFoodId ? store.protein.find((x) => x.id === editingFoodId) : null;
   const data = {
     id: editingFoodId || uid(),
-    date: todayStr(),
+    date: existing ? existing.date : viewedDateStr(),
     grams,
     food: food || "Logged entry"
   };
   if (editingFoodId) {
-    const i = store.protein.findIndex((x) => x.id === editingFoodId);
-    if (i > -1) store.protein[i] = data;
+    if (!existing) {
+      setFormStatus(proteinMsg, "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.protein[store.protein.findIndex((x) => x.id === editingFoodId)] = data;
   } else {
     store.protein.push(data);
   }
+  setFormStatus(proteinMsg, "", false);
   cancelFoodEdit();
   saveStore();
   renderToday();
@@ -814,22 +1000,15 @@ document.getElementById("protein-form").addEventListener("submit", (e) => {
 
 document.getElementById("food-edit-cancel").addEventListener("click", cancelFoodEdit);
 
-document.querySelectorAll("[data-exercise]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const labels = { 15: "Walk", 10: "Stretch", 30: "Movement" };
-    const mins = Number(btn.dataset.exercise);
-    store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: labels[mins] || "Movement" });
-    saveStore();
-    renderToday();
-  });
-});
-
 document.getElementById("exercise-type").addEventListener("change", (e) => {
   document.getElementById("exercise-custom").classList.toggle("hidden", e.target.value !== "Other");
 });
 
 function getCustomActivities() {
-  try { return JSON.parse(localStorage.getItem("demo-nc_custom_activities") || "[]"); } catch { return []; }
+  try {
+    const parsed = JSON.parse(localStorage.getItem("demo-nc_custom_activities") || "[]");
+    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
+  } catch { return []; }
 }
 function saveCustomActivity(name) {
   const list = getCustomActivities();
@@ -856,13 +1035,22 @@ function loadCustomActivities() {
 document.getElementById("exercise-add").addEventListener("click", () => {
   let type = document.getElementById("exercise-type").value;
   const mins = Number(document.getElementById("exercise-minutes").value);
+  const exMsg = document.getElementById("exercise-msg");
   if (type === "Other") {
     type = document.getElementById("exercise-custom").value.trim();
-    if (!type) return;
+    if (!type) {
+      setFormStatus(exMsg, "Add your activity name first.", true);
+      document.getElementById("exercise-custom").focus();
+      return;
+    }
     saveCustomActivity(type);
   }
-  if (!type || !mins || mins < 1) return;
-  store.exercise.push({ id: uid(), date: todayStr(), minutes: mins, label: type });
+  if (!type || !mins || mins < 1) {
+    setFormStatus(exMsg, "Choose an activity and add the minutes first.", true);
+    return;
+  }
+  setFormStatus(exMsg, "", false);
+  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: mins, label: type });
   saveStore();
   renderToday();
   document.getElementById("exercise-type").value = "";
@@ -886,14 +1074,14 @@ function renderNextInjection() {
   let diff = (target - now.getDay() + 7) % 7;
   const med = store.settings.medication || "your medication";
   const dose = store.settings.dose ? store.settings.dose + " mg" : "";
-  const last = [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  const last = lastInjection();
   const lastSite = last ? " Last site: " + last.site + "." : "";
   const when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
   // One-tap shot logging uses the usual medication, dose, and last site
   const quickBtn = document.getElementById("quick-log-shot");
-  const alreadyLogged = store.injections.some((e) => e.date === todayStr());
+  const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
   quickBtn.style.display = alreadyLogged ? "none" : "";
   if (!alreadyLogged && last && last.site) {
     quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
@@ -904,8 +1092,8 @@ function renderNextInjection() {
 
 document.getElementById("quick-log-shot").addEventListener("click", () => {
   const t = todayStr();
-  if (store.injections.some((e) => e.date === t)) return;
-  const last = [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  if (store.injections.some((e) => e.date === t && (e.status || "On time") !== "Missed")) return;
+  const last = lastInjection();
   if (!last || !last.site) {
     alert("Log your first shot in the Injections tab so I know your usual site. After that, one tap does it.");
     showTab("injections");
@@ -917,6 +1105,7 @@ document.getElementById("quick-log-shot").addEventListener("click", () => {
     medication: store.settings.medication || last.medication || "Zepbound",
     dose: Number(store.settings.dose) || Number(last.dose) || 0,
     site: last.site,
+    status: "On time",
     notes: ""
   });
   saveStore();
@@ -928,20 +1117,20 @@ document.getElementById("quick-log-shot").addEventListener("click", () => {
 /* Daily mood */
 
 function renderMood() {
-  const t = todayStr();
+  const t = viewedDateStr();
   const current = store.moods[t];
   document.querySelectorAll(".mood-btn").forEach((b) => {
     b.classList.toggle("selected", b.dataset.mood === current);
     b.setAttribute("aria-pressed", b.dataset.mood === current ? "true" : "false");
   });
   document.getElementById("mood-today-label").textContent = current
-    ? "Today you are feeling: " + current + "."
-    : "No mood logged today yet.";
+    ? (viewOffset === 0 ? "Today you are feeling: " : "On " + formatDate(t) + " you felt: ") + current + "."
+    : (viewOffset === 0 ? "No mood logged today yet." : "No mood logged for this day yet.");
 }
 
 document.querySelectorAll(".mood-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    store.moods[todayStr()] = btn.dataset.mood;
+    store.moods[viewedDateStr()] = btn.dataset.mood;
     saveStore();
     renderMood();
   });
@@ -958,6 +1147,22 @@ function setFormStatus(el, text, isError) {
 /* ---------- Injection calendar ---------- */
 
 let injCalYear, injCalMonth;
+
+/* Arrow-key navigation for a calendar grid: arrows move focus to the
+   neighbouring day cell in the same month (F30). Returns true when handled. */
+function calendarArrowNav(e, currentDs, dateAttr) {
+  const moves = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+  if (!(e.key in moves)) return false;
+  const d = new Date(currentDs + "T00:00:00");
+  d.setDate(d.getDate() + moves[e.key]);
+  const target = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const grid = e.currentTarget.closest(".mini-calendar");
+  const cell = grid && grid.querySelector("[" + dateAttr + "=\"" + target + "\"]");
+  if (!cell) return false;
+  e.preventDefault();
+  cell.focus();
+  return true;
+}
 
 function nextShotDateStr() {
   const shotDay = store.settings.shotDay;
@@ -993,16 +1198,20 @@ function renderInjectionCalendar() {
   for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = injCalYear + "-" + String(injCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const dayEntries = loggedByDate[ds] || [];
+    const taken = dayEntries.some((j) => (j.status || "On time") !== "Missed");
     const cls = ["day"];
     if (ds === todayS) cls.push("today");
-    if (loggedByDate[ds]) cls.push("logged");
+    if (taken) cls.push("logged");
     else if (ds === nextShot) cls.push("scheduled");
     const states = [];
     if (ds === todayS) states.push("today");
-    if (loggedByDate[ds]) states.push("shot logged");
+    if (taken) states.push("shot logged");
+    if (dayEntries.some((j) => (j.status || "On time") === "Missed")) states.push("dose missed");
+    if (dayEntries.some((j) => (j.status || "On time") === "Delayed")) states.push("shot delayed");
     if (ds === nextShot) states.push("next scheduled shot");
     const label = formatDate(ds) + (states.length ? ", " + states.join(", ") : "");
-    html += `<div class="${cls.join(" ")}" role="button" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
+    html += `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
   }
   cal.innerHTML = html;
 
@@ -1012,11 +1221,12 @@ function renderInjectionCalendar() {
       document.getElementById("inj-cal-detail").textContent =
         list.length
           ? formatDate(el.dataset.calDate) + ": " +
-            list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ")").join("; ")
+            list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ", " + (j.status || "On time") + ")").join("; ")
           : "No shot logged on " + formatDate(el.dataset.calDate) + ".";
     };
     el.addEventListener("click", show);
     el.addEventListener("keydown", (e) => {
+      if (calendarArrowNav(e, el.dataset.calDate, "data-cal-date")) return;
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
     });
   });
@@ -1058,6 +1268,9 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
   const next = new Date(now);
   next.setDate(now.getDate() + diff);
   next.setHours(9, 0, 0, 0);
+  // If today's 9am has already passed, the reminder starts next week, never in the past.
+  if (next <= now) next.setDate(next.getDate() + 7);
+  const icsEscape = (v) => String(v == null ? "" : v).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
   const fmt = (d) => {
     const p = (n) => String(n).padStart(2, "0");
     return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + "T" + p(d.getHours()) + p(d.getMinutes()) + "00";
@@ -1071,8 +1284,8 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
     "DTSTAMP:" + fmt(new Date()),
     "DTSTART:" + fmt(next),
     "RRULE:FREQ=WEEKLY",
-    "SUMMARY:" + med + dose + " shot day",
-    "DESCRIPTION:Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker™.",
+    "SUMMARY:" + icsEscape(med + dose + " shot day"),
+    "DESCRIPTION:" + icsEscape("Time for your weekly injection. Log it in New Chapter: GLP-1 Tracker™."),
     "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "END:VALARM",
     "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
@@ -1092,16 +1305,27 @@ document.getElementById("show-injection-form").addEventListener("click", () => {
   injForm.reset();
   document.getElementById("inj-date").value = todayStr();
   document.getElementById("inj-med").value = store.settings.medication || "";
+  document.getElementById("inj-status").value = "On time";
+  document.getElementById("inj-status-note").classList.add("hidden");
   toggleForm(injForm, document.getElementById("show-injection-form"), true);
+  showSiteMapView("front");
   renderSiteMap();
+});
+
+/* Show the clinician wording when a dose is marked Missed or Delayed. */
+document.getElementById("inj-status").addEventListener("change", (e) => {
+  const missedOrDelayed = e.target.value === "Missed" || e.target.value === "Delayed";
+  document.getElementById("inj-status-note").classList.toggle("hidden", !missedOrDelayed);
 });
 
 // ---- Injection site map ----
 const siteMapZones = () => [...document.querySelectorAll("#site-map .site-zone")];
 
 function lastInjection() {
-  if (!store.injections.length) return null;
-  return [...store.injections].sort((a, b) => b.date.localeCompare(a.date))[0];
+  /* A missed dose was not taken, so it is not a "last shot". */
+  const taken = store.injections.filter((e) => (e.status || "On time") !== "Missed");
+  if (!taken.length) return null;
+  return [...taken].sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
 function showSiteMapView(view) {
@@ -1173,12 +1397,25 @@ injForm.addEventListener("submit", (e) => {
     medication: document.getElementById("inj-med").value.trim(),
     dose: Number(document.getElementById("inj-dose").value),
     site: document.getElementById("inj-site").value,
-    notes: document.getElementById("inj-notes").value.trim()
+    status: document.getElementById("inj-status").value || "On time",
+    notes: document.getElementById("inj-notes").value.trim().slice(0, 2000)
   };
-  if (!entry.date || !entry.medication || !entry.site) return;
+  const injMsg = document.getElementById("inj-saved-msg");
+  if (!entry.date) { setFormStatus(injMsg, "Add a date first.", true); return; }
+  if (!entry.medication) { setFormStatus(injMsg, "Add the medication name first.", true); return; }
+  if (!entry.dose || entry.dose <= 0) {
+    setFormStatus(injMsg, "Add a dose above zero first.", true);
+    document.getElementById("inj-dose").focus();
+    return;
+  }
+  if (!entry.site) { setFormStatus(injMsg, "Choose an injection site first.", true); return; }
   if (editingInjectionId) {
     const i = store.injections.findIndex((x) => x.id === editingInjectionId);
-    if (i > -1) store.injections[i] = entry;
+    if (i === -1) {
+      setFormStatus(injMsg, "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.injections[i] = entry;
   } else {
     store.injections.push(entry);
   }
@@ -1204,29 +1441,40 @@ function renderInjections() {
   }
   const visible = sorted.slice(0, injectionLimit);
   const remaining = sorted.length - visible.length;
-  list.innerHTML = visible.map((inj) => `
+  list.innerHTML = visible.map((inj) => {
+    const status = inj.status || "On time";
+    const missedOrDelayed = status === "Missed" || status === "Delayed";
+    return `
     <div class="entry">
       <p class="entry-title">${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg</p>
-      <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)}</p>
+      <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)} &middot; ${escapeHtml(status)}</p>
       ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
+      ${missedOrDelayed ? `<p class="entry-notes">Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>` : ""}
       <div class="entry-actions">
         <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-inj="${inj.id}" aria-label="Delete injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Delete</button>
       </div>
-    </div>`).join("")
+    </div>`;
+  }).join("")
     + (remaining > 0
       ? `<button class="btn" id="more-injections" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
       : "");
 
   list.querySelectorAll("[data-edit-inj]").forEach((b) => b.addEventListener("click", () => {
     const inj = store.injections.find((x) => x.id === b.dataset.editInj);
-    if (!inj) return;
+    if (!inj) {
+      setFormStatus(document.getElementById("inj-saved-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
     editingInjectionId = inj.id;
     injForm.querySelector("h3").textContent = "Edit Injection";
     document.getElementById("inj-date").value = inj.date;
     document.getElementById("inj-med").value = inj.medication;
     document.getElementById("inj-dose").value = inj.dose;
     document.getElementById("inj-site").value = inj.site;
+    document.getElementById("inj-status").value = inj.status || "On time";
+    const missedOrDelayed = (inj.status || "On time") === "Missed" || (inj.status || "On time") === "Delayed";
+    document.getElementById("inj-status-note").classList.toggle("hidden", !missedOrDelayed);
     document.getElementById("inj-notes").value = inj.notes || "";
     toggleForm(injForm, document.getElementById("show-injection-form"), true);
     renderSiteMap();
@@ -1257,7 +1505,7 @@ let editingWeightId = null;
 
 document.getElementById("show-weight-form").addEventListener("click", () => {
   editingWeightId = null;
-  weightForm.querySelector("h3").textContent = "Log Weigh-in";
+  weightForm.querySelector("h3").textContent = "Log weigh-in";
   weightForm.reset();
   document.getElementById("weight-date").value = todayStr();
   toggleForm(weightForm, document.getElementById("show-weight-form"), true);
@@ -1274,10 +1522,24 @@ weightForm.addEventListener("submit", (e) => {
     date: document.getElementById("weight-date").value,
     value: Number(document.getElementById("weight-value").value)
   };
-  if (!entry.date || !entry.value || entry.value <= 0) return;
+  const weightMsg = document.getElementById("weight-saved-msg");
+  if (!entry.date) { setFormStatus(weightMsg, "Add a date first.", true); return; }
+  if (entry.date > todayStr()) {
+    setFormStatus(weightMsg, "That date is in the future. Pick today or an earlier date.", true);
+    return;
+  }
+  if (!entry.value || entry.value <= 0) {
+    setFormStatus(weightMsg, "Add a weight above zero first.", true);
+    document.getElementById("weight-value").focus();
+    return;
+  }
   if (editingWeightId) {
     const i = store.weight.findIndex((x) => x.id === editingWeightId);
-    if (i > -1) store.weight[i] = entry;
+    if (i === -1) {
+      setFormStatus(weightMsg, "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.weight[i] = entry;
   } else {
     store.weight.push(entry);
   }
@@ -1292,15 +1554,42 @@ let weightLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderWeight() {
   const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const noteEl = document.getElementById("weight-change-note");
   if (sorted.length) {
     const current = sorted[sorted.length - 1].value;
-    const first = sorted[0].value;
-    document.getElementById("current-weight").textContent = current.toFixed(1);
-    const lost = first - current;
-    document.getElementById("total-lost").textContent = (lost >= 0 ? "-" : "+") + Math.abs(lost).toFixed(1);
+    const first = sorted[0];
+    document.getElementById("current-weight").textContent = Number(current).toFixed(1);
+    /* Starting weight is the first weigh-in, with its date. It is never
+       overwritten: it is read from the log, not stored separately. */
+    document.getElementById("starting-weight").textContent = Number(first.value).toFixed(1);
+    document.getElementById("starting-weight-date").textContent = formatDate(first.date);
   } else {
     document.getElementById("current-weight").textContent = "--";
+    document.getElementById("starting-weight").textContent = "--";
+    document.getElementById("starting-weight-date").textContent = "";
+  }
+  if (sorted.length >= 2) {
+    /* Total and percent show only with at least two weigh-ins. A gain is
+       shown honestly as a gain, never as a negative loss. */
+    const start = Number(sorted[0].value);
+    const current = Number(sorted[sorted.length - 1].value);
+    const change = start - current;
+    const gained = change < 0;
+    const amount = Math.abs(change).toFixed(1);
+    const pct = (Math.abs(change) / start * 100).toFixed(1);
+    document.getElementById("total-lost-label").textContent = gained ? "Total gained" : "Total lost";
+    document.getElementById("total-lost").textContent = (gained ? "+" : "-") + amount;
+    document.getElementById("percent-lost-label").textContent = gained ? "Percent gained" : "Percent lost";
+    document.getElementById("percent-lost").textContent = (gained ? "+" : "-") + pct;
+    noteEl.textContent = "";
+  } else {
+    document.getElementById("total-lost-label").textContent = "Total lost";
     document.getElementById("total-lost").textContent = "--";
+    document.getElementById("percent-lost-label").textContent = "Percent lost";
+    document.getElementById("percent-lost").textContent = "--";
+    noteEl.textContent = sorted.length === 1
+      ? "Log a second weigh-in to see your change."
+      : "Log a weigh-in to get started.";
   }
 
   const list = document.getElementById("weight-list");
@@ -1324,7 +1613,10 @@ function renderWeight() {
 
   list.querySelectorAll("[data-edit-w]").forEach((b) => b.addEventListener("click", () => {
     const w = store.weight.find((x) => x.id === b.dataset.editW);
-    if (!w) return;
+    if (!w) {
+      setFormStatus(document.getElementById("weight-saved-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
     editingWeightId = w.id;
     weightForm.querySelector("h3").textContent = "Edit Weigh-in";
     document.getElementById("weight-date").value = w.date;
@@ -1347,6 +1639,7 @@ function renderWeight() {
     renderWeight();
   });
 
+  renderWeightMilestone();
   drawWeightChart();
 }
 
@@ -1369,6 +1662,11 @@ function renderWeightMilestone() {
   document.getElementById("milestone-barwrap").setAttribute("aria-valuenow", pctRound);
   const textEl = document.getElementById("milestone-text");
   const subEl = document.getElementById("milestone-sub");
+  if (sorted.length === 1) {
+    textEl.textContent = "Starting point recorded.";
+    subEl.textContent = "You logged " + curW + " lbs on " + formatDate(sorted[0].date) + ". Log another weigh-in to see your change toward your goal of " + goalW + " lbs.";
+    return;
+  }
   if (pctRound >= 100) {
     textEl.textContent = "Goal reached! Incredible work.";
     subEl.textContent = "From " + startW + " to " + curW + " lbs. You did this.";
@@ -1389,8 +1687,13 @@ function drawWeightChart() {
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const chartText = document.getElementById("weight-chart-text");
   if (sorted.length < 2) {
     emptyMsg.style.display = "";
+    renderWeightMilestone();
+    if (chartText) chartText.textContent = sorted.length === 1
+      ? "One weigh-in so far: " + Number(sorted[0].value).toFixed(1) + " lbs on " + formatDate(sorted[0].date) + ". Log another weigh-in to see your chart."
+      : "";
     return;
   }
   emptyMsg.style.display = "none";
@@ -1430,7 +1733,7 @@ function drawWeightChart() {
       const lx = x(i);
       // Right-align the last label so it doesn't clip at the edge
       ctx.textAlign = i === sorted.length - 1 ? "right" : i === 0 ? "left" : "center";
-      ctx.fillText(formatDate(w.date).replace(", 2026", "").replace(", 2027", ""), 
+      ctx.fillText(formatDate(w.date).replace(/, \d{4}$/, ""), 
         i === sorted.length - 1 ? W - 4 : i === 0 ? 4 : lx, H - 12);
       ctx.textAlign = "center";
     }
@@ -1477,6 +1780,13 @@ function drawWeightChart() {
     ctx.restore();
   }
 
+  if (chartText) {
+    const firstW = sorted[0], lastW = sorted[sorted.length - 1];
+    const diff = Number(firstW.value) - Number(lastW.value);
+    const dir = diff > 0 ? "down " + diff.toFixed(1) + " lbs" : diff < 0 ? "up " + Math.abs(diff).toFixed(1) + " lbs" : "unchanged";
+    chartText.textContent = "Weight from " + Number(firstW.value).toFixed(1) + " lbs on " + formatDate(firstW.date) + " to " + Number(lastW.value).toFixed(1) + " lbs on " + formatDate(lastW.date) + ", " + dir + " over " + sorted.length + " weigh-ins." + (goalW > 0 ? " Goal: " + goalW + " lbs." : "");
+  }
+
   renderWeightMilestone();
 }
 
@@ -1513,7 +1823,10 @@ measForm.addEventListener("submit", (e) => {
     thigh: num("meas-thigh"),
     neck: num("meas-neck")
   };
-  if (!entry.date) return;
+  if (!entry.date) {
+    setFormStatus(document.getElementById("meas-msg"), "Add a date first.", true);
+    return;
+  }
   if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
     setFormStatus(document.getElementById("meas-msg"), "Enter at least one measurement.", true);
     document.getElementById("meas-waist").focus();
@@ -1521,7 +1834,11 @@ measForm.addEventListener("submit", (e) => {
   }
   if (editingMeasId) {
     const i = store.measurements.findIndex((x) => x.id === editingMeasId);
-    if (i > -1) store.measurements[i] = entry;
+    if (i === -1) {
+      setFormStatus(document.getElementById("meas-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.measurements[i] = entry;
   } else {
     store.measurements.push(entry);
   }
@@ -1565,7 +1882,10 @@ function renderMeasurements() {
 
   list.querySelectorAll("[data-edit-meas]").forEach((b) => b.addEventListener("click", () => {
     const m = store.measurements.find((x) => x.id === b.dataset.editMeas);
-    if (!m) return;
+    if (!m) {
+      setFormStatus(document.getElementById("meas-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
     editingMeasId = m.id;
     measForm.querySelector("h3").textContent = "Edit Measurements";
     document.getElementById("meas-date").value = m.date;
@@ -1612,12 +1932,10 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
       canvas.height = h;
       canvas.getContext("2d").drawImage(img, 0, 0, w, h);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-      try {
-        store.photos.push({ id: uid(), date: todayStr(), dataUrl });
-        saveStore();
-      } catch (err) {
+      store.photos.push({ id: uid(), date: todayStr(), dataUrl });
+      if (!saveStore()) {
         store.photos.pop();
-        alert("Not enough storage on this device for more photos. Try exporting your data first.");
+        alert("Not enough storage on this device for more photos. Try downloading a backup from Settings first, then deleting a few old photos.");
         return;
       }
       renderPhotos();
@@ -1630,7 +1948,8 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
 
 function renderPhotos() {
   const grid = document.getElementById("photo-grid");
-  const sorted = [...store.photos].sort((a, b) => b.date.localeCompare(a.date));
+  // Snapshots keep photo dates only, not the pictures; skip those here.
+  const sorted = [...store.photos].filter((p) => p.dataUrl).sort((a, b) => b.date.localeCompare(a.date));
   if (!sorted.length) {
     grid.innerHTML = '<p class="empty-state">No progress photos yet. Tap "+ Add photo" to add your first.</p>';
     return;
@@ -1677,10 +1996,17 @@ journalForm.addEventListener("submit", (e) => {
     mood: document.getElementById("journal-mood").value,
     notes: document.getElementById("journal-notes").value.trim()
   };
-  if (!entry.date || !entry.mood) return;
+  entry.notes = (entry.notes || "").slice(0, 2000);
+  const journalMsg = document.getElementById("journal-saved-msg");
+  if (!entry.date) { setFormStatus(journalMsg, "Add a date first.", true); return; }
+  if (!entry.mood) { setFormStatus(journalMsg, "Choose a mood first.", true); return; }
   if (editingJournalId) {
     const i = store.journal.findIndex((x) => x.id === editingJournalId);
-    if (i > -1) store.journal[i] = entry;
+    if (i === -1) {
+      setFormStatus(journalMsg, "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.journal[i] = entry;
   } else {
     store.journal.push(entry);
   }
@@ -1721,7 +2047,10 @@ function renderJournal() {
 
   list.querySelectorAll("[data-edit-j]").forEach((b) => b.addEventListener("click", () => {
     const j = store.journal.find((x) => x.id === b.dataset.editJ);
-    if (!j) return;
+    if (!j) {
+      setFormStatus(document.getElementById("journal-saved-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
     editingJournalId = j.id;
     journalForm.querySelector("h3").textContent = "Edit Journal Entry";
     document.getElementById("journal-date").value = j.date;
@@ -1772,10 +2101,18 @@ seForm.addEventListener("submit", (e) => {
     severity: document.getElementById("se-severity").value,
     notes: document.getElementById("se-notes").value.trim()
   };
-  if (!entry.date || !entry.symptom || !entry.severity) return;
+  entry.notes = (entry.notes || "").slice(0, 2000);
+  const seMsg = document.getElementById("se-saved-msg");
+  if (!entry.date) { setFormStatus(seMsg, "Add a date first.", true); return; }
+  if (!entry.symptom) { setFormStatus(seMsg, "Add the symptom first.", true); return; }
+  if (!entry.severity) { setFormStatus(seMsg, "Choose how bad it was first.", true); return; }
   if (editingSeId) {
     const i = store.sideEffects.findIndex((x) => x.id === editingSeId);
-    if (i > -1) store.sideEffects[i] = entry;
+    if (i === -1) {
+      setFormStatus(seMsg, "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
+    store.sideEffects[i] = entry;
   } else {
     store.sideEffects.push(entry);
   }
@@ -1814,7 +2151,10 @@ function renderSideEffects() {
 
   list.querySelectorAll("[data-edit-se]").forEach((b) => b.addEventListener("click", () => {
     const s = store.sideEffects.find((x) => x.id === b.dataset.editSe);
-    if (!s) return;
+    if (!s) {
+      setFormStatus(document.getElementById("se-saved-msg"), "That entry could not be found. It may already have been removed.", true);
+      return;
+    }
     editingSeId = s.id;
     seForm.querySelector("h3").textContent = "Edit Side Effect";
     document.getElementById("se-date").value = s.date;
@@ -1842,10 +2182,16 @@ function renderSideEffects() {
 
 /* ---------- Settings ---------- */
 
+/* Show only the last 4 characters of the companion key, never the whole key. */
+function maskToken(t) {
+  if (!t) return "";
+  return t.length > 4 ? "\u2022\u2022\u2022\u2022" + t.slice(-4) : "\u2022\u2022\u2022\u2022";
+}
+
 function renderSettings() {
   renderSnapshots();
   const s = store.settings;
-  document.getElementById("set-companion-key").value = getAuthToken();
+  document.getElementById("set-companion-key").value = maskToken(getAuthToken());
   updateCoachStatus();
   renderPlaySubscription();
   document.getElementById("set-med").value = s.medication || "";
@@ -1866,9 +2212,7 @@ function renderRefillCountdown() {
     el.textContent = "";
     return;
   }
-  const today = new Date(todayStr());
-  const target = new Date(rd + "T00:00:00");
-  const diffDays = Math.round((target - today) / 86400000);
+  const diffDays = daysBetween(todayStr(), rd);
   if (diffDays < 0) {
     el.textContent = "Your refill date has passed. Consider requesting a refill soon.";
   } else if (diffDays === 0) {
@@ -1883,7 +2227,12 @@ function renderRefillCountdown() {
 document.getElementById("settings-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const keyInput = document.getElementById("set-companion-key").value.trim();
-  if (keyInput) {
+  const existingKey = getAuthToken();
+  if (keyInput && keyInput !== maskToken(existingKey)) {
+    if (existingKey && !confirm("Replace the companion key you already have saved? The old key will stop working here.")) {
+      document.getElementById("set-companion-key").value = maskToken(existingKey);
+      return;
+    }
     try { localStorage.setItem(TOKEN_KEY, keyInput); } catch {}
   }
   store.settings.medication = document.getElementById("set-med").value.trim() || "Zepbound";
@@ -1969,7 +2318,7 @@ async function redeemAccessCode() {
     const data = await res.json();
     if (data.ok && data.token) {
       try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
-      document.getElementById("set-companion-key").value = data.token;
+      document.getElementById("set-companion-key").value = maskToken(data.token);
       msg.textContent = "Your AI Wellness Companion is connected.";
       msg.classList.add("success");
       if (input) input.setAttribute("aria-invalid", "false");
@@ -2241,7 +2590,7 @@ function renderBackupNudge() {
   } catch {}
   if (snooze && snooze >= todayStr()) { banner.classList.add("hidden"); return; }
   if (last) {
-    const daysSince = Math.round((new Date(todayStr()) - new Date(last + "T00:00:00")) / 86400000);
+    const daysSince = daysBetween(last, todayStr());
     if (daysSince < 30) { banner.classList.add("hidden"); return; } // monthly
   }
   const days = new Set();
@@ -2269,7 +2618,9 @@ document.getElementById("backup-later").addEventListener("click", () => {
 /* ---------- Data export (tab-delimited) ---------- */
 
 function tsvCell(v) {
-  return String(v == null ? "" : v).replace(/\t/g, " ").replace(/\r?\n/g, " ");
+  const text = String(v == null ? "" : v);
+  if (/[\t\r\n"]/.test(text)) return '"' + text.replace(/"/g, '""') + '"';
+  return text;
 }
 
 function tsvSection(title, headers, rows) {
@@ -2305,8 +2656,8 @@ document.getElementById("export-data").addEventListener("click", () => {
 
   lines.push(...tsvSection(
     "Injections",
-    ["Date", "Medication", "Dose (mg)", "Site", "Notes"],
-    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.notes])
+    ["Date", "Medication", "Dose (mg)", "Site", "Status", "Notes"],
+    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.status || "On time", e.notes])
   ));
 
   lines.push(...tsvSection(
@@ -2340,6 +2691,27 @@ document.getElementById("export-data").addEventListener("click", () => {
     [...store.sideEffects].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.symptom, e.severity, e.notes])
   ));
 
+  lines.push(...tsvSection(
+    "Daily Mood",
+    ["Date", "Mood"],
+    Object.keys(store.moods || {}).sort().map((d) => [d, store.moods[d]])
+  ));
+
+  lines.push(...tsvSection(
+    "Settings and goals",
+    ["Setting", "Value"],
+    [
+      ["Medication", store.settings.medication || ""],
+      ["Dose (mg)", store.settings.dose || ""],
+      ["Shot day", store.settings.shotDay || ""],
+      ["Daily water goal (oz)", store.settings.waterGoal || ""],
+      ["Daily protein goal (g)", store.settings.proteinGoal || ""],
+      ["Daily movement goal (min)", store.settings.movementGoal || ""],
+      ["Goal weight (lbs)", store.settings.goalWeight || ""],
+      ["Refill date", store.settings.refillDate || ""]
+    ]
+  ));
+
   const blob = new Blob([lines.join("\n")], { type: "text/tab-separated-values;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -2349,7 +2721,8 @@ document.getElementById("export-data").addEventListener("click", () => {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  try { localStorage.setItem("demo-nct-last-backup", todayStr()); } catch {}
+  // An export is not a backup: it cannot be restored, so it must not
+  // reset the backup reminder.
   renderBackupNudge();
 });
 
@@ -2375,18 +2748,92 @@ function snapshotSummary(s) {
 
 /* ---------- In app backup snapshots ---------- */
 
+/* Safety net: if the main store has zero entries but a non-empty snapshot
+   exists, restore the newest non-empty snapshot instead of showing a blank
+   demo. Called once at startup, before the first render and before any
+   save, so the restored data is what the visitor sees and what gets saved. */
+function maybeRestoreFromSnapshot() {
+  if (countStoreEntries(store) !== 0) return;
+  const snaps = loadSnapshots();
+  for (const sn of snaps) {
+    // A safety copy kept when data was deleted on purpose must never
+    // bring that data back on its own.
+    if (sn.label === "Before delete") continue;
+    let snapStore = null;
+    try { snapStore = validateStore(JSON.parse(sn.data)); } catch { continue; }
+    if (!snapStore || countStoreEntries(snapStore) === 0) continue;
+    store = snapStore;
+    ensureEntryIds();
+    loadFailed = false;
+    restoredFromSnapshot = { at: sn.at, summary: snapshotSummary(snapStore) };
+    saveStore();
+    return;
+  }
+}
+
+/* If this load could not read the saved entries, say so in plain words
+   on the Today tab instead of silently starting fresh. The unreadable copy
+   is kept aside (newChapterTracker.demo.v1.corrupt) and the save guard keeps
+   this empty start from overwriting it. */
+function renderCorruptNotice() {
+  const card = document.getElementById("corrupt-notice");
+  if (!card) return;
+  if (!loadFailed || restoredFromSnapshot) { card.classList.add("hidden"); return; }
+  document.getElementById("corrupt-notice-text").textContent =
+    "Your saved entries could not be read, so the demo started fresh to keep your old data safe. Your old data is still saved on this device. Before adding new entries, check Settings, then Backup & restore, for a backup to restore.";
+  card.classList.remove("hidden");
+}
+
+document.getElementById("corrupt-notice-hide").addEventListener("click", () => {
+  const card = document.getElementById("corrupt-notice");
+  if (card) card.classList.add("hidden");
+});
+
+document.getElementById("storage-warning-hide").addEventListener("click", () => {
+  const card = document.getElementById("storage-warning");
+  if (card) card.classList.add("hidden");
+});
+
+function renderRestoreNotice() {
+  const card = document.getElementById("restore-notice");
+  if (!card) return;
+  if (!restoredFromSnapshot) { card.classList.add("hidden"); return; }
+  const label = new Date(restoredFromSnapshot.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  document.getElementById("restore-notice-text").textContent =
+    "Your entries were restored from a backup saved in this demo on " + label + ". It has " + restoredFromSnapshot.summary + ". If anything looks wrong, check Settings, then Backup & restore.";
+  card.classList.remove("hidden");
+}
+
+document.getElementById("restore-notice-hide").addEventListener("click", () => {
+  const card = document.getElementById("restore-notice");
+  if (card) card.classList.add("hidden");
+});
+
 const SNAP_KEY = "demo-nct-snapshots";
 function loadSnapshots() {
-  try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || []; } catch { return []; }
+  let raw = null;
+  try { raw = localStorage.getItem(SNAP_KEY); } catch { return []; }
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error("snapshots not an array");
+    return parsed.filter((sn) => sn && typeof sn === "object" && typeof sn.data === "string");
+  } catch {
+    // Do not destroy the unreadable snapshots by overwriting them: set the
+    // raw copy aside under its own key and start with an empty list.
+    try { localStorage.setItem(SNAP_KEY + ".corrupt", raw); } catch {}
+    return [];
+  }
 }
 function saveSnapshot() {
   try {
     if (countStoreEntries(store) === 0) return;
-    const raw = JSON.stringify(store);
-    if (raw.length > 2500000) return;
+    const built = buildSnapshotRaw(store);
+    if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
     const snaps = loadSnapshots();
-    snaps.unshift({ at: new Date().toISOString(), data: raw });
-    while (snaps.length > 3) snaps.pop();
+    if (snaps.length && snaps[0].data === built.raw) return; // identical to the newest: no duplicate
+    snaps.unshift({ at: new Date().toISOString(), data: built.raw });
+    while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
     localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
   } catch {}
 }
@@ -2396,23 +2843,37 @@ function renderSnapshots() {
   const snaps = loadSnapshots();
   if (!snaps.length) { box.innerHTML = ""; return; }
   box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
-    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "");
+    const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "")
+      + (sn.label === "Before delete" ? " · Safety copy kept when you deleted your data" : sn.label ? " · " + sn.label : "");
     let summary = "Could not be read";
-    try { summary = snapshotSummary(JSON.parse(sn.data)); } catch {}
+    let corrupt = false;
+    try {
+      const parsed = validateStore(JSON.parse(sn.data));
+      if (!parsed) throw new Error("bad snapshot");
+      summary = snapshotSummary(parsed);
+    } catch { corrupt = true; }
+    if (corrupt) {
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">This backup is damaged and cannot be restored.</span></span><button type="button" class="btn btn-small" disabled aria-label="Backup from ' + escapeHtml(label) + ' is damaged and cannot be restored">Restore</button></div>';
+    }
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
     const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
     if (!snap) return;
     let snapStore = null;
-    try { snapStore = JSON.parse(snap.data); } catch {}
+    try { snapStore = validateStore(JSON.parse(snap.data)); } catch {}
+    if (!snapStore) { alert("That backup is damaged and cannot be restored. Nothing was changed."); return; }
     const snapSummary = snapshotSummary(snapStore);
     const snapLabel = new Date(snap.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" });
     if (countStoreEntries(snapStore) === 0) {
       if (!confirm("This snapshot from " + snapLabel + " is empty, no entries. Restoring it will replace your current data with nothing. Are you sure you want to restore an empty snapshot?")) return;
-    } else if (!confirm("Restore this snapshot from " + snapLabel + "? It contains " + snapSummary + ". Your current data will be replaced. Download a backup of your current data first if you want to keep it.")) return;
+    } else if (!confirm("Restore this snapshot from " + snapLabel + "? It contains " + snapSummary + ". Your current data will be replaced. A safety copy of your current data will be kept first, just in case.")) return;
     try {
-      store = Object.assign(structuredClone(DEFAULTS), JSON.parse(snap.data));
+      takeSafetySnapshot("Before restore"); // current data kept first
+      store = snapStore;
+      ensureEntryIds();
+      loadFailed = false; // deliberate restore: the save guard must not block it
+      resetViewState();
       saveStore();
       renderToday();
       renderInjections();
@@ -2433,35 +2894,59 @@ function renderSnapshots() {
 document.getElementById("backup-data").addEventListener("click", () => {
   const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
   saveSnapshot();
-  const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "new-chapter-backup-" + todayStr() + ".json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  try { localStorage.setItem("demo-nct-last-backup", todayStr()); } catch {}
+  const msg = document.getElementById("backup-msg");
+  try {
+    const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "new-chapter-backup-" + todayStr() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    // Only a backup file counts as a backup: mark it done now that the
+    // download was started.
+    try { localStorage.setItem("demo-nct-last-backup", todayStr()); } catch {}
+    if (msg) { msg.textContent = "Backup downloaded. Check your Downloads folder."; msg.classList.add("success"); }
+  } catch (err) {
+    if (msg) { msg.textContent = "That download did not work. Try again."; msg.classList.remove("success"); }
+  }
   renderBackupNudge();
   renderSnapshots();
 });
 
 document.getElementById("restore-input").addEventListener("change", (e) => {
   const file = e.target.files && e.target.files[0];
-  if (!file) return;
+  if (!file) { e.target.value = ""; return; }
   const reader = new FileReader();
+  reader.onerror = () => {
+    alert("That file could not be read. Try downloading a fresh backup from Settings and restoring that one.");
+    e.target.value = "";
+  };
   reader.onload = () => {
     try {
       const backup = JSON.parse(reader.result);
       if (!backup || backup.app !== "new-chapter-tracker" || !backup.store) {
         throw new Error("not a tracker backup");
       }
-      const fileSummary = snapshotSummary(backup.store);
-      if (countStoreEntries(backup.store) === 0) {
+      if (backup.version !== undefined && backup.version !== 1) {
+        throw new Error("unsupported backup version");
+      }
+      // Same per-key validation as a normal load: a malformed file is
+      // rejected before anything is replaced. Strict: any key with
+      // the wrong shape rejects the whole file.
+      const validStore = validateStore(backup.store, true);
+      if (!validStore) throw new Error("backup store has the wrong shape");
+      const fileSummary = snapshotSummary(validStore);
+      if (countStoreEntries(validStore) === 0) {
         if (!confirm("This backup file is empty, no entries. Restoring it will replace your current data with nothing. Are you sure you want to restore an empty backup?")) return;
-      } else if (!confirm("Restore this backup file? It contains " + fileSummary + ". Your current data will be replaced. Download a backup of your current data first if you want to keep it.")) return;
-      store = Object.assign(structuredClone(DEFAULTS), backup.store);
+      } else if (!confirm("Restore this backup file? It contains " + fileSummary + ". Your current data will be replaced. A safety copy of your current data will be kept first, just in case.")) return;
+      takeSafetySnapshot("Before restore"); // current data kept first
+      store = validStore;
+      ensureEntryIds();
+      loadFailed = false; // deliberate restore: the save guard must not block it
+      resetViewState();
       saveStore();
       renderToday();
       renderInjections();
@@ -2474,9 +2959,12 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
       renderSettings();
       alert("Backup restored.");
     } catch (err) {
-      alert("Could not read that backup file. Make sure it is a backup downloaded from this app.");
+      alert("That file does not look like a backup from this app, so nothing was changed. Try downloading a fresh backup from Settings.");
+    } finally {
+      // Always reset, even if the confirm was cancelled, so picking the
+      // same file again still works.
+      e.target.value = "";
     }
-    e.target.value = "";
   };
   reader.readAsText(file);
 });
@@ -2490,7 +2978,6 @@ document.getElementById("day-next").addEventListener("click", () => {
 });
 
 // Calendar date picker: jump straight to any past day
-const dayPicker = document.getElementById("day-picker");
 let dayCalYear, dayCalMonth;
 
 function renderDayCalModal() {
@@ -2516,25 +3003,33 @@ function renderDayCalModal() {
   grid.innerHTML = html;
   grid.querySelectorAll("[data-pick-date]").forEach((el) => {
     const pick = () => {
-      const picked = new Date(el.dataset.pickDate + "T12:00:00");
-      const today = new Date(); today.setHours(12, 0, 0, 0);
-      viewOffset = Math.round((picked - today) / 86400000);
+      viewOffset = daysBetween(todayStr(), el.dataset.pickDate);
       renderToday();
       closeDayCalModal();
     };
     el.addEventListener("click", pick);
-    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    el.addEventListener("keydown", (e) => {
+      if (calendarArrowNav(e, el.dataset.pickDate, "data-pick-date")) return;
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); }
+    });
   });
 }
 
+let dayCalOpener = null;
 function closeDayCalModal() {
   document.getElementById("day-cal-modal").classList.add("hidden");
-  const opener = document.getElementById("day-cal");
+  const opener = dayCalOpener && document.contains(dayCalOpener)
+    ? dayCalOpener
+    : document.getElementById("day-cal");
   if (opener) opener.focus();
+  dayCalOpener = null;
 }
 
 function openDayPicker() {
   const now = new Date();
+  dayCalOpener = document.activeElement && document.activeElement !== document.body
+    ? document.activeElement
+    : document.getElementById("day-cal");
   dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth();
   renderDayCalModal();
   document.getElementById("day-cal-modal").classList.remove("hidden");
@@ -2551,6 +3046,17 @@ document.getElementById("day-cal-close").addEventListener("click", closeDayCalMo
 document.getElementById("day-cal-modal").addEventListener("click", (e) => {
   if (e.target.id === "day-cal-modal") closeDayCalModal();
 });
+/* Focus trap: Tab cycles inside the open date-picker dialog. */
+document.getElementById("day-cal-modal").addEventListener("keydown", (e) => {
+  if (e.key !== "Tab") return;
+  const modal = document.getElementById("day-cal-modal");
+  const focusables = [...modal.querySelectorAll("button, [tabindex]")]
+    .filter((el) => !el.disabled && el.tabIndex >= 0 && el.offsetParent !== null);
+  if (!focusables.length) return;
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !document.getElementById("day-cal-modal").classList.contains("hidden")) {
     e.preventDefault();
@@ -2563,17 +3069,6 @@ document.getElementById("date-tap").addEventListener("click", openDayPicker);
 document.getElementById("date-tap").addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDayPicker(); }
 });
-dayPicker.addEventListener("change", () => {
-  if (!dayPicker.value) return;
-  const parts = dayPicker.value.split("-").map(Number);
-  const picked = new Date(parts[0], parts[1] - 1, parts[2]);
-  const now = new Date();
-  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.round((picked - todayMid) / 86400000);
-  viewOffset = Math.min(0, diffDays); // clamp future dates to today
-  renderToday();
-});
-
 /* ---------- First-run setup wizard ---------- */
 
 (function setupDefaults() {
@@ -2583,26 +3078,44 @@ dayPicker.addEventListener("change", () => {
   if (!store.settings.medication) store.settings.medication = "Zepbound";
   if (!store.settings.waterGoal) store.settings.waterGoal = 92;
   if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
-  saveStore();
-  localStorage.setItem("nct-setup-done", "1");
+  // Only save when there is actually something to save. Saving an empty
+  // store here would write over a missing save with blank defaults.
+  try {
+    if (JSON.stringify(store) !== JSON.stringify(DEFAULTS)) saveStore();
+  } catch {}
+  localStorage.setItem("demo-nct-setup-done", "1");
 })();
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
-  if (!confirm("Delete ALL your data? This cannot be undone. Consider downloading a backup first.")) return;
-  if (!confirm("Are you sure? This deletes your tracked entries, backups saved in this app, chat history, and custom activities. Your companion access stays connected.")) return;
+  if (!confirm("Delete ALL your data? Your entries will be gone. A safety copy will stay in Backup & restore in Settings, in case this was a mistake. Consider downloading a backup first.")) return;
+  if (!confirm("Are you sure? This deletes your tracked entries, chat history, and custom activities. Your companion access stays connected.")) return;
+  // Safety copy first, kept on its own: the startup safety net never
+  // restores a "Before delete" copy, so deleting stays final.
+  let preDeleteSnap = null;
+  try {
+    if (countStoreEntries(store) > 0) {
+      const built = buildSnapshotRaw(store);
+      preDeleteSnap = { at: new Date().toISOString(), data: built.raw, label: "Before delete" };
+    }
+  } catch {}
+  clearWeekDismissKeys();
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem("nct-snapshots");
-  localStorage.removeItem("nct-last-snapshot-day");
-  localStorage.removeItem("nc_custom_activities");
-  localStorage.removeItem("nct-last-backup");
-  localStorage.removeItem("nct-backup-snooze");
+  localStorage.removeItem(LS_KEY + ".corrupt");
+  localStorage.removeItem("demo-nct-snapshots.corrupt");
+  localStorage.removeItem("demo-nct-last-snapshot-day");
+  localStorage.removeItem("demo-nc_custom_activities");
+  localStorage.removeItem("demo-nct-last-backup");
+  localStorage.removeItem("demo-nct-backup-snooze");
   localStorage.removeItem(CHAT_KEY);
-  localStorage.removeItem("nct-setup-done");
+  localStorage.removeItem("demo-nct-setup-done");
+  try { localStorage.setItem(SNAP_KEY, JSON.stringify(preDeleteSnap ? [preDeleteSnap] : [])); } catch {}
   location.reload();
 });
 
 /* ---------- Init ---------- */
 
+maybeRestoreFromSnapshot();
+if (ensureEntryIds()) saveStore(); // persist ids given to old entries
 loadCustomActivities();
 renderToday();
 renderInjections();
@@ -2612,6 +3125,8 @@ renderPhotos();
 renderJournal();
 renderSideEffects();
 renderSettings();
+renderRestoreNotice();
+renderCorruptNotice();
 
 /* ---------- AI Wellness Companion chat ---------- */
 
@@ -2653,8 +3168,18 @@ document.getElementById("memory-toggle").addEventListener("change", (e) => {
   const on = e.target.checked;
   document.getElementById("memory-fields").classList.toggle("hidden", !on);
   if (!on) {
-    // Turning off deletes the stored profile
-    fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() }).catch(() => {});
+    // Turning off deletes the stored profile; put the switch back if it fails.
+    fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() }).then((res) => {
+      if (!res.ok) {
+        e.target.checked = true;
+        document.getElementById("memory-fields").classList.remove("hidden");
+        alert("That did not work. Check your connection and try again. Your companion still remembers you.");
+      }
+    }).catch(() => {
+      e.target.checked = true;
+      document.getElementById("memory-fields").classList.remove("hidden");
+      alert("That did not work. Check your connection and try again. Your companion still remembers you.");
+    });
     document.getElementById("memory-saved-msg").classList.add("hidden");
   }
 });
@@ -2686,9 +3211,15 @@ document.getElementById("memory-save").addEventListener("click", async () => {
 
 document.getElementById("forget-me").addEventListener("click", async () => {
   if (!confirm("Delete everything your AI Wellness Companion remembers about you? This cannot be undone.")) return;
+  let ok = false;
   try {
-    await fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() });
-  } catch (e) {}
+    const res = await fetch(MEMORY_API_URL, { method: "DELETE", headers: memoryHeaders() });
+    ok = res.ok;
+  } catch (e) { ok = false; }
+  if (!ok) {
+    alert("That did not work. Check your connection and try again. Nothing was deleted.");
+    return;
+  }
   const toggle = document.getElementById("memory-toggle");
   if (toggle) {
     toggle.checked = false;
@@ -2698,7 +3229,7 @@ document.getElementById("forget-me").addEventListener("click", async () => {
   alert("Done. Your companion no longer remembers you.");
 });
 
-const CHAT_KEY = "newChapterTracker.chat.v1";
+const CHAT_KEY = "newChapterTracker.demo.chat.v1";
 let chatHistory = loadChatHistory();
 
 // Capture the auth token from the buyer link (?key=...) on first visit,
