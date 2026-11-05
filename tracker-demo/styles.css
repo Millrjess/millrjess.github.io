@@ -1017,8 +1017,7 @@ details.card summary h3 {
   stroke: var(--sage);
   stroke-width: 1.5;
 }
-#site-map #map-front[hidden],
-#site-map #map-back[hidden] {
+#site-map .map-hidden {
   display: none;
 }
 #site-map .body-outline {
