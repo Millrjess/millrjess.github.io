@@ -1,7 +1,7 @@
 (function(){
   var answers=[
     {k:["strategy session","strategy"],a:"A 1 hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, you choose your time. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
-    {k:["price","cost","fee","charge","rate"],a:"A 1 hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full fee schedule for every price."},
+    {k:["price","cost","fee","charge","rate"],a:"A 1 hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full pricing page for every price."},
     {k:["book","consultation","session","appointment"],a:"Book on the booking page. A 15 minute discovery call is complimentary. A 1 hour strategy session is $200, paid in advance at booking. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
     {k:["free"],a:"The 15 minute discovery call is complimentary, with no charge and no obligation. It is a phone call to discuss your website, your goals, and the problem you want to solve."},
     {k:["200","paid","pay","stripe","refund"],a:"A 1 hour strategy session is $200, paid in advance through Stripe, with a receipt. No session starts until payment is received. Pay to reserve your session, then choose your time. I approve every booking before it is confirmed. If we cannot find a time that works, or I do not approve the booking, you will be refunded."},
@@ -19,7 +19,7 @@
   var siteIndex=[
     {k:["home","consultant","website operations"],u:"../",d:"Home: Jessica A. Miller, Website Operations Consultant, 20 years keeping business websites fast, secure, and online."},
     {k:["service","care plan","maintenance","seo","agent","audit","standards"],u:"../services/",d:"Services: care plans, one time projects, Website Agents, Standards Pass, technical SEO, and performance."},
-    {k:["fee","price","pricing","cost"],u:"../fee-schedule/",d:"Fee schedule: published prices for care plans, audits, development, agents, and strategy sessions, with pricing sources."},
+    {k:["fee","price","pricing","cost"],u:"../pricing/",d:"Pricing: published prices for care plans, audits, development, agents, and strategy sessions, with pricing sources."},
     {k:["book","consultation","discovery","session","appointment"],u:"../booking/",d:"Booking: complimentary 15 minute discovery call, and 1 hour strategy session, $200 paid in advance, approval before confirmation."},
     {k:["contact","email","phone","message"],u:"../contact/",d:"Contact: email millrjess@gmail.com, call (978) 267-5304, North Andover, MA."},
     {k:["faq","question","how"],u:"../faqs/",d:"FAQs: project timing, support, working with a team, prices, booking, refund, care plans, remote work, and platforms."},

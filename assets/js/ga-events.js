@@ -13,7 +13,7 @@
       eventName = "free_discovery_click";
     } else if (href === "booking/" || href === "../booking/" || href === "/booking/" || href.indexOf("/booking/") !== -1) {
       eventName = "free_discovery_click";
-    } else if (href.indexOf("fee-schedule/#care-plans") !== -1) {
+    } else if (href.indexOf("pricing/#care-plans") !== -1) {
       eventName = "care_plan_click";
     }
     if (eventName && typeof window.gtag === "function") {
