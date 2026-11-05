@@ -2539,6 +2539,8 @@ function openDayPicker() {
   dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth();
   renderDayCalModal();
   document.getElementById("day-cal-modal").classList.remove("hidden");
+  /* WCAG 2.4.3: move focus into the dialog on open, so tabbing does not go through background content first. Close already returns focus to the opener, and Escape already closes it. */
+  document.getElementById("day-cal-close").focus();
 }
 document.getElementById("day-cal-prev").addEventListener("click", () => {
   dayCalMonth--; if (dayCalMonth < 0) { dayCalMonth = 11; dayCalYear--; } renderDayCalModal();
