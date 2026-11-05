@@ -27,7 +27,7 @@
     {k:["certif","course","credential"],u:"../certifications/",d:"Certifications: twelve course certificates with verification links."},
     {k:["recommend","testimonial","review"],u:"../testimonials/",d:"Testimonials: dated LinkedIn recommendations."},
     {k:["portfolio","project","case study","capstone"],u:"../portfolio/",d:"Portfolio: projects and case studies, including capstone work."},
-    {k:["tracker","glp-1","new chapter","app"],u:"../tracker/",d:"New Chapter: GLP-1 Tracker, an independent product by Jessica, separate from consulting services."},
+    {k:["tracker","glp-1","new chapter","app"],u:"../tracker/",d:"New Chapter: GLP-1 Tracker™, an independent product by Jessica, separate from consulting services."},
     {k:["book","ledger","novel","author","fiction"],u:"../books/",d:"Books: The Ledger Series, The Second Account, The Echo Trace, and The Ghost Index."},
     {k:["checkr","background"],u:"https://checkr.com/profiles/jessica-miller-aa27",d:"Checkr public profile: identity verified, Website Operations Consultant, North Andover, MA."}
   ];
