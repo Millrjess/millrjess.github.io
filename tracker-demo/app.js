@@ -2538,6 +2538,7 @@ function openDayPicker() {
   dayCalYear = now.getFullYear(); dayCalMonth = now.getMonth();
   renderDayCalModal();
   document.getElementById("day-cal-modal").classList.remove("hidden");
+  document.getElementById("day-cal-close").focus();
 }
 document.getElementById("day-cal-prev").addEventListener("click", () => {
   dayCalMonth--; if (dayCalMonth < 0) { dayCalMonth = 11; dayCalYear--; } renderDayCalModal();
