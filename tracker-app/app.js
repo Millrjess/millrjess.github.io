@@ -28,9 +28,6 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
-    carbGoal: 130,
-    fatGoal: 65,
-    calorieGoal: 1600,
     refillDate: "",
     goalWeight: ""
   },
@@ -587,7 +584,7 @@ function renderToday() {
     b.style.opacity = isToday ? "" : "0.5";
   });
   // Disable manual entry forms and mood buttons on past days
-  ["protein-food", "protein-grams", "carb-grams", "fat-grams", "calorie-count", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
+  ["protein-food", "protein-grams", "protein-add", "exercise-type", "exercise-minutes", "exercise-add", "exercise-custom", "photo-btn"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) { el.disabled = !isToday; el.style.opacity = isToday ? "" : "0.5"; }
   });
