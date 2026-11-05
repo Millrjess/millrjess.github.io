@@ -1065,7 +1065,7 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
   const med = store.settings.medication || "GLP-1";
   const dose = store.settings.dose ? " " + store.settings.dose + " mg" : "";
   const ics = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//A New Chapter Tracker//EN",
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//New Chapter: GLP-1 Tracker™//EN",
     "BEGIN:VEVENT",
     "UID:shot-reminder-" + Date.now() + "@newchapter",
     "DTSTAMP:" + fmt(new Date()),
