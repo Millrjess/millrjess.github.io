@@ -531,7 +531,7 @@ function renderWeeklySummary() {
     }
   }
   document.getElementById("weekly-summary-body").innerHTML =
-    lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("");
+    lines.map((l) => `<p style="margin:0 0 4px">${l}</p>`).join("");
 
   const stats = { proteinDays: p.met, waterDays: w.met, moveDays: m.met, anyLogged,
     daysWithGoal: { protein: p.total, water: w.total, exercise: m.total } };

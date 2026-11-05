@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=140">
+<link rel="stylesheet" href="styles.css?v=141">
 </head>
 <body>
 
@@ -116,17 +116,19 @@
       </div>
     </div>
 
-    <div class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52">
-      <h2 class="card-title">Your week</h2>
-      <p class="muted" id="weekly-summary-range" style="margin:0 0 8px"></p>
+    <details class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52;padding:14px 16px;margin:10px 0">
+      <summary style="cursor:pointer;font-weight:600"><h2 class="card-title" style="display:inline;margin:0">Your week</h2></summary>
+      <div style="margin-top:10px;font-size:.95rem">
+      <p class="muted" id="weekly-summary-range" style="margin:0 0 6px"></p>
       <div id="weekly-summary-body"></div>
-      <div id="weekly-suggestion-wrap" style="margin-top:12px">
-        <p style="margin:0 0 8px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
+      <div id="weekly-suggestion-wrap" style="margin-top:8px">
+        <p style="margin:0 0 6px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
         <button type="button" class="btn btn-small" id="weekly-dismiss">Not this week</button>
       </div>
-      <p class="muted hidden" id="weekly-dismissed-note" style="margin:12px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
-      <p class="muted" style="margin:12px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
-    </div>
+      <p class="muted hidden" id="weekly-dismissed-note" style="margin:8px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
+      </div>
+    </details>
 
     <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log food, go to protein entry">Log Food</button>
 
@@ -699,7 +701,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=140"></script>
+<script src="app.js?v=141"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
