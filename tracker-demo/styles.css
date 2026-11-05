@@ -928,9 +928,9 @@ body {
 .pc-value {
   font-weight: 700;
   margin: 0 0 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* WCAG 1.4.12: allow wrapping instead of nowrap with ellipsis, so numbers are not truncated at larger text spacing */
+  white-space: normal;
+  overflow: visible;
   font-size: 1.5rem;
 }
 .pc-goal {
