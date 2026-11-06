@@ -26,7 +26,7 @@
     {k:["about","story","background","experience"],u:"../about/",d:"About: 20 years of website work, a six year break for full time parenting and writing, and a return to client work in 2026."},
     {k:["certif","course","credential"],u:"../certifications/",d:"Certifications: twelve course certificates with verification links."},
     {k:["recommend","testimonial","review"],u:"../testimonials/",d:"Testimonials: dated LinkedIn recommendations."},
-    {k:["portfolio","project","case study","capstone"],u:"../portfolio/",d:"Portfolio: projects and case studies, including capstone work."},
+    {k:["portfolio","project","case study","capstone"],u:"../portfolio/",d:"Work & Credentials: selected work in product, data, and design, plus course certificates and recommendations."},
     {k:["tracker","glp-1","new chapter","app"],u:"../tracker/",d:"New Chapter: GLP-1 Tracker™, an independent product by Jessica, separate from consulting services."},
     {k:["book","ledger","novel","author","fiction"],u:"../books/",d:"Books: The Ledger Series, The Second Account, The Echo Trace, and The Ghost Index."},
     {k:["checkr","background"],u:"https://checkr.com/profiles/jessica-miller-aa27",d:"Checkr public profile: identity verified, Website Operations Consultant, North Andover, MA."}
