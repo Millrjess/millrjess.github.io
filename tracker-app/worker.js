@@ -15,7 +15,7 @@
 
 // --- Configuration ---
 const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
-const DAILY_CAP = 20; // messages per user per day
+const DAILY_CAP = 40; // messages per user per day
 const ALLOWED_ORIGINS = [
   "https://millrjess.github.io",
 ];
