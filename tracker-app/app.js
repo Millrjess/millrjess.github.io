@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v156): shown in Settings, About, so the version on the
+/* App version (v158): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v157";
+const APP_VERSION = "v158";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -2528,6 +2528,7 @@ function renderSettings() {
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
+  document.getElementById("set-starting-weight").value = (s.startingWeight && Number(s.startingWeight.value) > 0) ? s.startingWeight.value : "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -2581,10 +2582,18 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.movementGoal = mg > 0 ? mg : 30;
   const gw = Number(document.getElementById("set-goal-weight").value);
   store.settings.goalWeight = gw > 0 ? gw : "";
+  const sw = Number(document.getElementById("set-starting-weight").value);
+  if (sw > 0) {
+    const prevDate = store.settings.startingWeight && store.settings.startingWeight.date;
+    store.settings.startingWeight = { value: sw, date: (prevDate && isValidDateStr(prevDate)) ? prevDate : todayStr() };
+  } else {
+    store.settings.startingWeight = null;
+  }
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();
   renderToday();
+  renderWeight();
   const savedMsg = document.getElementById("settings-saved-msg");
   if (savedMsg) {
     savedMsg.textContent = tokenSaveFailed

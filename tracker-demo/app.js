@@ -2441,6 +2441,7 @@ function renderSettings() {
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
+  document.getElementById("set-starting-weight").value = (s.startingWeight && Number(s.startingWeight.value) > 0) ? s.startingWeight.value : "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
   renderRefillCountdown();
 }
@@ -2486,10 +2487,18 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.movementGoal = mg > 0 ? mg : 30;
   const gw = Number(document.getElementById("set-goal-weight").value);
   store.settings.goalWeight = gw > 0 ? gw : "";
+  const sw = Number(document.getElementById("set-starting-weight").value);
+  if (sw > 0) {
+    const prevDate = store.settings.startingWeight && store.settings.startingWeight.date;
+    store.settings.startingWeight = { value: sw, date: (prevDate && /^\d{4}-\d{2}-\d{2}$/.test(prevDate)) ? prevDate : todayStr() };
+  } else {
+    store.settings.startingWeight = null;
+  }
   store.settings.refillDate = document.getElementById("set-refill-date").value;
   saveStore();
   renderSettings();
   renderToday();
+  renderWeight();
   const savedMsg = document.getElementById("settings-saved-msg");
   if (savedMsg) {
     savedMsg.textContent = "Settings saved.";
