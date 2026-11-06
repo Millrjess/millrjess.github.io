@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v156";
+const APP_VERSION = "v157";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -56,7 +56,8 @@ const DEFAULTS = {
     proteinGoal: 90,
     movementGoal: 30,
     refillDate: "",
-    goalWeight: ""
+    goalWeight: "",
+    startingWeight: null // { value, date } frozen from the first weigh-in (K3); null until the first weigh-in
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food }
@@ -130,6 +131,19 @@ function validateStore(parsed, strict) {
     }
     const gw = Number(out.settings.goalWeight);
     out.settings.goalWeight = Number.isFinite(gw) && gw > 0 ? gw : "";
+    // Frozen starting weight (K3): null, or { value, date } with a positive
+    // number and a valid date. Anything else is dropped to null so a bad
+    // value can never break the weight display.
+    const sw = out.settings.startingWeight;
+    if (sw !== null && sw !== undefined) {
+      if (typeof sw !== "object" || Array.isArray(sw) || !Number.isFinite(Number(sw.value)) || Number(sw.value) <= 0 || !isValidDateStr(sw.date)) {
+        out.settings.startingWeight = null;
+      } else {
+        out.settings.startingWeight = { value: Number(sw.value), date: sw.date };
+      }
+    } else {
+      out.settings.startingWeight = null;
+    }
     if (out.settings.medication !== undefined) out.settings.medication = String(out.settings.medication);
     if (out.settings.dose !== undefined) {
       out.settings.dose = Number.isFinite(Number(out.settings.dose)) && String(out.settings.dose).trim() !== "" ? String(out.settings.dose) : "";
@@ -181,6 +195,7 @@ let restoredFromSnapshot = null;
 
 let store = loadStore();
 ensureEntryIds();
+syncStartingWeight(); // K3: freeze the starting weight from the first weigh-in on load
 
 function loadStore() {
   try { loadedGen = Number(localStorage.getItem(GEN_KEY)) || 0; } catch { loadedGen = 0; }
@@ -246,6 +261,12 @@ window.addEventListener("storage", (e) => {
    at the same time. */
 function mergeStores(persisted, local) {
   const out = structuredClone(persisted);
+  // K3: the frozen starting weight is a fact, not a setting to overwrite.
+  // Keep whichever copy has one; the persisted copy wins only when both do.
+  if (!out.settings) out.settings = structuredClone(DEFAULTS.settings);
+  if (!out.settings.startingWeight && local.settings && local.settings.startingWeight) {
+    out.settings.startingWeight = local.settings.startingWeight;
+  }
   COLLECTION_KEYS.forEach((k) => {
     const have = new Set((persisted[k] || []).map((e) => e && e.id).filter(Boolean));
     (local[k] || []).forEach((e) => {
@@ -262,6 +283,16 @@ function mergeStores(persisted, local) {
    (restore) can adopt it and write as the newest copy. */
 function adoptCurrentGen() {
   try { loadedGen = Number(localStorage.getItem(GEN_KEY)) || 0; } catch { loadedGen = 0; }
+}
+
+/* Compare two settings objects for the save guard, ignoring the frozen
+   starting weight (K3): it is derived from the weight log, not a user
+   preference, so clearing it when the log is emptied must not look like
+   a fresh start. */
+function settingsEqualIgnoringFreeze(a, b) {
+  if (!a || !b) return false;
+  const strip = (s) => { const c = Object.assign({}, s); delete c.startingWeight; return c; };
+  return JSON.stringify(strip(a)) === JSON.stringify(strip(b));
 }
 
 function saveStore() {
@@ -313,11 +344,14 @@ function saveStore() {
     // start has default settings while the saved copy has hers. When the
     // settings match, the smaller store is deliberate and the save is
     // allowed. When they differ, the save is refused and nothing is lost.
+    // The frozen starting weight (K3) is left out of the comparison: it is
+    // derived from the weight log, not a user preference, so clearing it
+    // when the log is emptied must not look like a fresh start.
     const myCount = countStoreEntries(store);
     if (persistedCount > myCount && !allowEmptySave) {
       let settingsMatch = false;
       try {
-        settingsMatch = !!persistedStore && JSON.stringify(store.settings) === JSON.stringify(persistedStore.settings);
+        settingsMatch = !!persistedStore && settingsEqualIgnoringFreeze(store.settings, persistedStore.settings);
       } catch {}
       if (!settingsMatch) {
         showStorageWarning("Your latest change was not saved, because the saved copy on this device has entries that this screen does not show. Nothing was lost. Reload the app to see your entries.");
@@ -392,9 +426,24 @@ function saveAutoSnapshot() {
     const built = buildSnapshotRaw(store);
     if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
     const snaps = loadSnapshots();
-    if (snaps.length && snaps[0].data === built.raw) {
-      try { localStorage.setItem("nct-last-snapshot-day", todayStr()); } catch {}
-      return;
+    if (snaps.length) {
+      // Same content as the newest snapshot: do not create a duplicate.
+      // The comparison leaves out the frozen starting weight (K3): it is
+      // derived from the weight log, so a snapshot that predates the freeze
+      // has the same entries but no startingWeight key. Without this,
+      // restoring such a snapshot would immediately create a duplicate.
+      let same = false;
+      try {
+        const prev = JSON.parse(snaps[0].data);
+        const cur = JSON.parse(built.raw);
+        if (prev.settings) delete prev.settings.startingWeight;
+        if (cur.settings) delete cur.settings.startingWeight;
+        same = JSON.stringify(prev) === JSON.stringify(cur);
+      } catch { same = false; }
+      if (same) {
+        try { localStorage.setItem("nct-last-snapshot-day", todayStr()); } catch {}
+        return;
+      }
     }
     snaps.unshift({ at: new Date().toISOString(), data: built.raw });
     while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
@@ -1778,6 +1827,7 @@ weightForm.addEventListener("submit", (e) => {
     store.weight.push(entry);
   }
   editingWeightId = null;
+  syncStartingWeight(); // K3: freeze from the first weigh-in if not yet frozen
   saveStore();
   renderWeight();
   toggleForm(weightForm, document.getElementById("show-weight-form"), false);
@@ -1786,17 +1836,45 @@ weightForm.addEventListener("submit", (e) => {
 
 let weightLimit = 10; // entries shown; "show more" loads older ones in batches
 
+/* K3 freeze: the starting weight is frozen from the first weigh-in and
+   never moves when an earlier weigh-in is added or the first one is
+   deleted. It clears only when the weight log becomes empty, so a fresh
+   start freezes again from the new first weigh-in. */
+function syncStartingWeight() {
+  if (!store.settings) return;
+  if (!(store.weight || []).length) {
+    store.settings.startingWeight = null;
+    return;
+  }
+  if (!store.settings.startingWeight) {
+    const sorted = [...store.weight].sort(byDate);
+    store.settings.startingWeight = { value: Number(sorted[0].value), date: sorted[0].date };
+  }
+}
+
+/* The frozen starting weight when set, else the earliest weigh-in (the
+   pre-freeze fallback). Returns { value, date } or null. */
+function getStartingWeight() {
+  const frozen = store.settings && store.settings.startingWeight;
+  if (frozen && Number.isFinite(Number(frozen.value)) && isValidDateStr(frozen.date)) {
+    return { value: Number(frozen.value), date: frozen.date };
+  }
+  const sorted = [...(store.weight || [])].sort(byDate);
+  return sorted.length ? { value: Number(sorted[0].value), date: sorted[0].date } : null;
+}
+
 function renderWeight() {
   const sorted = [...store.weight].sort(byDate);
   const noteEl = document.getElementById("weight-change-note");
   if (sorted.length) {
     const current = sorted[sorted.length - 1].value;
-    const first = sorted[0];
+    const start = getStartingWeight();
     document.getElementById("current-weight").textContent = Number(current).toFixed(1);
-    /* Starting weight is the first weigh-in, with its date. It is never
-       overwritten: it is read from the log, not stored separately. */
-    document.getElementById("starting-weight").textContent = Number(first.value).toFixed(1);
-    document.getElementById("starting-weight-date").textContent = formatDate(first.date);
+    /* Starting weight is frozen (K3). It is read from settings, not from
+       the earliest weigh-in, so deleting or backdating entries never
+       moves it. */
+    document.getElementById("starting-weight").textContent = start ? Number(start.value).toFixed(1) : "--";
+    document.getElementById("starting-weight-date").textContent = start ? formatDate(start.date) : "";
   } else {
     document.getElementById("current-weight").textContent = "--";
     document.getElementById("starting-weight").textContent = "--";
@@ -1804,8 +1882,10 @@ function renderWeight() {
   }
   if (sorted.length >= 2) {
     /* Total and percent show only with at least two weigh-ins. A gain is
-       shown honestly as a gain, never as a negative loss. */
-    const start = Number(sorted[0].value);
+       shown honestly as a gain, never as a negative loss. The baseline is
+       the frozen starting weight (K3), not the earliest weigh-in. */
+    const frozenStart = getStartingWeight();
+    const start = frozenStart ? Number(frozenStart.value) : Number(sorted[0].value);
     const current = Number(sorted[sorted.length - 1].value);
     const change = start - current;
     const gained = change < 0;
@@ -1862,6 +1942,7 @@ function renderWeight() {
   list.querySelectorAll("[data-del-w]").forEach((b) => b.addEventListener("click", () => {
     if (!confirm("Delete this weigh-in?")) return;
     store.weight = store.weight.filter((x) => x.id !== b.dataset.delW);
+    syncStartingWeight(); // K3: clears the freeze only if the weight log is now empty
     saveStore();
     weightLimit = 10;
     renderWeight();
@@ -1882,7 +1963,8 @@ function renderWeightMilestone() {
   const goalW = Number(store.settings.goalWeight) || 0;
   const sorted = [...store.weight].sort(byDate);
   if (!(goalW > 0) || !sorted.length) { card.classList.add("hidden"); return; }
-  const startW = Number(sorted[0].value);
+  const frozenStart = getStartingWeight();
+  const startW = frozenStart ? Number(frozenStart.value) : Number(sorted[0].value);
   const curW = Number(sorted[sorted.length - 1].value);
   const total = startW - goalW;
   if (total === 0) { card.classList.add("hidden"); return; }
@@ -2015,7 +2097,9 @@ function drawWeightChart() {
   }
 
   if (chartText) {
-    const firstW = sorted[0], lastW = sorted[sorted.length - 1];
+    const frozenStart = getStartingWeight();
+    const firstW = frozenStart ? { value: frozenStart.value, date: frozenStart.date } : sorted[0];
+    const lastW = sorted[sorted.length - 1];
     const diff = Number(firstW.value) - Number(lastW.value);
     const dir = diff > 0 ? "down " + diff.toFixed(1) + " lbs" : diff < 0 ? "up " + Math.abs(diff).toFixed(1) + " lbs" : "unchanged";
     chartText.textContent = "Weight from " + Number(firstW.value).toFixed(1) + " lbs on " + formatDate(firstW.date) + " to " + Number(lastW.value).toFixed(1) + " lbs on " + formatDate(lastW.date) + ", " + dir + " over " + sorted.length + " weigh-ins." + (goalW > 0 ? " Goal: " + goalW + " lbs." : "");
@@ -3029,6 +3113,7 @@ function maybeRestoreFromSnapshot() {
     if (!snapStore || countStoreEntries(snapStore) === 0) continue;
     store = snapStore;
     ensureEntryIds();
+    syncStartingWeight(); // K3: freeze from the restored first weigh-in if the snapshot predates the freeze
     loadFailed = false;
     storeDamaged = false; // a restored copy replaces the damaged one
     restoredFromSnapshot = { at: sn.at, summary: snapshotSummary(snapStore) };
@@ -3229,6 +3314,7 @@ function renderSnapshots() {
       takeSafetySnapshot("Before restore"); // current data kept first (S6)
       store = snapStore;
       ensureEntryIds();
+      syncStartingWeight(); // K3: freeze from the restored first weigh-in if the snapshot predates the freeze
       loadFailed = false; // deliberate restore: the save guard must not block it
       storeDamaged = false;
       allowEmptySave = true; // a deliberate restore may replace the store with a smaller one
@@ -3312,6 +3398,7 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
       takeSafetySnapshot("Before restore"); // current data kept first (S6)
       store = validStore;
       ensureEntryIds();
+      syncStartingWeight(); // K3: freeze from the restored first weigh-in if the backup predates the freeze
       loadFailed = false; // deliberate restore: the save guard must not block it
       storeDamaged = false;
       allowEmptySave = true; // a deliberate restore may replace the store with a smaller one

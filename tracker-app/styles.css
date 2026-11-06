@@ -1146,12 +1146,6 @@ textarea {
   font-size: 16px;
 }
 
-/* ---------- Hide entry lists (steppers + undo handle corrections) ---------- */
-#water-list,
-#protein-list,
-#exercise-list {
-  display: none;
-}
-#recent-foods {
-  display: none;
-}
+/* Per-entry lists are shown (F12 fix): water, protein, and movement entries
+   list below the steppers with per-entry Remove/Edit, and recent foods
+   offers tap-to-log-again. Steppers and Undo still work alongside them. */
