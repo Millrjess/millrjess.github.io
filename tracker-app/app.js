@@ -11,7 +11,7 @@
 /* App version (v150): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js and the ?v= tokens in index.html. */
-const APP_VERSION = "v150";
+const APP_VERSION = "v151";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
