@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v155): shown in Settings, About, so the version on the
+/* App version (v156): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v155";
+const APP_VERSION = "v156";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -3108,12 +3108,16 @@ function renderEmptyNotice() {
   if (!isStandaloneApp()) {
     document.getElementById("empty-notice-text").textContent =
       "You are viewing the tracker in the browser. Your entries are kept in the home-screen app, not here. Open the tracker from its home-screen app icon to see your entries. If you have not added it to your home screen yet, use Share, then Add to Home Screen.";
+    // v156: the browser case gets a link to the help video; the
+    // standalone case does not, since that user is already in the app.
+    document.getElementById("empty-notice-video").classList.remove("hidden");
     card.classList.remove("hidden");
     return;
   }
   if (!hasUsedAppBefore()) { card.classList.add("hidden"); return; }
   document.getElementById("empty-notice-text").textContent =
     "Your entries are not showing. Your entries are stored only in this app on this phone. If you opened the tracker in Safari, from a link, or from a new app icon, that is a separate empty copy. Close this and open the tracker from its home-screen app icon. If you have a backup file, restore it in Settings, then Backup and restore.";
+  document.getElementById("empty-notice-video").classList.add("hidden");
   card.classList.remove("hidden");
 }
 
