@@ -62,6 +62,10 @@
       <p style="margin:0" id="corrupt-notice-text"></p>
       <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
     </div>
+    <div class="card hidden" id="empty-notice" role="alert" style="border-left:4px solid #B3261E">
+      <p style="margin:0" id="empty-notice-text"></p>
+      <button class="btn btn-small" id="empty-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
     <div class="card hidden" id="storage-warning" role="alert" style="border-left:4px solid #E8B54A">
       <p style="margin:0" id="storage-warning-text"></p>
       <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
@@ -653,12 +657,14 @@
     <div class="card">
       <h3>Backup &amp; restore</h3>
       <p class="muted">Download backup saves a file to this phone, in Files under Downloads, and also keeps a copy inside the app below. Restore from file opens a picker: choose On My iPhone or Downloads. A backup is not in Google Drive unless you moved a copy there yourself.</p>
+      <p class="muted">Your demo entries live only in this browser on this device. A different browser, a private window, or cleared site data shows a separate, empty copy.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
         <label class="btn" style="cursor:pointer">Restore backup
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
       </div>
+      <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
@@ -690,6 +696,7 @@
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
       </div>
       <p><strong>Usage statistics:</strong> not collected in the demo. This demo does not use Google Analytics, so no usage statistics are sent to Google. Your tracked entries, photos, and journal content stay on this device.</p>
+      <p class="muted" id="app-version-line"></p>
     </div>
       </div>
     </details>
@@ -734,7 +741,7 @@
 </div></nav>
 
 <script src="demo-seed.js"></script>
-<script src="app.js?v=20261105"></script>
+<script src="app.js?v=20261106"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
