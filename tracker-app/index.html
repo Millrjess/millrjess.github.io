@@ -36,7 +36,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=153">
+<link rel="stylesheet" href="styles.css?v=154">
 </head>
 <body>
 
@@ -752,7 +752,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=153"></script>
+<script src="app.js?v=154"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -784,15 +784,33 @@ function showUpdateNotice() {
   if (card) card.classList.remove("hidden");
 }
 document.getElementById("update-now").addEventListener("click", () => {
-  // A phone stuck on an old cached copy needs the old service worker
-  // gone before the reload, or the reload just serves the same old
-  // files again. Unregister first, then reload; the fresh files
-  // re-register the worker on the next load.
-  if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
-    navigator.serviceWorker.getRegistration().then((r) => { if (r) return r.unregister(); }).catch(() => {}).finally(() => location.reload());
-  } else {
-    location.reload();
-  }
+  // v154: the new worker already skips waiting and claims the page on
+  // install, so by the time this card shows the new worker is usually
+  // controlling the page, and a plain reload serves the new files
+  // (network-first). Never unregister here: the old handler did, and
+  // that threw the new worker away and fell back to the browser cache,
+  // which served the old copy again, so Update now flickered and never
+  // landed. If a new worker is still waiting, ask it to take over first.
+  const reload = () => location.reload();
+  if (!("serviceWorker" in navigator) || !navigator.serviceWorker.getRegistration) { reload(); return; }
+  navigator.serviceWorker.getRegistration().then((reg) => {
+    if (!reg) { reload(); return; }
+    const proceed = () => {
+      if (reg.waiting) {
+        let done = false;
+        const go = () => { if (done) return; done = true; reload(); };
+        navigator.serviceWorker.addEventListener("controllerchange", go);
+        reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        // Safety net: if nothing takes over, reload anyway.
+        setTimeout(go, 2000);
+        return;
+      }
+      reload();
+    };
+    if (reg.update) {
+      reg.update().catch(() => {}).finally(() => setTimeout(proceed, 500));
+    } else proceed();
+  }).catch(reload);
 });
 </script>
 </body>

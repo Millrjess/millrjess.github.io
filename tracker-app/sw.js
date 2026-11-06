@@ -4,7 +4,7 @@
  * https://millrjess.github.io/tracker/
  *
  * Freshness strategy (S16/S17/S18/S19):
- * - The page requests styles.css?v=152 and app.js?v=152, so the precache
+ * - The page requests styles.css?v=154 and app.js?v=154, so the precache
  *   lists those exact versioned URLs; a bare "./app.js" would never match.
  * - App shell files (HTML, JS, CSS) are network-first with a cache fallback,
  *   so an installed app picks up new code instead of serving old code forever.
@@ -22,14 +22,21 @@
  *   update schedule.
  * - v152: Update now unregisters the old worker before reloading, so a
  *   phone stuck on a stale cache-first copy actually gets fresh files.
+ * - v154: that unregister is gone. The new worker already skips waiting
+ *   and claims the page on install, so by the time the update card shows
+ *   the new worker is controlling the page and a plain reload serves the
+ *   new files (network-first). Unregistering threw the new worker away
+ *   and fell back to the browser cache, which served the old copy again,
+ *   so Update now flickered and never landed. Update now now only asks
+ *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v153";
+const CACHE_NAME = "new-chapter-tracker-v154";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=152",
-  "./app.js?v=152",
+  "./styles.css?v=154",
+  "./app.js?v=154",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -56,6 +63,13 @@ self.addEventListener("install", (event) => {
       })))
     ).then(() => self.skipWaiting())
   );
+});
+
+/* v154: Update now can ask a waiting worker to take over. The install
+   handler already skips waiting, so this is only the belt-and-braces
+   path for a worker that installed before this change. */
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
