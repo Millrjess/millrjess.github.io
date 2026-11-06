@@ -24,7 +24,7 @@
  *   phone stuck on a stale cache-first copy actually gets fresh files.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v152";
+const CACHE_NAME = "new-chapter-tracker-v153";
 const ASSETS = [
   "./",
   "./index.html",

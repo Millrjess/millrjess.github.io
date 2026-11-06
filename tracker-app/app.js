@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v152): shown in Settings, About, so the version on the
+/* App version (v153): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v152";
+const APP_VERSION = "v153";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -3490,6 +3490,43 @@ function safeRender(fn) {
   }
 }
 
+/* v153: after an update lands, say so once, instead of leaving the user
+   to dig in Settings, About to check the version. The last version this
+   copy recorded lives in localStorage; a different running version means
+   an update just landed. A first install records the version silently:
+   no setup marker and no saved entries means nothing was updated from.
+   The writes are best-effort and never block the app. */
+const LAST_VERSION_KEY = "nct-last-version";
+function showVersionConfirmation() {
+  let last = null;
+  try { last = localStorage.getItem(LAST_VERSION_KEY); } catch {}
+  if (last === APP_VERSION) return;
+  if (!last) {
+    // No version was ever recorded: this copy predates the version key.
+    // Saved entries mean it is an update from an older copy, not a
+    // first install. (The setup marker alone cannot tell them apart:
+    // it is written on first run, before this check runs.)
+    let existing = false;
+    try { existing = localStorage.getItem("nct-ever-had-entries") === "1"; } catch {}
+    if (!existing) {
+      try { localStorage.setItem(LAST_VERSION_KEY, APP_VERSION); } catch {}
+      return;
+    }
+  }
+  try { localStorage.setItem(LAST_VERSION_KEY, APP_VERSION); } catch {}
+  const card = document.getElementById("version-notice");
+  const text = document.getElementById("version-notice-text");
+  if (card && text) {
+    text.textContent = "Updated to " + APP_VERSION + ".";
+    card.classList.remove("hidden");
+  }
+}
+
+document.getElementById("version-notice-hide").addEventListener("click", () => {
+  const card = document.getElementById("version-notice");
+  if (card) card.classList.add("hidden");
+});
+
 /* Check whether a newer app version is published, even when the service
    worker has not picked it up yet. version.json is fetched fresh on
    every load (never cached by the worker) and compared with this copy's
@@ -3521,6 +3558,7 @@ safeRender(renderSettings);
 renderRestoreNotice();
 renderCorruptNotice();
 renderEmptyNotice();
+showVersionConfirmation();
 checkForAppUpdate();
 
 /* ---------- AI Wellness Companion chat ---------- */
