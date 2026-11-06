@@ -14,7 +14,7 @@
  */
 
 // --- Configuration ---
-const MODEL = "@cf/google/gemma-4-26b-a4b-it";
+const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast";
 const DAILY_CAP = 20; // messages per user per day
 const ALLOWED_ORIGINS = [
   "https://millrjess.github.io",
