@@ -4,7 +4,7 @@
  * https://millrjess.github.io/tracker/
  *
  * Freshness strategy (S16/S17/S18/S19):
- * - The page requests styles.css?v=149 and app.js?v=149, so the precache
+ * - The page requests styles.css?v=150 and app.js?v=150, so the precache
  *   lists those exact versioned URLs; a bare "./app.js" would never match.
  * - App shell files (HTML, JS, CSS) are network-first with a cache fallback,
  *   so an installed app picks up new code instead of serving old code forever.
@@ -14,14 +14,18 @@
  * - Install adds assets one by one, so one failed asset cannot block the update.
  * - Nothing here touches localStorage: a service worker update can never
  *   wipe saved entries (S20).
+ * - v150: the page also calls registration.update() on every load and
+ *   shows an update notice when a new worker takes over, so a new version
+ *   reaches the installed app instead of waiting on the browser's own
+ *   update schedule.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v149";
+const CACHE_NAME = "new-chapter-tracker-v150";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=149",
-  "./app.js?v=149",
+  "./styles.css?v=150",
+  "./app.js?v=150",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

@@ -8,7 +8,33 @@
 
 "use strict";
 
+/* App version (v150): shown in Settings, About, so the version on the
+   phone can be checked at a glance. Bump with every tracker-app change,
+   together with CACHE_NAME in sw.js and the ?v= tokens in index.html. */
+const APP_VERSION = "v150";
+
 const LS_KEY = "newChapterTracker.v1";
+/* Generation counter for the store (v150): bumped on every successful
+   save. An instance remembers the generation it loaded; if the saved
+   generation changed since, another copy of the app saved newer entries,
+   and this instance must merge instead of overwriting. This is what
+   stops a stale or empty copy from silently wiping good data. */
+const GEN_KEY = "nct-store-gen";
+let loadedGen = 0;
+/* Set by a deliberate replace (restore from file or from a snapshot) so
+   the empty-overwrite guard in saveStore() does not block it. One-shot:
+   cleared after a successful save. */
+let allowEmptySave = false;
+/* Set when the saved store loaded with a collection dropped because it
+   was the wrong shape. While set, saveStore() refuses to write, so the
+   drop can never be made permanent before the user has seen the warning
+   and checked Settings, Backup and restore. Cleared when the user taps
+   "Got it" on the warning. */
+let storeDamaged = false;
+/* Names of collections validateStore() dropped on its most recent call
+   (present but the wrong shape, or entries that were not objects). Read
+   immediately after a validateStore() call; any later call overwrites it. */
+let lastValidateDropped = [];
 
 // Companion auth token storage (must be defined before any render calls)
 const TOKEN_KEY = "newChapterTracker.authToken.v1";
@@ -55,6 +81,7 @@ const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight",
    present has the wrong shape, instead of quietly repairing it into an
    empty store that would wipe the user's data (S11). */
 function validateStore(parsed, strict) {
+  lastValidateDropped = [];
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
   if (strict) {
     for (const k of COLLECTION_KEYS) {
@@ -65,14 +92,22 @@ function validateStore(parsed, strict) {
   }
   const out = structuredClone(DEFAULTS);
   COLLECTION_KEYS.forEach((k) => {
-    if (Array.isArray(parsed[k])) out[k] = parsed[k].filter((e) => e && typeof e === "object");
+    if (parsed[k] === undefined) return; // missing is fine: a fresh or older store
+    if (!Array.isArray(parsed[k])) { lastValidateDropped.push(k); return; } // present but the wrong shape: dropped, and recorded (v150)
+    const kept = parsed[k].filter((e) => e && typeof e === "object");
+    if (kept.length !== parsed[k].length) lastValidateDropped.push(k);
+    out[k] = kept;
   });
-  if (parsed.settings && typeof parsed.settings === "object" && !Array.isArray(parsed.settings)) {
+  if (parsed.settings !== undefined && (typeof parsed.settings !== "object" || Array.isArray(parsed.settings))) {
+    lastValidateDropped.push("settings");
+  } else if (parsed.settings && typeof parsed.settings === "object" && !Array.isArray(parsed.settings)) {
     Object.keys(DEFAULTS.settings).forEach((k) => {
       if (parsed.settings[k] !== undefined) out.settings[k] = parsed.settings[k];
     });
   }
-  if (parsed.moods && typeof parsed.moods === "object" && !Array.isArray(parsed.moods)) {
+  if (parsed.moods !== undefined && (typeof parsed.moods !== "object" || Array.isArray(parsed.moods))) {
+    lastValidateDropped.push("moods");
+  } else if (parsed.moods && typeof parsed.moods === "object" && !Array.isArray(parsed.moods)) {
     out.moods = parsed.moods;
   }
   return out;
@@ -112,6 +147,7 @@ let store = loadStore();
 ensureEntryIds();
 
 function loadStore() {
+  try { loadedGen = Number(localStorage.getItem(GEN_KEY)) || 0; } catch { loadedGen = 0; }
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return structuredClone(DEFAULTS);
@@ -123,6 +159,14 @@ function loadStore() {
       loadFailed = true;
       try { localStorage.setItem(LS_KEY + ".corrupt", raw); } catch {}
       return structuredClone(DEFAULTS);
+    }
+    // v150: a collection that was present but the wrong shape was dropped
+    // by validateStore. Say so loudly and block saves until the user has
+    // seen the warning, instead of letting the next save make the drop
+    // permanent without a word.
+    if (lastValidateDropped.length) {
+      storeDamaged = true;
+      try { localStorage.setItem(LS_KEY + ".corrupt", raw); } catch {}
     }
     return valid;
   } catch (e) {
@@ -148,8 +192,91 @@ function showStorageWarning(text) {
   card.classList.remove("hidden");
 }
 
+/* v150: another copy of the app (another tab or window) changed the saved
+   entries. Say so instead of letting this copy quietly overwrite them;
+   the generation check in saveStore() merges the two copies on the next
+   save. */
+window.addEventListener("storage", (e) => {
+  if (e.key === LS_KEY) {
+    showStorageWarning("Your entries were changed in another window or tab. Reload the app to see the newest entries.");
+  }
+});
+
+/* Combine two copies of the store without losing any entry: the newer
+   (persisted) copy wins for settings, and every entry that exists in
+   either copy is kept, matched by id. A delete made in one copy can come
+   back if the other copy still has it; that is the safe direction, losing
+   nothing beats losing an entry. Used when two copies of the app saved
+   at the same time. */
+function mergeStores(persisted, local) {
+  const out = structuredClone(persisted);
+  COLLECTION_KEYS.forEach((k) => {
+    const have = new Set((persisted[k] || []).map((e) => e && e.id).filter(Boolean));
+    (local[k] || []).forEach((e) => {
+      if (!e || typeof e !== "object") return;
+      if (!e.id) e.id = uid();
+      if (!have.has(e.id)) { out[k].push(e); have.add(e.id); }
+    });
+  });
+  out.moods = Object.assign({}, local.moods || {}, persisted.moods || {});
+  return out;
+}
+
+/* Read the generation the saved copy is on now, so a deliberate replace
+   (restore) can adopt it and write as the newest copy. */
+function adoptCurrentGen() {
+  try { loadedGen = Number(localStorage.getItem(GEN_KEY)) || 0; } catch { loadedGen = 0; }
+}
+
 function saveStore() {
   try {
+    // Read the saved copy before writing, so this save never blindly
+    // overwrites a newer one.
+    let persistedRaw = null;
+    let persistedGen = 0;
+    let persistedCount = -1;
+    let persistedStore = null;
+    try { persistedRaw = localStorage.getItem(LS_KEY); } catch {}
+    try { persistedGen = Number(localStorage.getItem(GEN_KEY)) || 0; } catch {}
+    if (persistedRaw) {
+      try {
+        persistedStore = validateStore(JSON.parse(persistedRaw));
+        persistedCount = persistedStore ? countStoreEntries(persistedStore) : -1;
+      } catch { persistedCount = -1; }
+    }
+    // (1) Another copy saved since this one loaded: merge instead of
+    // overwriting, so no entry from either copy is lost.
+    if (persistedGen !== loadedGen) {
+      if (persistedStore) {
+        store = mergeStores(persistedStore, store);
+        showStorageWarning("Your entries were changed in another window or tab. The two copies were combined, so nothing was lost. Reload the app to see the newest entries.");
+      }
+    }
+    // (2) Never let a smaller in-memory store replace a saved store that
+    // has more entries. A deliberate empty restore sets allowEmptySave
+    // first. A user deleting entries keeps her own settings, which is how
+    // a deliberate deletion is told apart from a fresh start: a fresh
+    // start has default settings while the saved copy has hers. When the
+    // settings match, the smaller store is deliberate and the save is
+    // allowed. When they differ, the save is refused and nothing is lost.
+    const myCount = countStoreEntries(store);
+    if (persistedCount > myCount && !allowEmptySave) {
+      let settingsMatch = false;
+      try {
+        settingsMatch = !!persistedStore && JSON.stringify(store.settings) === JSON.stringify(persistedStore.settings);
+      } catch {}
+      if (!settingsMatch) {
+        showStorageWarning("Your latest change was not saved, because the saved copy on this device has entries that this screen does not show. Nothing was lost. Reload the app to see your entries.");
+        return false;
+      }
+    }
+    // (3) A collection was dropped at load because it was damaged: do not
+    // let a save make the drop permanent before the user has seen the
+    // warning and checked Settings, Backup and restore.
+    if (storeDamaged) {
+      showStorageWarning("Some of your saved entries could not be read. Before adding new entries, check Settings, then Backup and restore, for a backup to restore.");
+      return false;
+    }
     // Second layer of the safety net: if this load could not read the saved
     // store and nothing has changed since, do not overwrite the saved copy
     // with empty defaults.
@@ -157,12 +284,15 @@ function saveStore() {
       let unchanged = false;
       try { unchanged = JSON.stringify(store) === JSON.stringify(DEFAULTS); } catch {}
       if (unchanged) {
-        let savedRaw = null;
-        try { savedRaw = localStorage.getItem(LS_KEY); } catch {}
-        if (savedRaw) return true; // nothing to write; saved copy is intact
+        if (persistedRaw) return true; // nothing to write; saved copy is intact
       }
     }
     localStorage.setItem(LS_KEY, JSON.stringify(store));
+    try {
+      const g = (Number(localStorage.getItem(GEN_KEY)) || 0) + 1;
+      localStorage.setItem(GEN_KEY, String(g));
+      loadedGen = g;
+    } catch {}
   } catch (e) {
     // Storage full or unavailable: say so in plain words instead of
     // failing silently. The app keeps working in memory.
@@ -171,12 +301,16 @@ function saveStore() {
     return false;
   }
   saveFailed = false;
-  saveDailySnapshot();
+  allowEmptySave = false; // one-shot flag, consumed by a successful save
+  // v150: remember that this copy once held entries, so a later empty
+  // load can be told apart from a first day.
+  try { if (countStoreEntries(store) > 0) localStorage.setItem("nct-ever-had-entries", "1"); } catch {}
+  saveAutoSnapshot();
   return true;
 }
 
-/* How many in-app snapshots to keep (about a week of daily snapshots). */
-const SNAPSHOT_KEEP = 7;
+/* How many in-app snapshots to keep (about two weeks of changes). */
+const SNAPSHOT_KEEP = 14;
 /* Warn when a snapshot is this large; photos are stripped before saving. */
 const SNAPSHOT_WARN_BYTES = 2000000;
 
@@ -192,24 +326,29 @@ function buildSnapshotRaw(s) {
   return { raw, photosOmitted: (Array.isArray(s.photos) ? s.photos.length : 0) > 0, nearCap: raw.length > SNAPSHOT_WARN_BYTES };
 }
 
-/* Automatic daily snapshot, once per day, max 7 versions, for Settings restore. */
-function saveDailySnapshot() {
+/* Automatic snapshot (v150): a backup copy inside the app, saved on
+   every change while there is data to back up, not just once a day. A
+   once-a-day copy can be a whole day behind, and a failed save used to
+   be swallowed silently. Identical copies are skipped, so a day of small
+   edits does not fill the list with duplicates. A failed snapshot is now
+   shown in plain words instead of failing silently. */
+function saveAutoSnapshot() {
   try {
     if (countStoreEntries(store) === 0) return;
-    const today = todayStr();
-    if (localStorage.getItem("nct-last-snapshot-day") === today) return;
     const built = buildSnapshotRaw(store);
     if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
     const snaps = loadSnapshots();
     if (snaps.length && snaps[0].data === built.raw) {
-      localStorage.setItem("nct-last-snapshot-day", today);
+      try { localStorage.setItem("nct-last-snapshot-day", todayStr()); } catch {}
       return;
     }
     snaps.unshift({ at: new Date().toISOString(), data: built.raw });
     while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
     localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
-    localStorage.setItem("nct-last-snapshot-day", today);
-  } catch {}
+    localStorage.setItem("nct-last-snapshot-day", todayStr());
+  } catch {
+    showStorageWarning("A backup copy could not be saved inside this app. Your entries are still saved. Download a backup from Settings, then Backup and restore, to keep a copy.");
+  }
 }
 
 /* Safety snapshot taken right before a restore or a delete, labelled so the
@@ -2192,6 +2331,8 @@ function maskToken(t) {
 
 function renderSettings() {
   renderSnapshots();
+  const versionLine = document.getElementById("app-version-line");
+  if (versionLine) versionLine.textContent = "App version " + APP_VERSION + ".";
   const s = store.settings;
   document.getElementById("set-companion-key").value = maskToken(getAuthToken());
   updateCoachStatus();
@@ -2769,6 +2910,7 @@ function maybeRestoreFromSnapshot() {
     store = snapStore;
     ensureEntryIds();
     loadFailed = false;
+    storeDamaged = false; // a restored copy replaces the damaged one
     restoredFromSnapshot = { at: sn.at, summary: snapshotSummary(snapStore) };
     saveStore();
     return;
@@ -2778,18 +2920,85 @@ function maybeRestoreFromSnapshot() {
 /* S1: if this load could not read the saved entries, say so in plain words
    on the Today tab instead of silently starting fresh. The unreadable copy
    is kept aside (newChapterTracker.v1.corrupt) and the save guard keeps
-   this empty start from overwriting it. */
+   this empty start from overwriting it. v150: the same card is used when
+   a collection was dropped because it was damaged, so the user sees the
+   loss before any save can make it permanent. */
 function renderCorruptNotice() {
   const card = document.getElementById("corrupt-notice");
   if (!card) return;
-  if (!loadFailed || restoredFromSnapshot) { card.classList.add("hidden"); return; }
-  document.getElementById("corrupt-notice-text").textContent =
-    "Your saved entries could not be read, so the app started fresh to keep your old data safe. Your old data is still saved on this device. Before adding new entries, check Settings, then Backup & restore, for a backup to restore.";
+  if ((!loadFailed && !storeDamaged) || restoredFromSnapshot) { card.classList.add("hidden"); return; }
+  if (storeDamaged) {
+    document.getElementById("corrupt-notice-text").textContent =
+      "Some of your saved entries could not be read, so those entries are not showing. Your other entries are safe. Before adding new entries, check Settings, then Backup and restore, for a backup to restore. Nothing new will be saved until you tap Got it.";
+  } else {
+    document.getElementById("corrupt-notice-text").textContent =
+      "Your saved entries could not be read, so the app started fresh to keep your old data safe. Your old data is still saved on this device. Before adding new entries, check Settings, then Backup & restore, for a backup to restore.";
+  }
   card.classList.remove("hidden");
 }
 
 document.getElementById("corrupt-notice-hide").addEventListener("click", () => {
   const card = document.getElementById("corrupt-notice");
+  if (card) card.classList.add("hidden");
+  // The user has seen the warning and chosen to continue: allow saves
+  // again. The unreadable copy stays set aside under .corrupt.
+  storeDamaged = false;
+});
+
+/* v150: true when the app has been used before, so an empty store at
+   startup is a loss to warn about, not a first day. Only signals that
+   come from real use count: a backup file was downloaded, a backup
+   snapshot exists, or entries were once saved. The setup marker
+   (nct-setup-done) is set on the very first load, so it cannot tell a
+   first day from a loss. A deliberate delete clears these markers, so
+   it never triggers the warning. */
+function hasUsedAppBefore() {
+  try {
+    if (localStorage.getItem("nct-ever-had-entries") === "1") return true;
+    if (localStorage.getItem("nct-last-backup")) return true;
+    const snaps = loadSnapshots();
+    return snaps.some((sn) => sn.label !== "Before delete");
+  } catch { return false; }
+}
+
+/* v150: true when the app is running as the installed home-screen app
+   rather than in a browser tab. On iOS the home-screen app keeps its
+   own storage, separate from Safari, so a browser tab is a different,
+   empty copy. */
+function isStandaloneApp() {
+  try {
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) return true;
+    if (window.navigator.standalone) return true;
+  } catch {}
+  return false;
+}
+
+/* v150: the store loaded empty and the safety net had nothing to restore.
+   Say so in plain words instead of silently showing a blank app. In a
+   browser tab the message is guidance (the entries live in the
+   home-screen app, not here). In the home-screen app it is a warning,
+   shown only when the app was used before, so a first day stays quiet. */
+function renderEmptyNotice() {
+  const card = document.getElementById("empty-notice");
+  if (!card) return;
+  if (countStoreEntries(store) !== 0 || restoredFromSnapshot || loadFailed || storeDamaged) {
+    card.classList.add("hidden");
+    return;
+  }
+  if (!isStandaloneApp()) {
+    document.getElementById("empty-notice-text").textContent =
+      "You are viewing the tracker in the browser. Your entries are kept in the home-screen app, not here. Open the tracker from its home-screen app icon to see your entries. If you have not added it to your home screen yet, use Share, then Add to Home Screen.";
+    card.classList.remove("hidden");
+    return;
+  }
+  if (!hasUsedAppBefore()) { card.classList.add("hidden"); return; }
+  document.getElementById("empty-notice-text").textContent =
+    "Your entries are not showing. Your entries are stored only in this app on this phone. If you opened the tracker in Safari, from a link, or from a new app icon, that is a separate empty copy. Close this and open the tracker from its home-screen app icon. If you have a backup file, restore it in Settings, then Backup and restore.";
+  card.classList.remove("hidden");
+}
+
+document.getElementById("empty-notice-hide").addEventListener("click", () => {
+  const card = document.getElementById("empty-notice");
   if (card) card.classList.add("hidden");
 });
 
@@ -2842,8 +3051,25 @@ function saveSnapshot() {
 }
 function renderSnapshots() {
   const box = document.getElementById("snapshot-list");
+  // v150: show the newest backup in plain words, so it is visible that
+  // backups are being recorded, and when the last one was saved.
+  const lastLine = document.getElementById("last-backup-line");
+  const snapsForLine = loadSnapshots();
+  if (lastLine) {
+    if (!snapsForLine.length) {
+      lastLine.textContent = "No backup saved in this app yet. A backup is saved automatically when you add entries.";
+    } else {
+      let newestSummary = "";
+      try {
+        const parsed = validateStore(JSON.parse(snapsForLine[0].data));
+        newestSummary = parsed ? snapshotSummary(parsed) : "";
+      } catch {}
+      const label = new Date(snapsForLine[0].at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      lastLine.textContent = "Last backup in this app: " + label + (newestSummary ? " (" + newestSummary + ")" : "") + ". " + snapsForLine.length + " backup" + (snapsForLine.length === 1 ? "" : "s") + " kept.";
+    }
+  }
   if (!box) return;
-  const snaps = loadSnapshots();
+  const snaps = snapsForLine;
   if (!snaps.length) { box.innerHTML = ""; return; }
   box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
     const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "")
@@ -2876,6 +3102,9 @@ function renderSnapshots() {
       store = snapStore;
       ensureEntryIds();
       loadFailed = false; // deliberate restore: the save guard must not block it
+      storeDamaged = false;
+      allowEmptySave = true; // a deliberate restore may replace the store with a smaller one
+      adoptCurrentGen(); // write this restore as the newest copy
       resetViewState();
       saveStore();
       renderToday();
@@ -2949,6 +3178,9 @@ document.getElementById("restore-input").addEventListener("change", (e) => {
       store = validStore;
       ensureEntryIds();
       loadFailed = false; // deliberate restore: the save guard must not block it
+      storeDamaged = false;
+      allowEmptySave = true; // a deliberate restore may replace the store with a smaller one
+      adoptCurrentGen(); // write this restore as the newest copy
       resetViewState();
       saveStore();
       renderToday();
@@ -3105,6 +3337,8 @@ document.getElementById("clear-all-data").addEventListener("click", () => {
   } catch {}
   clearWeekDismissKeys();
   localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(GEN_KEY);
+  localStorage.removeItem("nct-ever-had-entries");
   localStorage.removeItem(LS_KEY + ".corrupt");
   localStorage.removeItem("nct-snapshots.corrupt");
   localStorage.removeItem("nct-last-snapshot-day");
@@ -3119,19 +3353,30 @@ document.getElementById("clear-all-data").addEventListener("click", () => {
 
 /* ---------- Init ---------- */
 
+/* v150: a render that throws halfway leaves a torn screen (some numbers
+   new, the chart and milestone stale), which is how a mixed screen can
+   appear. Catch it, say so in plain words, and keep rendering the rest,
+   instead of failing silently. */
+function safeRender(fn) {
+  try { fn(); } catch {
+    showStorageWarning("Something went wrong showing part of this screen. Your entries are still saved. Try reloading the app.");
+  }
+}
+
 maybeRestoreFromSnapshot();
 if (ensureEntryIds()) saveStore(); // persist ids given to old entries (F27)
 loadCustomActivities();
-renderToday();
-renderInjections();
-renderWeight();
-renderMeasurements();
-renderPhotos();
-renderJournal();
-renderSideEffects();
-renderSettings();
+safeRender(renderToday);
+safeRender(renderInjections);
+safeRender(renderWeight);
+safeRender(renderMeasurements);
+safeRender(renderPhotos);
+safeRender(renderJournal);
+safeRender(renderSideEffects);
+safeRender(renderSettings);
 renderRestoreNotice();
 renderCorruptNotice();
+renderEmptyNotice();
 
 /* ---------- AI Wellness Companion chat ---------- */
 

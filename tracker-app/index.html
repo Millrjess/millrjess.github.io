@@ -33,7 +33,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=149">
+<link rel="stylesheet" href="styles.css?v=150">
 </head>
 <body>
 
@@ -62,6 +62,14 @@
     <div class="card hidden" id="corrupt-notice" role="alert" style="border-left:4px solid #B3261E">
       <p style="margin:0" id="corrupt-notice-text"></p>
       <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="empty-notice" role="alert" style="border-left:4px solid #B3261E">
+      <p style="margin:0" id="empty-notice-text"></p>
+      <button class="btn btn-small" id="empty-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="update-notice" role="status" style="border-left:4px solid #5A6B52">
+      <p style="margin:0">A new version of the app is ready.</p>
+      <button class="btn btn-primary btn-small" id="update-now" style="margin-top:8px">Update now</button>
     </div>
     <div class="card hidden" id="storage-warning" role="alert" style="border-left:4px solid #E8B54A">
       <p style="margin:0" id="storage-warning-text"></p>
@@ -654,12 +662,14 @@
     <div class="card">
       <h3>Backup &amp; restore</h3>
       <p class="muted">Download backup saves a file to this phone, in Files under Downloads, and also keeps a copy inside the app below. Restore from file opens a picker: choose On My iPhone or Downloads. A backup is not in Google Drive unless you moved a copy there yourself.</p>
+      <p class="muted">Your entries live only in this app on this phone. Always open the tracker from its home-screen app icon. Opening it in Safari or from a link shows a separate, empty copy.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
         <label class="btn" style="cursor:pointer">Restore backup
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
       </div>
+      <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
@@ -691,6 +701,7 @@
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
       </div>
       <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
+      <p class="muted" id="app-version-line"></p>
     </div>
       </div>
     </details>
@@ -734,13 +745,38 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=149"></script>
+<script src="app.js?v=150"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      // v150: ask for an update on every load, so a new version reaches
+      // the installed app instead of waiting on the browser's own
+      // schedule, which can leave an old copy running for days.
+      if (reg && reg.update) reg.update().catch(() => {});
+      if (reg) {
+        reg.addEventListener("updatefound", () => {
+          const nw = reg.installing;
+          if (nw) nw.addEventListener("statechange", () => {
+            if (nw.state === "installed" && navigator.serviceWorker.controller) showUpdateNotice();
+          });
+        });
+      }
+    }).catch(() => {});
+  });
+  // A new service worker taking over means new code is ready: offer the update.
+  let updateShown = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (updateShown) return;
+    updateShown = true;
+    showUpdateNotice();
   });
 }
+function showUpdateNotice() {
+  const card = document.getElementById("update-notice");
+  if (card) card.classList.remove("hidden");
+}
+document.getElementById("update-now").addEventListener("click", () => location.reload());
 </script>
 </body>
 </html>
