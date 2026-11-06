@@ -10,7 +10,7 @@
   gtag('config', 'G-SHDGWWFBV7');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Why Accessibility and UX Matter: Section 508, WCAG, and W3C | Jessica A. Miller</title>
+<title>Why Accessibility and UX Matter | Jessica A. Miller</title>
 <meta name="description" content="Why Section 508, WCAG 2.2 AA, and W3C validation matter for a business website, for visitors, for legal risk, and for search.">
 <link rel="icon" href="../assets/img/favicon-96.webp">
 <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
@@ -33,7 +33,7 @@
   --shadow:0 14px 34px -18px rgba(15,35,64,.22);
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:150px}
 body{
   margin:0; color:var(--slate); background:var(--bg);
   font-family:var(--font-body); font-size:17px; line-height:1.7;
@@ -188,7 +188,7 @@ hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
 <p class="lede">An accessible website is usable by everyone, including visitors who use a keyboard, a screen reader, magnification, or captions. It is also easier for search engines to read, and it reduces legal and procurement risk. Those three reasons are why Section 508, WCAG, and W3C validation are treated together, not as separate checklists.</p>
 <h2>What each term means</h2>
 <p><strong>WCAG</strong> stands for Web Content Accessibility Guidelines. It is the technical standard published by the World Wide Web Consortium, known as W3C. WCAG 2.2, published in October 2023, organizes its requirements around four principles: content must be perceivable, operable, understandable, and robust. Level AA is the level most organizations target. It includes all Level A criteria plus the Level AA criteria, 55 criteria in total.</p>
-<p><strong>Section 508</strong> is United States federal law, part of the Rehabilitation Act. It requires federal agencies to make their electronic and information technology accessible to people with disabilities. Section 508 is not a separate web standard. Its revised standards, effective in January 2018, incorporate WCAG 2.0 Level A and AA by reference for web content. In practice, a site that meets WCAG 2.2 AA also meets the WCAG 2.0 AA baseline Section 508 points to, because the versions build on each other.</p>
+<p><strong>Section 508</strong> is United States federal law, part of the Rehabilitation Act. It requires federal agencies to make their electronic and information technology accessible to people with disabilities. Section 508 is not a separate web standard. Its revised standards, published in January 2017 with compliance required by January 18, 2018, incorporate WCAG 2.0 Level A and AA by reference for web content. In practice, a site that meets WCAG 2.2 AA also meets the WCAG 2.0 AA baseline Section 508 points to, with one exception. WCAG 2.2 removed criterion 4.1.1, Parsing, which WCAG 2.0 still contains, so valid parsing still matters for the 2.0 baseline.</p>
 <p><strong>W3C validation</strong> checks whether the code of a page follows the published HTML standard. Valid code is not the same as an accessible page, and an accessible page can still have a validator warning. Validation matters because broken or ambiguous code is harder for browsers, assistive tools, and search engines to parse consistently.</p>
 <h2>Who has to comply</h2>
 <p>State and local governments have a rule with set deadlines under the Americans with Disabilities Act, Title II. Their web content and mobile apps must meet WCAG 2.1 AA, by April 26, 2027 for entities serving 50,000 or more people, and April 26, 2028 for smaller entities. Private businesses open to the public fall under ADA Title III. There is no federal rule naming a WCAG version or a deadline for private businesses, but the Department of Justice has long taken the position that the ADA applies to goods and services offered online, and WCAG is the benchmark courts and settlements usually point to. Federal agencies, and vendors who supply them, are covered by Section 508 through procurement.</p>
@@ -205,14 +205,14 @@ hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
 <h2>How this site handles it</h2>
 <p>Every engagement follows the same standards this site is held to: valid W3C code, WCAG 2.2 AA accessibility, and user experience grounded in published research. That standard is applied in the WCAG Accessibility Audit and Remediation service and in the Website Standards Pass service, both listed on the pricing page. No accessibility claim is published for a page until that page has been checked against the applicable WCAG 2.2 AA criteria, not only against an automated score.</p>
 <p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
-<h2>Screen reader check: New Chapter: GLP-1 Tracker™</h2>
-<p>November 5, 2026. The live tracker app was checked with a screen reader on desktop Chrome. It passed: the reader reads buttons and text in order, on every tab in the app. This is a screen reader check of the live app. It is not a claim that every page passes every WCAG 2.2 AA criterion.</p>
+<h2>Screen reader check: the live tracker app</h2>
+<p>November 5, 2026. The live New Chapter: GLP-1 Tracker™ app was checked with a screen reader on desktop Chrome, latest version. The reader reads buttons and text in order, on every tab in the app. This is a screen reader check of the live app. It is not a claim that every page passes every WCAG 2.2 AA criterion.</p>
 <h2>Sources</h2>
 <ul>
 <li><a href="https://www.w3.org/TR/WCAG22/">W3C, Web Content Accessibility Guidelines (WCAG) 2.2</a></li>
 <li><a href="https://www.access-board.gov/ict/">U.S. Access Board, Revised Section 508 Standards</a></li>
 <li><a href="https://www.ada.gov/resources/small-entity-compliance-guide/">U.S. Department of Justice, ADA Title II Web and Mobile App Accessibility Rule: Small Entity Compliance Guide</a></li>
-<li><a href="https://profiletree.com/seo-and-accessibility/">ProfileTree, SEO and Accessibility: 5 Simple Audit Checks</a></li>
+<li><a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide">Google Search Central, SEO Starter Guide</a></li>
 </ul>
 </article>
 </main>
