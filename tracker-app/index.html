@@ -36,7 +36,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=154">
+<link rel="stylesheet" href="styles.css?v=155">
 </head>
 <body>
 
@@ -677,6 +677,7 @@
         </label>
       </div>
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
+      <p class="muted" id="backup-version-line" style="margin-top:6px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
@@ -752,7 +753,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=154"></script>
+<script src="app.js?v=155"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

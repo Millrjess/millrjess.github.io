@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v154): shown in Settings, About, so the version on the
+/* App version (v155): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v154";
+const APP_VERSION = "v155";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -2428,6 +2428,11 @@ function renderSettings() {
   renderSnapshots();
   const versionLine = document.getElementById("app-version-line");
   if (versionLine) versionLine.textContent = "App version " + APP_VERSION + ".";
+  // v155: the version also shows in Backup & restore, so it is easy to
+  // find when something goes wrong and Jessica asks which version the
+  // app is running.
+  const backupVersionLine = document.getElementById("backup-version-line");
+  if (backupVersionLine) backupVersionLine.textContent = "App version " + APP_VERSION + ".";
   const s = store.settings;
   document.getElementById("set-companion-key").value = maskToken(getAuthToken());
   updateCoachStatus();
@@ -3243,7 +3248,11 @@ function renderSnapshots() {
 /* ---------- Backup & restore (JSON) ---------- */
 
 document.getElementById("backup-data").addEventListener("click", () => {
-  const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
+  // v155: appVersion stamps which app version made the file, so a
+  // backup sent in for help says which version it came from. It is
+  // separate from version: 1, which is the backup file format version.
+  // The restore check ignores it, so old files still restore.
+  const backup = { app: "new-chapter-tracker", version: 1, appVersion: APP_VERSION, exported: new Date().toISOString(), store };
   // The loud snapshot writer, not the old silent one: if the in-app
   // backup copy cannot be saved, the user is told instead of it failing
   // quietly while the file download looks like it worked.
