@@ -426,7 +426,7 @@ async function handleChat(request, env, auth) {
       return corsResponse(
         JSON.stringify({
           error: "Daily limit reached",
-          message: "You have reached your 20 messages for today. Come back tomorrow.",
+          message: "You have reached your 40 messages for today. Come back tomorrow.",
         }),
         request,
         429
