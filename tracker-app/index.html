@@ -28,12 +28,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-SHDGWWFBV7');
+  // Never send the page URL to Analytics as-is: the buyer link carries
+  // the companion token in ?key=..., and the token must never leave the
+  // device. Report only the path, never the query string.
+  gtag('config', 'G-SHDGWWFBV7', { page_location: location.origin + location.pathname });
 </script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=151">
+<link rel="stylesheet" href="styles.css?v=152">
 </head>
 <body>
 
@@ -745,7 +748,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=151"></script>
+<script src="app.js?v=152"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -776,7 +779,17 @@ function showUpdateNotice() {
   const card = document.getElementById("update-notice");
   if (card) card.classList.remove("hidden");
 }
-document.getElementById("update-now").addEventListener("click", () => location.reload());
+document.getElementById("update-now").addEventListener("click", () => {
+  // A phone stuck on an old cached copy needs the old service worker
+  // gone before the reload, or the reload just serves the same old
+  // files again. Unregister first, then reload; the fresh files
+  // re-register the worker on the next load.
+  if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+    navigator.serviceWorker.getRegistration().then((r) => { if (r) return r.unregister(); }).catch(() => {}).finally(() => location.reload());
+  } else {
+    location.reload();
+  }
+});
 </script>
 </body>
 </html>

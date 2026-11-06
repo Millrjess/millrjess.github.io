@@ -139,7 +139,10 @@ async function handleIssueToken(request, env) {
   try { body = await request.json(); } catch {}
   const token = "nc_" + crypto.randomUUID().replace(/-/g, "").slice(0, 24);
   const user = {
-    email: String(body.email || ""),
+    // Lowercased, like the webhook and recover paths: an admin-issued
+    // token for "User@Example.com" must be found by a recover lookup
+    // for "user@example.com".
+    email: String(body.email || "").toLowerCase().trim(),
     plan: String(body.plan || "monthly"),
     created: new Date().toISOString(),
     status: "active",
@@ -274,7 +277,11 @@ async function checkPublicRateLimit(request, env, prefix, maxPerHour) {
     return true;
   } catch (e) {
     console.error("Rate limit error:", e);
-    return true; // fail open on KV errors
+    // Fail closed on KV errors: these endpoints guard 6-digit codes, and
+    // every one of them needs KV to work anyway (the code or email lookup
+    // would fail too), so refusing during an outage loses nothing real
+    // while an open gate would let the code be hammered without a limit.
+    return false;
   }
 }
 

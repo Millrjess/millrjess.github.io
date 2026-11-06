@@ -8,10 +8,11 @@
 
 "use strict";
 
-/* App version (v150): shown in Settings, About, so the version on the
+/* App version (v152): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
-   together with CACHE_NAME in sw.js and the ?v= tokens in index.html. */
-const APP_VERSION = "v151";
+   together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
+   version.json (the staleness check compares against this value). */
+const APP_VERSION = "v152";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -94,7 +95,21 @@ function validateStore(parsed, strict) {
   COLLECTION_KEYS.forEach((k) => {
     if (parsed[k] === undefined) return; // missing is fine: a fresh or older store
     if (!Array.isArray(parsed[k])) { lastValidateDropped.push(k); return; } // present but the wrong shape: dropped, and recorded (v150)
-    const kept = parsed[k].filter((e) => e && typeof e === "object");
+    const kept = [];
+    for (const e of parsed[k]) {
+      if (!e || typeof e !== "object") continue;
+      // A bad date bricks every tab that sorts or formats it (formatDate
+      // and localeCompare both throw on a non-string date). Drop the one
+      // entry, keep the rest, and record the loss.
+      if (!isValidDateStr(e.date)) continue;
+      e.id = safeEntryId(e);
+      // A photo URL that is not an in-app data URL would load a remote
+      // image from the app's origin. Strip it; keep the dated entry.
+      if (k === "photos" && e.dataUrl !== undefined && !(typeof e.dataUrl === "string" && e.dataUrl.startsWith("data:image/"))) {
+        delete e.dataUrl;
+      }
+      kept.push(e);
+    }
     if (kept.length !== parsed[k].length) lastValidateDropped.push(k);
     out[k] = kept;
   });
@@ -104,11 +119,32 @@ function validateStore(parsed, strict) {
     Object.keys(DEFAULTS.settings).forEach((k) => {
       if (parsed.settings[k] !== undefined) out.settings[k] = parsed.settings[k];
     });
+    // Settings come from a file on restore, so a bad value must not be
+    // able to break the countdowns or the settings form.
+    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    if (typeof out.settings.shotDay !== "string" || (out.settings.shotDay !== "" && !dayNames.includes(out.settings.shotDay))) out.settings.shotDay = "";
+    if (typeof out.settings.refillDate !== "string" || (out.settings.refillDate !== "" && !isValidDateStr(out.settings.refillDate))) out.settings.refillDate = "";
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal"]) {
+      const n = Number(out.settings[g]);
+      out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
+    }
+    const gw = Number(out.settings.goalWeight);
+    out.settings.goalWeight = Number.isFinite(gw) && gw > 0 ? gw : "";
+    if (out.settings.medication !== undefined) out.settings.medication = String(out.settings.medication);
+    if (out.settings.dose !== undefined) {
+      out.settings.dose = Number.isFinite(Number(out.settings.dose)) && String(out.settings.dose).trim() !== "" ? String(out.settings.dose) : "";
+    }
   }
   if (parsed.moods !== undefined && (typeof parsed.moods !== "object" || Array.isArray(parsed.moods))) {
     lastValidateDropped.push("moods");
   } else if (parsed.moods && typeof parsed.moods === "object" && !Array.isArray(parsed.moods)) {
-    out.moods = parsed.moods;
+    // Keep only real dates with string moods; a crafted key could
+    // otherwise inflate the logged-days count or break the export.
+    const cleanMoods = {};
+    for (const [d, m] of Object.entries(parsed.moods)) {
+      if (isValidDateStr(d) && typeof m === "string") cleanMoods[d] = m;
+    }
+    out.moods = cleanMoods;
   }
   return out;
 }
@@ -243,6 +279,24 @@ function saveStore() {
         persistedStore = validateStore(JSON.parse(persistedRaw));
         persistedCount = persistedStore ? countStoreEntries(persistedStore) : -1;
       } catch { persistedCount = -1; }
+    }
+    // (0) A delete in another copy wins over this copy's stale entries.
+    // The delete leaves a marker stamped with its generation. Any copy
+    // that loaded before the delete (loadedGen < marker) adopts the
+    // persisted store instead of merging its stale entries back in, so
+    // a delete can never be undone by a tab that was open at the time.
+    // The marker is never cleared by a save: a copy that loaded after
+    // the delete has loadedGen >= marker and is never affected by it.
+    let tombstoneGen = 0;
+    try { tombstoneGen = Number(localStorage.getItem("nct-store-tombstone")) || 0; } catch {}
+    if (tombstoneGen > 0 && loadedGen < tombstoneGen) {
+      store = persistedStore || structuredClone(DEFAULTS);
+      loadFailed = false;
+      storeDamaged = false;
+      allowEmptySave = true;
+      loadedGen = persistedGen;
+      showStorageWarning("Your data was deleted in another window or tab. This copy was cleared to match. If that was a mistake, a safety copy is in Settings, then Backup and restore.");
+      return true; // the delete stands; nothing to write
     }
     // (1) Another copy saved since this one loaded: merge instead of
     // overwriting, so no entry from either copy is lost.
@@ -396,6 +450,32 @@ function uid() {
   return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+// A date string the app can trust: YYYY-MM-DD, a real calendar date.
+// Anything else (a number, garbage, a crafted restore value) must never
+// reach formatDate() or a sort, because both throw on non-string dates.
+function isValidDateStr(s) {
+  if (typeof s !== "string") return false;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return false;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return d.getFullYear() === Number(m[1]) && d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[3]);
+}
+
+// An entry id is interpolated into double-quoted HTML attributes, so it
+// must never contain a character that can break out of one (" < > ` = or
+// whitespace). Legitimate ids (uid() output) pass unchanged; a number is
+// stringified; anything dangerous is replaced with a fresh safe id.
+function safeEntryId(e) {
+  if (typeof e.id === "number" && Number.isFinite(e.id)) return String(e.id);
+  if (typeof e.id === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(e.id)) return e.id;
+  return uid();
+}
+
+// Date comparators that never throw, even if an entry somehow carries a
+// non-string date. Use these everywhere instead of inline localeCompare.
+function byDate(a, b) { return String((a && a.date) || "").localeCompare(String((b && b.date) || "")); }
+function byDateDesc(a, b) { return byDate(b, a); }
+
 /* Local-midnight helpers (S22): day differences must be counted in whole
    local days, not by dividing a millisecond span, or a daylight-saving
    change can shift the count by one. */
@@ -418,9 +498,14 @@ function todayStr(offsetDays) {
 }
 
 function formatDate(iso) {
-  if (!iso) return "";
+  // Defensive: a bad date must render as blank, never throw (a throw
+  // here would tear the whole tab). Entries are date-validated on load,
+  // but a snapshot or a merged copy can still carry a bad one.
+  if (!iso || typeof iso !== "string") return "";
   const parts = iso.split("-");
-  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  if (parts.length !== 3) return "";
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
@@ -429,7 +514,8 @@ function escapeHtml(s) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /* Daily encouragement: rotate through supportive messages by day of year */
@@ -567,7 +653,9 @@ function showTab(name) {
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
-      page_location: location.href.split("#")[0] + "#" + name,
+      // The URL can carry the companion token in ?key=...; report only
+      // the path and tab, never the query string.
+      page_location: location.origin + location.pathname + "#" + name,
       page_path: "/tracker-app/#" + name
     });
   } catch (e) { /* analytics unavailable; app keeps working */ }
@@ -622,7 +710,7 @@ function pickCoachInsight() {
   const mStreak = streakFor("exercise", "minutes", "movementGoal");
   if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
   const goalW = Number(store.settings.goalWeight) || 0;
-  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...store.weight].sort(byDate);
   if (goalW > 0 && sorted.length) {
     const remaining = Math.abs(Number(sorted[sorted.length - 1].value) - goalW);
     if (remaining > 0 && remaining <= 5) return "Only " + remaining.toFixed(1) + " lbs to your goal. You're nearly there.";
@@ -633,7 +721,7 @@ function pickCoachInsight() {
     if (daysSince >= 7) return "It's been " + daysSince + " days since you weighed in. No pressure, just whenever you're ready.";
   }
   if (store.journal.length) {
-    const lastJ = [...store.journal].sort((a, b) => b.date.localeCompare(a.date))[0].date;
+    const lastJ = [...store.journal].sort(byDateDesc)[0].date;
     const daysSince = daysBetween(lastJ, todayStr());
     if (daysSince >= 7) return "A lot can change in " + daysSince + " days. Two minutes of journaling?";
   }
@@ -691,7 +779,7 @@ function renderMonthlyReview() {
   const shots = store.injections.filter((e) => inMonth(e.date)).length;
   const journals = store.journal.filter((e) => inMonth(e.date)).length;
 
-  const weights = store.weight.filter((e) => inMonth(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+  const weights = store.weight.filter((e) => inMonth(e.date)).sort(byDate);
   let weightLine = "";
   if (weights.length >= 2) {
     const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
@@ -810,7 +898,7 @@ function renderWeeklySummary() {
     }
     const shots = (store.injections || []).filter((e) => daySet.has(e.date)).length;
     if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
-    const weights = (store.weight || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    const weights = (store.weight || []).filter((e) => daySet.has(e.date)).sort(byDate);
     if (weights.length >= 2) {
       const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
       const change = startW - endW;
@@ -822,9 +910,9 @@ function renderWeeklySummary() {
     } else if (weights.length === 1) {
       lines.push("You logged your weight at " + weights[0].value + " lbs.");
     }
-    const meas = (store.measurements || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    const meas = (store.measurements || []).filter((e) => daySet.has(e.date)).sort(byDate);
     if (meas.length) lines.push("Measurements logged on " + formatDate(meas[meas.length - 1].date) + ".");
-    const effects = (store.sideEffects || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
+    const effects = (store.sideEffects || []).filter((e) => daySet.has(e.date)).sort(byDate);
     if (effects.length) {
       const last = effects[effects.length - 1];
       lines.push(effects.length + " side effect" + (effects.length === 1 ? "" : "s") +
@@ -1148,7 +1236,12 @@ function getCustomActivities() {
   try {
     const parsed = JSON.parse(localStorage.getItem("nc_custom_activities") || "[]");
     return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string") : [];
-  } catch { return []; }
+  } catch {
+    // Same rule as chat history: stash the damaged copy instead of
+    // letting the next save overwrite it silently.
+    try { localStorage.setItem("nc_custom_activities.corrupt", localStorage.getItem("nc_custom_activities") || ""); } catch {}
+    return [];
+  }
 }
 function saveCustomActivity(name) {
   const list = getCustomActivities();
@@ -1465,7 +1558,7 @@ function lastInjection() {
   /* A missed dose was not taken, so it is not a "last shot". */
   const taken = store.injections.filter((e) => (e.status || "On time") !== "Missed");
   if (!taken.length) return null;
-  return [...taken].sort((a, b) => b.date.localeCompare(a.date))[0];
+  return [...taken].sort(byDateDesc)[0];
 }
 
 function showSiteMapView(view) {
@@ -1575,7 +1668,7 @@ let injectionLimit = 10; // entries shown; "show more" loads older ones in batch
 
 function renderInjections() {
   const list = document.getElementById("injection-list");
-  const sorted = [...store.injections].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...store.injections].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No injections logged yet. Tap "Log shot" to add your first.</p>';
     return;
@@ -1694,7 +1787,7 @@ weightForm.addEventListener("submit", (e) => {
 let weightLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderWeight() {
-  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...store.weight].sort(byDate);
   const noteEl = document.getElementById("weight-change-note");
   if (sorted.length) {
     const current = sorted[sorted.length - 1].value;
@@ -1787,7 +1880,7 @@ function renderWeight() {
 function renderWeightMilestone() {
   const card = document.getElementById("milestone-card");
   const goalW = Number(store.settings.goalWeight) || 0;
-  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...store.weight].sort(byDate);
   if (!(goalW > 0) || !sorted.length) { card.classList.add("hidden"); return; }
   const startW = Number(sorted[0].value);
   const curW = Number(sorted[sorted.length - 1].value);
@@ -1824,7 +1917,7 @@ function renderWeightMilestone() {
 function drawWeightChart() {
   const canvas = document.getElementById("weight-chart");
   const emptyMsg = document.getElementById("weight-chart-empty");
-  const sorted = [...store.weight].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...store.weight].sort(byDate);
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1996,7 +2089,7 @@ let measLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderMeasurements() {
   const list = document.getElementById("measurement-list");
-  const sorted = [...store.measurements].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...store.measurements].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No measurements yet. Tap "+ Log measurements" to add your first.</p>';
     return;
@@ -2058,8 +2151,10 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
+  reader.onerror = () => alert("That photo could not be read. Try a different photo.");
   reader.onload = () => {
     const img = new Image();
+    img.onerror = () => alert("That photo could not be read. Try a different photo.");
     img.onload = () => {
       const maxDim = 800;
       let w = img.width, h = img.height;
@@ -2090,7 +2185,7 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
 function renderPhotos() {
   const grid = document.getElementById("photo-grid");
   // Snapshots keep photo dates only, not the pictures; skip those here.
-  const sorted = [...store.photos].filter((p) => p.dataUrl).sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...store.photos].filter((p) => p.dataUrl).sort(byDateDesc);
   if (!sorted.length) {
     grid.innerHTML = '<p class="empty-state">No progress photos yet. Tap "+ Add photo" to add your first.</p>';
     return;
@@ -2165,7 +2260,7 @@ let journalLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderJournal() {
   const list = document.getElementById("journal-list");
-  const sorted = [...store.journal].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...store.journal].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No journal entries yet. Tap "New entry" to write your first.</p>';
     return;
@@ -2268,7 +2363,7 @@ let seLimit = 10; // entries shown; "show more" loads older ones in batches
 
 function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
-  const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
+  const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
     return;
@@ -2371,12 +2466,20 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const keyInput = document.getElementById("set-companion-key").value.trim();
   const existingKey = getAuthToken();
+  let tokenSaveFailed = false;
   if (keyInput && keyInput !== maskToken(existingKey)) {
     if (existingKey && !confirm("Replace the companion key you already have saved? The old key will stop working here.")) {
       document.getElementById("set-companion-key").value = maskToken(existingKey);
       return;
     }
-    try { localStorage.setItem(TOKEN_KEY, keyInput); } catch {}
+    // Verify the key actually stuck: a full or blocked store would
+    // otherwise swallow the key silently. The goals still save below;
+    // the warning is shown with the saved message at the end.
+    try {
+      localStorage.setItem(TOKEN_KEY, keyInput);
+      tokenSaveFailed = localStorage.getItem(TOKEN_KEY) !== keyInput;
+    } catch { tokenSaveFailed = true; }
+    if (tokenSaveFailed) document.getElementById("set-companion-key").value = maskToken(getAuthToken());
   }
   store.settings.medication = document.getElementById("set-med").value.trim() || "Zepbound";
   store.settings.dose = document.getElementById("set-dose").value;
@@ -2395,7 +2498,9 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   renderToday();
   const savedMsg = document.getElementById("settings-saved-msg");
   if (savedMsg) {
-    savedMsg.textContent = "Settings saved.";
+    savedMsg.textContent = tokenSaveFailed
+      ? "Settings saved, but the companion key could not be saved on this device. It may be out of space. Download a backup from Settings, then delete a few old photos, and enter the key again."
+      : "Settings saved.";
     savedMsg.classList.add("success");
   }
 });
@@ -2460,7 +2565,17 @@ async function redeemAccessCode() {
     });
     const data = await res.json();
     if (data.ok && data.token) {
-      try { localStorage.setItem(TOKEN_KEY, data.token); } catch {}
+      // Verify the key actually stuck: a full or blocked store would
+      // otherwise report "connected" while every chat message fails.
+      let tokenSaved = false;
+      try {
+        localStorage.setItem(TOKEN_KEY, data.token);
+        tokenSaved = localStorage.getItem(TOKEN_KEY) === data.token;
+      } catch {}
+      if (!tokenSaved) {
+        setCodeError("Your code worked, but the companion key could not be saved on this device. It may be out of space. Download a backup from Settings, then delete a few old photos, and try the code again.");
+        return;
+      }
       document.getElementById("set-companion-key").value = maskToken(data.token);
       msg.textContent = "Your AI Wellness Companion is connected.";
       msg.classList.add("success");
@@ -2782,42 +2897,42 @@ document.getElementById("export-data").addEventListener("click", () => {
   lines.push(...tsvSection(
     "Water Intake",
     ["Date", "Amount (oz)"],
-    [...store.water].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.oz])
+    [...store.water].sort(byDate).map((e) => [e.date, e.oz])
   ));
 
   lines.push(...tsvSection(
     "Protein",
     ["Date", "Food", "Grams"],
-    [...store.protein].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.food, e.grams])
+    [...store.protein].sort(byDate).map((e) => [e.date, e.food, e.grams])
   ));
 
   lines.push(...tsvSection(
     "Movement",
     ["Date", "Activity", "Minutes"],
-    [...store.exercise].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.label, e.minutes])
+    [...store.exercise].sort(byDate).map((e) => [e.date, e.label, e.minutes])
   ));
 
   lines.push(...tsvSection(
     "Injections",
     ["Date", "Medication", "Dose (mg)", "Site", "Status", "Notes"],
-    [...store.injections].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.medication, e.dose, e.site, e.status || "On time", e.notes])
+    [...store.injections].sort(byDate).map((e) => [e.date, e.medication, e.dose, e.site, e.status || "On time", e.notes])
   ));
 
   lines.push(...tsvSection(
     "Weight",
     ["Date", "Weight (lbs)"],
-    [...store.weight].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.value])
+    [...store.weight].sort(byDate).map((e) => [e.date, e.value])
   ));
 
   lines.push(...tsvSection(
     "Measurements",
     ["Date", "Waist (in)", "Hips (in)", "Chest (in)", "Arm (in)", "Thigh (in)", "Neck (in)"],
-    [...(store.measurements || [])].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.waist, e.hips, e.chest, e.arm, e.thigh, e.neck])
+    [...(store.measurements || [])].sort(byDate).map((e) => [e.date, e.waist, e.hips, e.chest, e.arm, e.thigh, e.neck])
   ));
 
   lines.push("Progress Photos");
   lines.push(["Date", "Note"].join("\t"));
-  [...(store.photos || [])].sort((a, b) => a.date.localeCompare(b.date)).forEach((p) => {
+  [...(store.photos || [])].sort(byDate).forEach((p) => {
     lines.push([p.date, "Photo stored in app (not included in export)"].join("\t"));
   });
   lines.push("");
@@ -2825,13 +2940,13 @@ document.getElementById("export-data").addEventListener("click", () => {
   lines.push(...tsvSection(
     "Journal",
     ["Date", "Mood", "Notes"],
-    [...store.journal].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.mood, e.notes])
+    [...store.journal].sort(byDate).map((e) => [e.date, e.mood, e.notes])
   ));
 
   lines.push(...tsvSection(
     "Side Effects",
     ["Date", "Symptom", "Severity", "Notes"],
-    [...store.sideEffects].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.symptom, e.severity, e.notes])
+    [...store.sideEffects].sort(byDate).map((e) => [e.date, e.symptom, e.severity, e.notes])
   ));
 
   lines.push(...tsvSection(
@@ -3029,7 +3144,16 @@ function loadSnapshots() {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) throw new Error("snapshots not an array");
-    return parsed.filter((sn) => sn && typeof sn === "object" && typeof sn.data === "string");
+    return parsed.filter((sn) => {
+      if (!sn || typeof sn !== "object" || typeof sn.data !== "string") return false;
+      // A snapshot with an unreadable timestamp cannot be displayed or
+      // ordered, so it cannot be restored either. Drop it, keep the rest.
+      if (typeof sn.at !== "string" || isNaN(new Date(sn.at).getTime())) return false;
+      // The label is shown as HTML, so it may only be one of the labels
+      // the app itself writes. Anything else is treated as no label.
+      if (sn.label !== undefined && sn.label !== "Before delete" && sn.label !== "Before restore") sn.label = undefined;
+      return true;
+    });
   } catch {
     // Do not destroy the unreadable snapshots by overwriting them: set the
     // raw copy aside under its own key and start with an empty list (S5).
@@ -3037,18 +3161,10 @@ function loadSnapshots() {
     return [];
   }
 }
-function saveSnapshot() {
-  try {
-    if (countStoreEntries(store) === 0) return;
-    const built = buildSnapshotRaw(store);
-    if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
-    const snaps = loadSnapshots();
-    if (snaps.length && snaps[0].data === built.raw) return; // identical to the newest: no duplicate
-    snaps.unshift({ at: new Date().toISOString(), data: built.raw });
-    while (snaps.length > SNAPSHOT_KEEP) snaps.pop();
-    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
-  } catch {}
-}
+/* Legacy snapshot writer removed in v152: it swallowed failures silently
+   (catch {}), so a snapshot that was never written looked like a safety
+   net. The backup-download handler now calls saveAutoSnapshot() instead,
+   which warns in plain words when it cannot save. */
 function renderSnapshots() {
   const box = document.getElementById("snapshot-list");
   // v150: show the newest backup in plain words, so it is visible that
@@ -3084,10 +3200,13 @@ function renderSnapshots() {
     if (corrupt) {
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">This backup is damaged and cannot be restored.</span></span><button type="button" class="btn btn-small" disabled aria-label="Backup from ' + escapeHtml(label) + ' is damaged and cannot be restored">Restore</button></div>';
     }
-    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + i + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + escapeHtml(sn.at) + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
   }).join("");
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
-    const snap = loadSnapshots()[Number(b.dataset.restoreSnap)];
+    // Look the snapshot up by its timestamp, not by its position in the
+    // list: the list can change between render and click, and a positional
+    // index could then restore the wrong snapshot.
+    const snap = loadSnapshots().find((s) => s.at === b.dataset.restoreSnap);
     if (!snap) return;
     let snapStore = null;
     try { snapStore = validateStore(JSON.parse(snap.data)); } catch {}
@@ -3125,7 +3244,10 @@ function renderSnapshots() {
 
 document.getElementById("backup-data").addEventListener("click", () => {
   const backup = { app: "new-chapter-tracker", version: 1, exported: new Date().toISOString(), store };
-  saveSnapshot();
+  // The loud snapshot writer, not the old silent one: if the in-app
+  // backup copy cannot be saved, the user is told instead of it failing
+  // quietly while the file download looks like it worked.
+  saveAutoSnapshot();
   const msg = document.getElementById("backup-msg");
   try {
     const blob = new Blob([JSON.stringify(backup)], { type: "application/json;charset=utf-8" });
@@ -3337,7 +3459,12 @@ document.getElementById("clear-all-data").addEventListener("click", () => {
   } catch {}
   clearWeekDismissKeys();
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(GEN_KEY);
+  // Leave a delete marker stamped with a fresh generation, so any other
+  // copy of the app that was open at the time adopts the delete instead
+  // of merging its stale entries back in (see saveStore, step 0).
+  const deleteGen = Date.now();
+  try { localStorage.setItem(GEN_KEY, String(deleteGen)); } catch {}
+  try { localStorage.setItem("nct-store-tombstone", String(deleteGen)); } catch {}
   localStorage.removeItem("nct-ever-had-entries");
   localStorage.removeItem(LS_KEY + ".corrupt");
   localStorage.removeItem("nct-snapshots.corrupt");
@@ -3363,6 +3490,23 @@ function safeRender(fn) {
   }
 }
 
+/* Check whether a newer app version is published, even when the service
+   worker has not picked it up yet. version.json is fetched fresh on
+   every load (never cached by the worker) and compared with this copy's
+   version; a mismatch shows the same update card the worker path uses. */
+function checkForAppUpdate() {
+  if (!window.fetch) return;
+  fetch("./version.json", { cache: "no-store" })
+    .then((r) => (r && r.ok ? r.json() : null))
+    .then((data) => {
+      if (data && typeof data.version === "string" && data.version !== APP_VERSION) {
+        const card = document.getElementById("update-notice");
+        if (card) card.classList.remove("hidden");
+      }
+    })
+    .catch(() => {}); // offline or unreachable: the app keeps working
+}
+
 maybeRestoreFromSnapshot();
 if (ensureEntryIds()) saveStore(); // persist ids given to old entries (F27)
 loadCustomActivities();
@@ -3377,6 +3521,7 @@ safeRender(renderSettings);
 renderRestoreNotice();
 renderCorruptNotice();
 renderEmptyNotice();
+checkForAppUpdate();
 
 /* ---------- AI Wellness Companion chat ---------- */
 
@@ -3512,6 +3657,10 @@ function loadChatHistory() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.slice(-20) : [];
   } catch {
+    // A damaged chat history must not be silently dropped and then
+    // overwritten by the next message: stash the raw copy aside, like
+    // the store does, so it can be recovered.
+    try { localStorage.setItem(CHAT_KEY + ".corrupt", localStorage.getItem(CHAT_KEY) || ""); } catch {}
     return [];
   }
 }
