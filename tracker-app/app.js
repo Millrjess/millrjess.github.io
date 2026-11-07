@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v160";
+const APP_VERSION = "v161";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -397,8 +397,8 @@ function saveStore() {
   return true;
 }
 
-/* How many in-app snapshots to keep (about two weeks of changes). */
-const SNAPSHOT_KEEP = 14;
+/* How many in-app snapshots to keep (3 restore points, her call Nov 6, 2026). */
+const SNAPSHOT_KEEP = 3;
 /* Warn when a snapshot is this large; photos are stripped before saving. */
 const SNAPSHOT_WARN_BYTES = 2000000;
 
