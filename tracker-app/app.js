@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v163";
+const APP_VERSION = "v164";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1017,6 +1017,30 @@ function viewedDateStr() {
   return todayStr(viewOffset);
 }
 
+/* Progress rings (v164): the three Today cards show a gold ring instead
+   of a linear bar. r=52 in a 120 viewBox, so the circumference is 326.73. */
+const RING_C = 326.73;
+function setRingFill(fillId, value, goal) {
+  const el = document.getElementById(fillId);
+  if (!el) return;
+  const frac = goal > 0 ? Math.min(1, value / goal) : 0;
+  el.style.strokeDashoffset = (RING_C * (1 - frac)).toFixed(2);
+}
+function setRing(key, value, goal) {
+  const ids = {
+    water: ["water-ring", "water-ring-fill", "ounces"],
+    protein: ["protein-ring", "protein-ring-fill", "grams"],
+    exercise: ["exercise-ring", "exercise-ring-fill", "minutes"]
+  }[key];
+  const ring = document.getElementById(ids[0]);
+  if (ring) {
+    ring.setAttribute("aria-valuemax", goal);
+    ring.setAttribute("aria-valuenow", value);
+    ring.setAttribute("aria-valuetext", value + " of " + goal + " " + ids[2]);
+  }
+  setRingFill(ids[1], value, goal);
+}
+
 function renderToday() {
   const t = todayStr(viewOffset);
   const dateEl = document.getElementById("today-date");
@@ -1040,8 +1064,7 @@ function renderToday() {
   const waterOz = sumForDate(store.water, t, "oz");
   document.getElementById("water-today").textContent = waterOz;
   const waterPct = Math.round((waterOz / waterGoal) * 100);
-  document.getElementById("water-progress").style.width = Math.min(100, waterPct) + "%";
-  document.getElementById("water-progressbar").setAttribute("aria-valuenow", Math.min(100, waterPct));
+  setRing("water", waterOz, waterGoal);
   document.getElementById("water-percent").textContent = waterPct >= 100
     ? "Goal reached! Nice work."
     : waterPct + "% of daily goal";
@@ -1051,8 +1074,7 @@ function renderToday() {
   const proteinG = sumForDate(store.protein, t, "grams");
   document.getElementById("protein-today").textContent = proteinG;
   const proteinPct = Math.round((proteinG / proteinGoal) * 100);
-  document.getElementById("protein-progress").style.width = Math.min(100, proteinPct) + "%";
-  document.getElementById("protein-progressbar").setAttribute("aria-valuenow", Math.min(100, proteinPct));
+  setRing("protein", proteinG, proteinGoal);
   document.getElementById("protein-percent").textContent = proteinPct >= 100
     ? "Goal reached! Nice work."
     : proteinPct + "% of daily goal";
@@ -1071,8 +1093,7 @@ function renderToday() {
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   const exPct = Math.round((exMin / moveGoal) * 100);
-  document.getElementById("exercise-progress").style.width = Math.min(100, exPct) + "%";
-  document.getElementById("exercise-progressbar").setAttribute("aria-valuenow", Math.min(100, exPct));
+  setRing("exercise", exMin, moveGoal);
   document.getElementById("exercise-percent").textContent = exPct >= 100
     ? "Goal reached! Nice work."
     : exPct + "% of daily goal";
@@ -1253,6 +1274,89 @@ document.getElementById("exercise-plus").addEventListener("click", () => {
 document.getElementById("exercise-minus").addEventListener("click", () => {
   stepperMinus("exercise", "minutes", viewedDateStr(), getStep("exercise-step", 15));
 });
+
+/* ---------- Interactive rings (v164) ---------- */
+/* Slide a finger up on a ring to raise the day's total, down to lower it.
+   The ring updates live while dragging; the store is written once, on
+   release, through the same add and trim helpers the steppers use, so
+   entries, snapshots, and the backup cap behave exactly as for a stepper
+   tap. 4px of drag is 1 unit. Totals never go below zero. */
+function bindRing(ringId, key, field, extra) {
+  const ring = document.getElementById(ringId);
+  if (!ring) return;
+  const fillId = { water: "water-ring-fill", protein: "protein-ring-fill", exercise: "exercise-ring-fill" }[key];
+  const numId = { water: "water-today", protein: "protein-today", exercise: "exercise-today" }[key];
+  const pctId = { water: "water-percent", protein: "protein-percent", exercise: "exercise-percent" }[key];
+  const unitWord = { water: "ounces", protein: "grams", exercise: "minutes" }[key];
+  const goalFor = () => key === "water" ? (Number(store.settings.waterGoal) || 92)
+    : key === "protein" ? (Number(store.settings.proteinGoal) || 90)
+    : (Number(store.settings.movementGoal) || 30);
+  let dragging = false;
+  let startY = 0;
+  let startTotal = 0;
+  let liveTotal = 0;
+  function paintLive() {
+    const goal = goalFor();
+    const num = document.getElementById(numId);
+    if (num) num.textContent = liveTotal;
+    setRingFill(fillId, liveTotal, goal);
+    const pct = document.getElementById(pctId);
+    if (pct) {
+      const p = Math.round((liveTotal / goal) * 100);
+      pct.textContent = p >= 100 ? "Goal reached! Nice work." : p + "% of daily goal";
+    }
+    ring.setAttribute("aria-valuenow", liveTotal);
+    ring.setAttribute("aria-valuetext", liveTotal + " of " + goal + " " + unitWord);
+  }
+  ring.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    startY = e.clientY;
+    startTotal = sumForDate(store[key], viewedDateStr(), field);
+    liveTotal = startTotal;
+    try { ring.setPointerCapture(e.pointerId); } catch {}
+    ring.classList.add("ring-dragging");
+    e.preventDefault();
+  });
+  ring.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    liveTotal = Math.max(0, startTotal + Math.round((startY - e.clientY) / 4));
+    paintLive();
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    ring.classList.remove("ring-dragging");
+    const delta = liveTotal - startTotal;
+    if (delta > 0) {
+      store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: delta }));
+      saveStore();
+    } else if (delta < 0) {
+      trimDayEntries(key, field, viewedDateStr(), -delta);
+      saveStore();
+    }
+    renderToday();
+  }
+  ring.addEventListener("pointerup", endDrag);
+  ring.addEventListener("pointercancel", () => {
+    dragging = false;
+    ring.classList.remove("ring-dragging");
+    renderToday();
+  });
+  ring.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    if (e.key === "ArrowUp") {
+      store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: 1 }));
+    } else {
+      trimDayEntries(key, field, viewedDateStr(), 1);
+    }
+    saveStore();
+    renderToday();
+  });
+}
+bindRing("water-ring", "water", "oz", {});
+bindRing("protein-ring", "protein", "grams", { food: "Quick add" });
+bindRing("exercise-ring", "exercise", "minutes", { label: "Movement" });
 
 document.getElementById("protein-form").addEventListener("submit", (e) => {
   e.preventDefault();

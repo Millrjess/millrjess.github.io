@@ -14,6 +14,9 @@
   --sage-deep: #364031;
   --sage-light: #B5BCB1;
   --sage-soft: #DEE1DC;
+  /* Very light sage tint: 12% exact sage #5A6B52 mixed with white, so the
+     white cards stand out against the page (v164 beauty redesign). */
+  --sage-tint: #EBEDEA;
   --cream: #FDFBF7;
   --card-bg: #FFFFFF;
   --ink: #2B2B28;
@@ -65,6 +68,9 @@
   .progress-fill {
     transition: none;
   }
+  .ring-fill {
+    transition: none;
+  }
 }
 
 h1, h2, h3, .card, .progress-card, .pc-label, .pc-goal {
@@ -89,6 +95,7 @@ h1, h2, h3 {
   box-shadow: 0 4px 20px rgba(78, 92, 70, 0.18);
   position: relative;
   overflow: hidden;
+  border-bottom: 3px solid var(--gold);
 }
 
 .app-header::before {
@@ -235,6 +242,88 @@ input[aria-invalid="true"]:focus-visible {
   color: var(--ink-soft);
   font-size: 0.95rem;
   margin-bottom: 10px;
+}
+
+/* Interactive progress rings (v164): gold rings replace the linear bars
+   on the three Today cards. Slide up or down on a ring to change the
+   day's total; the number and fill update live. r=52 in a 120 viewBox,
+   so the circumference is 326.73. */
+.ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 6px 0 4px;
+}
+.ring-box {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  flex-shrink: 0;
+  touch-action: none;
+  cursor: ns-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 50%;
+}
+.ring-box:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.ring-box.ring-dragging {
+  cursor: grabbing;
+}
+.ring-box svg {
+  display: block;
+  width: 132px;
+  height: 132px;
+  transform: rotate(-90deg);
+}
+.ring-track {
+  fill: none;
+  stroke: #F0EBDD;
+  stroke-width: 10;
+}
+.ring-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 326.73;
+  transition: stroke-dashoffset 0.25s ease;
+}
+.ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+.ring-num {
+  font-size: 1.9rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+.ring-unit {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.ring-side {
+  min-width: 0;
+}
+.ring-goal {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+.ring-hint {
+  font-size: 0.85rem;
+  margin: 8px 0 0;
 }
 
 .quick-add {
@@ -920,7 +1009,7 @@ label textarea {
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--cream);
+  background: var(--sage-tint);
   color: var(--ink);
   padding-bottom: 144px;
   scroll-padding-bottom: 156px;
@@ -950,16 +1039,16 @@ body {
   font-size: 0.85rem;
 }
 
-/* Roomier cards */
+/* Roomier cards (v164: rounder, softer shadow, more space between sections) */
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 22px 20px;
-  margin: 16px 0;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(78, 92, 70, 0.10);
+  padding: 24px 22px;
+  margin: 20px 0;
   transition: box-shadow 0.2s ease;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 /* Tab bar labels, sized so the longest labels clear their neighbors */

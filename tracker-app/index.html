@@ -36,7 +36,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=163">
+<link rel="stylesheet" href="styles.css?v=164">
 </head>
 <body>
 
@@ -164,9 +164,17 @@
 
     <div class="card">
       <h2 class="card-title">Water Intake</h2>
-      <p class="big-number"><span id="water-today">0</span> oz <span class="goal-label">of <span id="water-goal-display">92</span> oz goal</span></p>
-      <div class="progress-bar" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="water-progressbar"><div class="progress-fill" id="water-progress"></div></div>
-      <p class="percent-line" id="water-percent">0% of daily goal</p>
+      <div class="ring-wrap">
+        <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide up or down to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+          <div class="ring-value"><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></div>
+        </div>
+        <div class="ring-side">
+          <p class="ring-goal">of <span id="water-goal-display">92</span> oz goal</p>
+          <p class="percent-line" id="water-percent">0% of daily goal</p>
+          <p class="ring-hint muted">Slide up or down on the ring to change</p>
+        </div>
+      </div>
       <div class="quick-add">
         <div class="stepper" role="group" aria-label="Water amount stepper">
           <button class="btn btn-small stepper-btn" id="water-minus" aria-label="Decrease water amount">−</button>
@@ -181,9 +189,17 @@
 
     <div class="card">
       <h2 class="card-title">Protein</h2>
-      <p class="big-number"><span id="protein-today">0</span> g <span class="goal-label">of <span id="protein-goal-display">90</span> g goal</span></p>
-      <div class="progress-bar" role="progressbar" aria-label="Protein intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="protein-progressbar"><div class="progress-fill" id="protein-progress"></div></div>
-      <p class="percent-line" id="protein-percent">0% of daily goal</p>
+      <div class="ring-wrap">
+        <div class="ring-box" id="protein-ring" tabindex="0" role="slider" aria-label="Protein. Slide up or down to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" aria-valuetext="0 of 90 grams">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="protein-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+          <div class="ring-value"><span class="ring-num" id="protein-today">0</span><span class="ring-unit">g</span></div>
+        </div>
+        <div class="ring-side">
+          <p class="ring-goal">of <span id="protein-goal-display">90</span> g goal</p>
+          <p class="percent-line" id="protein-percent">0% of daily goal</p>
+          <p class="ring-hint muted">Slide up or down on the ring to change</p>
+        </div>
+      </div>
       <div class="quick-add">
         <div class="stepper" role="group" aria-label="Protein amount stepper">
           <button class="btn btn-small stepper-btn" id="protein-minus" aria-label="Decrease protein amount">−</button>
@@ -207,9 +223,17 @@
 
     <div class="card">
       <h2 class="card-title">Movement</h2>
-      <p class="big-number"><span id="exercise-today">0</span> min <span class="goal-label">of <span id="exercise-goal-display">30</span> min goal</span></p>
-      <div class="progress-bar" role="progressbar" aria-label="Movement progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exercise-progressbar"><div class="progress-fill" id="exercise-progress"></div></div>
-      <p class="percent-line" id="exercise-percent">0% of daily goal</p>
+      <div class="ring-wrap">
+        <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide up or down to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+          <div class="ring-value"><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></div>
+        </div>
+        <div class="ring-side">
+          <p class="ring-goal">of <span id="exercise-goal-display">30</span> min goal</p>
+          <p class="percent-line" id="exercise-percent">0% of daily goal</p>
+          <p class="ring-hint muted">Slide up or down on the ring to change</p>
+        </div>
+      </div>
       <p class="muted">Every minute counts.</p>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
         <select id="exercise-type" aria-label="Movement type" style="flex:1;min-width:0;padding:10px;border:1px solid var(--border,#ddd);border-radius:10px;font-size:1rem">
@@ -762,7 +786,7 @@
   </button>
 </div></nav>
 
-<script src="app.js?v=163"></script>
+<script src="app.js?v=164"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
