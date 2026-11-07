@@ -318,6 +318,8 @@ input[aria-invalid="true"]:focus-visible {
   font-weight: 600;
   margin-top: 10px;
   min-height: 44px;
+  /* v167: stops iOS Safari double-tap zoom on rapid taps. */
+  touch-action: manipulation;
 }
 
 /* Personal greeting (v165): serif, sage-deep, under the date nav. */
@@ -361,6 +363,9 @@ input[aria-invalid="true"]:focus-visible {
   justify-content: center;
   cursor: pointer;
   padding: 0;
+  /* v167: stops iOS Safari double-tap zoom when the nudge buttons are
+     tapped rapidly; single taps still work. */
+  touch-action: manipulation;
 }
 .ring-nudge-btn:active { background: var(--sage-soft); }
 
