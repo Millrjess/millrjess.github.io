@@ -36,15 +36,16 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=167">
+<link rel="stylesheet" href="styles.css?v=168">
 </head>
 <body>
 
 
 <a class="skip-link" href="#app-main">Skip to main content</a>
 <header class="app-header" role="banner" aria-label="App header">
+  <img class="header-lotus" src="icons/lotus-gold-only-transparent.png" alt="New Chapter gold lotus logo" width="63" height="48">
   <h1>New Chapter: GLP-1 Tracker™</h1>
-  <p class="tagline">Your wellness journey, beautifully tracked.</p>
+  <p class="tagline">Stay strong while the medicine works.</p>
 </header>
 
 <main id="app-main" tabindex="-1">
@@ -145,19 +146,6 @@
           </div>
         </div>
         <div class="goal-ring">
-          <div class="ring-box" id="protein-ring" tabindex="0" role="slider" aria-label="Protein. Slide left or right to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" aria-valuetext="0 of 90 grams">
-            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="protein-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-            <div class="ring-value"><span class="ring-num" id="protein-today">0</span><span class="ring-unit">g</span></div>
-          </div>
-          <p class="goal-name">Protein</p>
-          <p class="goal-label">Goal <span id="protein-goal-display">90</span> g</p>
-          <button class="btn btn-small goals-add" id="goals-protein-add" aria-label="Add 10 grams of protein">+ 10 g</button>
-          <div class="ring-nudge" role="group" aria-label="Adjust protein by one gram">
-            <button type="button" class="ring-nudge-btn" id="protein-minus-1" aria-label="Remove 1 gram of protein">−</button>
-            <button type="button" class="ring-nudge-btn" id="protein-plus-1" aria-label="Add 1 gram of protein">+</button>
-          </div>
-        </div>
-        <div class="goal-ring">
           <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide left or right to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
             <div class="ring-value"><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></div>
@@ -169,6 +157,104 @@
             <button type="button" class="ring-nudge-btn" id="exercise-minus-1" aria-label="Remove 1 minute of movement">−</button>
             <button type="button" class="ring-nudge-btn" id="exercise-plus-1" aria-label="Add 1 minute of movement">+</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="macros-card" aria-label="Your Macros">
+      <h2 class="card-title">Your Macros</h2>
+      <p class="muted" style="margin:0">Today's protein, carbs, and fat, against your own targets.</p>
+
+      <div class="donut-wrap">
+        <svg width="216" height="216" viewBox="0 0 216 216" role="img" aria-label="Donut chart of today's macros">
+          <circle cx="108" cy="108" r="84" fill="none" stroke="#F0EAD6" stroke-width="30"></circle>
+          <circle id="seg-protein" class="donut-seg" data-macro="protein" cx="108" cy="108" r="84" fill="none" stroke="#E8B54A" stroke-width="30"></circle>
+          <circle id="seg-carbs" class="donut-seg" data-macro="carbs" cx="108" cy="108" r="84" fill="none" stroke="#5A6B52" stroke-width="30"></circle>
+          <circle id="seg-fat" class="donut-seg" data-macro="fat" cx="108" cy="108" r="84" fill="none" stroke="#DCC9A3" stroke-width="30"></circle>
+        </svg>
+        <div class="donut-center">
+          <span class="big"><span id="macro-center-grams">0</span><small> g</small></span>
+          <span class="cap" id="macro-center-label">protein logged today</span>
+        </div>
+      </div>
+      <p class="donut-note">Each segment is that macro's share of the grams logged today. Tap a line below to see it in the center.</p>
+
+      <div class="macro-rows">
+        <div class="macro-row selected" data-macro="protein" tabindex="0" role="button" aria-label="Show protein in the center of the chart">
+          <span class="macro-name"><span class="dot protein"></span>Protein</span>
+          <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">g</span></span>
+          <span class="macro-bar"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-protein">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="-1" aria-label="Log 1 gram less protein">−</button><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="1" aria-label="Log 1 gram more protein">+</button></span>
+          </span>
+        </div>
+        <div class="macro-row" data-macro="carbs" tabindex="0" role="button" aria-label="Show carbs in the center of the chart">
+          <span class="macro-name"><span class="dot carbs"></span>Carbs</span>
+          <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">g</span></span>
+          <span class="macro-bar"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-carbs">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="-1" aria-label="Log 1 gram less carbs">−</button><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="1" aria-label="Log 1 gram more carbs">+</button></span>
+          </span>
+        </div>
+        <div class="macro-row" data-macro="fat" tabindex="0" role="button" aria-label="Show fat in the center of the chart">
+          <span class="macro-name"><span class="dot fat"></span>Fat</span>
+          <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">g</span></span>
+          <span class="macro-bar"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-fat">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="-1" aria-label="Log 1 gram less fat">−</button><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="1" aria-label="Log 1 gram more fat">+</button></span>
+          </span>
+        </div>
+      </div>
+
+      <p class="muted" id="macro-calories" style="margin:12px 0 0"></p>
+      <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
+      <button class="btn btn-small" id="macro-log-food" style="margin-top:12px">Log food</button>
+
+      <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
+        <label>Food
+          <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
+        </label>
+        <div class="measure-grid" style="grid-template-columns:1fr 1fr 1fr">
+          <label>Protein (g)<input type="number" id="macro-food-protein" min="0" step="1" placeholder="0"></label>
+          <label>Carbs (g)<input type="number" id="macro-food-carbs" min="0" step="1" placeholder="0"></label>
+          <label>Fat (g)<input type="number" id="macro-food-fat" min="0" step="1" placeholder="0"></label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="macro-food-submit">Save</button>
+          <button type="button" class="btn" id="macro-food-cancel">Cancel</button>
+        </div>
+        <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
+      </form>
+    </div>
+
+    <div class="card" id="movement-card" aria-label="Today's Movement">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+        <h2 class="card-title" style="margin-bottom:0">Today's Movement</h2>
+        <button class="btn btn-small" id="movement-customize" style="flex:none">Customize</button>
+      </div>
+      <p class="movement-sub" id="movement-sub">5 minutes. No equipment.</p>
+      <p class="movement-desc">A short daily routine. Tap the gold circle as you finish each move.</p>
+      <ul class="moves" id="moves-list"></ul>
+      <div class="move-progress">
+        <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
+        <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
+        <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement ring.</p>
+      </div>
+    </div>
+
+    <div id="movement-plan-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Customize your movement plan">
+      <div class="modal-card">
+        <h2 style="margin-top:0">Your movement plan</h2>
+        <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs 5 minutes to your Movement ring.</p>
+        <div id="movement-plan-list"></div>
+        <p class="code-msg" id="movement-plan-msg" style="min-height:1.2em"></p>
+        <div class="form-actions" style="flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="movement-plan-save">Save plan</button>
+          <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
+          <button type="button" class="btn btn-link" id="movement-plan-reset">Use the 5-minute default</button>
         </div>
       </div>
     </div>
@@ -202,8 +288,8 @@
   </section>
 
   <!-- INJECTIONS TAB -->
-  <section id="tab-injections" class="tab-panel" role="tabpanel" aria-label="Injections">
-    <h2>Injections</h2>
+  <section id="tab-shots" class="tab-panel" role="tabpanel" aria-label="Shots">
+    <h2>Shots</h2>
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
     <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
     <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
@@ -298,6 +384,14 @@
   <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
     <h2>Weight</h2>
     <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
+    <button class="btn" id="doctor-summary-btn" style="margin-left:8px">Doctor visit summary</button>
+
+    <div class="weight-hero">
+      <p class="weight-hero-label">Current weight</p>
+      <p class="weight-hero-num"><span id="weight-hero-value">--</span> <span class="unit">lbs</span></p>
+      <p class="weight-hero-date" id="weight-hero-date"></p>
+      <p class="bmi-line" id="bmi-line"></p>
+    </div>
 
     <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
       <h3>Log weigh-in</h3>
@@ -392,6 +486,20 @@
     </div>
 
     <div id="photo-grid" class="photo-grid"></div>
+
+    <div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
+      <div class="modal-card">
+        <h2 style="margin-top:0">Doctor visit summary</h2>
+        <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
+        <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.95rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
+        <div class="form-actions" style="flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
+          <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
+          <button type="button" class="btn" id="doctor-close">Close</button>
+        </div>
+        <p class="code-msg" id="doctor-msg" style="min-height:1.2em"></p>
+      </div>
+    </div>
   </section>
 
   <!-- JOURNAL TAB -->
@@ -571,6 +679,33 @@
       </div>
 
           <div style="margin-bottom:16px">
+        <label>Daily carbs goal (g)
+          <input type="number" id="set-carbs-goal" min="0" step="1" placeholder="150">
+        </label>
+        <p class="muted">Your own carbs target for the Your Macros card on Today.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily fat goal (g)
+          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="60">
+        </label>
+        <p class="muted">Your own fat target for the Your Macros card on Today.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <h4 style="margin:0 0 8px">Your height</h4>
+        <div style="display:flex;gap:10px">
+          <label style="flex:1">Feet
+            <input type="number" id="set-height-ft" min="0" max="8" step="1" placeholder="5">
+          </label>
+          <label style="flex:1">Inches
+            <input type="number" id="set-height-in" min="0" max="11" step="1" placeholder="6">
+          </label>
+        </div>
+        <p class="muted">Your height is used only to work out your BMI on the Weight tab. It stays on this device.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
         <label>Daily movement goal (min)
           <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
         </label>
@@ -673,36 +808,51 @@
 
 <nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
   <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><title>Today</title><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Today</title><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg></span>
     <span class="tab-label">Today</span>
+    <span class="tab-dot" aria-hidden="true"></span>
   </button>
-  <button class="tab-btn" data-tab="injections" role="tab" aria-selected="false" aria-controls="tab-injections">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Injections</title><path d="M17 3l4 4L9 19l-5 1 1-5L17 3z"/><path d="M14 6l4 4"/><path d="M5 15l-2 5 5-2"/></svg></span>
-    <span class="tab-label">Injections</span>
+  <button class="tab-btn" data-tab="shots" role="tab" aria-selected="false" aria-controls="tab-shots">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Shots</title><g transform="rotate(45 12 12)"><rect x="9" y="5" width="6" height="11" rx="1"/><path d="M12 16v4"/><path d="M12 5V3"/><path d="M9.5 3h5"/><path d="M10 9.5h4"/></g></svg></span>
+    <span class="tab-label">Shots</span>
+    <span class="tab-dot" aria-hidden="true"></span>
   </button>
   <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><title>Weight</title><path d="M6 3h12l3 7H3l3-7z"/><path d="M3 10h18"/><path d="M12 10v8"/><path d="M8 21h8"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Weight</title><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-4.5"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg></span>
     <span class="tab-label">Weight</span>
+    <span class="tab-dot" aria-hidden="true"></span>
   </button>
   <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
     <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Journal</title><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
     <span class="tab-label">Journal</span>
+    <span class="tab-dot" aria-hidden="true"></span>
   </button>
-  <button class="tab-btn" data-tab="side-effects" role="tab" aria-selected="false" aria-controls="tab-side-effects">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Effects</title><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
-    <span class="tab-label">Effects</span>
-  </button>
-  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat" aria-label="AI Wellness Companion">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-    <span class="tab-label">Companion</span>
-  </button>
-  <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false" aria-controls="tab-settings">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Settings</title><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
-    <span class="tab-label">Settings</span>
+  <button class="tab-btn" data-tab="more" role="tab" aria-selected="false" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>More</title><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8"/></svg></span>
+    <span class="tab-label">More</span>
+    <span class="tab-dot" aria-hidden="true"></span>
   </button>
 </div></nav>
 
-<script src="app.js?v=167"></script>
+<div id="more-sheet-backdrop" class="sheet-backdrop hidden"></div>
+<div id="more-sheet" class="more-sheet hidden" role="dialog" aria-modal="true" aria-label="More">
+  <div class="more-sheet-handle" aria-hidden="true"></div>
+  <button type="button" class="more-item" data-more-goto="side-effects">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
+    <span class="more-item-label">Effects</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="chat">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="more-item-label">AI Wellness Companion</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="settings">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    <span class="more-item-label">Settings</span>
+  </button>
+  <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
+</div>
+
+<script src="app.js?v=168"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

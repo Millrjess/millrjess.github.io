@@ -89,7 +89,7 @@ h1, h2, h3 {
 .app-header {
   background: linear-gradient(160deg, var(--sage-deep) 0%, var(--sage-dark) 50%, var(--sage-deep) 100%);
   color: #fff;
-  padding: 40px 20px 32px;
+  padding: 24px 20px 24px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(78, 92, 70, 0.18);
   position: relative;
@@ -120,6 +120,15 @@ h1, h2, h3 {
   max-width: 100%;
 }
 
+/* v168 header: the real gold lotus above the title, tagline in gold. */
+.app-header .header-lotus {
+  display: block;
+  margin: 0 auto 8px;
+  height: 48px;
+  width: auto;
+  position: relative;
+}
+
 .app-header .tagline {
   margin: 0;
   font-size: 1.02rem;
@@ -127,6 +136,7 @@ h1, h2, h3 {
   font-style: italic;
   position: relative;
   letter-spacing: 0.02em;
+  color: #F0DFAE;
 }
 
 main {
@@ -819,12 +829,26 @@ label textarea {
   box-shadow: 0 -2px 16px rgba(78, 92, 70, 0.06);
 }
 
+/* v168: gold active state is the gold icon and label plus a small gold
+   dot under the active tab (no gold circle behind the icon). */
 .tab-btn.active .tab-icon {
-  background: var(--gold);
-  color: var(--ink);
+  color: #87692B;
+}
+
+.tab-btn.active .tab-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  background: var(--gold);
+  margin-top: 2px;
+}
+
+.tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  margin-top: 2px;
 }
 
 .tab-icon {
@@ -857,7 +881,7 @@ label textarea {
 }
 
 .modal-overlay {
-  position: fixed; inset: 0; z-index: 100;
+  position: fixed; inset: 0; z-index: 200;
   background: rgba(43, 43, 40, 0.55);
   display: flex; align-items: flex-start; justify-content: center;
   padding: 24px 16px; overflow-y: auto;
@@ -911,7 +935,8 @@ label textarea {
 
 
 
-/* AI Companion chat */
+/* AI Companion chat (v168: sage user bubbles, cream Companion bubbles,
+   small lotus beside the Companion's messages). */
 .chat-messages {
   display: flex;
   flex-direction: column;
@@ -930,15 +955,30 @@ label textarea {
 }
 .chat-msg.user {
   align-self: flex-end;
-  background: var(--gold, #E8B54A);
-  color: var(--ink);
+  background: var(--sage);
+  color: #fff;
   border-bottom-right-radius: 4px;
 }
 .chat-msg.assistant {
   align-self: flex-start;
-  background: var(--card-bg, #faf8f4);
+  background: var(--cream);
   border: 1px solid var(--border, #e8e0d4);
   border-bottom-left-radius: 4px;
+}
+.chat-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.chat-row .chat-lotus {
+  width: 26px;
+  height: 20px;
+  flex: none;
+  margin-top: 10px;
+}
+.chat-row.assistant .chat-msg {
+  flex: 1;
+  max-width: none;
 }
 .chat-msg.typing {
   color: var(--muted, #6E6A5E);
@@ -1111,9 +1151,8 @@ details.card summary {
   font-size: 1.05rem;
 }
 
-/* WCAG 1.4.10: at 320px the 7 bottom tabs must fit without horizontal scrolling.
-   Settings was cut off at right=357. Allow tabs to shrink below 44px and
-   use smaller labels at narrow widths, so all 7 fit in 320px. */
+/* WCAG 1.4.10: at 320px the 5 bottom tabs must fit without horizontal scrolling.
+   Allow tabs to shrink below 44px and use smaller labels at narrow widths, so all 5 fit in 320px. */
 @media (max-width: 400px) {
   .tab-btn {
     min-width: 0;
@@ -1219,4 +1258,153 @@ select,
 textarea {
   font-size: 16px; /* prevents iOS zoom on focus */
   min-height: 48px; /* comfortable tap target */
+}
+
+/* ---------- v168 ---------- */
+
+/* Your Macros donut card: protein gold, carbs sage, fat soft cream tan.
+   Same donut geometry as the approved preview (r=84, circumference
+   527.79). Tap a row or a segment to show that macro in the center. */
+.donut-wrap { position: relative; width: 216px; height: 216px; margin: 1rem auto 0.25rem; }
+.donut-wrap svg { display: block; }
+.donut-seg { transition: opacity 0.25s ease; cursor: pointer; }
+.donut-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; pointer-events: none;
+}
+.donut-center .big {
+  font-family: Georgia, "Times New Roman", serif; font-size: 2.3rem; font-weight: 600; line-height: 1; color: var(--ink);
+}
+.donut-center .big small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }
+.donut-center .cap { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
+.donut-note { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; }
+
+.macro-rows { margin-top: 0.9rem; border-top: 1px solid #EFE9D6; }
+.macro-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.75rem;
+  padding: 0.7rem 0.35rem; border-bottom: 1px solid #EFE9D6; border-radius: 8px;
+  cursor: pointer; align-items: center;
+}
+.macro-row:last-child { border-bottom: none; }
+.macro-row.selected { background: #FBF6E6; }
+.macro-name { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 1rem; color: var(--ink); }
+.dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
+.dot.protein { background: var(--gold); }
+.dot.carbs { background: var(--sage); }
+.dot.fat { background: #DCC9A3; border: 1px solid #C9B586; }
+.macro-vals { font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
+.macro-vals .of { color: var(--muted); }
+.macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: hidden; margin-top: 0.3rem; }
+.macro-bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
+.macro-pct { font-size: 0.82rem; color: var(--muted); }
+/* Log steppers on each macro row: change the day's logged grams by
+   exactly 1, like the ring nudge buttons. */
+.macro-stepper { display: inline-flex; align-items: center; gap: 8px; }
+.macro-log-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--sage); background: #fff; color: var(--sage-deep);
+  font-size: 1.25rem; font-weight: 700; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  touch-action: manipulation;
+}
+.macro-log-btn:active { background: var(--sage-soft); }
+
+/* Today's Movement card */
+.movement-sub { margin: 0.25rem 0 0; font-size: 0.92rem; font-weight: 700; color: #87692B; }
+.movement-desc { margin: 0.3rem 0 0; font-size: 0.88rem; line-height: 1.45; color: var(--muted); }
+.moves { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+.moves li { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0; border-top: 1px solid #EFE9D6; }
+.moves li:first-child { border-top: none; }
+.move-check {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  border: 2.5px solid var(--gold); background: #FFF9EA; color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; touch-action: manipulation; padding: 0;
+}
+.move-check svg { opacity: 0; display: block; }
+.move-check.done { background: var(--gold); }
+.move-check.done svg { opacity: 1; }
+.move-check:focus-visible { outline: 3px solid var(--sage); outline-offset: 2px; }
+.move-name { flex: 1; font-weight: 600; font-size: 0.98rem; line-height: 1.3; color: var(--ink); }
+li.done-move .move-name { color: #5C6656; }
+.move-reps { font-size: 0.88rem; color: var(--muted); white-space: nowrap; text-align: right; }
+.move-progress { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid #EFE9D6; }
+.move-track { height: 8px; border-radius: 4px; background: #F0EAD6; overflow: hidden; }
+.move-track i { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 4px; transition: width 0.3s ease; }
+.move-count { margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted); }
+.move-logged { margin: 0.25rem 0 0; font-size: 0.88rem; font-weight: 700; color: var(--sage-dark); display: none; }
+.move-logged.show { display: block; }
+
+/* Movement plan editor: one row per exercise, checkbox plus reps. */
+.plan-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-top: 1px solid #EFE9D6;
+}
+.plan-row:first-child { border-top: none; }
+.plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; }
+.plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
+.plan-row .plan-pattern { font-size: 0.78rem; color: var(--muted); font-weight: 400; display: block; }
+.plan-row .plan-detail { width: 110px; flex: none; margin: 0; }
+
+/* More sheet: slides up from above the tab bar. Effects, Companion,
+   Settings live here now that the bar has five tabs. */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(43, 43, 40, 0.45);
+}
+.more-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 151;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 28px rgba(78, 92, 70, 0.18);
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+  max-width: 640px;
+  margin: 0 auto;
+}
+.more-sheet-handle {
+  width: 40px; height: 5px; border-radius: 3px;
+  background: #E5E0D5; margin: 4px auto 12px;
+}
+.more-item {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; min-height: 56px;
+  font: inherit; font-weight: 600; font-size: 1.05rem; color: var(--ink);
+  background: none; border: none; border-bottom: 1px solid #EFE9D6;
+  padding: 12px 4px; cursor: pointer; text-align: left;
+}
+.more-item:last-of-type { border-bottom: none; }
+.more-item-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--sage-soft); color: var(--sage-deep);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.more-item-icon svg { width: 22px; height: 22px; }
+.more-item-label { flex: 1; }
+.more-close { justify-content: center; color: var(--muted); }
+
+/* Weight tab (v168): big calm current number, BMI under it. */
+.weight-hero { text-align: center; padding: 16px 0 4px; }
+.weight-hero-label { color: var(--muted); margin: 0; font-size: 0.95rem; }
+.weight-hero-num {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3rem; font-weight: 600; margin: 0; line-height: 1.1; color: var(--ink);
+}
+.weight-hero-num .unit { font-size: 1.2rem; color: var(--muted); font-weight: 400; }
+.weight-hero-date { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.9rem; }
+.weight-hero-date:empty { display: none; }
+.bmi-line { text-align: center; color: var(--sage-deep); font-weight: 600; margin: 4px 0 0; font-size: 0.95rem; }
+.bmi-line:empty { display: none; }
+
+/* Journal (v168): entries as elegant cards with the date in serif. */
+#tab-journal .entry-sub {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+}
+
+/* Settings (v168): grouped sections with clear headings. */
+#tab-settings .card h3 {
+  border-bottom: 2px solid var(--gold-light);
+  padding-bottom: 8px;
 }

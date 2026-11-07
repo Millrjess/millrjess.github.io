@@ -54,12 +54,17 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
+    carbGoal: 150, // v168: own carbs target for the Your Macros card
+    fatGoal: 60, // v168: own fat target for the Your Macros card
+    heightFt: "", // v168: feet, for BMI on the Weight tab
+    heightIn: "", // v168: inches, for BMI on the Weight tab
+    movementPlan: null, // v168: null means the 5-minute default routine; otherwise [{ name, detail }]
     refillDate: "",
     goalWeight: "",
     startingWeight: null // { value, date } frozen from the first weigh-in (K3); null until the first weigh-in
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
-  protein: [],      // { id, date, grams, food }
+  protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
   exercise: [],     // { id, date, minutes, label }
   injections: [],   // { id, date, medication, dose, site, notes, status: "On time" | "Missed" | "Delayed" }
   weight: [],       // { id, date, value }
@@ -67,7 +72,8 @@ const DEFAULTS = {
   photos: [],       // { id, date, dataUrl }
   journal: [],      // { id, date, mood, notes }
   sideEffects: [],  // { id, date, symptom, severity, notes }
-  moods: {}         // { "YYYY-MM-DD": "Good" }
+  moods: {},        // { "YYYY-MM-DD": "Good" }
+  movementDone: {}  // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
 };
 
 /* Collections that must be arrays, and the settings keys with their defaults.
@@ -96,6 +102,16 @@ function validateStore(parsed, strict) {
     if (parsed[k] === undefined) return; // missing is fine: a fresh or older store
     if (!Array.isArray(parsed[k])) { lastValidateDropped.push(k); return; } // present but the wrong shape: dropped, and recorded
     const kept = parsed[k].filter((e) => e && typeof e === "object");
+    // v168: carbs and fat ride on protein entries, the same entry
+    // pattern as protein grams. Sanitize to non-negative numbers;
+    // anything else becomes 0 so a bad value can never break the
+    // macros card.
+    if (k === "protein") {
+      kept.forEach((e) => {
+        e.carbs = Number.isFinite(Number(e.carbs)) && Number(e.carbs) >= 0 ? Number(e.carbs) : 0;
+        e.fat = Number.isFinite(Number(e.fat)) && Number(e.fat) >= 0 ? Number(e.fat) : 0;
+      });
+    }
     if (kept.length !== parsed[k].length) lastValidateDropped.push(k);
     out[k] = kept;
   });
@@ -105,6 +121,33 @@ function validateStore(parsed, strict) {
     Object.keys(DEFAULTS.settings).forEach((k) => {
       if (parsed.settings[k] !== undefined) out.settings[k] = parsed.settings[k];
     });
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal"]) {
+      const n = Number(out.settings[g]);
+      out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
+    }
+    // v168: height in feet and inches, for BMI on the Weight tab. Blank
+    // stays blank; anything out of range is dropped. (Number("") is 0,
+    // so the raw value must be checked first, or a blank height turns
+    // into 0 and breaks the snapshot dedup after a restore.)
+    const hftRaw = out.settings.heightFt;
+    const hft = hftRaw === "" || hftRaw === undefined || hftRaw === null ? NaN : Number(hftRaw);
+    out.settings.heightFt = Number.isFinite(hft) && hft >= 0 && hft <= 8 ? hft : "";
+    const hinRaw = out.settings.heightIn;
+    const hin = hinRaw === "" || hinRaw === undefined || hinRaw === null ? NaN : Number(hinRaw);
+    out.settings.heightIn = Number.isFinite(hin) && hin >= 0 && hin <= 11 ? hin : "";
+    // v168: the custom movement plan, or null for the default routine.
+    // Kept as [{ name, detail }] only; anything else falls back to null.
+    const mp = out.settings.movementPlan;
+    if (mp === null || mp === undefined) {
+      out.settings.movementPlan = null;
+    } else if (Array.isArray(mp)) {
+      const clean = mp.filter((m) => m && typeof m === "object" && typeof m.name === "string" && m.name.trim() !== "")
+        .slice(0, 20)
+        .map((m) => ({ name: String(m.name).trim().slice(0, 80), detail: typeof m.detail === "string" ? m.detail.trim().slice(0, 40) : "" }));
+      out.settings.movementPlan = clean.length ? clean : null;
+    } else {
+      out.settings.movementPlan = null;
+    }
     // Frozen starting weight (K3): null, or { value, date } with a positive
     // number and a YYYY-MM-DD date. Anything else is dropped to null.
     const sw = out.settings.startingWeight;
@@ -122,6 +165,22 @@ function validateStore(parsed, strict) {
     lastValidateDropped.push("moods");
   } else if (parsed.moods && typeof parsed.moods === "object" && !Array.isArray(parsed.moods)) {
     out.moods = parsed.moods;
+  }
+  // v168: per-day movement routine state. Keep only real dates; each
+  // day holds the move names done and whether the 5-minute bonus was
+  // logged for that day.
+  if (parsed.movementDone !== undefined && (typeof parsed.movementDone !== "object" || Array.isArray(parsed.movementDone))) {
+    lastValidateDropped.push("movementDone");
+  } else if (parsed.movementDone && typeof parsed.movementDone === "object" && !Array.isArray(parsed.movementDone)) {
+    const cleanDone = {};
+    for (const [d, v] of Object.entries(parsed.movementDone)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !v || typeof v !== "object" || Array.isArray(v)) continue;
+      cleanDone[d] = {
+        done: Array.isArray(v.done) ? v.done.filter((n) => typeof n === "string") : [],
+        bonus: v.bonus === true
+      };
+    }
+    out.movementDone = cleanDone;
   }
   return out;
 }
@@ -238,6 +297,9 @@ function mergeStores(persisted, local) {
     });
   });
   out.moods = Object.assign({}, local.moods || {}, persisted.moods || {});
+  // v168: routine done-state merges the same way: a day done in either
+  // copy stays done.
+  out.movementDone = Object.assign({}, local.movementDone || {}, persisted.movementDone || {});
   return out;
 }
 
@@ -466,6 +528,15 @@ function todayStr(offsetDays) {
   return year + "-" + month + "-" + day;
 }
 
+/* Local YYYY-MM-DD string for any Date object (v168: used by the
+   doctor summary for the 90-day and 30-day cutoffs). */
+function localDateStr(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
+}
+
 function formatDate(iso) {
   if (!iso) return "";
   const parts = iso.split("-");
@@ -524,22 +595,30 @@ function renderEncouragement() {
     ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
 }
 
-/* ---------- Tab navigation ---------- */
+/* ---------- Tab navigation (v168: five tabs; Effects, Companion and
+   Settings live under More) ---------- */
 
 const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
+/* Panels that live under the More button: when one of them is showing,
+   More is the active tab. */
+const MORE_TABS = ["side-effects", "chat", "settings"];
 
 function showTab(name) {
+  if (name === "more") { openMoreSheet(); return; }
+  closeMoreSheet();
+  const activeTab = MORE_TABS.includes(name) ? "more" : name;
   tabButtons.forEach((b) => {
-    const active = b.dataset.tab === name;
+    const active = b.dataset.tab === activeTab;
     b.classList.toggle("active", active);
     b.setAttribute("aria-selected", active ? "true" : "false");
+    if (b.dataset.tab === "more") b.setAttribute("aria-expanded", "false");
   });
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
   if (name === "weight") drawWeightChart();
-  if (name === "injections") renderInjectionCalendar();
-  if (name === "chat") loadCoachMemory();
+  if (name === "shots") renderInjectionCalendar();
+  if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
   try {
     gtag("event", "page_view", {
@@ -565,6 +644,56 @@ tabButtons.forEach((b, i) => b.addEventListener("keydown", (e) => {
 
 document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
+});
+
+/* More sheet (v168): Effects, AI Wellness Companion and Settings live
+   here. Opens from the More tab; picking one shows its panel and closes
+   the sheet. Escape or the backdrop closes it without changing tabs. */
+let moreSheetOpener = null;
+function openMoreSheet() {
+  const sheet = document.getElementById("more-sheet");
+  const backdrop = document.getElementById("more-sheet-backdrop");
+  if (!sheet || !backdrop) return;
+  moreSheetOpener = document.activeElement;
+  sheet.classList.remove("hidden");
+  backdrop.classList.remove("hidden");
+  const moreBtn = document.querySelector('.tab-btn[data-tab="more"]');
+  if (moreBtn) moreBtn.setAttribute("aria-expanded", "true");
+  const first = sheet.querySelector(".more-item");
+  if (first) first.focus();
+}
+function closeMoreSheet() {
+  const sheet = document.getElementById("more-sheet");
+  const backdrop = document.getElementById("more-sheet-backdrop");
+  if (!sheet || sheet.classList.contains("hidden")) return;
+  sheet.classList.add("hidden");
+  backdrop.classList.add("hidden");
+  const moreBtn = document.querySelector('.tab-btn[data-tab="more"]');
+  if (moreBtn) {
+    moreBtn.setAttribute("aria-expanded", "false");
+    if (moreSheetOpener && document.contains(moreSheetOpener)) moreSheetOpener.focus();
+    else moreBtn.focus();
+  }
+  moreSheetOpener = null;
+}
+document.querySelectorAll("[data-more-goto]").forEach((el) => {
+  el.addEventListener("click", () => {
+    const dest = el.dataset.moreGoto;
+    closeMoreSheet();
+    showTab(dest);
+  });
+});
+document.getElementById("more-sheet-close").addEventListener("click", closeMoreSheet);
+document.getElementById("more-sheet-backdrop").addEventListener("click", closeMoreSheet);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const sheet = document.getElementById("more-sheet");
+    if (sheet && !sheet.classList.contains("hidden")) { e.preventDefault(); closeMoreSheet(); return; }
+    const planModal = document.getElementById("movement-plan-modal");
+    if (planModal && !planModal.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
+    const doctorModal = document.getElementById("doctor-modal");
+    if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
+  }
 });
 
 /* ---------- Proactive companion insights ---------- */
@@ -741,7 +870,6 @@ function setRingFill(fillId, value, goal) {
 function setRing(key, value, goal) {
   const ids = {
     water: ["water-ring", "water-ring-fill", "ounces"],
-    protein: ["protein-ring", "protein-ring-fill", "grams"],
     exercise: ["exercise-ring", "exercise-ring-fill", "minutes"]
   }[key];
   const ring = document.getElementById(ids[0]);
@@ -778,17 +906,14 @@ function renderToday() {
   document.getElementById("water-today").textContent = waterOz;
   setRing("water", waterOz, waterGoal);
 
-  const proteinGoal = Number(store.settings.proteinGoal) || 90;
-  document.getElementById("protein-goal-display").textContent = proteinGoal;
-  const proteinG = sumForDate(store.protein, t, "grams");
-  document.getElementById("protein-today").textContent = proteinG;
-  setRing("protein", proteinG, proteinGoal);
-
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   setRing("exercise", exMin, moveGoal);
+
+  renderMacros();
+  renderMovement();
 
   renderGreeting();
   renderStreak();
@@ -846,11 +971,6 @@ document.getElementById("goals-water-add").addEventListener("click", () => {
   saveStore();
   renderToday();
 });
-document.getElementById("goals-protein-add").addEventListener("click", () => {
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams: 10, food: "Quick add" });
-  saveStore();
-  renderToday();
-});
 document.getElementById("goals-exercise-add").addEventListener("click", () => {
   store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
   saveStore();
@@ -876,8 +996,6 @@ function bindNudge(id, key, field, extra, delta) {
 }
 bindNudge("water-minus-1", "water", "oz", {}, -1);
 bindNudge("water-plus-1", "water", "oz", {}, 1);
-bindNudge("protein-minus-1", "protein", "grams", { food: "Quick add" }, -1);
-bindNudge("protein-plus-1", "protein", "grams", { food: "Quick add" }, 1);
 bindNudge("exercise-minus-1", "exercise", "minutes", { label: "Movement" }, -1);
 bindNudge("exercise-plus-1", "exercise", "minutes", { label: "Movement" }, 1);
 
@@ -908,11 +1026,10 @@ function trimDayEntries(key, field, date, amount) {
 function bindRing(ringId, key, field, extra) {
   const ring = document.getElementById(ringId);
   if (!ring) return;
-  const fillId = { water: "water-ring-fill", protein: "protein-ring-fill", exercise: "exercise-ring-fill" }[key];
-  const numId = { water: "water-today", protein: "protein-today", exercise: "exercise-today" }[key];
-  const unitWord = { water: "ounces", protein: "grams", exercise: "minutes" }[key];
+  const fillId = { water: "water-ring-fill", exercise: "exercise-ring-fill" }[key];
+  const numId = { water: "water-today", exercise: "exercise-today" }[key];
+  const unitWord = { water: "ounces", exercise: "minutes" }[key];
   const goalFor = () => key === "water" ? (Number(store.settings.waterGoal) || 92)
-    : key === "protein" ? (Number(store.settings.proteinGoal) || 90)
     : (Number(store.settings.movementGoal) || 30);
   let dragging = false;
   let startX = 0;
@@ -974,8 +1091,345 @@ function bindRing(ringId, key, field, extra) {
   });
 }
 bindRing("water-ring", "water", "oz", {});
-bindRing("protein-ring", "protein", "grams", { food: "Quick add" });
 bindRing("exercise-ring", "exercise", "minutes", { label: "Movement" });
+
+/* ---------- Your Macros (v168) ---------- */
+/* Protein, carbs and fat on the front page, against the user's own
+   targets. Carbs and fat ride on protein entries, the same entry pattern
+   as protein grams, same store, same snapshots: a food entry carries
+   grams (protein), carbs and fat. The donut uses the preview's SVG
+   geometry (r=84, circumference 527.79): protein gold, carbs sage,
+   fat soft cream tan. */
+const DONUT_C = 527.79;
+const DONUT_GAP = 4;
+const MACRO_KEYS = ["protein", "carbs", "fat"];
+let selectedMacro = "protein";
+
+function macroTotals(dateStr) {
+  return {
+    protein: sumForDate(store.protein, dateStr, "grams"),
+    carbs: sumForDate(store.protein, dateStr, "carbs"),
+    fat: sumForDate(store.protein, dateStr, "fat")
+  };
+}
+function macroTargets() {
+  return {
+    protein: Number(store.settings.proteinGoal) || 90,
+    carbs: Number(store.settings.carbGoal) || 150,
+    fat: Number(store.settings.fatGoal) || 60
+  };
+}
+function macroCalories(t) {
+  return Math.round(t.protein * 4 + t.carbs * 4 + t.fat * 9);
+}
+
+function selectMacro(key) {
+  if (!MACRO_KEYS.includes(key)) return;
+  selectedMacro = key;
+  renderMacros();
+}
+
+function renderMacros() {
+  const card = document.getElementById("macros-card");
+  if (!card) return;
+  const t = viewedDateStr();
+  const totals = macroTotals(t);
+  const targets = macroTargets();
+  const total = totals.protein + totals.carbs + totals.fat;
+  let offset = 0;
+  MACRO_KEYS.forEach((key) => {
+    const seg = document.getElementById("seg-" + key);
+    if (!seg) return;
+    const frac = total > 0 ? totals[key] / total : 0;
+    const len = Math.max(0, frac * DONUT_C - DONUT_GAP);
+    seg.setAttribute("stroke-dasharray", len.toFixed(1) + " " + DONUT_C.toFixed(1));
+    seg.setAttribute("stroke-dashoffset", (-offset).toFixed(1));
+    seg.setAttribute("transform", "rotate(-90 108 108)");
+    seg.style.opacity = selectedMacro === key ? "1" : "0.45";
+    offset += frac * DONUT_C;
+  });
+  document.getElementById("macro-center-grams").textContent = totals[selectedMacro];
+  document.getElementById("macro-center-label").textContent = selectedMacro + " logged today";
+  MACRO_KEYS.forEach((key) => {
+    const loggedEl = document.getElementById("logged-" + key);
+    if (loggedEl) loggedEl.textContent = totals[key];
+    const targetEl = document.getElementById("target-" + key + "-label");
+    if (targetEl) targetEl.textContent = targets[key];
+    const pct = targets[key] > 0 ? Math.round(100 * totals[key] / targets[key]) : 0;
+    const pctEl = document.getElementById("pct-" + key);
+    if (pctEl) pctEl.textContent = pct + "% of your target";
+    const barEl = document.getElementById("bar-" + key);
+    if (barEl) barEl.style.width = Math.min(100, pct) + "%";
+    const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
+    if (row) row.classList.toggle("selected", selectedMacro === key);
+  });
+  const calEl = document.getElementById("macro-calories");
+  if (calEl) {
+    calEl.textContent = total > 0
+      ? "About " + macroCalories(totals).toLocaleString("en-US") + " calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g)."
+      : "No macros logged yet today.";
+  }
+  const svg = card.querySelector(".donut-wrap svg");
+  if (svg) svg.setAttribute("aria-label", "Donut chart of today's macros. Protein " + totals.protein + " grams in gold, carbs " + totals.carbs + " grams in sage, fat " + totals.fat + " grams in cream tan.");
+}
+
+document.querySelectorAll(".macro-row").forEach((row) => {
+  row.addEventListener("click", (e) => {
+    // The log steppers inside the row must not select the macro.
+    if (e.target.closest(".macro-log-btn")) return;
+    selectMacro(row.dataset.macro);
+  });
+  row.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectMacro(row.dataset.macro); }
+  });
+});
+document.querySelectorAll(".donut-seg").forEach((seg) => {
+  seg.addEventListener("click", () => selectMacro(seg.dataset.macro));
+});
+document.querySelectorAll(".macro-log-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adjustMacro(btn.dataset.macroLog, Number(btn.dataset.dir));
+  });
+});
+
+/* Log steppers on each macro row: change the day's logged grams by
+   exactly 1, like the ring nudge buttons. Carbs and fat attach to the
+   day's most recent food entry, or a fresh Quick add entry when the day
+   has none yet, so one tap never spams the log with tiny entries. */
+function adjustMacro(key, delta) {
+  const date = viewedDateStr();
+  if (key === "protein") {
+    if (delta > 0) {
+      store.protein.push({ id: uid(), date, grams: 1, food: "Quick add" });
+    } else {
+      trimDayEntries("protein", "grams", date, 1);
+    }
+  } else if (delta > 0) {
+    const todays = store.protein.filter((e) => e.date === date);
+    if (todays.length) {
+      const last = todays[todays.length - 1];
+      last[key] = (Number(last[key]) || 0) + 1;
+    } else {
+      const entry = { id: uid(), date, grams: 0, food: "Quick add" };
+      entry[key] = 1;
+      store.protein.push(entry);
+    }
+  } else {
+    trimDayEntries("protein", key, date, 1);
+  }
+  saveStore();
+  renderToday();
+}
+
+document.getElementById("macro-log-food").addEventListener("click", () => {
+  const form = document.getElementById("macro-food-form");
+  form.classList.toggle("hidden");
+  if (!form.classList.contains("hidden")) document.getElementById("macro-food-name").focus();
+});
+document.getElementById("macro-food-cancel").addEventListener("click", () => {
+  document.getElementById("macro-food-form").classList.add("hidden");
+  document.getElementById("macro-food-msg").textContent = "";
+});
+document.getElementById("macro-food-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("macro-food-msg");
+  const grams = Math.max(0, Math.round(Number(document.getElementById("macro-food-protein").value) || 0));
+  const carbs = Math.max(0, Math.round(Number(document.getElementById("macro-food-carbs").value) || 0));
+  const fat = Math.max(0, Math.round(Number(document.getElementById("macro-food-fat").value) || 0));
+  if (grams <= 0 && carbs <= 0 && fat <= 0) {
+    setFormStatus(msg, "Add at least one macro above zero first.", true);
+    return;
+  }
+  const food = document.getElementById("macro-food-name").value.trim().slice(0, 120) || "Logged food";
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  saveStore();
+  renderToday();
+  document.getElementById("macro-food-form").classList.add("hidden");
+  document.getElementById("macro-food-form").reset();
+});
+
+/* ---------- Today's Movement (v168) ---------- */
+/* A short daily routine on the front page. Finishing every move logs
+   5 minutes to the Movement ring; unticking a move takes it back. */
+const DEFAULT_MOVES = [
+  { name: "Sit-to-stands", detail: "10 reps" },
+  { name: "Wall push-ups", detail: "10 reps" },
+  { name: "Standing march in place", detail: "1 minute" },
+  { name: "Heel raises", detail: "12 reps" },
+  { name: "Gentle full-body stretch", detail: "1 minute" }
+];
+/* The picker list: bodyweight, popular weights, and resistance bands,
+   across the six movement patterns (squat, hinge, push, pull, carry,
+   core). Research-backed picks for women over 50; defaults first. */
+const EXERCISE_LIBRARY = [
+  { name: "Sit-to-stands", detail: "10 reps", pattern: "Squat" },
+  { name: "Wall push-ups", detail: "10 reps", pattern: "Push" },
+  { name: "Standing march in place", detail: "1 minute", pattern: "Core" },
+  { name: "Heel raises", detail: "12 reps", pattern: "Squat" },
+  { name: "Gentle full-body stretch", detail: "1 minute", pattern: "Core" },
+  { name: "Goblet squat", detail: "10 reps", pattern: "Squat" },
+  { name: "Lunges", detail: "10 reps", pattern: "Squat" },
+  { name: "Glute bridge", detail: "12 reps", pattern: "Hinge" },
+  { name: "Romanian deadlift", detail: "10 reps", pattern: "Hinge" },
+  { name: "Wall or modified push-up", detail: "10 reps", pattern: "Push" },
+  { name: "Chest press", detail: "10 reps", pattern: "Push" },
+  { name: "Shoulder press", detail: "10 reps", pattern: "Push" },
+  { name: "Dumbbell row", detail: "10 reps each side", pattern: "Pull" },
+  { name: "Band row", detail: "12 reps", pattern: "Pull" },
+  { name: "Band chest press", detail: "12 reps", pattern: "Push" },
+  { name: "Farmer's carry", detail: "1 minute", pattern: "Carry" },
+  { name: "Calf raise", detail: "15 reps", pattern: "Squat" },
+  { name: "Lateral band walk", detail: "10 steps each way", pattern: "Squat" }
+];
+const MOVEMENT_BONUS_LABEL = "Daily movement routine";
+const MOVEMENT_BONUS_MINUTES = 5;
+
+function getMovementPlan() {
+  const plan = store.settings && store.settings.movementPlan;
+  if (Array.isArray(plan) && plan.length) return plan;
+  return DEFAULT_MOVES;
+}
+function isDefaultPlan() {
+  const plan = store.settings && store.settings.movementPlan;
+  return !Array.isArray(plan) || !plan.length;
+}
+function movementDayState(date) {
+  const state = (store.movementDone || {})[date];
+  if (state && typeof state === "object" && Array.isArray(state.done)) return state;
+  return { done: [], bonus: false };
+}
+function setMovementDayState(date, state) {
+  if (!store.movementDone) store.movementDone = {};
+  store.movementDone[date] = state;
+}
+/* Remove the routine bonus entry for a day, if one is logged. */
+function removeMovementBonus(date) {
+  for (let i = store.exercise.length - 1; i >= 0; i--) {
+    const e = store.exercise[i];
+    if (e.date === date && e.label === MOVEMENT_BONUS_LABEL && Number(e.minutes) === MOVEMENT_BONUS_MINUTES) {
+      store.exercise.splice(i, 1);
+      return true;
+    }
+  }
+  return false;
+}
+
+function renderMovement() {
+  const card = document.getElementById("movement-card");
+  if (!card) return;
+  const plan = getMovementPlan();
+  const date = viewedDateStr();
+  const state = movementDayState(date);
+  // Done names that are no longer in the plan (plan changed) do not count.
+  const done = state.done.filter((n) => plan.some((m) => m.name === n));
+  const sub = document.getElementById("movement-sub");
+  if (sub) sub.textContent = isDefaultPlan() ? "5 minutes. No equipment." : "Your plan · " + plan.length + " moves.";
+  const list = document.getElementById("moves-list");
+  list.innerHTML = plan.map((m) => {
+    const isDone = done.includes(m.name);
+    return `<li class="${isDone ? "done-move" : ""}">
+      <button type="button" class="move-check${isDone ? " done" : ""}" data-move="${escapeHtml(m.name)}" aria-pressed="${isDone ? "true" : "false"}" aria-label="Mark ${escapeHtml(m.name)} done"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
+      <span class="move-name">${escapeHtml(m.name)}</span>
+      <span class="move-reps">${escapeHtml(m.detail || "")}</span>
+    </li>`;
+  }).join("");
+  list.querySelectorAll("[data-move]").forEach((btn) => btn.addEventListener("click", () => toggleMove(btn.dataset.move)));
+  const fill = document.getElementById("move-fill");
+  if (fill) fill.style.width = plan.length ? (done.length / plan.length * 100) + "%" : "0%";
+  const count = document.getElementById("move-count");
+  if (count) count.textContent = done.length + " of " + plan.length + " moves done";
+  const logged = document.getElementById("move-logged");
+  if (logged) logged.classList.toggle("show", done.length === plan.length && plan.length > 0);
+}
+
+function toggleMove(name) {
+  const date = viewedDateStr();
+  const plan = getMovementPlan();
+  const state = movementDayState(date);
+  const idx = state.done.indexOf(name);
+  if (idx === -1) state.done.push(name);
+  else state.done.splice(idx, 1);
+  const done = state.done.filter((n) => plan.some((m) => m.name === n));
+  const allDone = plan.length > 0 && done.length === plan.length;
+  if (allDone && !state.bonus) {
+    store.exercise.push({ id: uid(), date, minutes: MOVEMENT_BONUS_MINUTES, label: MOVEMENT_BONUS_LABEL });
+    state.bonus = true;
+  } else if (!allDone && state.bonus) {
+    removeMovementBonus(date);
+    state.bonus = false;
+  }
+  setMovementDayState(date, state);
+  saveStore();
+  renderToday();
+}
+
+function openMovementPlanEditor() {
+  const modal = document.getElementById("movement-plan-modal");
+  const list = document.getElementById("movement-plan-list");
+  const plan = getMovementPlan();
+  const inPlan = {};
+  plan.forEach((m) => { inPlan[m.name] = m.detail || ""; });
+  list.innerHTML = EXERCISE_LIBRARY.map((ex) => {
+    const checked = ex.name in inPlan;
+    const detail = checked ? inPlan[ex.name] : ex.detail;
+    return `<label class="plan-row">
+      <input type="checkbox" data-plan-name="${escapeHtml(ex.name)}"${checked ? " checked" : ""}>
+      <span class="plan-name">${escapeHtml(ex.name)}<span class="plan-pattern">${escapeHtml(ex.pattern)}</span></span>
+      <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(ex.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps or time for ${escapeHtml(ex.name)}">
+    </label>`;
+  }).join("");
+  document.getElementById("movement-plan-msg").textContent = "";
+  modal.classList.remove("hidden");
+  const first = modal.querySelector("input[type='checkbox']");
+  if (first) first.focus();
+}
+function closeMovementPlanEditor() {
+  document.getElementById("movement-plan-modal").classList.add("hidden");
+  const btn = document.getElementById("movement-customize");
+  if (btn) btn.focus();
+}
+document.getElementById("movement-customize").addEventListener("click", openMovementPlanEditor);
+document.getElementById("movement-plan-cancel").addEventListener("click", closeMovementPlanEditor);
+document.getElementById("movement-plan-modal").addEventListener("click", (e) => {
+  if (e.target.id === "movement-plan-modal") closeMovementPlanEditor();
+});
+document.getElementById("movement-plan-reset").addEventListener("click", () => {
+  store.settings.movementPlan = null;
+  saveStore();
+  closeMovementPlanEditor();
+  renderToday();
+});
+document.getElementById("movement-plan-save").addEventListener("click", () => {
+  const msg = document.getElementById("movement-plan-msg");
+  const picked = [];
+  document.querySelectorAll("#movement-plan-list input[type='checkbox']").forEach((cb) => {
+    if (!cb.checked) return;
+    const name = cb.dataset.planName;
+    const detailInput = document.querySelector('#movement-plan-list input[data-plan-detail="' + CSS.escape(name) + '"]');
+    const lib = EXERCISE_LIBRARY.find((e) => e.name === name);
+    picked.push({ name, detail: (detailInput && detailInput.value.trim()) || (lib ? lib.detail : "") });
+  });
+  if (!picked.length) {
+    setFormStatus(msg, "Pick at least one move for your plan.", true);
+    return;
+  }
+  store.settings.movementPlan = picked;
+  // A new plan can un-complete today: take the bonus back if the new
+  // plan is not fully done.
+  const date = viewedDateStr();
+  const state = movementDayState(date);
+  const done = state.done.filter((n) => picked.some((m) => m.name === n));
+  if (state.bonus && done.length < picked.length) {
+    removeMovementBonus(date);
+    state.bonus = false;
+    setMovementDayState(date, state);
+  }
+  saveStore();
+  closeMovementPlanEditor();
+  renderToday();
+});
+
 
 /* Custom activities: the movement activity picker is gone, so
    nothing adds to this list anymore. The read stays so a damaged value
@@ -1036,8 +1490,8 @@ document.getElementById("quick-log-shot").addEventListener("click", () => {
   if (store.injections.some((e) => e.date === t && (e.status || "On time") !== "Missed")) return;
   const last = lastInjection();
   if (!last || !last.site) {
-    alert("Log your first shot in the Injections tab so I know your usual site. After that, one tap does it.");
-    showTab("injections");
+    alert("Log your first shot in the Shots tab so I know your usual site. After that, one tap does it.");
+    showTab("shots");
     return;
   }
   store.injections.push({
@@ -1563,6 +2017,8 @@ function renderWeight() {
     const current = sorted[sorted.length - 1].value;
     const start = getStartingWeight();
     document.getElementById("current-weight").textContent = Number(current).toFixed(1);
+    document.getElementById("weight-hero-value").textContent = Number(current).toFixed(1);
+    document.getElementById("weight-hero-date").textContent = "Latest weigh-in " + formatDate(sorted[sorted.length - 1].date);
     /* Starting weight is frozen (K3). It is read from settings, not from
        the earliest weigh-in, so deleting or backdating entries never
        moves it. */
@@ -1570,9 +2026,12 @@ function renderWeight() {
     document.getElementById("starting-weight-date").textContent = start ? formatDate(start.date) : "";
   } else {
     document.getElementById("current-weight").textContent = "--";
+    document.getElementById("weight-hero-value").textContent = "—";
+    document.getElementById("weight-hero-date").textContent = "No weigh-ins yet";
     document.getElementById("starting-weight").textContent = "--";
     document.getElementById("starting-weight-date").textContent = "";
   }
+  renderBMI();
   if (sorted.length >= 2) {
     /* Total and percent show only with at least two weigh-ins. A gain is
        shown honestly as a gain, never as a negative loss. The baseline is
@@ -1650,6 +2109,144 @@ function renderWeight() {
   renderWeightMilestone();
   drawWeightChart();
 }
+
+/* ---------- BMI (v168) ---------- */
+/* BMI from the latest weight and the height in Settings (feet and
+   inches). The 703 formula: BMI = 703 × weight(lb) / height(in)².
+   Shown under the big current-weight number with its category. */
+function calcBMI() {
+  const ft = Number(store.settings && store.settings.heightFt);
+  const inch = Number(store.settings && store.settings.heightIn);
+  const totalIn = (Number.isFinite(ft) ? ft : 0) * 12 + (Number.isFinite(inch) ? inch : 0);
+  const sorted = [...(store.weight || [])].sort((a, b) => a.date.localeCompare(b.date));
+  const latest = sorted[sorted.length - 1];
+  if (!latest || !(totalIn > 0)) return null;
+  const bmi = 703 * Number(latest.value) / (totalIn * totalIn);
+  if (!Number.isFinite(bmi) || bmi <= 0) return null;
+  return { value: bmi, weight: Number(latest.value), heightIn: totalIn };
+}
+function bmiCategory(bmi) {
+  if (bmi < 18.5) return "Underweight";
+  if (bmi < 25) return "Healthy weight";
+  if (bmi < 30) return "Overweight";
+  return "Obesity";
+}
+function renderBMI() {
+  const line = document.getElementById("bmi-line");
+  if (!line) return;
+  const bmi = calcBMI();
+  if (!bmi) {
+    line.textContent = "Add your height in Settings to see your BMI here.";
+    return;
+  }
+  line.textContent = "BMI " + bmi.value.toFixed(1) + " · " + bmiCategory(bmi.value)
+    + " (" + bmi.weight.toFixed(1) + " lbs, " + Math.floor(bmi.heightIn / 12) + " ft " + (bmi.heightIn % 12) + " in)";
+}
+
+/* ---------- Doctor visit summary (v168) ---------- */
+/* One tap makes a simple summary of weight, shots, and side effects to
+   show her clinician. Text only; it never leaves the phone unless she
+   copies or downloads it herself. */
+function buildDoctorSummary() {
+  const lines = ["New Chapter: GLP-1 Tracker — Visit summary", "Prepared " + formatDate(todayStr()), ""];
+  // Weight
+  const sortedW = [...(store.weight || [])].sort((a, b) => a.date.localeCompare(b.date));
+  const latest = sortedW[sortedW.length - 1];
+  const start = getStartingWeight();
+  const bmi = calcBMI();
+  lines.push("Weight");
+  if (latest) {
+    lines.push("Latest: " + Number(latest.value).toFixed(1) + " lbs on " + formatDate(latest.date) + ".");
+    if (start) lines.push("Starting: " + Number(start.value).toFixed(1) + " lbs on " + formatDate(start.date) + ".");
+    const change = start ? Number(start.value) - Number(latest.value) : 0;
+    if (start) lines.push("Change: " + (change >= 0 ? "-" : "+") + Math.abs(change).toFixed(1) + " lbs since starting.");
+    if (store.settings && store.settings.goalWeight) lines.push("Goal weight: " + Number(store.settings.goalWeight).toFixed(1) + " lbs.");
+    if (bmi) lines.push("BMI: " + bmi.value.toFixed(1) + " (" + bmiCategory(bmi.value) + ").");
+  } else {
+    lines.push("No weigh-ins logged yet.");
+  }
+  lines.push("");
+  // Shots
+  const sortedI = [...(store.injections || [])].sort((a, b) => b.date.localeCompare(a.date));
+  lines.push("Shots");
+  if (sortedI.length) {
+    const last = sortedI[0];
+    lines.push("Last shot: " + formatDate(last.date) + " (" + (last.site || "site not recorded") + ", " + (last.medication || "medication not recorded") + (last.dose ? ", " + last.dose : "") + ").");
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const cutoff = localDateStr(ninetyDaysAgo);
+    const recent = sortedI.filter((s) => s.date >= cutoff);
+    lines.push("Shots in the last 90 days: " + recent.length + ".");
+    const missed = sortedI.filter((s) => s.status === "Missed").length;
+    if (missed) lines.push("Missed shots on record: " + missed + ".");
+  } else {
+    lines.push("No shots logged yet.");
+  }
+  lines.push("");
+  // Side effects
+  const sortedE = [...(store.sideEffects || [])].sort((a, b) => b.date.localeCompare(a.date));
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentE = sortedE.filter((s) => s.date >= localDateStr(thirtyDaysAgo));
+  lines.push("Side effects (last 30 days)");
+  if (recentE.length) {
+    recentE.forEach((s) => {
+      lines.push("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " — " + s.notes : ""));
+    });
+  } else {
+    lines.push("None logged in the last 30 days.");
+  }
+  lines.push("");
+  lines.push("This summary is from your own log. It is not medical advice.");
+  return lines.join("\n");
+}
+function openDoctorModal() {
+  const modal = document.getElementById("doctor-modal");
+  const text = document.getElementById("doctor-text");
+  if (!modal || !text) return;
+  text.value = buildDoctorSummary();
+  document.getElementById("doctor-msg").textContent = "";
+  modal.classList.remove("hidden");
+  const copyBtn = document.getElementById("doctor-copy");
+  if (copyBtn) copyBtn.focus();
+}
+function closeDoctorModal() {
+  document.getElementById("doctor-modal").classList.add("hidden");
+  const btn = document.getElementById("doctor-summary-btn");
+  if (btn) btn.focus();
+}
+document.getElementById("doctor-summary-btn").addEventListener("click", openDoctorModal);
+document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
+document.getElementById("doctor-modal").addEventListener("click", (e) => {
+  if (e.target.id === "doctor-modal") closeDoctorModal();
+});
+document.getElementById("doctor-copy").addEventListener("click", () => {
+  const text = document.getElementById("doctor-text").value;
+  const msg = document.getElementById("doctor-msg");
+  const done = () => setFormStatus(msg, "Copied. Paste it into a message or note for your clinician.", false);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => {
+      document.getElementById("doctor-text").select();
+      setFormStatus(msg, "Copy did not work here. The summary is selected; copy it yourself.", true);
+    });
+  } else {
+    document.getElementById("doctor-text").select();
+    setFormStatus(msg, "Copy did not work here. The summary is selected; copy it yourself.", true);
+  }
+});
+document.getElementById("doctor-download").addEventListener("click", () => {
+  const text = document.getElementById("doctor-text").value;
+  const blob = new Blob([text], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "doctor-visit-summary-" + todayStr() + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setFormStatus(document.getElementById("doctor-msg"), "Downloaded as a text file.", false);
+});
+
 
 function renderWeightMilestone() {
   const card = document.getElementById("milestone-card");
@@ -2275,6 +2872,12 @@ function renderSettings() {
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  // v168: carbs and fat targets for the Your Macros card, and height
+  // in feet and inches for BMI.
+  document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
+  document.getElementById("set-fat-goal").value = s.fatGoal || 60;
+  document.getElementById("set-height-ft").value = s.heightFt === "" || s.heightFt === undefined ? "" : s.heightFt;
+  document.getElementById("set-height-in").value = s.heightIn === "" || s.heightIn === undefined ? "" : s.heightIn;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
   document.getElementById("set-starting-weight").value = (s.startingWeight && Number(s.startingWeight.value) > 0) ? s.startingWeight.value : "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
@@ -2320,6 +2923,19 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.proteinGoal = pg > 0 ? pg : 90;
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
+  // v168: carbs and fat targets for the Your Macros card, and height
+  // for BMI. A height with no feet and no inches stays blank.
+  // (Number("") is 0, so the raw field value is checked first.)
+  const cg = Number(document.getElementById("set-carbs-goal").value);
+  store.settings.carbGoal = cg > 0 ? cg : 150;
+  const fg = Number(document.getElementById("set-fat-goal").value);
+  store.settings.fatGoal = fg > 0 ? fg : 60;
+  const hftRaw = document.getElementById("set-height-ft").value.trim();
+  const hft = hftRaw === "" ? NaN : Number(hftRaw);
+  store.settings.heightFt = Number.isFinite(hft) && hft >= 0 && hft <= 8 ? hft : "";
+  const hinRaw = document.getElementById("set-height-in").value.trim();
+  const hin = hinRaw === "" ? NaN : Number(hinRaw);
+  store.settings.heightIn = Number.isFinite(hin) && hin >= 0 && hin <= 11 ? hin : "";
   const gw = Number(document.getElementById("set-goal-weight").value);
   store.settings.goalWeight = gw > 0 ? gw : "";
   const sw = Number(document.getElementById("set-starting-weight").value);
@@ -2728,8 +3344,8 @@ document.getElementById("export-data").addEventListener("click", () => {
 
   lines.push(...tsvSection(
     "Protein",
-    ["Date", "Food", "Grams"],
-    [...store.protein].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.food, e.grams])
+    ["Date", "Food", "Protein (g)", "Carbs (g)", "Fat (g)"],
+    [...store.protein].sort((a, b) => a.date.localeCompare(b.date)).map((e) => [e.date, e.food, e.grams, Number(e.carbs) || 0, Number(e.fat) || 0])
   ));
 
   lines.push(...tsvSection(
@@ -2790,6 +3406,10 @@ document.getElementById("export-data").addEventListener("click", () => {
       ["Shot day", store.settings.shotDay || ""],
       ["Daily water goal (oz)", store.settings.waterGoal || ""],
       ["Daily protein goal (g)", store.settings.proteinGoal || ""],
+      ["Daily carbs goal (g)", store.settings.carbGoal || ""],
+      ["Daily fat goal (g)", store.settings.fatGoal || ""],
+      ["Height (ft)", store.settings.heightFt === "" || store.settings.heightFt === undefined ? "" : store.settings.heightFt],
+      ["Height (in)", store.settings.heightIn === "" || store.settings.heightIn === undefined ? "" : store.settings.heightIn],
       ["Daily movement goal (min)", store.settings.movementGoal || ""],
       ["Goal weight (lbs)", store.settings.goalWeight || ""],
       ["Refill date", store.settings.refillDate || ""]
@@ -2818,6 +3438,7 @@ function countStoreEntries(s) {
   let total = 0;
   keys.forEach((k) => { if (Array.isArray(s[k])) total += s[k].length; });
   if (s.moods) total += Object.keys(s.moods).length;
+  if (s.movementDone) total += Object.keys(s.movementDone).length;
   return total;
 }
 function snapshotSummary(s) {
@@ -3512,6 +4133,9 @@ function renderMorningCheckin() {
   card.classList.remove("hidden");
 }
 document.getElementById("morning-checkin-reply").addEventListener("click", () => {
+  // v168: the check-in sits on Today and the chat lives under More, so
+  // the button opens the chat tab first, then focuses the input.
+  showTab("chat");
   const input = document.getElementById("chat-input");
   if (input) input.focus();
 });
@@ -3521,14 +4145,31 @@ function renderChat() {
   const box = document.getElementById("chat-messages");
   if (!box) return;
   box.innerHTML = "";
+  // v168: assistant messages sit in a row with the gold lotus beside
+  // them, the brand mark wherever the brand shows.
+  const lotusImg = () => {
+    const img = document.createElement("img");
+    img.className = "chat-lotus";
+    img.src = "icons/lotus-gold-only-transparent.png";
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    return img;
+  };
   if (chatHistory.length === 0) {
+    const row = document.createElement("div");
+    row.className = "chat-row assistant";
+    row.appendChild(lotusImg());
     const welcome = document.createElement("div");
     welcome.className = "chat-msg assistant";
     welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about protein, water, or movement, or tell me how your day is going.";
-    box.appendChild(welcome);
+    row.appendChild(welcome);
+    box.appendChild(row);
     return;
   }
   chatHistory.forEach((m) => {
+    const row = document.createElement("div");
+    row.className = "chat-row " + (m.role === "user" ? "user" : "assistant");
+    if (m.role === "assistant") row.appendChild(lotusImg());
     const div = document.createElement("div");
     div.className = "chat-msg " + (m.role === "user" ? "user" : "assistant");
     if (m.role === "assistant") {
@@ -3536,7 +4177,8 @@ function renderChat() {
     } else {
       div.textContent = m.content;
     }
-    box.appendChild(div);
+    row.appendChild(div);
+    box.appendChild(row);
   });
   box.scrollTop = box.scrollHeight;
 }
@@ -3544,13 +4186,22 @@ function renderChat() {
 function addTypingIndicator() {
   const box = document.getElementById("chat-messages");
   if (!box) return null;
+  const row = document.createElement("div");
+  row.className = "chat-row assistant";
+  const img = document.createElement("img");
+  img.className = "chat-lotus";
+  img.src = "icons/lotus-gold-only-transparent.png";
+  img.alt = "";
+  img.setAttribute("aria-hidden", "true");
+  row.appendChild(img);
   const div = document.createElement("div");
   div.className = "chat-msg assistant typing";
   div.id = "chat-typing";
   div.textContent = "Thinking...";
-  box.appendChild(div);
+  row.appendChild(div);
+  box.appendChild(row);
   box.scrollTop = box.scrollHeight;
-  return div;
+  return row; // the caller removes the whole row (lotus included)
 }
 
 document.getElementById("chat-form").addEventListener("submit", async (e) => {
@@ -3642,5 +4293,5 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   sendBtn.disabled = false;
 });
 
-// Render chat when tab is opened
-document.querySelector('[data-tab="chat"]').addEventListener("click", renderChat);
+/* v168: the chat tab lives under More now, so showTab renders the chat
+   itself; no separate [data-tab="chat"] listener is needed. */

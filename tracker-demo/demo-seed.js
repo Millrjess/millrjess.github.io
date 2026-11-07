@@ -24,6 +24,10 @@
           waterGoal: 92,
           proteinGoal: 90,
           movementGoal: 30,
+          carbGoal: 150,
+          fatGoal: 60,
+          heightFt: 5,
+          heightIn: 6,
           refillDate: "",
           goalWeight: "160"
         },
@@ -37,9 +41,9 @@
           { id: id("w7"), date: iso(-5), oz: 24 }
         ],
         protein: [
-          { id: id("p1"), date: iso(0), grams: 25, food: "Sample: eggs" },
-          { id: id("p2"), date: iso(0), grams: 22, food: "Sample: Greek yogurt" },
-          { id: id("p3"), date: iso(0), grams: 15, food: "Sample: chicken" },
+          { id: id("p1"), date: iso(0), grams: 25, carbs: 40, fat: 10, food: "Sample: eggs" },
+          { id: id("p2"), date: iso(0), grams: 22, carbs: 45, fat: 15, food: "Sample: Greek yogurt" },
+          { id: id("p3"), date: iso(0), grams: 21, carbs: 35, fat: 20, food: "Sample: chicken" },
           { id: id("p4"), date: iso(-1), grams: 30, food: "Sample: protein shake" },
           { id: id("p5"), date: iso(-2), grams: 28, food: "Sample: eggs" },
           { id: id("p6"), date: iso(-4), grams: 20, food: "Sample: yogurt" },
@@ -74,7 +78,8 @@
           { id: id("s1"), date: iso(-2), symptom: "Nausea", severity: "Mild", notes: "Sample entry" },
           { id: id("s2"), date: iso(-5), symptom: "Tired", severity: "Mild", notes: "Sample entry" }
         ],
-        moods: {}
+        moods: {},
+        movementDone: {}
       };
       localStorage.setItem(LS, JSON.stringify(store));
       var chat = [
