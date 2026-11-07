@@ -791,6 +791,7 @@ function renderToday() {
   setRing("exercise", exMin, moveGoal);
 
   renderGreeting();
+  renderStreak();
   renderEncouragement();
   renderNextInjection();
   renderMood();
@@ -799,6 +800,33 @@ function renderToday() {
   if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
+}
+
+/* Streak count (v166): consecutive days with at least one logged entry
+   (water, protein, movement, shot, weigh-in, journal, side effect, mood,
+   measurement, or photo). Counted from today, or from yesterday when
+   today is still empty, so the streak is not lost on a morning before
+   the first log. */
+function loggedDates() {
+  const days = new Set();
+  ["water", "protein", "exercise", "injections", "weight", "measurements", "journal", "sideEffects", "photos"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (e && typeof e.date === "string") days.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => days.add(d));
+  return days;
+}
+function currentStreak() {
+  const days = loggedDates();
+  let off = days.has(todayStr(0)) ? 0 : -1;
+  let n = 0;
+  while (days.has(todayStr(off))) { n++; off--; }
+  return n;
+}
+function renderStreak() {
+  const el = document.getElementById("streak-line");
+  if (!el) return;
+  const n = currentStreak();
+  el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
 }
 
 /* Personal greeting (v165): time of day, by name. */
@@ -828,6 +856,30 @@ document.getElementById("goals-exercise-add").addEventListener("click", () => {
   saveStore();
   renderToday();
 });
+
+/* Fine-control nudge buttons (v166): one tap changes a ring total by
+   exactly 1 (1 oz, 1 g, 1 min), for fine control after sliding. Same
+   add/trim helpers as the ring drag and the add buttons, so the store,
+   snapshots, and the backup cap behave exactly the same. */
+function nudgeGoal(key, field, extra, delta) {
+  if (delta > 0) {
+    store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: delta }));
+  } else {
+    trimDayEntries(key, field, viewedDateStr(), -delta);
+  }
+  saveStore();
+  renderToday();
+}
+function bindNudge(id, key, field, extra, delta) {
+  const btn = document.getElementById(id);
+  if (btn) btn.addEventListener("click", () => nudgeGoal(key, field, extra, delta));
+}
+bindNudge("water-minus-1", "water", "oz", {}, -1);
+bindNudge("water-plus-1", "water", "oz", {}, 1);
+bindNudge("protein-minus-1", "protein", "grams", { food: "Quick add" }, -1);
+bindNudge("protein-plus-1", "protein", "grams", { food: "Quick add" }, 1);
+bindNudge("exercise-minus-1", "exercise", "minutes", { label: "Movement" }, -1);
+bindNudge("exercise-plus-1", "exercise", "minutes", { label: "Movement" }, 1);
 
 /* Trim a day's entries from the most recent backwards (F15): used by
    the ring drag when a total is lowered, so totals can never go below
@@ -1321,7 +1373,42 @@ injForm.addEventListener("submit", (e) => {
 
 let injectionLimit = 10; // entries shown; "show more" loads older ones in batches
 
+/* Site rotation guide (v166): the next site in the rotation order after
+   the last shot taken, so the same spot is never used twice in a row.
+   Order follows the site map: abdomen, thighs, then upper arms. */
+const INJECTION_SITES = ["Left Abdomen", "Right Abdomen", "Left Thigh", "Right Thigh", "Left Upper Arm", "Right Upper Arm"];
+function nextInjectionSite() {
+  const last = lastInjection();
+  if (!last || !last.site) return null;
+  const i = INJECTION_SITES.indexOf(last.site);
+  if (i === -1) return INJECTION_SITES[0];
+  return INJECTION_SITES[(i + 1) % INJECTION_SITES.length];
+}
+function renderRotationGuide() {
+  const el = document.getElementById("rotation-guide");
+  const btn = document.getElementById("rotation-use-site");
+  if (!el) return;
+  const last = lastInjection();
+  const next = nextInjectionSite();
+  if (!last || !next) {
+    el.textContent = "Log your first shot and I will suggest the next site to rotate to.";
+    if (btn) btn.classList.add("hidden");
+    return;
+  }
+  el.innerHTML = "Next site: <strong>" + escapeHtml(next) + "</strong>. Last shot was " + escapeHtml(last.site) + " on " + escapeHtml(formatDate(last.date)) + ".";
+  if (btn) {
+    btn.classList.remove("hidden");
+    btn.onclick = () => {
+      document.getElementById("inj-site").value = next;
+      renderSiteMap();
+      toggleForm(document.getElementById("injection-form"), document.getElementById("show-injection-form"), true);
+      document.getElementById("inj-site").focus();
+    };
+  }
+}
+
 function renderInjections() {
+  renderRotationGuide();
   const list = document.getElementById("injection-list");
   const sorted = [...store.injections].sort((a, b) => b.date.localeCompare(a.date));
   if (!sorted.length) {
@@ -1612,6 +1699,8 @@ function drawWeightChart() {
   const chartText = document.getElementById("weight-chart-text");
   if (sorted.length < 2) {
     emptyMsg.style.display = "";
+    const msEl = document.getElementById("weight-milestones");
+    if (msEl) { msEl.textContent = ""; msEl.style.display = "none"; }
     renderWeightMilestone();
     if (chartText) chartText.textContent = sorted.length === 1
       ? "One weigh-in so far: " + Number(sorted[0].value).toFixed(1) + " lbs on " + formatDate(sorted[0].date) + ". Log another weigh-in to see your chart."
@@ -1681,6 +1770,46 @@ function drawWeightChart() {
     ctx.arc(x(i), y(w.value), 7, 0, Math.PI * 2);
     ctx.fill();
   });
+
+  /* Milestones (v166): quiet gold diamonds on the chart at every 5 lbs
+     lost from the starting weight, one short line of text under the
+     chart. The line itself is already gold. */
+  const msEl = document.getElementById("weight-milestones");
+  const startW = (function () { const s = getStartingWeight(); return s ? Number(s.value) : null; })();
+  const milestones = [];
+  if (startW) {
+    const totalLost = startW - Number(sorted[sorted.length - 1].value);
+    for (let m = 5; m <= totalLost; m += 5) {
+      const level = startW - m;
+      let hitIdx = -1;
+      for (let i = 0; i < sorted.length; i++) {
+        if (Number(sorted[i].value) <= level) { hitIdx = i; break; }
+      }
+      if (hitIdx >= 0) milestones.push({ lbs: m, idx: hitIdx, date: sorted[hitIdx].date });
+    }
+  }
+  milestones.forEach((ms) => {
+    const dx = x(ms.idx), dy = y(Number(sorted[ms.idx].value));
+    ctx.save();
+    ctx.fillStyle = "#E8B54A";
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(dx, dy - 11);
+    ctx.lineTo(dx + 9, dy);
+    ctx.lineTo(dx, dy + 11);
+    ctx.lineTo(dx - 9, dy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  });
+  if (msEl) {
+    msEl.textContent = milestones.length
+      ? "Milestones reached: " + milestones.map((ms) => ms.lbs + " lbs down on " + formatDate(ms.date)).join(", ") + "."
+      : "";
+    msEl.style.display = milestones.length ? "" : "none";
+  }
 
   // Goal line
   if (goalW > 0) {
@@ -1958,7 +2087,10 @@ function renderJournal() {
   }
   const visible = sorted.slice(0, journalLimit);
   const remaining = sorted.length - visible.length;
-  list.innerHTML = visible.map((j) => `
+  /* Monthly chapters (v166): entries grouped by month under a chapter
+     title, newest month first. Every entry and its date stay exactly
+     as they are. */
+  const entryHtml = (j) => `
     <div class="entry">
       <p class="entry-title">${MOOD_EMOJI[j.mood] || ""} ${escapeHtml(j.mood)}</p>
       <p class="entry-sub">${escapeHtml(formatDate(j.date))}</p>
@@ -1967,7 +2099,17 @@ function renderJournal() {
         <button class="btn btn-small" data-edit-j="${j.id}" aria-label="Edit journal entry: ${escapeHtml(j.mood)} on ${escapeHtml(formatDate(j.date))}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-j="${j.id}" aria-label="Delete journal entry: ${escapeHtml(j.mood)} on ${escapeHtml(formatDate(j.date))}">Delete</button>
       </div>
-    </div>`).join("")
+    </div>`;
+  const groups = {};
+  visible.forEach((j) => {
+    const key = String(j.date || "").slice(0, 7);
+    (groups[key] = groups[key] || []).push(j);
+  });
+  list.innerHTML = Object.keys(groups).sort().reverse().map((key) => {
+    const chapterDate = new Date(key + "-01T00:00:00");
+    const title = chapterDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    return `<h3 class="journal-chapter">${escapeHtml(title)}</h3>` + groups[key].map(entryHtml).join("");
+  }).join("")
     + (remaining > 0
       ? `<button class="btn" id="more-journal" style="width:100%;margin-top:8px">Show older (${remaining} more)</button>`
       : "");
@@ -2062,8 +2204,12 @@ function renderSideEffects() {
   const visibleSe = sorted.slice(0, seLimit);
   const remainingSe = sorted.length - visibleSe.length;
   const badgeClass = { Mild: "badge-mild", Moderate: "badge-moderate", Severe: "badge-severe" };
-  list.innerHTML = visibleSe.map((s) => `
-    <div class="entry">
+  const sevClass = { Mild: "se-sev-mild", Moderate: "se-sev-moderate", Severe: "se-sev-severe" };
+  /* Gentle timeline (v166): a quiet vertical line with a severity-
+     colored dot per entry, newest first, so patterns over time are
+     easy to see. Edit and Delete stay on every entry. */
+  list.innerHTML = `<div class="se-timeline">` + visibleSe.map((s) => `
+    <div class="entry se-timeline-item ${sevClass[s.severity] || ""}">
       <p class="entry-title">${escapeHtml(s.symptom)}<span class="badge ${badgeClass[s.severity] || ""}">${escapeHtml(s.severity)}</span></p>
       <p class="entry-sub">${escapeHtml(formatDate(s.date))}</p>
       ${s.notes ? `<p class="entry-notes">${escapeHtml(s.notes)}</p>` : ""}
@@ -2071,7 +2217,7 @@ function renderSideEffects() {
         <button class="btn btn-small" data-edit-se="${s.id}" aria-label="Edit side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-se="${s.id}" aria-label="Delete side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Delete</button>
       </div>
-    </div>`).join("")
+    </div>`).join("") + `</div>`
     + (remainingSe > 0
       ? `<button class="btn" id="more-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
       : "");
@@ -3341,7 +3487,37 @@ function renderMarkdown(text) {
   return html.replace(/(<br>)+$/, "");
 }
 
+/* Morning check-in (v166): local and rule-based only, no worker call.
+   On mornings (5:00 to noon) the Companion speaks first with one gentle
+   question for the day, rotating by the day of the year. The card is
+   not part of chat history; it simply opens the conversation. */
+const MORNING_CHECKIN_QUESTIONS = [
+  "How did you sleep last night?",
+  "What is one small thing you want to do for yourself today?",
+  "How is your energy feeling this morning?",
+  "What would make today feel like a win?",
+  "How is your appetite this morning?",
+  "Is there anything on your mind today?",
+  "What are you most looking forward to today?"
+];
+function renderMorningCheckin() {
+  const card = document.getElementById("morning-checkin");
+  if (!card) return;
+  const now = new Date();
+  const h = now.getHours();
+  if (h < 5 || h >= 12) { card.classList.add("hidden"); return; }
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  document.getElementById("morning-checkin-q").textContent =
+    MORNING_CHECKIN_QUESTIONS[dayOfYear % MORNING_CHECKIN_QUESTIONS.length];
+  card.classList.remove("hidden");
+}
+document.getElementById("morning-checkin-reply").addEventListener("click", () => {
+  const input = document.getElementById("chat-input");
+  if (input) input.focus();
+});
+
 function renderChat() {
+  renderMorningCheckin();
   const box = document.getElementById("chat-messages");
   if (!box) return;
   box.innerHTML = "";

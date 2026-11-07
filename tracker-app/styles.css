@@ -328,6 +328,74 @@ input[aria-invalid="true"]:focus-visible {
   text-align: center;
 }
 .greeting-line:empty { display: none; }
+
+/* Streak count (v166): small and calm, under the greeting. */
+.streak-line {
+  text-align: center;
+  color: var(--sage);
+  font-size: 0.95rem;
+  margin: 6px 0 0;
+}
+.streak-line:empty { display: none; }
+
+/* Fine-control nudge buttons (v166): one tap changes a ring total by
+   exactly 1 (1 oz, 1 g, 1 min), for fine control after sliding. */
+.ring-nudge {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.ring-nudge-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sage);
+  background: #fff;
+  color: var(--sage-deep);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.ring-nudge-btn:active { background: var(--sage-soft); }
+
+/* Journal monthly chapters (v166): serif month headings. */
+.journal-chapter {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sage-deep);
+  font-size: 1.15rem;
+  margin: 18px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #EDE9DF;
+}
+.journal-chapter:first-child { margin-top: 4px; }
+
+/* Side-effects timeline (v166): a quiet vertical line with a
+   severity-colored dot per entry, newest first. */
+.se-timeline {
+  border-left: 2px solid #EDE9DF;
+  margin: 4px 0 0 8px;
+  padding-left: 20px;
+}
+.se-timeline-item { position: relative; }
+.se-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--sage);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #EDE9DF;
+}
+.se-timeline-item.se-sev-moderate::before { background: var(--gold); }
+.se-timeline-item.se-sev-severe::before { background: #A33A1F; }
 .ring-value {
   position: absolute;
   inset: 0;
