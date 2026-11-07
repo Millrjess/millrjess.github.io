@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v161";
+const APP_VERSION = "v162";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -3290,7 +3290,10 @@ function renderSnapshots() {
   if (!box) return;
   const snaps = snapsForLine;
   if (!snaps.length) { box.innerHTML = ""; return; }
-  box.innerHTML = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + snaps.map((sn, i) => {
+  // v162: only the newest backup shows in full. Older ones sit behind a
+  // closed "Show older backups" toggle, so Settings stays clean and the
+  // restore points are still there when she needs one.
+  const rowHtml = (sn, i) => {
     const label = new Date(sn.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }) + (i === 0 ? " · Newest" : "")
       + (sn.label === "Before delete" ? " · Safety copy kept when you deleted your data" : sn.label ? " · " + sn.label : "");
     let summary = "Could not be read";
@@ -3304,7 +3307,12 @@ function renderSnapshots() {
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">This backup is damaged and cannot be restored.</span></span><button type="button" class="btn btn-small" disabled aria-label="Backup from ' + escapeHtml(label) + ' is damaged and cannot be restored">Restore</button></div>';
     }
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span>' + label + '<br><span class="muted" style="font-size:.85em">' + escapeHtml(summary) + '</span></span><button type="button" class="btn btn-small" data-restore-snap="' + escapeHtml(sn.at) + '" aria-label="Restore backup from ' + escapeHtml(label) + '">Restore</button></div>';
-  }).join("");
+  };
+  let html = '<p class="muted" style="margin:0 0 4px">Recent backups saved in this app:</p>' + rowHtml(snaps[0], 0);
+  if (snaps.length > 1) {
+    html += '<details style="margin-top:6px"><summary>Show older backups (' + (snaps.length - 1) + ')</summary>' + snaps.slice(1).map((sn, j) => rowHtml(sn, j + 1)).join("") + '</details>';
+  }
+  box.innerHTML = html;
   box.querySelectorAll("[data-restore-snap]").forEach((b) => b.addEventListener("click", () => {
     // Look the snapshot up by its timestamp, not by its position in the
     // list: the list can change between render and click, and a positional
@@ -3623,11 +3631,18 @@ function showVersionConfirmation() {
     }
   }
   try { localStorage.setItem(LAST_VERSION_KEY, APP_VERSION); } catch {}
+  // The update already landed, so the "new version is ready" card is
+  // stale: hide it, so both cards never sit on screen together.
+  const updateCard = document.getElementById("update-notice");
+  if (updateCard) updateCard.classList.add("hidden");
   const card = document.getElementById("version-notice");
   const text = document.getElementById("version-notice-text");
   if (card && text) {
     text.textContent = "Updated to " + APP_VERSION + ".";
     card.classList.remove("hidden");
+    // v162: the confirmation clears itself after 8 seconds, so it does
+    // not sit on screen until she taps Got it. Got it still hides it now.
+    setTimeout(() => { card.classList.add("hidden"); }, 8000);
   }
 }
 
