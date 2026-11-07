@@ -433,14 +433,12 @@ function clearWeekDismissKeys() {
    which day is shown, and any entry edit left half finished. */
 function resetViewState() {
   viewOffset = 0;
-  editingFoodId = null;
   editingInjectionId = null;
   editingWeightId = null;
   editingMeasId = null;
   editingJournalId = null;
   editingSeId = null;
   clearWeekDismissKeys();
-  try { cancelFoodEdit(); } catch {}
 }
 
 /* Local-midnight helpers: day differences must be counted in whole
@@ -524,78 +522,6 @@ function renderEncouragement() {
   const dayOfYear = Math.round((localMidnight(now) - localMidnight(start)) / 86400000);
   document.getElementById("encouragement-text").textContent =
     ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
-}
-
-/* Recent foods quick-pick: the 5 most recently logged foods as tap-to-add buttons */
-
-function renderRecentFoods() {
-  const box = document.getElementById("recent-foods");
-  if (!box) return;
-  const seen = new Map();
-  [...store.protein].reverse().forEach((e) => {
-    const key = (e.food || "Logged entry").trim().toLowerCase();
-    if (!seen.has(key)) seen.set(key, e);
-  });
-  const recent = [...seen.values()].slice(0, 5);
-  box.innerHTML = recent.length
-    ? '<p class="recent-label">Tap to log again</p>' + recent.map((e) => `
-      <button type="button" class="btn btn-small" data-recent-food="${e.id}">${escapeHtml(e.food || "Logged entry")} (${escapeHtml(e.grams)}g)</button>`).join("")
-    : "";
-  box.querySelectorAll("[data-recent-food]").forEach((b) => b.addEventListener("click", () => {
-    const src = store.protein.find((x) => x.id === b.dataset.recentFood);
-    if (!src) return;
-    store.protein.push({
-      id: uid(),
-      date: viewedDateStr(),
-      grams: Number(src.grams) || 0,
-      food: src.food
-    });
-    saveStore();
-    renderToday();
-  }));
-}
-
-/* Log Food button: jump back to today and scroll to the food form */
-
-document.getElementById("log-food-btn").addEventListener("click", () => {
-  if (viewOffset !== 0) {
-    viewOffset = 0;
-    renderToday();
-  }
-  setTimeout(() => {
-    const form = document.getElementById("protein-form");
-    if (form) {
-      form.scrollIntoView({ behavior: "smooth", block: "center" });
-      const foodInput = document.getElementById("protein-food");
-      if (foodInput) foodInput.focus({ preventScroll: true });
-    }
-  }, 60);
-});
-
-/* Food entry editing */
-
-let editingFoodId = null;
-
-function startFoodEdit(id) {
-  const e = store.protein.find((x) => x.id === id);
-  if (!e) return;
-  editingFoodId = id;
-  document.getElementById("protein-food").value = e.food || "";
-  document.getElementById("protein-grams").value = e.grams || "";
-  document.getElementById("food-submit-btn").textContent = "Save changes";
-  document.getElementById("food-edit-cancel").classList.remove("hidden");
-  document.getElementById("protein-form").scrollIntoView({ behavior: "smooth", block: "center" });
-  document.getElementById("protein-food").focus({ preventScroll: true });
-}
-
-function cancelFoodEdit() {
-  editingFoodId = null;
-  const form = document.getElementById("protein-form");
-  if (form) form.reset();
-  const btn = document.getElementById("food-submit-btn");
-  if (btn) btn.textContent = "Log";
-  const cancel = document.getElementById("food-edit-cancel");
-  if (cancel) cancel.classList.add("hidden");
 }
 
 /* ---------- Tab navigation ---------- */
@@ -789,123 +715,6 @@ document.getElementById("review-next").addEventListener("click", () => {
   renderMonthlyReview();
 });
 
-/* ---------- Weekly wellness summary (last 7 days, logged data only) ---------- */
-
-function weekWindow() {
-  const days = [];
-  for (let off = 6; off >= 0; off--) days.push(todayStr(-off));
-  return days;
-}
-
-function weekDismissKey() {
-  const days = weekWindow();
-  return "demo-nct-week-dismiss:" + days[0] + "_" + days[days.length - 1];
-}
-
-// One manageable habit suggestion from the weakest logged area. Never shaming,
-// never medical, never a promise about weight. Static wording only, no user data.
-function weeklySuggestion(stats) {
-  if (!stats.anyLogged) return "One gentle start: log one glass of water today. Small steps count.";
-  const areas = [
-    { key: "protein", days: stats.proteinDays, total: stats.daysWithGoal.protein },
-    { key: "water", days: stats.waterDays, total: stats.daysWithGoal.water },
-    { key: "exercise", days: stats.moveDays, total: stats.daysWithGoal.exercise },
-  ].filter((a) => a.total > 0);
-  if (!areas.length) return "You are logging without set goals. One habit to try: set a protein goal in Settings so next week can show your progress.";
-  areas.sort((a, b) => (a.days / a.total) - (b.days / b.total));
-  const weakest = areas[0];
-  if (weakest.days >= weakest.total) return "You met your goals most days this week. One habit to keep: protect the routine that is already working.";
-  if (weakest.key === "protein") return "One manageable habit for next week: add a protein rich food to one meal each day.";
-  if (weakest.key === "water") return "One manageable habit for next week: keep a water bottle nearby and sip through the morning.";
-  return "One manageable habit for next week: a 10 minute walk after one meal each day.";
-}
-
-function renderWeeklySummary() {
-  const card = document.getElementById("weekly-summary-card");
-  if (!card) return;
-  const days = weekWindow();
-  const daySet = new Set(days);
-  const goal = (k) => Number(store.settings[k]) || 0;
-  const proteinGoal = goal("proteinGoal"), waterGoal = goal("waterGoal"), moveGoal = goal("movementGoal");
-  const countGoalDays = (key, field, g) => {
-    if (!g) return { met: 0, total: 0 };
-    let met = 0;
-    days.forEach((d) => { if (sumForDate(store[key] || [], d, field) >= g) met++; });
-    return { met, total: 7 };
-  };
-  const p = countGoalDays("protein", "grams", proteinGoal);
-  const w = countGoalDays("water", "oz", waterGoal);
-  const m = countGoalDays("exercise", "minutes", moveGoal);
-  document.getElementById("weekly-summary-range").textContent =
-    "Last 7 days: " + formatDate(days[0]) + " to " + formatDate(days[6]) + ".";
-
-  const lines = [];
-  const anyLogged = days.some((d) =>
-    (store.water || []).some((e) => e.date === d) || (store.protein || []).some((e) => e.date === d) ||
-    (store.exercise || []).some((e) => e.date === d) || (store.weight || []).some((e) => e.date === d) ||
-    (store.injections || []).some((e) => e.date === d) || (store.journal || []).some((e) => e.date === d) ||
-    (store.sideEffects || []).some((e) => e.date === d));
-  if (!anyLogged) {
-    lines.push("No entries in the last 7 days yet.");
-  } else {
-    if (proteinGoal) lines.push("Protein goal reached " + p.met + " of 7 days.");
-    if (waterGoal) lines.push("Water goal reached " + w.met + " of 7 days.");
-    if (moveGoal) lines.push("Movement goal reached " + m.met + " of 7 days.");
-    const sessions = (store.exercise || []).filter((e) => daySet.has(e.date));
-    const strength = sessions.filter((e) => (e.label || "").toLowerCase().includes("strength"));
-    const totalMin = sessions.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
-    if (sessions.length) {
-      lines.push(sessions.length + " movement session" + (sessions.length === 1 ? "" : "s") +
-        " logged, " + totalMin + " minutes total" +
-        (strength.length ? ", including " + strength.length + " strength session" + (strength.length === 1 ? "" : "s") : "") + ".");
-    }
-    const shots = (store.injections || []).filter((e) => daySet.has(e.date)).length;
-    if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
-    const weights = (store.weight || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
-    if (weights.length >= 2) {
-      const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
-      const change = startW - endW;
-      lines.push(change > 0
-        ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
-        : change < 0
-          ? "Weight went from " + startW + " to " + endW + " lbs, up " + Math.abs(change).toFixed(1) + "."
-          : "Weight held steady at " + endW + " lbs.");
-    } else if (weights.length === 1) {
-      lines.push("You logged your weight at " + weights[0].value + " lbs.");
-    }
-    const meas = (store.measurements || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
-    if (meas.length) lines.push("Measurements logged on " + formatDate(meas[meas.length - 1].date) + ".");
-    const effects = (store.sideEffects || []).filter((e) => daySet.has(e.date)).sort((a, b) => a.date.localeCompare(b.date));
-    if (effects.length) {
-      const last = effects[effects.length - 1];
-      lines.push(effects.length + " side effect" + (effects.length === 1 ? "" : "s") +
-        " logged, most recent: " + escapeHtml(last.symptom || "Not named") +
-        " (" + escapeHtml(last.severity || "No severity") + ").");
-    } else {
-      lines.push("No side effects logged.");
-    }
-  }
-  document.getElementById("weekly-summary-body").innerHTML =
-    lines.map((l) => `<p style="margin:0 0 4px">${l}</p>`).join("");
-
-  const stats = { proteinDays: p.met, waterDays: w.met, moveDays: m.met, anyLogged,
-    daysWithGoal: { protein: p.total, water: w.total, exercise: m.total } };
-  document.getElementById("weekly-suggestion-text").textContent = weeklySuggestion(stats);
-  let dismissed = false;
-  try { dismissed = localStorage.getItem(weekDismissKey()) === "1"; } catch (err) {}
-  document.getElementById("weekly-suggestion-wrap").classList.toggle("hidden", dismissed);
-  document.getElementById("weekly-dismissed-note").classList.toggle("hidden", !dismissed);
-}
-
-document.getElementById("weekly-dismiss").addEventListener("click", () => {
-  try { localStorage.setItem(weekDismissKey(), "1"); } catch (err) {}
-  renderWeeklySummary();
-});
-document.getElementById("weekly-show-suggestion").addEventListener("click", () => {
-  try { localStorage.removeItem(weekDismissKey()); } catch (err) {}
-  renderWeeklySummary();
-});
-
 /* ---------- Today tab ---------- */
 
 function sumForDate(list, dateStr, field) {
@@ -940,6 +749,8 @@ function setRing(key, value, goal) {
     ring.setAttribute("aria-valuemax", goal);
     ring.setAttribute("aria-valuenow", value);
     ring.setAttribute("aria-valuetext", value + " of " + goal + " " + ids[2]);
+    // Gold glow when the day's goal is met (v165).
+    ring.classList.toggle("goal-reached", goal > 0 && value >= goal);
   }
   setRingFill(ids[1], value, goal);
 }
@@ -958,186 +769,69 @@ function renderToday() {
   document.getElementById("day-prev").style.visibility = "";
   document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
 
-  // Steppers, forms and mood buttons log to the day being viewed, so they
-  // stay usable on past days (F13/F16). Nothing here is disabled by day. The
-  // old disable list targeted buttons that do not exist ([data-water] etc.).
+  // Rings and add buttons log to the day being viewed, so they stay
+  // usable on past days (F13/F16). Nothing here is disabled by day.
 
   const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
   document.getElementById("water-today").textContent = waterOz;
-  const waterPct = Math.round((waterOz / waterGoal) * 100);
   setRing("water", waterOz, waterGoal);
-  document.getElementById("water-percent").textContent = waterPct >= 100
-    ? "Goal reached! Nice work."
-    : waterPct + "% of daily goal";
 
   const proteinGoal = Number(store.settings.proteinGoal) || 90;
   document.getElementById("protein-goal-display").textContent = proteinGoal;
   const proteinG = sumForDate(store.protein, t, "grams");
   document.getElementById("protein-today").textContent = proteinG;
-  const proteinPct = Math.round((proteinG / proteinGoal) * 100);
   setRing("protein", proteinG, proteinGoal);
-  document.getElementById("protein-percent").textContent = proteinPct >= 100
-    ? "Goal reached! Nice work."
-    : proteinPct + "% of daily goal";
-
-  // Remaining protein for today
-  const pRem = proteinGoal - proteinG;
-  const el = document.getElementById("remaining-summary");
-  if (el) {
-    el.textContent = pRem <= 0
-      ? "Protein goal reached for today. Nice work."
-      : Math.round(pRem) + "g protein remaining today.";
-  }
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   document.getElementById("exercise-today").textContent = exMin;
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
-  const exPct = Math.round((exMin / moveGoal) * 100);
   setRing("exercise", exMin, moveGoal);
-  document.getElementById("exercise-percent").textContent = exPct >= 100
-    ? "Goal reached! Nice work."
-    : exPct + "% of daily goal";
 
-  // Summary cards (3 cards: protein, water, movement)
-  document.getElementById("sum-protein-goal").textContent = proteinGoal;
-  document.getElementById("sum-water-goal").textContent = waterGoal;
-  document.getElementById("sum-move-goal").textContent = moveGoal;
-  const sumData = [
-    ["protein", proteinG, proteinGoal],
-    ["water", waterOz, waterGoal],
-    ["move", exMin, moveGoal]
-  ];
-  sumData.forEach(([key, val, goal]) => {
-    document.getElementById("sum-" + key + "-num").textContent = val;
-    const pct = Math.round((val / goal) * 100);
-    document.getElementById("sum-" + key + "-bar").style.width = Math.min(100, pct) + "%";
-  });
-
+  renderGreeting();
   renderEncouragement();
-  renderRecentFoods();
-  // F18: only cancel an in-progress food edit when its day is no longer the
-  // day being viewed. A re-render must never wipe typing or an edit in progress.
-  if (editingFoodId) {
-    const editingFood = store.protein.find((x) => x.id === editingFoodId);
-    if (!editingFood || editingFood.date !== t) cancelFoodEdit();
-  }
-
   renderNextInjection();
   renderMood();
-  renderTodayEntries(t);
-
-  document.getElementById("undo-water").style.display = store.water.some((e) => e.date === t) ? "" : "none";
-  document.getElementById("undo-protein").style.display = store.protein.some((e) => e.date === t) ? "" : "none";
-  document.getElementById("undo-exercise").style.display = store.exercise.some((e) => e.date === t) ? "" : "none";
-
   renderBackupNudge();
   renderCorruptNotice();
   if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
-  renderWeeklySummary();
 }
 
-/* Today's water, protein, and movement entries with per-entry remove */
-
-function renderTodayEntries(t) {
-  const waterToday = store.water.filter((e) => e.date === t);
-  document.getElementById("water-list").innerHTML = waterToday.length
-    ? waterToday.map((e) => `
-      <div class="today-entry">
-        <span>+${escapeHtml(e.oz)} oz</span>
-        <button class="btn btn-small btn-danger" data-del-water="${e.id}" aria-label="Remove water entry: ${escapeHtml(e.oz)} ounces">Remove</button>
-      </div>`).join("")
-    : "";
-
-  const proteinToday = store.protein.filter((e) => e.date === t);
-  document.getElementById("protein-list").innerHTML = proteinToday.length
-    ? proteinToday.map((e) => `
-      <div class="today-entry">
-        <span>${escapeHtml(e.food || "Logged entry")} &middot; ${escapeHtml(e.grams)} g</span>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Edit</button>
-          <button class="btn btn-small btn-danger" data-del-protein="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged entry")} ${escapeHtml(e.grams)} grams">Remove</button>
-        </div>
-      </div>`).join("")
-    : "";
-
-  const exToday = store.exercise.filter((e) => e.date === t);
-  document.getElementById("exercise-list").innerHTML = exToday.length
-    ? exToday.map((e) => `
-      <div class="today-entry">
-        <span>${escapeHtml(e.label || "Movement")} &middot; ${escapeHtml(e.minutes)} min</span>
-        <button class="btn btn-small btn-danger" data-del-exercise="${e.id}" aria-label="Remove movement entry: ${escapeHtml(e.label || "Movement")} ${escapeHtml(e.minutes)} minutes">Remove</button>
-      </div>`).join("")
-    : "";
-
-  bindTodayEntryDeletes();
+/* Personal greeting (v165): time of day, by name. */
+function renderGreeting() {
+  const el = document.getElementById("greeting-line");
+  if (!el) return;
+  const h = new Date().getHours();
+  const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  el.textContent = part + ", Jessica.";
 }
 
-function bindTodayEntryDeletes() {
-  document.querySelectorAll("[data-edit-food]").forEach((b) => b.addEventListener("click", () => startFoodEdit(b.dataset.editFood)));
-  document.querySelectorAll("[data-del-water]").forEach((b) => b.addEventListener("click", () => {
-    if (!confirm("Remove this water entry?")) return;
-    store.water = store.water.filter((e) => e.id !== b.dataset.delWater);
-    saveStore();
-    renderToday();
-  }));
-  document.querySelectorAll("[data-del-protein]").forEach((b) => b.addEventListener("click", () => {
-    if (!confirm("Remove this food entry?")) return;
-    store.protein = store.protein.filter((e) => e.id !== b.dataset.delProtein);
-    saveStore();
-    renderToday();
-  }));
-  document.querySelectorAll("[data-del-exercise]").forEach((b) => b.addEventListener("click", () => {
-    if (!confirm("Remove this movement entry?")) return;
-    store.exercise = store.exercise.filter((e) => e.id !== b.dataset.delExercise);
-    saveStore();
-    renderToday();
-  }));
-}
-
-function undoLastEntry(key) {
-  const t = viewedDateStr();
-  for (let i = store[key].length - 1; i >= 0; i--) {
-    if (store[key][i].date === t) {
-      store[key].splice(i, 1);
-      break;
-    }
-  }
+/* Today's Goals add buttons (v165): one quick entry per tap, logged to
+   the day being viewed. Water 8 oz, protein 10 g (Quick add), movement
+   5 min. Same store shape as before; entries are still plain entries. */
+document.getElementById("goals-water-add").addEventListener("click", () => {
+  store.water.push({ id: uid(), date: viewedDateStr(), oz: 8 });
   saveStore();
   renderToday();
-}
+});
+document.getElementById("goals-protein-add").addEventListener("click", () => {
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: 10, food: "Quick add" });
+  saveStore();
+  renderToday();
+});
+document.getElementById("goals-exercise-add").addEventListener("click", () => {
+  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
+  saveStore();
+  renderToday();
+});
 
-document.getElementById("undo-water").addEventListener("click", () => undoLastEntry("water"));
-document.getElementById("undo-protein").addEventListener("click", () => undoLastEntry("protein"));
-document.getElementById("undo-exercise").addEventListener("click", () => undoLastEntry("exercise"));
-
-/* ---------- Steppers ---------- */
-/* Steppers log to the day being viewed (F13). A minus tap trims that day's
-   most recent entries instead of pushing a negative entry, so totals can
-   never go below zero (F15). A typed amount above 500 is kept to 500 (F19). */
-let stepperWasClamped = false;
-function getStep(id, fallback) {
-  const el = document.getElementById(id);
-  const v = Number(el.value);
-  const base = v > 0 ? v : fallback;
-  if (base > 500) { stepperWasClamped = true; return 500; }
-  stepperWasClamped = false;
-  return base;
-}
-function showStepperNote() {
-  const n = document.getElementById("stepper-note");
-  if (!n) return;
-  if (stepperWasClamped) {
-    n.textContent = "That was a very large amount, so it was kept to 500.";
-    n.classList.remove("hidden");
-  } else {
-    n.classList.add("hidden");
-  }
-}
+/* Trim a day's entries from the most recent backwards (F15): used by
+   the ring drag when a total is lowered, so totals can never go below
+   zero. Trims whole entries first, then shrinks the last one. */
 function trimDayEntries(key, field, date, amount) {
   let remaining = amount;
   for (let i = store[key].length - 1; i >= 0 && remaining > 0; i--) {
@@ -1149,53 +843,27 @@ function trimDayEntries(key, field, date, amount) {
     else { e[field] = val - remaining; remaining = 0; }
   }
 }
-function stepperAdd(key, field, date, amount, extra) {
-  store[key].push(Object.assign({ id: uid(), date }, extra, { [field]: amount }));
-  showStepperNote();
-  saveStore(); renderToday();
-}
-function stepperMinus(key, field, date, amount) {
-  trimDayEntries(key, field, date, amount);
-  showStepperNote();
-  saveStore(); renderToday();
-}
-document.getElementById("water-plus").addEventListener("click", () => {
-  stepperAdd("water", "oz", viewedDateStr(), getStep("water-step", 8), {});
-});
-document.getElementById("water-minus").addEventListener("click", () => {
-  stepperMinus("water", "oz", viewedDateStr(), getStep("water-step", 8));
-});
-document.getElementById("protein-plus").addEventListener("click", () => {
-  stepperAdd("protein", "grams", viewedDateStr(), getStep("protein-step", 15), { food: "Quick add" });
-});
-document.getElementById("protein-minus").addEventListener("click", () => {
-  stepperMinus("protein", "grams", viewedDateStr(), getStep("protein-step", 15));
-});
-document.getElementById("exercise-plus").addEventListener("click", () => {
-  stepperAdd("exercise", "minutes", viewedDateStr(), getStep("exercise-step", 15), { label: "Movement" });
-});
-document.getElementById("exercise-minus").addEventListener("click", () => {
-  stepperMinus("exercise", "minutes", viewedDateStr(), getStep("exercise-step", 15));
-});
 
-/* ---------- Interactive rings (v164) ---------- */
-/* Slide a finger up on a ring to raise the day's total, down to lower it.
+/* ---------- Interactive rings (v164, horizontal since v165) ---------- */
+/* Slide a finger left or right on a ring to change the day's total: right
+   raises it, left lowers it. Vertical sliding was hard to control and
+   jumped (her feedback, Nov 6, 2026), and it fought with page scrolling.
    The ring updates live while dragging; the store is written once, on
-   release, through the same add and trim helpers the steppers use, so
-   entries, snapshots, and the backup cap behave exactly as for a stepper
-   tap. 4px of drag is 1 unit. Totals never go below zero. */
+   release, by pushing one entry for a rise or trimming entries for a
+   fall, so entries, snapshots, and the backup cap behave exactly as for
+   an add-button tap. 8px of drag is 1 unit, so small movements change
+   the number slowly and precisely. Totals never go below zero. */
 function bindRing(ringId, key, field, extra) {
   const ring = document.getElementById(ringId);
   if (!ring) return;
   const fillId = { water: "water-ring-fill", protein: "protein-ring-fill", exercise: "exercise-ring-fill" }[key];
   const numId = { water: "water-today", protein: "protein-today", exercise: "exercise-today" }[key];
-  const pctId = { water: "water-percent", protein: "protein-percent", exercise: "exercise-percent" }[key];
   const unitWord = { water: "ounces", protein: "grams", exercise: "minutes" }[key];
   const goalFor = () => key === "water" ? (Number(store.settings.waterGoal) || 92)
     : key === "protein" ? (Number(store.settings.proteinGoal) || 90)
     : (Number(store.settings.movementGoal) || 30);
   let dragging = false;
-  let startY = 0;
+  let startX = 0;
   let startTotal = 0;
   let liveTotal = 0;
   function paintLive() {
@@ -1203,17 +871,13 @@ function bindRing(ringId, key, field, extra) {
     const num = document.getElementById(numId);
     if (num) num.textContent = liveTotal;
     setRingFill(fillId, liveTotal, goal);
-    const pct = document.getElementById(pctId);
-    if (pct) {
-      const p = Math.round((liveTotal / goal) * 100);
-      pct.textContent = p >= 100 ? "Goal reached! Nice work." : p + "% of daily goal";
-    }
+    ring.classList.toggle("goal-reached", goal > 0 && liveTotal >= goal);
     ring.setAttribute("aria-valuenow", liveTotal);
     ring.setAttribute("aria-valuetext", liveTotal + " of " + goal + " " + unitWord);
   }
   ring.addEventListener("pointerdown", (e) => {
     dragging = true;
-    startY = e.clientY;
+    startX = e.clientX;
     startTotal = sumForDate(store[key], viewedDateStr(), field);
     liveTotal = startTotal;
     try { ring.setPointerCapture(e.pointerId); } catch {}
@@ -1222,7 +886,7 @@ function bindRing(ringId, key, field, extra) {
   });
   ring.addEventListener("pointermove", (e) => {
     if (!dragging) return;
-    liveTotal = Math.max(0, startTotal + Math.round((startY - e.clientY) / 4));
+    liveTotal = Math.max(0, startTotal + Math.round((e.clientX - startX) / 8));
     paintLive();
   });
   function endDrag() {
@@ -1246,9 +910,9 @@ function bindRing(ringId, key, field, extra) {
     renderToday();
   });
   ring.addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
-    if (e.key === "ArrowUp") {
+    if (e.key === "ArrowRight") {
       store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: 1 }));
     } else {
       trimDayEntries(key, field, viewedDateStr(), 1);
@@ -1261,44 +925,10 @@ bindRing("water-ring", "water", "oz", {});
 bindRing("protein-ring", "protein", "grams", { food: "Quick add" });
 bindRing("exercise-ring", "exercise", "minutes", { label: "Movement" });
 
-document.getElementById("protein-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const food = document.getElementById("protein-food").value.trim();
-  const grams = Number(document.getElementById("protein-grams").value);
-  const proteinMsg = document.getElementById("protein-msg");
-  if (!grams || grams <= 0) {
-    setFormStatus(proteinMsg, "Add the grams of protein first.", true);
-    document.getElementById("protein-grams").focus();
-    return;
-  }
-  const existing = editingFoodId ? store.protein.find((x) => x.id === editingFoodId) : null;
-  const data = {
-    id: editingFoodId || uid(),
-    date: existing ? existing.date : viewedDateStr(),
-    grams,
-    food: food || "Logged entry"
-  };
-  if (editingFoodId) {
-    if (!existing) {
-      setFormStatus(proteinMsg, "That entry could not be found. It may already have been removed.", true);
-      return;
-    }
-    store.protein[store.protein.findIndex((x) => x.id === editingFoodId)] = data;
-  } else {
-    store.protein.push(data);
-  }
-  setFormStatus(proteinMsg, "", false);
-  cancelFoodEdit();
-  saveStore();
-  renderToday();
-});
-
-document.getElementById("food-edit-cancel").addEventListener("click", cancelFoodEdit);
-
-document.getElementById("exercise-type").addEventListener("change", (e) => {
-  document.getElementById("exercise-custom").classList.toggle("hidden", e.target.value !== "Other");
-});
-
+/* Custom activities: the movement activity picker is gone, so
+   nothing adds to this list anymore. The read stays so a damaged value
+   saved by an older version is still stashed aside, not silently
+   dropped, instead of letting a later save overwrite it. */
 function getCustomActivities() {
   try {
     const raw = localStorage.getItem("demo-nc_custom_activities") || "[]";
@@ -1314,54 +944,9 @@ function getCustomActivities() {
     return [];
   }
 }
-function saveCustomActivity(name) {
-  const list = getCustomActivities();
-  if (!list.includes(name)) {
-    list.push(name);
-    try { localStorage.setItem("demo-nc_custom_activities", JSON.stringify(list)); } catch {}
-    const sel = document.getElementById("exercise-type");
-    const opt = document.createElement("option");
-    opt.textContent = name;
-    sel.insertBefore(opt, sel.querySelector('option[value=""]') || sel.lastChild);
-  }
-}
 function loadCustomActivities() {
-  const sel = document.getElementById("exercise-type");
-  getCustomActivities().forEach((name) => {
-    if (![...sel.options].some((o) => o.text === name)) {
-      const opt = document.createElement("option");
-      opt.textContent = name;
-      sel.insertBefore(opt, sel.lastChild);
-    }
-  });
+  getCustomActivities();
 }
-
-document.getElementById("exercise-add").addEventListener("click", () => {
-  let type = document.getElementById("exercise-type").value;
-  const mins = Number(document.getElementById("exercise-minutes").value);
-  const exMsg = document.getElementById("exercise-msg");
-  if (type === "Other") {
-    type = document.getElementById("exercise-custom").value.trim();
-    if (!type) {
-      setFormStatus(exMsg, "Add your activity name first.", true);
-      document.getElementById("exercise-custom").focus();
-      return;
-    }
-    saveCustomActivity(type);
-  }
-  if (!type || !mins || mins < 1) {
-    setFormStatus(exMsg, "Choose an activity and add the minutes first.", true);
-    return;
-  }
-  setFormStatus(exMsg, "", false);
-  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: mins, label: type });
-  saveStore();
-  renderToday();
-  document.getElementById("exercise-type").value = "";
-  document.getElementById("exercise-minutes").value = "";
-  document.getElementById("exercise-custom").value = "";
-  document.getElementById("exercise-custom").classList.add("hidden");
-});
 
 /* Next injection countdown */
 

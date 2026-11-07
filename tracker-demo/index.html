@@ -92,6 +92,8 @@
       </div>
     </div>
 
+    <p class="greeting-line" id="greeting-line" aria-live="off"></p>
+
     <div class="encouragement" role="note">
       <p id="encouragement-text" style="margin:0"></p>
     </div>
@@ -101,7 +103,6 @@
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
-        <button class="btn btn-secondary btn-small" data-goto="injections">View shot history</button>
       </div>
     </div>
 
@@ -111,148 +112,38 @@
       <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
     </details>
 
-    <div class="progress-grid" role="region" aria-label="Daily progress summary">
-      <div class="progress-card">
-        <p class="pc-label">Protein</p>
-        <p class="pc-value"><span id="sum-protein-num">0</span> <span class="pc-goal">of <span id="sum-protein-goal">90</span> g</span></p>
-        <div class="mini-bar"><div class="mini-fill" id="sum-protein-bar"></div></div>
-      </div>
-      <div class="progress-card">
-        <p class="pc-label">Water</p>
-        <p class="pc-value"><span id="sum-water-num">0</span> <span class="pc-goal">of <span id="sum-water-goal">92</span> oz</span></p>
-        <div class="mini-bar"><div class="mini-fill" id="sum-water-bar"></div></div>
-      </div>
-      <div class="progress-card">
-        <p class="pc-label">Movement</p>
-        <p class="pc-value"><span id="sum-move-num">0</span> <span class="pc-goal">of <span id="sum-move-goal">30</span> min</span></p>
-        <div class="mini-bar"><div class="mini-fill" id="sum-move-bar"></div></div>
-      </div>
-    </div>
-
-    <details class="card" id="weekly-summary-card" style="border-left:4px solid #5A6B52;padding:14px 16px;margin:10px 0">
-      <summary style="cursor:pointer;font-weight:600"><h2 class="card-title" style="display:inline;margin:0">Your week</h2></summary>
-      <div style="margin-top:10px;font-size:.95rem">
-      <p class="muted" id="weekly-summary-range" style="margin:0 0 6px"></p>
-      <div id="weekly-summary-body"></div>
-      <div id="weekly-suggestion-wrap" style="margin-top:8px">
-        <p style="margin:0 0 6px"><strong>Suggested habit for next week:</strong> <span id="weekly-suggestion-text"></span></p>
-        <button type="button" class="btn btn-small" id="weekly-dismiss">Not this week</button>
-      </div>
-      <p class="muted hidden" id="weekly-dismissed-note" style="margin:8px 0 0">Suggestion dismissed for this week. <button type="button" class="btn btn-small" id="weekly-show-suggestion" style="padding:0;background:none;border:none;color:var(--sage);text-decoration:underline;cursor:pointer">Show it again</button></p>
-      <p class="muted" style="margin:8px 0 0;font-size:.85em">From your logged entries on this device. Suggestions are general ideas, not medical advice.</p>
-      </div>
-    </details>
-
-    <p class="muted hidden" id="stepper-note" role="status" style="min-height:1.2em"></p>
-
-    <button type="button" class="btn btn-primary btn-block" id="log-food-btn" aria-label="Log protein">Log protein</button>
-
-
-
-    <div class="card">
-      <h2 class="card-title">Water Intake</h2>
-      <div class="ring-wrap">
-        <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide up or down to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
-          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-          <div class="ring-value"><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></div>
+    <div class="card goals-card" id="goals-card">
+      <h2 class="card-title">Today's Goals</h2>
+      <p class="muted goals-hint">Slide left or right on a ring to change it.</p>
+      <div class="goals-rings">
+        <div class="goal-ring">
+          <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide left or right to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-value"><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></div>
+          </div>
+          <p class="goal-name">Water</p>
+          <p class="goal-label">Goal <span id="water-goal-display">92</span> oz</p>
+          <button class="btn btn-small goals-add" id="goals-water-add" aria-label="Add 8 ounces of water">+ 8 oz</button>
         </div>
-        <div class="ring-side">
-          <p class="ring-goal">of <span id="water-goal-display">92</span> oz goal</p>
-          <p class="percent-line" id="water-percent">0% of daily goal</p>
-          <p class="ring-hint muted">Slide up or down on the ring to change</p>
+        <div class="goal-ring">
+          <div class="ring-box" id="protein-ring" tabindex="0" role="slider" aria-label="Protein. Slide left or right to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" aria-valuetext="0 of 90 grams">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="protein-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-value"><span class="ring-num" id="protein-today">0</span><span class="ring-unit">g</span></div>
+          </div>
+          <p class="goal-name">Protein</p>
+          <p class="goal-label">Goal <span id="protein-goal-display">90</span> g</p>
+          <button class="btn btn-small goals-add" id="goals-protein-add" aria-label="Add 10 grams of protein">+ 10 g</button>
+        </div>
+        <div class="goal-ring">
+          <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide left or right to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-value"><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></div>
+          </div>
+          <p class="goal-name">Movement</p>
+          <p class="goal-label">Goal <span id="exercise-goal-display">30</span> min</p>
+          <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
         </div>
       </div>
-      <div class="quick-add">
-        <div class="stepper" role="group" aria-label="Water amount stepper">
-          <button class="btn btn-small stepper-btn" id="water-minus" aria-label="Decrease water amount">−</button>
-          <input type="number" id="water-step" value="8" min="1" max="64" aria-label="Water ounces per tap" class="stepper-input">
-          <span class="stepper-unit">oz</span>
-          <button class="btn btn-small stepper-btn" id="water-plus" aria-label="Add water">+</button>
-        </div>
-        <button class="btn btn-small" id="undo-water" aria-label="Undo last water entry">Undo</button>
-      </div>
-      <div id="water-list" class="today-entries"></div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">Protein</h2>
-      <div class="ring-wrap">
-        <div class="ring-box" id="protein-ring" tabindex="0" role="slider" aria-label="Protein. Slide up or down to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0" aria-valuetext="0 of 90 grams">
-          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="protein-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-          <div class="ring-value"><span class="ring-num" id="protein-today">0</span><span class="ring-unit">g</span></div>
-        </div>
-        <div class="ring-side">
-          <p class="ring-goal">of <span id="protein-goal-display">90</span> g goal</p>
-          <p class="percent-line" id="protein-percent">0% of daily goal</p>
-          <p class="ring-hint muted">Slide up or down on the ring to change</p>
-        </div>
-      </div>
-      <div class="quick-add">
-        <div class="stepper" role="group" aria-label="Protein amount stepper">
-          <button class="btn btn-small stepper-btn" id="protein-minus" aria-label="Decrease protein amount">−</button>
-          <input type="number" id="protein-step" value="15" min="1" max="100" aria-label="Protein grams per tap" class="stepper-input">
-          <span class="stepper-unit">g</span>
-          <button class="btn btn-small stepper-btn" id="protein-plus" aria-label="Add protein">+</button>
-        </div>
-        <button class="btn btn-small" id="undo-protein" aria-label="Undo last protein entry">Undo</button>
-      </div>
-      <div id="recent-foods" class="recent-foods"></div>
-      <form id="protein-form" class="inline-form">
-        <input type="text" id="protein-food" placeholder="What did you eat?" aria-label="Food description">
-        <input type="number" id="protein-grams" placeholder="Protein g" min="0" aria-label="Protein grams">
-        <button type="submit" class="btn btn-small" id="food-submit-btn" aria-label="Log food entry">Log</button>
-        <button type="button" class="btn btn-small hidden" id="food-edit-cancel">Cancel</button>
-      </form>
-      <p class="code-msg" id="protein-msg" role="status" style="min-height:1.2em"></p>
-      <div id="remaining-summary" style="margin-top:6px;font-size:.92rem;font-weight:600"></div>
-      <div id="protein-list" class="today-entries"></div>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">Movement</h2>
-      <div class="ring-wrap">
-        <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide up or down to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
-          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-          <div class="ring-value"><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></div>
-        </div>
-        <div class="ring-side">
-          <p class="ring-goal">of <span id="exercise-goal-display">30</span> min goal</p>
-          <p class="percent-line" id="exercise-percent">0% of daily goal</p>
-          <p class="ring-hint muted">Slide up or down on the ring to change</p>
-        </div>
-      </div>
-      <p class="muted">Every minute counts.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-        <select id="exercise-type" aria-label="Movement type" style="flex:1;min-width:0;padding:10px;border:1px solid var(--field-border,#767676);border-radius:10px;font-size:1rem">
-          <option value="">Choose activity…</option>
-          <option>Walking</option>
-          <option>Yoga</option>
-          <option>Pilates</option>
-          <option>Barre</option>
-          <option>Strength Training</option>
-          <option>Cardio</option>
-          <option>Spinning</option>
-          <option>Zumba</option>
-          <option>TRX</option>
-          <option>Swimming</option>
-          <option>Stretching</option>
-          <option>Other</option>
-        </select>
-        <input type="text" id="exercise-custom" placeholder="Your activity" maxlength="40" aria-label="Custom activity" class="hidden" style="padding:10px;border:1px solid var(--field-border,#767676);border-radius:10px;font-size:1rem">
-        <input type="number" id="exercise-minutes" placeholder="Min" min="1" max="600" aria-label="Minutes" style="width:76px;padding:10px;border:1px solid var(--field-border,#767676);border-radius:10px;font-size:1rem">
-        <button class="btn btn-small" id="exercise-add" aria-label="Add movement entry" style="white-space:nowrap">Add</button>
-      </div>
-      <div class="quick-add">
-        <div class="stepper" role="group" aria-label="Movement minutes stepper">
-          <button class="btn btn-small stepper-btn" id="exercise-minus" aria-label="Decrease minutes">−</button>
-          <input type="number" id="exercise-step" value="15" min="1" max="180" aria-label="Minutes per tap" class="stepper-input">
-          <span class="stepper-unit">min</span>
-          <button class="btn btn-small stepper-btn" id="exercise-plus" aria-label="Add movement">+</button>
-        </div>
-      </div>
-      <p class="code-msg" id="exercise-msg" role="status" style="min-height:1.2em"></p>
-      <div id="exercise-list" class="today-entries"></div>
-      <button class="btn btn-small" id="undo-exercise" style="margin-top:8px">Undo last entry</button>
     </div>
 
     <div class="card">

@@ -73,7 +73,7 @@
   }
 }
 
-h1, h2, h3, .card, .progress-card, .pc-label, .pc-goal {
+h1, h2, h3, .card {
   overflow-wrap: break-word;
 }
 
@@ -244,23 +244,17 @@ input[aria-invalid="true"]:focus-visible {
   margin-bottom: 10px;
 }
 
-/* Interactive progress rings (v164): gold rings replace the linear bars
-   on the three Today cards. Slide up or down on a ring to change the
-   day's total; the number and fill update live. r=52 in a 120 viewBox,
-   so the circumference is 326.73. */
-.ring-wrap {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 6px 0 4px;
-}
+/* Interactive progress rings (v164, horizontal since v165): gold rings
+   in the single Today's Goals card. Slide left or right on a ring to
+   change the day's total; the number and fill update live. r=52 in a
+   120 viewBox, so the circumference is 326.73. */
 .ring-box {
   position: relative;
   width: 132px;
   height: 132px;
   flex-shrink: 0;
   touch-action: none;
-  cursor: ns-resize;
+  cursor: ew-resize;
   user-select: none;
   -webkit-user-select: none;
   border-radius: 50%;
@@ -292,6 +286,49 @@ input[aria-invalid="true"]:focus-visible {
   stroke-dashoffset: 326.73;
   transition: stroke-dashoffset 0.25s ease;
 }
+
+/* Goal glow (v165): when a day's goal is met, the ring glows gold with a
+   slow pulse. The reduced-motion rule at the top of this file stills it. */
+.ring-box.goal-reached .ring-fill {
+  filter: drop-shadow(0 0 6px rgba(232, 181, 74, 0.9));
+  animation: goal-glow 2.4s ease-in-out infinite;
+}
+@keyframes goal-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(232, 181, 74, 0.55)); }
+  50% { filter: drop-shadow(0 0 12px rgba(232, 181, 74, 0.95)); }
+}
+
+/* Today's Goals card (v165): one card, three rings side by side, each
+   with its own gold add button. Rings scale down on narrow phones. */
+.goals-card { text-align: left; }
+.goals-hint { color: var(--muted); margin: 0 0 4px; font-size: 0.95rem; }
+.goals-rings { display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; }
+.goal-ring { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.goals-rings .ring-box { width: 100%; max-width: 108px; height: auto; aspect-ratio: 1 / 1; }
+.goals-rings .ring-box svg { width: 100%; height: 100%; }
+.goals-rings .ring-num { font-size: 1.6rem; }
+.goal-name { font-weight: 700; margin: 10px 0 0; font-size: 1rem; }
+.goal-label { color: var(--muted); font-size: 0.9rem; margin: 2px 0 0; }
+.goals-add {
+  border: 1.5px solid var(--gold);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  min-height: 44px;
+}
+
+/* Personal greeting (v165): serif, sage-deep, under the date nav. */
+.greeting-line {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  color: var(--sage-deep);
+  margin: 14px 0 0;
+  text-align: center;
+}
+.greeting-line:empty { display: none; }
 .ring-value {
   position: absolute;
   inset: 0;
@@ -314,24 +351,7 @@ input[aria-invalid="true"]:focus-visible {
   color: var(--muted);
   margin-top: 3px;
 }
-.ring-side {
-  min-width: 0;
-}
-.ring-goal {
-  font-size: 1rem;
-  margin: 0 0 4px;
-}
-.ring-hint {
-  font-size: 0.85rem;
-  margin: 8px 0 0;
-}
 
-.quick-add {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
-}
 
 .btn {
   font: inherit;
@@ -404,11 +424,6 @@ input[aria-invalid="true"]:focus-visible {
   padding: 6px 12px;
 }
 
-.inline-form input {
-  flex: 1;
-  min-width: 0;
-  padding: 12px;
-}
 
 label {
   display: block;
@@ -505,28 +520,8 @@ label textarea {
   margin-top: 12px;
 }
 
-.today-entries {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 10px;
-}
 
-.today-entries:empty {
-  display: none;
-}
 
-.today-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: var(--accent-soft, #f7f5ef);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 8px 6px 12px;
-  font-size: 0.9rem;
-}
 
 .app-footer {
   max-width: 640px;
@@ -753,7 +748,8 @@ label textarea {
 }
 
 .tab-btn.active .tab-icon {
-  background: var(--sage-soft);
+  background: var(--gold);
+  color: var(--ink);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -773,7 +769,7 @@ label textarea {
 }
 
 .tab-btn.active {
-  color: var(--sage-dark);
+  color: #87692B;
 }
 
 .empty-state {
@@ -819,63 +815,19 @@ label textarea {
 }
 
 .encouragement p {
+  font-family: Georgia, "Times New Roman", serif;
   font-style: italic;
   color: var(--sage-deep);
   font-size: 1rem;
 }
 
-.progress-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin: 12px 0;
-}
 
-.progress-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  padding: 12px;
-  min-width: 0;
-}
 
-.pc-label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 4px;
-}
 
-.mini-bar {
-  background: #F0EBDD;
-  border-radius: 8px;
-  height: 8px;
-  overflow: hidden;
-}
 
-.mini-fill {
-  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
-  height: 100%;
-  width: 0%;
-  border-radius: 8px;
-  transition: width 0.4s ease;
-}
 
 /* Recent foods quick-pick */
-.recent-foods {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 10px 0 4px;
-  align-items: center;
-}
 
-.recent-foods:empty {
-  display: none;
-}
 
 .recent-label {
   width: 100%;
@@ -978,14 +930,24 @@ label textarea {
   font-weight: 700;
 }
 .mini-calendar .day.logged {
-  background: #E8B54A;
-  /* WCAG 1.4.3: dark ink on gold, 7.53:1, instead of white on gold, 1.89:1 */
+  position: relative;
   color: var(--ink);
   font-weight: 700;
   cursor: pointer;
 }
+.mini-calendar .day.logged::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
 .mini-calendar .day.logged.today {
-  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px #E8B54A;
+  box-shadow: inset 0 0 0 2px #E8B54A;
 }
 .mini-calendar .day.scheduled {
   box-shadow: inset 0 0 0 2px #5A6B52;
@@ -1198,51 +1160,14 @@ details.card summary h3 {
 }
 
 /* ---------- Steppers ---------- */
-.stepper {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: nowrap;
-}
-.stepper-btn {
-  min-width: 44px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1;
-  padding: 8px 12px;
-}
 
-.stepper-input::-webkit-outer-spin-button,
-.stepper-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.stepper-unit {
-  font-size: 0.9rem;
-  color: var(--muted, #666);
-  font-weight: 600;
-}
 
 /* ---------- Overflow fix ---------- */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
 }
-.inline-form {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
 
-@media (max-width: 400px) {
-  .inline-form input {
-    flex: 1 1 100%;
-  }
-  .inline-form .btn {
-    flex: 1;
-  }
-}
 
 /* ---------- Readable inputs ---------- */
 input[type="text"],
@@ -1253,18 +1178,4 @@ textarea {
   min-height: 48px; /* comfortable tap target */
 }
 
-.stepper-input {
-  width: 64px;
-  text-align: center;
-  padding: 8px 6px;
-  border: 1px solid var(--field-border, #767676);
-  border-radius: 10px;
-  font-weight: 600;
-  -moz-appearance: textfield;
-  min-height: 44px;
-  font-size: 16px;
-}
 
-/* Per-entry lists are shown (F12 fix): water, protein, and movement entries
-   list below the steppers with per-entry Remove/Edit, and recent foods
-   offers tap-to-log-again. Steppers and Undo still work alongside them. */

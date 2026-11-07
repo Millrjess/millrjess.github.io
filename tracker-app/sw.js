@@ -31,12 +31,12 @@
  *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v164";
+const CACHE_NAME = "new-chapter-tracker-v165";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=164",
-  "./app.js?v=164",
+  "./styles.css?v=165",
+  "./app.js?v=165",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
