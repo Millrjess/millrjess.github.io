@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v162";
+const APP_VERSION = "v163";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -419,13 +419,24 @@ function buildSnapshotRaw(s) {
    once-a-day copy can be a whole day behind, and a failed save used to
    be swallowed silently. Identical copies are skipped, so a day of small
    edits does not fill the list with duplicates. A failed snapshot is now
-   shown in plain words instead of failing silently. */
+   shown in plain words instead of failing silently. v163: at most 3
+   backups saved per day, her call Nov 6, 2026. Once 3 are saved today,
+   later changes wait for tomorrow's first backup. */
 function saveAutoSnapshot() {
   try {
     if (countStoreEntries(store) === 0) return;
     const built = buildSnapshotRaw(store);
     if (built.nearCap) showStorageWarning("Your saved data is getting large. Download a backup from Settings to keep everything safe.");
     const snaps = loadSnapshots();
+    const today = todayStr();
+    const localDay = (iso) => {
+      try {
+        const d = new Date(iso);
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      } catch { return ""; }
+    };
+    const savedToday = snaps.filter((s) => localDay(s.at) === today).length;
+    if (savedToday >= 3) return;
     if (snaps.length) {
       // Same content as the newest snapshot: do not create a duplicate.
       // The comparison leaves out the frozen starting weight (K3): it is
