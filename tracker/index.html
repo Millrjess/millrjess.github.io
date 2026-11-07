@@ -256,6 +256,15 @@
     .price-card .button { width: 100%; }
     .payment-note { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 22px; }
 
+    .how-it-works { background: var(--bg); }
+    .how-intro { text-align: center; max-width: 650px; margin: 0 auto 32px; }
+    .how-intro h2 { margin-bottom: 18px; }
+    .how-intro p { color: var(--muted); }
+    .steps { list-style: none; padding: 0; margin: 0 auto; max-width: 680px; counter-reset: step; }
+    .steps li { counter-increment: step; padding: 16px 0 16px 56px; position: relative; border-top: 1px solid var(--line); line-height: 1.5; }
+    .steps li:last-child { border-bottom: 1px solid var(--line); }
+    .steps li:before { content: counter(step); position: absolute; left: 0; top: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--sage); color: #fff; display: grid; place-items: center; font-weight: 700; }
+
     .testimonials { background: var(--bg); }
     .stories-shell { max-width: 860px; margin: auto; border-block: 1px solid var(--line); padding: 34px 0; display: grid; grid-template-columns: 140px 1fr; gap: 42px; align-items: center; }
     .story-mark { width: 120px; height: 120px; border-radius: 50%; background: var(--gold-deep); color: #fff; display: grid; place-items: center; font-family: var(--serif); font-size: 3.6rem; }
@@ -487,6 +496,18 @@
           </div>
         </div>
         <p class="payment-note">After subscribing, you will receive the app link by email. Secure payment through Stripe.</p>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="wrap">
+        <div class="how-intro"><h2>How it works</h2><p>Four steps. No account, no sign up, no credit card to try it free.</p></div>
+        <ol class="steps">
+          <li><strong>Try the free tracker.</strong> Open <a href="https://millrjess.github.io/tracker-app/">the tracker</a>, tap Share in Safari, then Add to Home Screen. Open it from your home screen icon. No credit card needed.</li>
+          <li><strong>Subscribe.</strong> In the app, open the Companion tab and tap Subscribe. Choose Monthly $3.99 or Annual $29.99 and pay through Stripe.</li>
+          <li><strong>Get your code.</strong> On the welcome page, enter the email you subscribed with and tap Get code. Your 6-digit code lasts 1 hour.</li>
+          <li><strong>Connect your Companion.</strong> In the app, open Settings, enter the code, and tap Connect my companion.</li>
+        </ol>
       </div>
     </section>
 
