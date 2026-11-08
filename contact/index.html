@@ -139,7 +139,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .consult-form{max-width:640px; margin:1.2em 0}
 .consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
 .consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
-  border:1px solid #64748b; border-radius:10px; font:inherit; color:var(--slate);
+  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
   background:#f8fafc; margin-top:.35em; display:block}
 .consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
@@ -174,7 +174,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
-    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
+    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
   </div>
 </header>
 <main id="main" tabindex="-1" class="wrap page">
@@ -182,12 +182,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h1>Contact</h1>
 <h2>Let’s Work Together</h2>
 
-<p>I help businesses keep their websites fast, secure, and reliable through ongoing care plans, contract engagements, and one-time projects. Tell me about your website, what you need help with, and any deadlines. If you are unsure where to start, request a complimentary 15-minute discovery call.</p>
+<p>I help businesses keep their websites fast, secure, and reliable through ongoing care plans, contract engagements, and one-time projects.</p>
+<p>Tell me about your website, what you need help with, and any deadlines. If you are unsure where to start, request a complimentary 15-minute discovery call.</p>
 <p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 
 <h2>New or existing client?</h2>
-<p><strong>New inquiry:</strong> tell me what you need help with, using the form below or a complimentary 15-minute discovery call. Then a written proposal and a signed agreement before work begins.</p>
-<p><strong>Care plan client:</strong> use your agreed support contact and escalation process from your proposal. How fast I can help depends on the damage. This is not a guaranteed around-the-clock emergency service.</p>
+<p><strong>New inquiry:</strong> tell me what you need help with, using the form below or a complimentary 15-minute discovery call. Then you receive a written proposal and a signed agreement before work begins.</p>
+<p><strong>Care plan client:</strong> use your agreed support contact and escalation process from your proposal. This is not a guaranteed around-the-clock emergency service.</p>
 
 <h2>Get in Touch</h2>
 
@@ -206,6 +207,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <input type="text" name="name" required autocomplete="name"></label>
 <label>Your email *
 <input type="email" name="email" required autocomplete="email"></label>
+<label>Your website URL
+<input type="url" name="website" autocomplete="url" placeholder="https://example.com"></label>
 <label>What do you need help with? *
 <select name="service" required>
 <option value="" selected>Choose a topic</option>
@@ -219,11 +222,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <option>Something else</option>
 </select></label>
 <label>Project details *
-<textarea name="details" rows="5" required placeholder="Your website URL, what&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
+<textarea name="details" rows="5" required placeholder="What&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 <p id="consult-errors" role="alert" aria-live="assertive" hidden></p>
 <p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
-<p class="muted" id="consult-note" role="status" aria-live="polite">Your message is sent straight to my inbox via Google Apps Script. Nothing is stored on this site. Prefer LinkedIn? <a href="https://www.linkedin.com/in/millrjess">Message me on LinkedIn</a>.</p>
+<p class="muted" id="consult-note" role="status" aria-live="polite">Your message goes straight to my inbox. Nothing is stored on this site. Prefer LinkedIn instead? <a href="https://www.linkedin.com/in/millrjess">Message me on LinkedIn</a>.</p>
 <p>Please do not include passwords, payment information, or other sensitive details in your initial message.</p>
 </form>
 <script>
@@ -234,7 +237,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     {el: f.name, label: 'Your name', hint: 'Please enter your full name.'},
     {el: f.email, label: 'Your email', hint: 'Please enter a valid email address, for example name@example.com.'},
     {el: f.service, label: 'What do you need help with', hint: 'Please choose a topic from the list.'},
-    {el: f.details, label: 'Project details', hint: 'Please describe your project, including your website URL and what you would like to achieve.'}
+    {el: f.details, label: 'Project details', hint: 'Please describe your project and what you would like to achieve.'}
   ];
   var errors = [];
   fields.forEach(function(item){
@@ -262,7 +265,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   var timer = setTimeout(function(){
     if (submitted) {
       timedOut = true; submitted = false;
-      var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')\n\n' + f.details.value.trim());
+      var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')' + (f.website.value.trim() ? '\nWebsite: ' + f.website.value.trim() : '') + '\n\n' + f.details.value.trim());
       note.innerHTML = 'Something went wrong sending your message through the form service. <a href="' + mailto + '">Send this same message by email instead</a>, or email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
       btn.disabled = false; btn.textContent = 'Send Request';
     }

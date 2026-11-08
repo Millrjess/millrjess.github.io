@@ -63,11 +63,11 @@ blockquote{
 blockquote p{margin:.5em 0}
 ul,ol{padding-left:1.4em}
 li{margin:.4em 0}
-hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
+hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 /* header */
 .site-header{background:rgba(255,255,255,.9); backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px); border-bottom:2px solid #64748b;
+  -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border);
   position:sticky; top:0; z-index:50; box-shadow:0 2px 12px -6px rgba(15,35,64,.12)}
 .header-inner{display:flex; align-items:center; justify-content:space-between;
   gap:16px; padding-top:12px; padding-bottom:12px; flex-wrap:wrap}
@@ -179,7 +179,7 @@ hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
-    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
+    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
   </div>
 </header>
 <main id="main" tabindex="-1" class="wrap page">
@@ -191,12 +191,12 @@ hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
 <p><strong>Section 508</strong> is United States federal law, part of the Rehabilitation Act. It requires federal agencies to make their electronic and information technology accessible to people with disabilities. Section 508 is not a separate web standard. Its revised standards, published in January 2017 with compliance required by January 18, 2018, incorporate WCAG 2.0 Level A and AA by reference for web content. In practice, a site that meets WCAG 2.2 AA also meets the WCAG 2.0 AA baseline Section 508 points to, with one exception. WCAG 2.2 removed criterion 4.1.1, Parsing, which WCAG 2.0 still contains, so valid parsing still matters for the 2.0 baseline.</p>
 <p><strong>W3C validation</strong> checks whether the code of a page follows the published HTML standard. Valid code is not the same as an accessible page, and an accessible page can still have a validator warning. Validation matters because broken or ambiguous code is harder for browsers, assistive tools, and search engines to parse consistently.</p>
 <h2>Who has to comply</h2>
-<p>State and local governments have a rule with set deadlines under the Americans with Disabilities Act, Title II. Their web content and mobile apps must meet WCAG 2.1 AA, by April 26, 2027 for entities serving 50,000 or more people, and April 26, 2028 for smaller entities. Private businesses open to the public fall under ADA Title III. There is no federal rule naming a WCAG version or a deadline for private businesses, but the Department of Justice has long taken the position that the ADA applies to goods and services offered online, and WCAG is the benchmark courts and settlements usually point to. Federal agencies, and vendors who supply them, are covered by Section 508 through procurement.</p>
+<p>State and local governments have a rule with set deadlines under the Americans with Disabilities Act, Title II. Their web content and mobile apps must meet WCAG 2.1 AA by April 26, 2027 for entities serving 50,000 or more people, and April 26, 2028 for smaller entities. Private businesses open to the public fall under ADA Title III. There is no federal rule naming a WCAG version or a deadline for private businesses, but the Department of Justice has long taken the position that the ADA applies to goods and services offered online, and WCAG is the benchmark courts and settlements usually point to. Federal agencies, and vendors who supply them, are covered by Section 508 through procurement.</p>
 <p>This page is general information, not legal advice. A specific obligation depends on the organization, its customers, and its contracts.</p>
 <h2>Why it matters for visitors and for business</h2>
-<p>Accessibility is not only about compliance. A visitor who cannot use a keyboard, read low-contrast text, or hear a video without captions cannot complete a booking, a purchase, or a contact form. Fixing those barriers widens the audience that can actually use the site, and it removes friction for every visitor, including people on a phone, in bright light, or with a temporary injury. Clear headings, plain language, labeled forms, and buttons large enough to tap on a phone help a visitor in a hurry, on a small screen, or with a slow connection, as well as a visitor using assistive technology.</p>
+<p>Accessibility is not only about compliance. A visitor who cannot use a keyboard, read low-contrast text, or follow a video without captions cannot complete a booking, a purchase, or a contact form. Fixing those barriers widens the audience that can actually use the site, and it removes friction for every visitor, including people on a phone, in bright light, or with a temporary injury. Clear headings, plain language, labeled forms, and buttons large enough to tap on a phone help a visitor in a hurry, on a small screen, or with a slow connection, as well as a visitor using assistive technology.</p>
 <p>It also protects the business. An inaccessible selling page, booking flow, or checkout is a lost sale and a complaint risk at the same time. The same work that makes a page usable also makes the offer easier to understand: clear headings, descriptive links, labeled forms, and text alternatives for images and video.</p>
-<p>Fewer dead ends and fewer abandoned forms mean fewer lost inquiries and fewer support messages asking what a page was supposed to say.</p>
+<p>Fewer dead ends and fewer abandoned forms mean fewer lost inquiries and fewer support messages asking what a page means.</p>
 <p>For businesses that sell to government, schools, or large organizations, accessibility also affects procurement. Those buyers often require WCAG conformance in a contract, even when a private business is not directly covered by Section 508 or ADA Title II. A site that already meets WCAG 2.2 AA is easier to put forward in that process than a site that would need to be rebuilt first.</p>
 <h2>How it helps rankings, without overstating it</h2>
 <p>Accessibility is not a named Google ranking factor, and passing an accessibility audit does not by itself lift a page in search results. What it does is remove the technical reasons a search engine might misunderstand or undervalue a page. A search crawler reads code, headings, link text, alt text, and page structure, much like a screen reader does. When that code is clear, the crawler can tell what the page is about, which section covers which topic, and which page a link is pointing to.</p>
@@ -206,7 +206,7 @@ hr{border:0; border-top:2px solid #64748b; margin:2.2em 0}
 <p>Every engagement follows the same standards this site is held to: valid W3C code, WCAG 2.2 AA accessibility, and user experience grounded in published research. That standard is applied in the WCAG Accessibility Audit and Remediation service and in the Website Standards Pass service, both listed on the pricing page. No accessibility claim is published for a page until that page has been checked against the applicable WCAG 2.2 AA criteria, not only against an automated score.</p>
 <p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 <h2>Screen reader check: the live tracker app</h2>
-<p>November 5, 2026. The live New Chapter: GLP-1 Tracker™ app was checked with ChromeVox on desktop Chrome, latest version. The reader reads buttons and text in order, on every tab in the app. This is a screen reader check of the live app. It is not a claim that every page passes every WCAG 2.2 AA criterion.</p>
+<p>On November 5, 2026, the live New Chapter: GLP-1 Tracker™ app was checked with ChromeVox on desktop Chrome, latest version. The reader reads buttons and text in order, on every tab in the app. This is a screen reader check of the live app. It is not a claim that every page passes every WCAG 2.2 AA criterion.</p>
 <h2>Sources</h2>
 <ul>
 <li><a href="https://www.w3.org/TR/WCAG22/">W3C, Web Content Accessibility Guidelines (WCAG) 2.2</a></li>
