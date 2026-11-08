@@ -1132,13 +1132,14 @@ function renderStreak() {
   el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
 }
 
-/* Personal greeting (v165): time of day, by name. */
+/* Greeting (v165): time of day only, no name. The app is sold to
+   other people, so it must never greet a buyer by the founder's name. */
 function renderGreeting() {
   const el = document.getElementById("greeting-line");
   if (!el) return;
   const h = new Date().getHours();
   const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  el.textContent = part + ", Jessica.";
+  el.textContent = part + ".";
 }
 
 /* Today's Goals add buttons (v165): one quick entry per tap, logged to
@@ -1875,6 +1876,17 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
+  const quickBtn = document.getElementById("quick-log-shot");
+  // Done state first: it applies even before a shot day is set, so a
+  // buyer who logged a shot never sees "Log today's shot" again today
+  // and cannot double-log. (The old code returned early above when no
+  // shot day was set, so the button stayed visible with no done state.)
+  const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
+  quickBtn.style.display = alreadyLogged ? "none" : "";
+  if (alreadyLogged) {
+    el.textContent = "\u2713 Today's shot logged.";
+    return;
+  }
   if (!shotDay) {
     el.textContent = "Set your shot day in Settings.";
     return;
@@ -1891,10 +1903,7 @@ function renderNextInjection() {
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
   // One-tap shot logging uses the usual medication, dose, and last site
-  const quickBtn = document.getElementById("quick-log-shot");
-  const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
-  quickBtn.style.display = alreadyLogged ? "none" : "";
-  if (!alreadyLogged && last && last.site) {
+  if (last && last.site) {
     quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
   } else {
     quickBtn.textContent = "Log today's shot";
@@ -3728,7 +3737,7 @@ async function refreshPlayEntitlement() {
 
 // True when the user has a Play subscription recorded but no companion token.
 // In that case chat cannot call the worker yet, so the chat handler shows a
-// Play specific message instead of the website welcome email message.
+// Play specific message instead of the website welcome page message.
 function playChatBlocked() {
   return !getAuthToken() && isPlayEntitled();
 }
@@ -4142,13 +4151,13 @@ function renderEmptyNotice() {
   }
   if (!isStandaloneApp()) {
     document.getElementById("empty-notice-text").textContent =
-      "You are viewing the tracker in the browser. Your entries are kept in the home-screen app, not here. Open the tracker from its home-screen app icon to see your entries. If you have not added it to your home screen yet, use Share, then Add to Home Screen.";
+      "Tip: your entries stay on this device. If you add the tracker to your home screen, open it from there so everything stays in one place.";
     card.classList.remove("hidden");
     return;
   }
   if (!hasUsedAppBefore()) { card.classList.add("hidden"); return; }
   document.getElementById("empty-notice-text").textContent =
-    "Your entries are not showing. Your entries are stored only in this app on this phone. If you opened the tracker in Safari, from a link, or from a new app icon, that is a separate empty copy. Close this and open the tracker from its home-screen app icon. If you have a backup file, restore it in Settings, then Backup and restore.";
+    "Your entries are not showing here. Entries stay only in this app on this phone. If you opened the tracker in Safari, from a link, or from a new app icon, that is a separate, empty copy. Open the tracker from your home-screen app icon, or restore a backup in Settings.";
   card.classList.remove("hidden");
 }
 
@@ -4912,8 +4921,33 @@ function maybeReadAloud() {
   }
 }
 
+/* v000: the Companion chat shows a not-connected state before the
+   user can type or send, when no code has been entered. The banner
+   states what is needed and links to Settings (where the code is
+   entered) and to the welcome page (where the code comes from).
+   Play subscribers without a token see the Play-specific text. */
+function renderChatGate() {
+  const banner = document.getElementById("chat-not-connected");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("chat-send");
+  const micBtn = document.getElementById("chat-mic");
+  const connected = !!getAuthToken();
+  if (banner) {
+    banner.classList.toggle("hidden", connected);
+    const playMsg = document.getElementById("chat-not-connected-play");
+    const webMsg = document.getElementById("chat-not-connected-web");
+    const playBlocked = !connected && isPlayEntitled();
+    if (playMsg) playMsg.classList.toggle("hidden", !playBlocked);
+    if (webMsg) webMsg.classList.toggle("hidden", playBlocked);
+  }
+  if (input) input.disabled = !connected;
+  if (sendBtn) sendBtn.disabled = !connected;
+  if (micBtn) micBtn.disabled = !connected;
+}
+
 function renderChat() {
   renderMorningCheckin();
+  renderChatGate();
   // v000: the chat header shows the Companion's chosen name and avatar.
   const title = document.getElementById("chat-title");
   if (title) title.textContent = "Your " + companionDisplayName();
@@ -5026,8 +5060,22 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   saveChatHistory();
   renderChat();
 
+  // No code entered: do not call the worker. The banner above the
+  // chat already says a code is needed; this keeps a send from
+  // failing silently when the input is reached another way.
+  if (!getAuthToken() && !playChatBlocked()) {
+    chatHistory.push({
+      role: "assistant",
+      content: "Your AI Wellness Companion is not connected yet. Get your code from the welcome page with your purchase email, then enter it in Settings.",
+    });
+    saveChatHistory();
+    renderChat();
+    maybeReadAloud();
+    return;
+  }
+
   // Play subscribers without a companion token cannot call the worker yet.
-  // Show a Play specific message instead of the website welcome email message.
+  // Show a Play specific message instead of the website welcome page message.
   if (playChatBlocked()) {
     chatHistory.push({
       role: "assistant",
@@ -5065,7 +5113,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
     if (res.status === 401) {
       // Missing or invalid token. Play users get Play guidance, website
-      // users get the welcome email guidance.
+      // users get the welcome page guidance.
       const playService = await getPlayService();
       if (playService) {
         chatHistory.push({
@@ -5075,7 +5123,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
       } else {
         chatHistory.push({
           role: "assistant",
-          content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
+          content: "Your AI Wellness Companion is not connected yet. Get your code from the welcome page with your purchase email, then enter it in Settings.",
         });
       }
     } else if (data.reply) {

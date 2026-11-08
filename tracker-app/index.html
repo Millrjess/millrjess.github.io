@@ -68,7 +68,7 @@
       <p style="margin:0" id="corrupt-notice-text"></p>
       <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
     </div>
-    <div class="card hidden" id="empty-notice" role="alert" style="border-left:4px solid #B3261E">
+    <div class="card hidden" id="empty-notice" role="status" style="border-left:4px solid #5A6B52">
       <p style="margin:0" id="empty-notice-text"></p>
       <button class="btn btn-small" id="empty-notice-hide" style="margin-top:8px">Got it</button>
     </div>
@@ -627,8 +627,14 @@
       <h2 id="chat-title">Your AI Wellness Companion</h2>
     </div>
     <p class="muted" style="font-size:.85rem;margin-bottom:12px">Encouragement only, not medical advice. Messages leave this device. Your companion does not see your tracker entries. <a href="privacy.html">Privacy Policy</a></p>
+    <div class="card hidden" id="chat-not-connected" style="border-left:4px solid #E8B54A;margin-bottom:12px">
+      <p style="margin:0 0 4px;font-weight:700">Your AI Wellness Companion is not connected yet.</p>
+      <p style="margin:0" id="chat-not-connected-web">Get your code from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> with your purchase email, then enter it in Settings.</p>
+      <p style="margin:0" id="chat-not-connected-play" class="hidden">Your Play subscription is active, but companion chat for Play subscribers is still being connected. You can enter a companion key in Settings if you have one from the website.</p>
+      <button type="button" class="btn btn-small" data-goto="settings" style="margin-top:8px">Go to Settings</button>
+    </div>
     <div class="card hidden" id="morning-checkin" style="border-left:4px solid #E8B54A">
-      <p style="margin:0 0 4px;font-weight:700">Good morning, Jessica.</p>
+      <p style="margin:0 0 4px;font-weight:700">Good morning.</p>
       <p style="margin:0" id="morning-checkin-q"></p>
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
     </div>
@@ -679,7 +685,7 @@
           </label>
           <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
           <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
-          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 1 hour.</p>
         </div>
         <details style="margin-top:8px">
           <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
@@ -955,6 +961,13 @@
 
 <script src="app.js?v=000"></script>
 <script>
+// v000: on a first install there is no controlling worker yet, and the
+// new worker skips waiting and claims the page, which fires
+// controllerchange. That is not an update, so it must not show the
+// "new version is ready" card to a buyer who just opened the app.
+// Only show the card when a worker was already controlling this page
+// at load, which means a genuinely newer version has arrived.
+const hadControllerAtLoad = !!navigator.serviceWorker && !!navigator.serviceWorker.controller;
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").then((reg) => {
@@ -966,7 +979,7 @@ if ("serviceWorker" in navigator) {
         reg.addEventListener("updatefound", () => {
           const nw = reg.installing;
           if (nw) nw.addEventListener("statechange", () => {
-            if (nw.state === "installed" && navigator.serviceWorker.controller) showUpdateNotice();
+            if (nw.state === "installed" && hadControllerAtLoad && navigator.serviceWorker.controller) showUpdateNotice();
           });
         });
       }
@@ -975,7 +988,7 @@ if ("serviceWorker" in navigator) {
   // A new service worker taking over means new code is ready: offer the update.
   let updateShown = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (updateShown) return;
+    if (updateShown || !hadControllerAtLoad) return;
     updateShown = true;
     showUpdateNotice();
   });

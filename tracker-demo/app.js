@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v152";
+const APP_VERSION = "v000";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1037,13 +1037,14 @@ function renderStreak() {
   el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
 }
 
-/* Personal greeting (v165): time of day, by name. */
+/* Greeting (v165): time of day only, no name. The demo is shown to
+   other people, so it must never greet a visitor by the founder's name. */
 function renderGreeting() {
   const el = document.getElementById("greeting-line");
   if (!el) return;
   const h = new Date().getHours();
   const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  el.textContent = part + ", Jessica.";
+  el.textContent = part + ".";
 }
 
 /* Today's Goals add buttons (v165): one quick entry per tap, logged to
@@ -1806,6 +1807,17 @@ function loadCustomActivities() {
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
+  const quickBtn = document.getElementById("quick-log-shot");
+  // Done state first: it applies even before a shot day is set, so a
+  // visitor who logged a shot never sees "Log today's shot" again today
+  // and cannot double-log. (The old code returned early above when no
+  // shot day was set, so the button stayed visible with no done state.)
+  const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
+  quickBtn.style.display = alreadyLogged ? "none" : "";
+  if (alreadyLogged) {
+    el.textContent = "\u2713 Today's shot logged.";
+    return;
+  }
   if (!shotDay) {
     el.textContent = "Set your shot day in Settings.";
     return;
@@ -1822,10 +1834,7 @@ function renderNextInjection() {
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
   // One-tap shot logging uses the usual medication, dose, and last site
-  const quickBtn = document.getElementById("quick-log-shot");
-  const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
-  quickBtn.style.display = alreadyLogged ? "none" : "";
-  if (!alreadyLogged && last && last.site) {
+  if (last && last.site) {
     quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
   } else {
     quickBtn.textContent = "Log today's shot";
@@ -3634,7 +3643,7 @@ async function refreshPlayEntitlement() {
 
 // True when the user has a Play subscription recorded but no companion token.
 // In that case chat cannot call the worker yet, so the chat handler shows a
-// Play specific message instead of the website welcome email message.
+// Play specific message instead of the website welcome page message.
 function playChatBlocked() {
   return !getAuthToken() && isPlayEntitled();
 }
@@ -4698,8 +4707,27 @@ function maybeReadAloud() {
   }
 }
 
+/* v000: the Companion chat shows a not-connected state before the
+   user types, when no code has been entered. The demo keeps its
+   sample replies working, so the input stays enabled here; the banner
+   states the companion is not connected and links to Settings and to
+   the welcome page. Play subscribers without a token see the
+   Play-specific text. */
+function renderChatGate() {
+  const banner = document.getElementById("chat-not-connected");
+  if (!banner) return;
+  const connected = !!getAuthToken();
+  banner.classList.toggle("hidden", connected);
+  const playMsg = document.getElementById("chat-not-connected-play");
+  const webMsg = document.getElementById("chat-not-connected-web");
+  const playBlocked = !connected && isPlayEntitled();
+  if (playMsg) playMsg.classList.toggle("hidden", !playBlocked);
+  if (webMsg) webMsg.classList.toggle("hidden", playBlocked);
+}
+
 function renderChat() {
   renderMorningCheckin();
+  renderChatGate();
   // v000: the chat header shows the Companion's chosen name and avatar.
   const title = document.getElementById("chat-title");
   if (title) title.textContent = "Your " + companionDisplayName();
@@ -4813,7 +4841,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   renderChat();
 
   // Play subscribers without a companion token cannot call the worker yet.
-  // Show a Play specific message instead of the website welcome email message.
+  // Show a Play specific message instead of the website welcome page message.
   if (playChatBlocked()) {
     chatHistory.push({
       role: "assistant",
@@ -4851,7 +4879,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
     if (res.status === 401) {
       // Missing or invalid token. Play users get Play guidance, website
-      // users get the welcome email guidance.
+      // users get the welcome page guidance.
       const playService = await getPlayService();
       if (playService) {
         chatHistory.push({
@@ -4861,7 +4889,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
       } else {
         chatHistory.push({
           role: "assistant",
-          content: "Your AI Wellness Companion needs your personal app link to work. Please open the link from your welcome email.",
+          content: "Your AI Wellness Companion is not connected yet. Get your code from the welcome page with your purchase email, then enter it in Settings.",
         });
       }
     } else if (data.reply) {
