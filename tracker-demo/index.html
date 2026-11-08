@@ -702,7 +702,11 @@
           <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
           Read Companion replies aloud
         </label>
-        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud.</p>
+        <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
+        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
+          <option value="">Phone default voice</option>
+        </select>
+        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud. Pick a voice above, or add more voices in your phone's Settings, Accessibility, Spoken Content, Voices.</p>
       </div>
 
       <div class="card">
@@ -950,7 +954,7 @@
 </div>
 
 <script src="demo-seed.js"></script>
-<script src="app.js?v=000"></script>
+<script src="app.js?v=001"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

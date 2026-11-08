@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=000">
+<link rel="stylesheet" href="styles.css?v=001">
 </head>
 <body>
 
@@ -713,7 +713,11 @@
           <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
           Read Companion replies aloud
         </label>
-        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud.</p>
+        <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
+        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
+          <option value="">Phone default voice</option>
+        </select>
+        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud. Pick a voice above, or add more voices in your phone's Settings, Accessibility, Spoken Content, Voices.</p>
       </div>
 
       <div class="card">
@@ -959,7 +963,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="app.js?v=000"></script>
+<script src="app.js?v=001"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

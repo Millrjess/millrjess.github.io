@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v000";
+const APP_VERSION = "v001";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -68,7 +68,8 @@ const DEFAULTS = {
     companionAvatar: "gold", // v000: gold | sage | deep-gold | sage-tile
     theme: "sage", // v000: sage | dark | cream
     textSize: "normal", // v000: normal | large
-    readAloud: false // v000: read Companion replies aloud with the phone's own voice
+    readAloud: false, // v000: read Companion replies aloud with the phone's own voice
+    companionVoice: "" // v001: the chosen speech voice name; blank means the phone default
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
@@ -234,6 +235,7 @@ function validateStore(parsed, strict) {
     const ts = out.settings.textSize;
     out.settings.textSize = ["normal", "large"].includes(ts) ? ts : "normal";
     out.settings.readAloud = out.settings.readAloud === true;
+    out.settings.companionVoice = typeof out.settings.companionVoice === "string" ? out.settings.companionVoice.slice(0, 200) : "";
   }
   if (parsed.moods !== undefined && (typeof parsed.moods !== "object" || Array.isArray(parsed.moods))) {
     lastValidateDropped.push("moods");
@@ -3319,6 +3321,7 @@ function renderSettings() {
   if (sizeRadio) sizeRadio.checked = true;
   const readAloudBox = document.getElementById("set-read-aloud");
   if (readAloudBox) readAloudBox.checked = s.readAloud === true;
+  populateVoicePicker();
   renderRefillCountdown();
 }
 
@@ -3379,6 +3382,14 @@ function renderRefillCountdown() {
     if (!store.settings.readAloud) stopSpeaking();
     saveStore();
   });
+  const voiceSel = document.getElementById("set-companion-voice");
+  if (voiceSel) voiceSel.addEventListener("change", () => {
+    store.settings.companionVoice = voiceSel.value || "";
+    saveStore();
+  });
+  if ("speechSynthesis" in window) {
+    try { window.speechSynthesis.addEventListener("voiceschanged", populateVoicePicker); } catch {}
+  }
 })();
 
 /* v169: a blank or invalid macro target leaves the existing target
@@ -3451,6 +3462,8 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   if (sizeChecked && ["normal", "large"].includes(sizeChecked.value)) store.settings.textSize = sizeChecked.value;
   const readAloudChecked = document.getElementById("set-read-aloud");
   store.settings.readAloud = readAloudChecked ? readAloudChecked.checked === true : false;
+  const voiceSelSave = document.getElementById("set-companion-voice");
+  if (voiceSelSave) store.settings.companionVoice = voiceSelSave.value || "";
   applyAppearance();
   saveStore();
   renderSettings();
@@ -4681,6 +4694,8 @@ function speakCompanion(text) {
   try {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(clean);
+    const voice = selectedVoice();
+    if (voice) u.voice = voice;
     currentUtterance = u;
     u.onend = () => { if (currentUtterance === u) currentUtterance = null; };
     u.onerror = () => { if (currentUtterance === u) currentUtterance = null; };
@@ -4692,6 +4707,40 @@ function stopSpeaking() {
   if (!("speechSynthesis" in window)) return;
   try { window.speechSynthesis.cancel(); } catch {}
   currentUtterance = null;
+}
+
+/* v001: Companion voice picker. Lists the phone's built-in speech
+   voices (speechSynthesis), on-device and free. The chosen voice name
+   is stored in settings; blank means the phone default. Voices load
+   asynchronously, so the picker refills on voiceschanged. */
+function availableVoices() {
+  if (!("speechSynthesis" in window)) return [];
+  try { return window.speechSynthesis.getVoices() || []; } catch { return []; }
+}
+function selectedVoice() {
+  const name = store.settings.companionVoice || "";
+  if (!name) return null;
+  const voices = availableVoices();
+  return voices.find((v) => v.name === name) || null;
+}
+function populateVoicePicker() {
+  const sel = document.getElementById("set-companion-voice");
+  if (!sel) return;
+  const voices = availableVoices();
+  const current = store.settings.companionVoice || "";
+  sel.innerHTML = "";
+  const def = document.createElement("option");
+  def.value = "";
+  def.textContent = "Phone default voice";
+  sel.appendChild(def);
+  voices.forEach((v) => {
+    const o = document.createElement("option");
+    o.value = v.name;
+    o.textContent = v.name + (v.lang ? " (" + v.lang + ")" : "");
+    sel.appendChild(o);
+  });
+  sel.value = voices.some((v) => v.name === current) ? current : "";
+  if (sel.value !== current) store.settings.companionVoice = "";
 }
 function isSpeaking() { return currentUtterance !== null; }
 let lastSpokenReply = "";
