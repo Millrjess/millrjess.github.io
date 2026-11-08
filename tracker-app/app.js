@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v009";
+const APP_VERSION = "v010";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -2146,7 +2146,73 @@ document.getElementById("scan-log-btn").addEventListener("click", () => {
   document.getElementById("scan-barcode-input").value = "";
 });
 
-/* ---------- Voice food logging ---------- */
+/* ---------- Plate recognition ---------- */
+/* Take a photo of your plate and the app identifies the food and fills
+   in the macros. Recognition runs through the Cloudflare Worker with a
+   vision model, which is post-November 30 work. Until the Worker
+   supports it, recognizePlate shows that it is coming soon and the
+   user enters the food and macros by hand. The photo is shown for
+   reference and is not stored on the entry yet. */
+let platePhotoDataUrl = "";
+function openPlateModal() {
+  const m = document.getElementById("plate-modal");
+  if (!m) return;
+  m.classList.remove("hidden");
+  m.style.display = "flex";
+  document.getElementById("plate-status").textContent = "";
+  document.getElementById("plate-result").classList.add("hidden");
+}
+function closePlateModal() {
+  const m = document.getElementById("plate-modal");
+  if (m) { m.classList.add("hidden"); m.style.display = "none"; }
+  document.getElementById("plate-photo-preview").classList.add("hidden");
+  document.getElementById("plate-photo-preview").src = "";
+  platePhotoDataUrl = "";
+}
+async function recognizePlate(dataUrl) {
+  const status = document.getElementById("plate-status");
+  status.textContent = "Plate recognition is coming soon. For now, name the food and enter the macros below.";
+  document.getElementById("plate-result").classList.remove("hidden");
+  // Post-November 30: send dataUrl to the Worker vision endpoint and
+  // fill plate-food, plate-protein, plate-carbs, plate-fat from the
+  // reply, then update the status. The Worker call belongs here.
+}
+document.getElementById("macro-plate-food").addEventListener("click", openPlateModal);
+document.getElementById("plate-close-btn").addEventListener("click", closePlateModal);
+document.getElementById("plate-take-btn").addEventListener("click", () => document.getElementById("plate-photo-input").click());
+document.getElementById("plate-photo-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    platePhotoDataUrl = String(reader.result || "");
+    const img = document.getElementById("plate-photo-preview");
+    img.src = platePhotoDataUrl;
+    img.classList.remove("hidden");
+    recognizePlate(platePhotoDataUrl);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+});
+document.getElementById("plate-log-btn").addEventListener("click", () => {
+  const food = document.getElementById("plate-food").value.trim() || "Food from plate";
+  const grams = Math.max(0, Math.round(Number(document.getElementById("plate-protein").value) || 0));
+  const carbs = Math.max(0, Math.round(Number(document.getElementById("plate-carbs").value) || 0));
+  const fat = Math.max(0, Math.round(Number(document.getElementById("plate-fat").value) || 0));
+  if (!grams && !carbs && !fat) {
+    document.getElementById("plate-status").textContent = "Add at least one macro above zero first.";
+    return;
+  }
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  saveStore();
+  renderToday();
+  closePlateModal();
+  document.getElementById("plate-result").classList.add("hidden");
+  document.getElementById("plate-food").value = "";
+  document.getElementById("plate-protein").value = "";
+  document.getElementById("plate-carbs").value = "";
+  document.getElementById("plate-fat").value = "";
+});
 /* Speak a food name with the phone's built-in speech recognition; the
    words fill the name field as you speak, and when you stop, the food
    search runs automatically so the macros fill in from the label.

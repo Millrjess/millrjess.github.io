@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=009">
+<link rel="stylesheet" href="styles.css?v=010">
 </head>
 <body>
 
@@ -241,6 +241,7 @@
       <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
+      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate</button>
 
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
@@ -1215,7 +1216,29 @@
     </div>
   </div>
 
-<script src="app.js?v=009"></script>
+  <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
+      <h2 style="margin-top:0">Scan my plate</h2>
+      <p class="muted">Take a photo of your plate. The app will identify the food and fill in the macros.</p>
+      <img id="plate-photo-preview" src="" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
+      <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
+      <p id="plate-status" class="muted" role="status"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+        <button type="button" class="btn btn-primary" id="plate-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small" id="plate-close-btn">Close</button>
+      </div>
+      <div id="plate-result" class="hidden" style="border-top:1px solid #ddd;padding-top:12px">
+        <label>Food name <input type="text" id="plate-food" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Protein (g) <input type="number" id="plate-protein" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Carbs (g) <input type="number" id="plate-carbs" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Fat (g) <input type="number" id="plate-fat" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <p class="muted">Check the label and edit these grams before logging. Calories are calculated from these macros, and your daily total updates as soon as you log.</p>
+        <button type="button" class="btn btn-primary btn-block" id="plate-log-btn">Log this food</button>
+      </div>
+    </div>
+  </div>
+
+<script src="app.js?v=010"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
