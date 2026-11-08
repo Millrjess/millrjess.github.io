@@ -56,12 +56,19 @@ const DEFAULTS = {
     movementGoal: 30,
     carbGoal: 150, // v168: own carbs target for the Your Macros card
     fatGoal: 60, // v168: own fat target for the Your Macros card
+    calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
     movementPlan: null, // v168: null means the 5-minute default routine; otherwise [{ name, detail }]
+    customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
     goalWeight: "",
-    startingWeight: null // { value, date } frozen from the first weigh-in (K3); null until the first weigh-in
+    startingWeight: null, // { value, date } frozen from the first weigh-in (K3); null until the first weigh-in
+    companionName: "", // v000: the Companion's chosen name; blank means the default "AI Wellness Companion"
+    companionAvatar: "gold", // v000: gold | sage | deep-gold | sage-tile
+    theme: "sage", // v000: sage | dark | cream
+    textSize: "normal", // v000: normal | large
+    readAloud: false // v000: read Companion replies aloud with the phone's own voice
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
@@ -75,6 +82,37 @@ const DEFAULTS = {
   moods: {},        // { "YYYY-MM-DD": "Good" }
   movementDone: {}  // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
 };
+
+/* v000: the Companion's chosen name and avatar. The variants are
+   CSS tints of the existing gold lotus asset (exact-hex tinted PNGs
+   were blocked by a file-write failure on this machine); the map
+   centralizes them, so exact PNGs can drop in later by adding a src
+   per variant. The default avatar is the gold lotus, unchanged.
+   Defined up here (not in the chat section) because the Settings
+   controls below reference it when the script first runs. */
+const COMPANION_AVATARS = {
+  "gold": { label: "Gold lotus", filter: "", tile: false },
+  "sage": { label: "Sage lotus", filter: "avatar-sage", tile: false },
+  "deep-gold": { label: "Deep gold lotus", filter: "avatar-deep-gold", tile: false },
+  "sage-tile": { label: "Gold lotus on sage", filter: "", tile: true }
+};
+const COMPANION_DEFAULT_NAME = "AI Wellness Companion";
+function companionDisplayName() {
+  const n = (store.settings.companionName || "").trim();
+  return n ? n : COMPANION_DEFAULT_NAME;
+}
+function companionAvatarImg(className) {
+  const key = COMPANION_AVATARS[store.settings.companionAvatar] ? store.settings.companionAvatar : "gold";
+  const v = COMPANION_AVATARS[key];
+  const img = document.createElement("img");
+  img.className = className || "chat-lotus";
+  img.src = "icons/lotus-gold-only-transparent.png";
+  img.alt = "";
+  img.setAttribute("aria-hidden", "true");
+  if (v.filter) img.classList.add(v.filter);
+  if (v.tile) img.classList.add("avatar-tile");
+  return img;
+}
 
 /* Collections that must be arrays, and the settings keys with their defaults.
    Used to validate anything loaded from storage or from a file. */
@@ -125,6 +163,13 @@ function validateStore(parsed, strict) {
       const n = Number(out.settings[g]);
       out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
     }
+    // v169: the calorie target is optional; blank stays blank (no
+    // default), and a bad value is dropped, not coerced, so snapshot
+    // dedup after a restore does not break. (Number("") is 0, so the
+    // raw value must be checked first, same as the height fix.)
+    const ctRaw = out.settings.calorieTarget;
+    out.settings.calorieTarget = (ctRaw === "" || ctRaw === undefined || ctRaw === null) ? ""
+      : (Number.isFinite(Number(ctRaw)) && Number(ctRaw) > 0 ? Math.round(Number(ctRaw)) : "");
     // v168: height in feet and inches, for BMI on the Weight tab. Blank
     // stays blank; anything out of range is dropped. (Number("") is 0,
     // so the raw value must be checked first, or a blank height turns
@@ -148,6 +193,23 @@ function validateStore(parsed, strict) {
     } else {
       out.settings.movementPlan = null;
     }
+    // v169: the user's own exercises. Kept as [{ name, pattern, detail }]
+    // only; anything else is dropped. A bad pattern falls back to Other.
+    const ce = out.settings.customExercises;
+    if (ce === null || ce === undefined) {
+      out.settings.customExercises = [];
+    } else if (Array.isArray(ce)) {
+      const patterns = ["Squat", "Hinge", "Push", "Pull", "Carry", "Core", "Other"];
+      out.settings.customExercises = ce.filter((m) => m && typeof m === "object" && typeof m.name === "string" && m.name.trim() !== "")
+        .slice(0, 50)
+        .map((m) => ({
+          name: String(m.name).trim().slice(0, 80),
+          pattern: patterns.includes(m.pattern) ? m.pattern : "Other",
+          detail: typeof m.detail === "string" ? m.detail.trim().slice(0, 40) : ""
+        }));
+    } else {
+      out.settings.customExercises = [];
+    }
     // Frozen starting weight (K3): null, or { value, date } with a positive
     // number and a YYYY-MM-DD date. Anything else is dropped to null.
     const sw = out.settings.startingWeight;
@@ -160,6 +222,18 @@ function validateStore(parsed, strict) {
     } else {
       out.settings.startingWeight = null;
     }
+    // v000: the Companion's chosen name and avatar, the Appearance
+    // theme and text size, and the read-aloud setting. All private, all
+    // on this device. A bad value falls back to the default.
+    const cn = out.settings.companionName;
+    out.settings.companionName = typeof cn === "string" ? cn.trim().slice(0, 60) : "";
+    const ca = out.settings.companionAvatar;
+    out.settings.companionAvatar = ["gold", "sage", "deep-gold", "sage-tile"].includes(ca) ? ca : "gold";
+    const th = out.settings.theme;
+    out.settings.theme = ["sage", "dark", "cream"].includes(th) ? th : "sage";
+    const ts = out.settings.textSize;
+    out.settings.textSize = ["normal", "large"].includes(ts) ? ts : "normal";
+    out.settings.readAloud = out.settings.readAloud === true;
   }
   if (parsed.moods !== undefined && (typeof parsed.moods !== "object" || Array.isArray(parsed.moods))) {
     lastValidateDropped.push("moods");
@@ -602,7 +676,7 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 /* Panels that live under the More button: when one of them is showing,
    More is the active tab. */
-const MORE_TABS = ["side-effects", "chat", "settings"];
+const MORE_TABS = ["side-effects", "settings"];
 
 function showTab(name) {
   if (name === "more") { openMoreSheet(); return; }
@@ -646,9 +720,10 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
 });
 
-/* More sheet (v168): Effects, AI Wellness Companion and Settings live
-   here. Opens from the More tab; picking one shows its panel and closes
-   the sheet. Escape or the backdrop closes it without changing tabs. */
+/* More sheet (v168, Companion moved to the main nav in v169): Effects
+   and Settings live here. Opens from the More tab; picking one shows
+   its panel and closes the sheet. Escape or the backdrop closes it
+   without changing tabs. */
 let moreSheetOpener = null;
 function openMoreSheet() {
   const sheet = document.getElementById("more-sheet");
@@ -693,6 +768,8 @@ document.addEventListener("keydown", (e) => {
     if (planModal && !planModal.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
     const doctorModal = document.getElementById("doctor-modal");
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
+    const addAmountModal = document.getElementById("add-amount-modal");
+    if (addAmountModal && !addAmountModal.classList.contains("hidden")) { e.preventDefault(); closeAddAmount(); return; }
   }
 });
 
@@ -880,6 +957,12 @@ function setRing(key, value, goal) {
     // Gold glow when the day's goal is met (v165).
     ring.classList.toggle("goal-reached", goal > 0 && value >= goal);
   }
+  // v169: the number inside the ring is a button that opens the type-in
+  // sheet, so its label carries the current total too.
+  const numBtn = document.getElementById(key === "water" ? "water-num-btn" : "exercise-num-btn");
+  if (numBtn) {
+    numBtn.setAttribute("aria-label", (key === "water" ? "Water" : "Movement") + ", " + value + " of " + goal + " " + ids[2] + ". Tap to type an amount to add.");
+  }
   setRingFill(ids[1], value, goal);
 }
 
@@ -1045,6 +1128,9 @@ function bindRing(ringId, key, field, extra) {
     ring.setAttribute("aria-valuetext", liveTotal + " of " + goal + " " + unitWord);
   }
   ring.addEventListener("pointerdown", (e) => {
+    // v169: a press that starts on the number button is a tap to open
+    // the type-in sheet, not a drag. Let the button have it.
+    if (e.target.closest(".ring-num-btn")) return;
     dragging = true;
     startX = e.clientX;
     startTotal = sumForDate(store[key], viewedDateStr(), field);
@@ -1079,6 +1165,8 @@ function bindRing(ringId, key, field, extra) {
     renderToday();
   });
   ring.addEventListener("keydown", (e) => {
+    // v169: arrow keys on the number button must not nudge the ring.
+    if (e.target.closest(".ring-num-btn")) return;
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
     if (e.key === "ArrowRight") {
@@ -1092,6 +1180,84 @@ function bindRing(ringId, key, field, extra) {
 }
 bindRing("water-ring", "water", "oz", {});
 bindRing("exercise-ring", "exercise", "minutes", { label: "Movement" });
+
+/* ---------- Type an amount to add (v169) ---------- */
+/* The big number inside each ring is a button. Tapping it opens a small
+   sheet where the person types a number (a 16 oz bottle is 16, not two
+   taps of +8 oz). The amount goes through nudgeGoal, the same helper
+   the +8 oz / +5 min buttons, the nudge buttons and the ring drag use,
+   so the store, snapshots, and the 3-per-day backup cap behave exactly
+   as before. Whole numbers only; Add stays disabled until one is typed. */
+const ADD_AMOUNT_CFG = {
+  water: { field: "oz", extra: {}, unit: "oz", unitWord: "ounces", title: "Add water", btnId: "water-num-btn" },
+  exercise: { field: "minutes", extra: { label: "Movement" }, unit: "min", unitWord: "minutes", title: "Add movement", btnId: "exercise-num-btn" }
+};
+let addAmountCtx = null; // { key, field, extra, unit, unitWord, startTotal, opener }
+
+function addAmountTyped() {
+  const input = document.getElementById("add-amount-input");
+  if (!input) return 0;
+  const raw = input.value.trim();
+  if (!/^\d+$/.test(raw)) return 0;
+  return parseInt(raw, 10);
+}
+function refreshAddAmountPreview() {
+  if (!addAmountCtx) return;
+  const n = addAmountTyped();
+  const addBtn = document.getElementById("add-amount-add");
+  const preview = document.getElementById("add-amount-preview");
+  if (addBtn) addBtn.disabled = n <= 0;
+  if (preview) {
+    preview.textContent = n > 0
+      ? "After adding: " + (addAmountCtx.startTotal + n) + " " + addAmountCtx.unit
+      : "Type a whole number to add.";
+  }
+}
+function openAddAmount(key) {
+  const cfg = ADD_AMOUNT_CFG[key];
+  const modal = document.getElementById("add-amount-modal");
+  const input = document.getElementById("add-amount-input");
+  if (!cfg || !modal || !input) return;
+  const startTotal = sumForDate(store[key], viewedDateStr(), cfg.field);
+  addAmountCtx = {
+    key, field: cfg.field, extra: cfg.extra, unit: cfg.unit, unitWord: cfg.unitWord,
+    startTotal, opener: document.getElementById(cfg.btnId)
+  };
+  document.getElementById("add-amount-title").textContent = cfg.title;
+  document.getElementById("add-amount-now").textContent = "Now: " + startTotal + " " + cfg.unit;
+  input.value = "";
+  refreshAddAmountPreview();
+  modal.classList.remove("hidden");
+  input.focus();
+}
+function closeAddAmount() {
+  const modal = document.getElementById("add-amount-modal");
+  if (modal) modal.classList.add("hidden");
+  if (addAmountCtx && addAmountCtx.opener && document.contains(addAmountCtx.opener)) addAmountCtx.opener.focus();
+  addAmountCtx = null;
+}
+document.getElementById("water-num-btn").addEventListener("click", () => openAddAmount("water"));
+document.getElementById("exercise-num-btn").addEventListener("click", () => openAddAmount("exercise"));
+document.getElementById("add-amount-input").addEventListener("input", refreshAddAmountPreview);
+document.getElementById("add-amount-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const addBtn = document.getElementById("add-amount-add");
+    if (addBtn && !addBtn.disabled) addBtn.click();
+  }
+});
+document.getElementById("add-amount-add").addEventListener("click", () => {
+  if (!addAmountCtx) return;
+  const n = addAmountTyped();
+  if (n <= 0) return;
+  const ctx = addAmountCtx;
+  closeAddAmount();
+  nudgeGoal(ctx.key, ctx.field, ctx.extra, n);
+});
+document.getElementById("add-amount-cancel").addEventListener("click", closeAddAmount);
+document.getElementById("add-amount-modal").addEventListener("click", (e) => {
+  if (e.target.id === "add-amount-modal") closeAddAmount();
+});
 
 /* ---------- Your Macros (v168) ---------- */
 /* Protein, carbs and fat on the front page, against the user's own
@@ -1123,18 +1289,18 @@ function macroCalories(t) {
   return Math.round(t.protein * 4 + t.carbs * 4 + t.fat * 9);
 }
 
-function selectMacro(key) {
-  if (!MACRO_KEYS.includes(key)) return;
-  selectedMacro = key;
-  renderMacros();
+/* Calories line (v169): when a daily calorie target is set, the line
+   reads "About 212 of 1,400 calories ...". With no target, the plain
+   line stays exactly as before. */
+function caloriesLine(totals) {
+  const target = Number(store.settings.calorieTarget) || 0;
+  const cals = macroCalories(totals).toLocaleString("en-US");
+  return "About " + cals + (target > 0 ? " of " + target.toLocaleString("en-US") : "") + " calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).";
 }
 
-function renderMacros() {
-  const card = document.getElementById("macros-card");
-  if (!card) return;
-  const t = viewedDateStr();
-  const totals = macroTotals(t);
-  const targets = macroTargets();
+/* Donut segments, from a totals object. Shared by renderMacros and the
+   v169 row slide, so the donut stays live while sliding. */
+function paintDonut(totals) {
   const total = totals.protein + totals.carbs + totals.fat;
   let offset = 0;
   MACRO_KEYS.forEach((key) => {
@@ -1148,6 +1314,22 @@ function renderMacros() {
     seg.style.opacity = selectedMacro === key ? "1" : "0.45";
     offset += frac * DONUT_C;
   });
+}
+
+function selectMacro(key) {
+  if (!MACRO_KEYS.includes(key)) return;
+  selectedMacro = key;
+  renderMacros();
+}
+
+function renderMacros() {
+  const card = document.getElementById("macros-card");
+  if (!card) return;
+  const t = viewedDateStr();
+  const totals = macroTotals(t);
+  const targets = macroTargets();
+  const total = totals.protein + totals.carbs + totals.fat;
+  paintDonut(totals);
   document.getElementById("macro-center-grams").textContent = totals[selectedMacro];
   document.getElementById("macro-center-label").textContent = selectedMacro + " logged today";
   MACRO_KEYS.forEach((key) => {
@@ -1160,23 +1342,32 @@ function renderMacros() {
     if (pctEl) pctEl.textContent = pct + "% of your target";
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
+    // v169: the bar is a slider, so its value and max stay current.
+    const barWrap = document.getElementById("macro-bar-" + key);
+    if (barWrap) {
+      barWrap.setAttribute("aria-valuenow", totals[key]);
+      barWrap.setAttribute("aria-valuemax", targets[key]);
+    }
     const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
     if (row) row.classList.toggle("selected", selectedMacro === key);
   });
   const calEl = document.getElementById("macro-calories");
   if (calEl) {
-    calEl.textContent = total > 0
-      ? "About " + macroCalories(totals).toLocaleString("en-US") + " calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g)."
-      : "No macros logged yet today.";
+    calEl.textContent = total > 0 ? caloriesLine(totals) : "No macros logged yet today.";
   }
   const svg = card.querySelector(".donut-wrap svg");
   if (svg) svg.setAttribute("aria-label", "Donut chart of today's macros. Protein " + totals.protein + " grams in gold, carbs " + totals.carbs + " grams in sage, fat " + totals.fat + " grams in cream tan.");
 }
 
+/* A slide on a macro bar must not also select the macro on release
+   (v169). Set when a slide actually moved the total. */
+let suppressMacroRowClick = false;
 document.querySelectorAll(".macro-row").forEach((row) => {
   row.addEventListener("click", (e) => {
     // The log steppers inside the row must not select the macro.
     if (e.target.closest(".macro-log-btn")) return;
+    // A slide on the bar must not also select the macro on release.
+    if (suppressMacroRowClick) { suppressMacroRowClick = false; return; }
     selectMacro(row.dataset.macro);
   });
   row.addEventListener("keydown", (e) => {
@@ -1196,31 +1387,114 @@ document.querySelectorAll(".macro-log-btn").forEach((btn) => {
 /* Log steppers on each macro row: change the day's logged grams by
    exactly 1, like the ring nudge buttons. Carbs and fat attach to the
    day's most recent food entry, or a fresh Quick add entry when the day
-   has none yet, so one tap never spams the log with tiny entries. */
-function adjustMacro(key, delta) {
+   has none yet, so one tap never spams the log with tiny entries.
+   adjustMacroBy is the same helper with a magnitude, used by the v169
+   row slide: a drag of N grams is one entry of N, or one trim of N. */
+function adjustMacroBy(key, delta) {
+  if (!delta) return;
   const date = viewedDateStr();
   if (key === "protein") {
     if (delta > 0) {
-      store.protein.push({ id: uid(), date, grams: 1, food: "Quick add" });
+      store.protein.push({ id: uid(), date, grams: delta, food: "Quick add" });
     } else {
-      trimDayEntries("protein", "grams", date, 1);
+      trimDayEntries("protein", "grams", date, -delta);
     }
   } else if (delta > 0) {
     const todays = store.protein.filter((e) => e.date === date);
     if (todays.length) {
       const last = todays[todays.length - 1];
-      last[key] = (Number(last[key]) || 0) + 1;
+      last[key] = (Number(last[key]) || 0) + delta;
     } else {
       const entry = { id: uid(), date, grams: 0, food: "Quick add" };
-      entry[key] = 1;
+      entry[key] = delta;
       store.protein.push(entry);
     }
   } else {
-    trimDayEntries("protein", key, date, 1);
+    trimDayEntries("protein", key, date, -delta);
   }
   saveStore();
   renderToday();
 }
+function adjustMacro(key, delta) {
+  adjustMacroBy(key, delta);
+}
+
+/* Slide a macro row (v169): horizontal slide on the row's progress bar
+   changes that macro's logged grams, 1 g per 8px, the same step as the
+   rings. The donut itself does not slide; tapping a row still selects
+   the macro. The row updates live while sliding; the store is written
+   once, on release, through adjustMacroBy, so entries, snapshots, and
+   the backup cap behave exactly as for a stepper tap. Clamped at zero. */
+function bindMacroSlide(key) {
+  const bar = document.getElementById("macro-bar-" + key);
+  if (!bar) return;
+  let sliding = false;
+  let startX = 0;
+  let startTotal = 0;
+  let liveTotal = 0;
+  let moved = false;
+  function paintLive() {
+    const totals = macroTotals(viewedDateStr());
+    totals[key] = liveTotal;
+    const targets = macroTargets();
+    const loggedEl = document.getElementById("logged-" + key);
+    if (loggedEl) loggedEl.textContent = liveTotal;
+    const pct = targets[key] > 0 ? Math.round(100 * liveTotal / targets[key]) : 0;
+    const pctEl = document.getElementById("pct-" + key);
+    if (pctEl) pctEl.textContent = pct + "% of your target";
+    const barEl = document.getElementById("bar-" + key);
+    if (barEl) barEl.style.width = Math.min(100, pct) + "%";
+    bar.setAttribute("aria-valuenow", liveTotal);
+    paintDonut(totals);
+    if (selectedMacro === key) {
+      document.getElementById("macro-center-grams").textContent = liveTotal;
+    }
+    const calEl = document.getElementById("macro-calories");
+    if (calEl) {
+      const total = totals.protein + totals.carbs + totals.fat;
+      calEl.textContent = total > 0 ? caloriesLine(totals) : "No macros logged yet today.";
+    }
+  }
+  bar.addEventListener("pointerdown", (e) => {
+    sliding = true;
+    moved = false;
+    startX = e.clientX;
+    startTotal = macroTotals(viewedDateStr())[key];
+    liveTotal = startTotal;
+    try { bar.setPointerCapture(e.pointerId); } catch {}
+    e.preventDefault();
+  });
+  bar.addEventListener("pointermove", (e) => {
+    if (!sliding) return;
+    const next = Math.max(0, startTotal + Math.round((e.clientX - startX) / 8));
+    if (next !== liveTotal) moved = true;
+    liveTotal = next;
+    paintLive();
+  });
+  function endSlide() {
+    if (!sliding) return;
+    sliding = false;
+    const delta = liveTotal - startTotal;
+    if (delta !== 0) {
+      if (moved) suppressMacroRowClick = true;
+      adjustMacroBy(key, delta);
+    } else {
+      renderToday();
+    }
+  }
+  bar.addEventListener("pointerup", endSlide);
+  bar.addEventListener("pointercancel", () => {
+    sliding = false;
+    renderToday();
+  });
+  bar.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    e.stopPropagation();
+    adjustMacroBy(key, e.key === "ArrowRight" ? 1 : -1);
+  });
+}
+MACRO_KEYS.forEach(bindMacroSlide);
 
 document.getElementById("macro-log-food").addEventListener("click", () => {
   const form = document.getElementById("macro-food-form");
@@ -1261,7 +1535,7 @@ const DEFAULT_MOVES = [
 ];
 /* The picker list: bodyweight, popular weights, and resistance bands,
    across the six movement patterns (squat, hinge, push, pull, carry,
-   core). Research-backed picks for women over 50; defaults first. */
+   core). Research-backed picks for adults over 50; defaults first. */
 const EXERCISE_LIBRARY = [
   { name: "Sit-to-stands", detail: "10 reps", pattern: "Squat" },
   { name: "Wall push-ups", detail: "10 reps", pattern: "Push" },
@@ -1364,22 +1638,40 @@ function toggleMove(name) {
   renderToday();
 }
 
+/* One row in the movement plan picker: checkbox, name and pattern,
+   reps/time input. Custom exercises (v169) also get a remove button. */
+function movementPlanRowHtml(item, checked, detail, isCustom) {
+  return `<label class="plan-row"${isCustom ? ` data-custom="true" data-pattern="${escapeHtml(item.pattern || "Other")}"` : ""}>
+      <input type="checkbox" data-plan-name="${escapeHtml(item.name)}"${checked ? " checked" : ""}>
+      <span class="plan-name">${escapeHtml(item.name)}<span class="plan-pattern">${escapeHtml(item.pattern || "")}</span></span>
+      <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(item.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps or time for ${escapeHtml(item.name)}">
+      ${isCustom ? `<button type="button" class="plan-remove" data-remove-custom="${escapeHtml(item.name)}" aria-label="Remove ${escapeHtml(item.name)} from your exercises">×</button>` : ""}
+    </label>`;
+}
+
 function openMovementPlanEditor() {
   const modal = document.getElementById("movement-plan-modal");
   const list = document.getElementById("movement-plan-list");
   const plan = getMovementPlan();
   const inPlan = {};
   plan.forEach((m) => { inPlan[m.name] = m.detail || ""; });
+  const customs = Array.isArray(store.settings.customExercises) ? store.settings.customExercises : [];
   list.innerHTML = EXERCISE_LIBRARY.map((ex) => {
     const checked = ex.name in inPlan;
     const detail = checked ? inPlan[ex.name] : ex.detail;
-    return `<label class="plan-row">
-      <input type="checkbox" data-plan-name="${escapeHtml(ex.name)}"${checked ? " checked" : ""}>
-      <span class="plan-name">${escapeHtml(ex.name)}<span class="plan-pattern">${escapeHtml(ex.pattern)}</span></span>
-      <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(ex.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps or time for ${escapeHtml(ex.name)}">
-    </label>`;
+    return movementPlanRowHtml(ex, checked, detail, false);
+  }).join("") + customs.map((ex) => {
+    const checked = ex.name in inPlan;
+    const detail = checked ? inPlan[ex.name] : ex.detail;
+    return movementPlanRowHtml(ex, checked, detail, true);
   }).join("");
   document.getElementById("movement-plan-msg").textContent = "";
+  const customMsg = document.getElementById("custom-ex-msg");
+  if (customMsg) { customMsg.textContent = ""; customMsg.classList.remove("error"); }
+  const nameInput = document.getElementById("custom-ex-name");
+  if (nameInput) nameInput.value = "";
+  const detailInput = document.getElementById("custom-ex-detail");
+  if (detailInput) detailInput.value = "";
   modal.classList.remove("hidden");
   const first = modal.querySelector("input[type='checkbox']");
   if (first) first.focus();
@@ -1391,8 +1683,49 @@ function closeMovementPlanEditor() {
 }
 document.getElementById("movement-customize").addEventListener("click", openMovementPlanEditor);
 document.getElementById("movement-plan-cancel").addEventListener("click", closeMovementPlanEditor);
+// v169: the X closes the modal exactly like Cancel, Escape, and
+// backdrop tap do: it discards unsaved changes, and focus returns to
+// the Customize button.
+document.getElementById("movement-plan-x").addEventListener("click", closeMovementPlanEditor);
 document.getElementById("movement-plan-modal").addEventListener("click", (e) => {
   if (e.target.id === "movement-plan-modal") closeMovementPlanEditor();
+});
+// v169: removing a custom exercise from the picker. Staged like every
+// other change in this editor: Save rebuilds the saved list from the
+// rows still present, so Cancel brings a removed exercise back.
+document.getElementById("movement-plan-list").addEventListener("click", (e) => {
+  const rm = e.target.closest("[data-remove-custom]");
+  if (!rm) return;
+  const row = rm.closest(".plan-row");
+  if (row) row.remove();
+});
+/* Add your own exercise (v169): name, pattern, and reps/time, in the
+   same style as the existing rows. The new exercise joins the picker
+   checked, so Save plan puts it in the plan; it is saved with the plan
+   in settings and shows on the Today card like any other move. */
+document.getElementById("custom-ex-add").addEventListener("click", () => {
+  const nameInput = document.getElementById("custom-ex-name");
+  const patternSel = document.getElementById("custom-ex-pattern");
+  const detailInput = document.getElementById("custom-ex-detail");
+  const msg = document.getElementById("custom-ex-msg");
+  const name = nameInput.value.trim();
+  if (!name) { setFormStatus(msg, "Type an exercise name first.", true); nameInput.focus(); return; }
+  const list = document.getElementById("movement-plan-list");
+  let duplicate = false;
+  list.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+    if (cb.dataset.planName.toLowerCase() === name.toLowerCase()) duplicate = true;
+  });
+  if (duplicate) { setFormStatus(msg, "You already have an exercise with that name.", true); nameInput.focus(); return; }
+  const detail = detailInput.value.trim();
+  const pattern = patternSel.value;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = movementPlanRowHtml({ name, pattern, detail }, true, detail, true);
+  list.appendChild(tmp.firstElementChild);
+  list.scrollTop = list.scrollHeight;
+  nameInput.value = "";
+  detailInput.value = "";
+  if (msg) { msg.textContent = ""; msg.classList.remove("error"); }
+  nameInput.focus();
 });
 document.getElementById("movement-plan-reset").addEventListener("click", () => {
   store.settings.movementPlan = null;
@@ -1414,6 +1747,20 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
     setFormStatus(msg, "Pick at least one move for your plan.", true);
     return;
   }
+  // v169: the user's own exercises are saved with the plan, from the
+  // custom rows still in the picker. Removing a row drops it here.
+  const customs = [];
+  document.querySelectorAll("#movement-plan-list .plan-row[data-custom='true']").forEach((row) => {
+    const cb = row.querySelector("input[type='checkbox']");
+    const detailInput = row.querySelector("input.plan-detail");
+    if (!cb) return;
+    customs.push({
+      name: cb.dataset.planName,
+      pattern: row.dataset.pattern || "Other",
+      detail: (detailInput && detailInput.value.trim()) || ""
+    });
+  });
+  store.settings.customExercises = customs;
   store.settings.movementPlan = picked;
   // A new plan can un-complete today: take the bonus back if the new
   // plan is not fully done.
@@ -2135,12 +2482,38 @@ function renderBMI() {
   const line = document.getElementById("bmi-line");
   if (!line) return;
   const bmi = calcBMI();
+  const overLine = document.getElementById("bmi-over-line");
+  const healthyBlock = document.getElementById("bmi-healthy-block");
+  const healthyRange = document.getElementById("bmi-healthy-range");
   if (!bmi) {
     line.textContent = "Add your height in Settings to see your BMI here.";
+    if (overLine) overLine.textContent = "";
+    if (healthyBlock) healthyBlock.hidden = true;
     return;
   }
   line.textContent = "BMI " + bmi.value.toFixed(1) + " · " + bmiCategory(bmi.value)
     + " (" + bmi.weight.toFixed(1) + " lbs, " + Math.floor(bmi.heightIn / 12) + " ft " + (bmi.heightIn % 12) + " in)";
+  // v169: how far the current weight sits from the healthy range, and
+  // what the healthy range is for this height. Weight at a BMI is
+  // BMI × height² / 703. Healthy is BMI 18.5 to 24.9.
+  const h2 = bmi.heightIn * bmi.heightIn;
+  const lowLbs = 18.5 * h2 / 703;
+  const highLbs = 24.9 * h2 / 703;
+  if (overLine) {
+    if (bmi.value >= 25) {
+      overLine.textContent = "Overweight by " + (bmi.weight - highLbs).toFixed(1) + " lbs";
+    } else if (bmi.value < 18.5) {
+      overLine.textContent = "Underweight by " + (lowLbs - bmi.weight).toFixed(1) + " lbs";
+    } else {
+      overLine.textContent = "In the healthy range";
+    }
+  }
+  if (healthyBlock) {
+    healthyBlock.hidden = false;
+    if (healthyRange) {
+      healthyRange.textContent = "Healthy weight for " + Math.floor(bmi.heightIn / 12) + " ft " + (bmi.heightIn % 12) + " in: " + Math.round(lowLbs) + " to " + Math.round(highLbs) + " lbs (BMI 18.5 to 24.9).";
+    }
+  }
 }
 
 /* ---------- Doctor visit summary (v168) ---------- */
@@ -2739,6 +3112,8 @@ function renderJournal() {
     journalLimit += 10;
     renderJournal();
   });
+  // v169: the Side effects section below the entries stays in step.
+  renderJournalSe();
 }
 
 /* ---------- Side effects ---------- */
@@ -2790,22 +3165,14 @@ seForm.addEventListener("submit", (e) => {
 });
 
 let seLimit = 10; // entries shown; "show more" loads older ones in batches
+let journalSeLimit = 10; // same, for the Side effects section on the Journal tab
 
-function renderSideEffects() {
-  const list = document.getElementById("sideeffect-list");
-  const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
-  if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
-    return;
-  }
-  const visibleSe = sorted.slice(0, seLimit);
-  const remainingSe = sorted.length - visibleSe.length;
+/* One side effect entry in the gentle timeline, shared by the Effects
+   tab and the Side effects section on the Journal tab (v169). */
+function seItemHtml(s) {
   const badgeClass = { Mild: "badge-mild", Moderate: "badge-moderate", Severe: "badge-severe" };
   const sevClass = { Mild: "se-sev-mild", Moderate: "se-sev-moderate", Severe: "se-sev-severe" };
-  /* Gentle timeline (v166): a quiet vertical line with a severity-
-     colored dot per entry, newest first, so patterns over time are
-     easy to see. Edit and Delete stay on every entry. */
-  list.innerHTML = `<div class="se-timeline">` + visibleSe.map((s) => `
+  return `
     <div class="entry se-timeline-item ${sevClass[s.severity] || ""}">
       <p class="entry-title">${escapeHtml(s.symptom)}<span class="badge ${badgeClass[s.severity] || ""}">${escapeHtml(s.severity)}</span></p>
       <p class="entry-sub">${escapeHtml(formatDate(s.date))}</p>
@@ -2814,17 +3181,20 @@ function renderSideEffects() {
         <button class="btn btn-small" data-edit-se="${s.id}" aria-label="Edit side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Edit</button>
         <button class="btn btn-small btn-danger" data-del-se="${s.id}" aria-label="Delete side effect: ${escapeHtml(s.symptom)} on ${escapeHtml(formatDate(s.date))}">Delete</button>
       </div>
-    </div>`).join("") + `</div>`
-    + (remainingSe > 0
-      ? `<button class="btn" id="more-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
-      : "");
+    </div>`;
+}
 
-  list.querySelectorAll("[data-edit-se]").forEach((b) => b.addEventListener("click", () => {
+/* Edit and Delete for the side effect buttons inside one container.
+   Edit opens the form on the Effects tab, so it works from the Journal
+   tab too: the tab is shown first, then the form opens. */
+function bindSeButtons(container) {
+  container.querySelectorAll("[data-edit-se]").forEach((b) => b.addEventListener("click", () => {
     const s = store.sideEffects.find((x) => x.id === b.dataset.editSe);
     if (!s) {
       setFormStatus(document.getElementById("se-saved-msg"), "That entry could not be found. It may already have been removed.", true);
       return;
     }
+    showTab("side-effects");
     editingSeId = s.id;
     seForm.querySelector("h3").textContent = "Edit Side Effect";
     document.getElementById("se-date").value = s.date;
@@ -2834,19 +3204,64 @@ function renderSideEffects() {
     toggleForm(seForm, document.getElementById("show-sideeffect-form"), true);
     window.scrollTo(0, 0);
   }));
-
-  list.querySelectorAll("[data-del-se]").forEach((b) => b.addEventListener("click", () => {
+  container.querySelectorAll("[data-del-se]").forEach((b) => b.addEventListener("click", () => {
     if (!confirm("Delete this side effect entry?")) return;
     store.sideEffects = store.sideEffects.filter((x) => x.id !== b.dataset.delSe);
     saveStore();
     seLimit = 10;
+    journalSeLimit = 10;
     renderSideEffects();
   }));
+}
 
+function renderSideEffects() {
+  const list = document.getElementById("sideeffect-list");
+  if (!list) return;
+  const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
+    renderJournalSe();
+    return;
+  }
+  const visibleSe = sorted.slice(0, seLimit);
+  const remainingSe = sorted.length - visibleSe.length;
+  /* Gentle timeline (v166): a quiet vertical line with a severity-
+     colored dot per entry, newest first, so patterns over time are
+     easy to see. Edit and Delete stay on every entry. */
+  list.innerHTML = `<div class="se-timeline">` + visibleSe.map(seItemHtml).join("") + `</div>`
+    + (remainingSe > 0
+      ? `<button class="btn" id="more-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
+      : "");
+  bindSeButtons(list);
   const moreSeBtn = document.getElementById("more-se");
   if (moreSeBtn) moreSeBtn.addEventListener("click", () => {
     seLimit += 10;
     renderSideEffects();
+  });
+  renderJournalSe();
+}
+
+/* Side effects on the Journal tab (v169): the same timeline, below the
+   journal entries, in addition to the Effects tab. */
+function renderJournalSe() {
+  const list = document.getElementById("journal-se-list");
+  if (!list) return;
+  const sorted = [...store.sideEffects].sort((a, b) => b.date.localeCompare(a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<p class="empty-state">No side effects logged yet.</p>';
+    return;
+  }
+  const visibleSe = sorted.slice(0, journalSeLimit);
+  const remainingSe = sorted.length - visibleSe.length;
+  list.innerHTML = `<div class="se-timeline">` + visibleSe.map(seItemHtml).join("") + `</div>`
+    + (remainingSe > 0
+      ? `<button class="btn" id="more-journal-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
+      : "");
+  bindSeButtons(list);
+  const moreBtn = document.getElementById("more-journal-se");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    journalSeLimit += 10;
+    renderJournalSe();
   });
 }
 
@@ -2876,11 +3291,25 @@ function renderSettings() {
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
   document.getElementById("set-fat-goal").value = s.fatGoal || 60;
+  // v169: the calorie target is optional; blank stays blank.
+  document.getElementById("set-calorie-target").value = s.calorieTarget === "" || s.calorieTarget === undefined ? "" : s.calorieTarget;
   document.getElementById("set-height-ft").value = s.heightFt === "" || s.heightFt === undefined ? "" : s.heightFt;
   document.getElementById("set-height-in").value = s.heightIn === "" || s.heightIn === undefined ? "" : s.heightIn;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
   document.getElementById("set-starting-weight").value = (s.startingWeight && Number(s.startingWeight.value) > 0) ? s.startingWeight.value : "";
   document.getElementById("set-refill-date").value = s.refillDate || "";
+  // v000: Companion name and avatar, Appearance theme and text size,
+  // and the read-aloud setting.
+  const nameInput = document.getElementById("set-companion-name");
+  if (nameInput) nameInput.value = s.companionName || "";
+  const avatarRadio = document.querySelector('input[name="companion-avatar"][value="' + (COMPANION_AVATARS[s.companionAvatar] ? s.companionAvatar : "gold") + '"]');
+  if (avatarRadio) avatarRadio.checked = true;
+  const themeRadio = document.querySelector('input[name="theme"][value="' + (["sage", "dark", "cream"].includes(s.theme) ? s.theme : "sage") + '"]');
+  if (themeRadio) themeRadio.checked = true;
+  const sizeRadio = document.querySelector('input[name="text-size"][value="' + (s.textSize === "large" ? "large" : "normal") + '"]');
+  if (sizeRadio) sizeRadio.checked = true;
+  const readAloudBox = document.getElementById("set-read-aloud");
+  if (readAloudBox) readAloudBox.checked = s.readAloud === true;
   renderRefillCountdown();
 }
 
@@ -2903,6 +3332,58 @@ function renderRefillCountdown() {
   }
 }
 
+/* v000: the Companion and Appearance controls apply as soon as they
+   change, so the person sees the new name, avatar, theme, or text
+   size right away. The Save button writes the same values again,
+   which is harmless. */
+(function setupCompanionAppearanceControls() {
+  const nameInput = document.getElementById("set-companion-name");
+  if (nameInput) nameInput.addEventListener("change", () => {
+    store.settings.companionName = nameInput.value.trim().slice(0, 60);
+    saveStore();
+    renderChat();
+  });
+  document.querySelectorAll('input[name="companion-avatar"]').forEach((r) => r.addEventListener("change", () => {
+    if (r.checked && COMPANION_AVATARS[r.value]) {
+      store.settings.companionAvatar = r.value;
+      saveStore();
+      renderChat();
+    }
+  }));
+  document.querySelectorAll('input[name="theme"]').forEach((r) => r.addEventListener("change", () => {
+    if (r.checked && ["sage", "dark", "cream"].includes(r.value)) {
+      store.settings.theme = r.value;
+      saveStore();
+      applyAppearance();
+    }
+  }));
+  document.querySelectorAll('input[name="text-size"]').forEach((r) => r.addEventListener("change", () => {
+    if (r.checked && ["normal", "large"].includes(r.value)) {
+      store.settings.textSize = r.value;
+      saveStore();
+      applyAppearance();
+    }
+  }));
+  const readAloudBox = document.getElementById("set-read-aloud");
+  if (readAloudBox) readAloudBox.addEventListener("change", () => {
+    store.settings.readAloud = readAloudBox.checked === true;
+    if (!store.settings.readAloud) stopSpeaking();
+    saveStore();
+  });
+})();
+
+/* v169: a blank or invalid macro target leaves the existing target
+   unchanged; the default applies only when nothing was ever set.
+   (The type-in fields already exist under Your goals; this only changes
+   what a blank or invalid save does, so clearing a field by mistake
+   cannot reset a target she set.) */
+function keepMacroTarget(raw, current, fallback) {
+  const t = String(raw == null ? "" : raw).trim();
+  if (/^\d+$/.test(t)) { const n = Number(t); if (n > 0) return n; }
+  const c = Number(current);
+  return Number.isFinite(c) && c > 0 ? c : fallback;
+}
+
 document.getElementById("settings-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const keyInput = document.getElementById("set-companion-key").value.trim();
@@ -2919,17 +3400,19 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 92;
-  const pg = Number(document.getElementById("set-protein-goal").value);
-  store.settings.proteinGoal = pg > 0 ? pg : 90;
+  // v169: a blank or invalid macro target keeps the existing target.
+  store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
-  const cg = Number(document.getElementById("set-carbs-goal").value);
-  store.settings.carbGoal = cg > 0 ? cg : 150;
-  const fg = Number(document.getElementById("set-fat-goal").value);
-  store.settings.fatGoal = fg > 0 ? fg : 60;
+  store.settings.carbGoal = keepMacroTarget(document.getElementById("set-carbs-goal").value, store.settings.carbGoal, 150);
+  store.settings.fatGoal = keepMacroTarget(document.getElementById("set-fat-goal").value, store.settings.fatGoal, 60);
+  // v169: the calorie target is optional and has no default. Whole
+  // numbers only; blank or invalid stays unset.
+  const ctRaw = document.getElementById("set-calorie-target").value.trim();
+  store.settings.calorieTarget = /^\d+$/.test(ctRaw) && Number(ctRaw) > 0 ? Number(ctRaw) : "";
   const hftRaw = document.getElementById("set-height-ft").value.trim();
   const hft = hftRaw === "" ? NaN : Number(hftRaw);
   store.settings.heightFt = Number.isFinite(hft) && hft >= 0 && hft <= 8 ? hft : "";
@@ -2946,6 +3429,20 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
     store.settings.startingWeight = null;
   }
   store.settings.refillDate = document.getElementById("set-refill-date").value;
+  // v000: Companion name and avatar, Appearance theme and text size,
+  // and the read-aloud setting. A blank name falls back to the
+  // default when shown; the stored value stays blank.
+  const cnInput = document.getElementById("set-companion-name");
+  store.settings.companionName = cnInput ? cnInput.value.trim().slice(0, 60) : "";
+  const avatarChecked = document.querySelector('input[name="companion-avatar"]:checked');
+  if (avatarChecked && COMPANION_AVATARS[avatarChecked.value]) store.settings.companionAvatar = avatarChecked.value;
+  const themeChecked = document.querySelector('input[name="theme"]:checked');
+  if (themeChecked && ["sage", "dark", "cream"].includes(themeChecked.value)) store.settings.theme = themeChecked.value;
+  const sizeChecked = document.querySelector('input[name="text-size"]:checked');
+  if (sizeChecked && ["normal", "large"].includes(sizeChecked.value)) store.settings.textSize = sizeChecked.value;
+  const readAloudChecked = document.getElementById("set-read-aloud");
+  store.settings.readAloud = readAloudChecked ? readAloudChecked.checked === true : false;
+  applyAppearance();
   saveStore();
   renderSettings();
   renderToday();
@@ -3408,6 +3905,7 @@ document.getElementById("export-data").addEventListener("click", () => {
       ["Daily protein goal (g)", store.settings.proteinGoal || ""],
       ["Daily carbs goal (g)", store.settings.carbGoal || ""],
       ["Daily fat goal (g)", store.settings.fatGoal || ""],
+      ["Daily calorie target (cal)", store.settings.calorieTarget === "" || store.settings.calorieTarget === undefined ? "" : store.settings.calorieTarget],
       ["Height (ft)", store.settings.heightFt === "" || store.settings.heightFt === undefined ? "" : store.settings.heightFt],
       ["Height (in)", store.settings.heightIn === "" || store.settings.heightIn === undefined ? "" : store.settings.heightIn],
       ["Daily movement goal (min)", store.settings.movementGoal || ""],
@@ -3915,6 +4413,7 @@ function safeRender(fn) {
 maybeRestoreFromSnapshot();
 if (ensureEntryIds()) saveStore(); // persist ids given to old entries
 loadCustomActivities();
+applyAppearance(); // v000: theme and text size from settings, before first paint of the tabs
 safeRender(renderToday);
 safeRender(renderInjections);
 safeRender(renderWeight);
@@ -4128,10 +4627,20 @@ function renderMorningCheckin() {
   const h = now.getHours();
   if (h < 5 || h >= 12) { card.classList.add("hidden"); return; }
   const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-  document.getElementById("morning-checkin-q").textContent =
-    MORNING_CHECKIN_QUESTIONS[dayOfYear % MORNING_CHECKIN_QUESTIONS.length];
+  const q = MORNING_CHECKIN_QUESTIONS[dayOfYear % MORNING_CHECKIN_QUESTIONS.length];
+  document.getElementById("morning-checkin-q").textContent = q;
   card.classList.remove("hidden");
+  // v000: when read-aloud is on, the morning question is read aloud
+  // once per day, using the phone's own voice.
+  if (store.settings.readAloud) {
+    const today = todayStr();
+    if (checkinSpokenDate !== today) {
+      checkinSpokenDate = today;
+      speakCompanion(q);
+    }
+  }
 }
+let checkinSpokenDate = "";
 document.getElementById("morning-checkin-reply").addEventListener("click", () => {
   // v168: the check-in sits on Today and the chat lives under More, so
   // the button opens the chat tab first, then focuses the input.
@@ -4140,44 +4649,130 @@ document.getElementById("morning-checkin-reply").addEventListener("click", () =>
   if (input) input.focus();
 });
 
+/* v000: Appearance. The theme and text size switch CSS variables
+   through data attributes on the root element. The default stays
+   the sage, gold, and cream brand look; gold accents and the gold
+   lotus stay gold in every theme. */
+function applyAppearance() {
+  const s = store.settings;
+  const theme = ["sage", "dark", "cream"].includes(s.theme) ? s.theme : "sage";
+  const size = s.textSize === "large" ? "large" : "normal";
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute("data-text-size", size);
+}
+
+/* v000: talking voice for the Companion. Uses the phone's built-in
+   speech (speechSynthesis), on-device and free; no server, no cost.
+   The voice is the phone's own system voice, not a custom voice. */
+let currentUtterance = null;
+function speakCompanion(text) {
+  if (!("speechSynthesis" in window)) return false;
+  const clean = String(text || "").replace(/[*#_`>\[\]()]/g, "").replace(/\s+/g, " ").trim();
+  if (!clean) return false;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(clean);
+    currentUtterance = u;
+    u.onend = () => { if (currentUtterance === u) currentUtterance = null; };
+    u.onerror = () => { if (currentUtterance === u) currentUtterance = null; };
+    window.speechSynthesis.speak(u);
+    return true;
+  } catch { return false; }
+}
+function stopSpeaking() {
+  if (!("speechSynthesis" in window)) return;
+  try { window.speechSynthesis.cancel(); } catch {}
+  currentUtterance = null;
+}
+function isSpeaking() { return currentUtterance !== null; }
+let lastSpokenReply = "";
+function maybeReadAloud() {
+  // v000: when read-aloud is on, a new Companion reply is read aloud
+  // once. The guard keeps a re-render from speaking the same reply
+  // twice.
+  if (!store.settings.readAloud) return;
+  const last = chatHistory[chatHistory.length - 1];
+  if (last && last.role === "assistant" && last.content && last.content !== lastSpokenReply) {
+    lastSpokenReply = last.content;
+    speakCompanion(last.content);
+  }
+}
+
 function renderChat() {
   renderMorningCheckin();
+  // v000: the chat header shows the Companion's chosen name and avatar.
+  const title = document.getElementById("chat-title");
+  if (title) title.textContent = "Your " + companionDisplayName();
+  const headerAvatar = document.getElementById("chat-header-avatar");
+  if (headerAvatar) {
+    const fresh = companionAvatarImg("chat-header-avatar");
+    fresh.id = "chat-header-avatar";
+    headerAvatar.replaceWith(fresh);
+  }
+  const input = document.getElementById("chat-input");
+  if (input) input.placeholder = "Ask " + companionDisplayName() + "...";
   const box = document.getElementById("chat-messages");
   if (!box) return;
   box.innerHTML = "";
-  // v168: assistant messages sit in a row with the gold lotus beside
-  // them, the brand mark wherever the brand shows.
-  const lotusImg = () => {
-    const img = document.createElement("img");
-    img.className = "chat-lotus";
-    img.src = "icons/lotus-gold-only-transparent.png";
-    img.alt = "";
-    img.setAttribute("aria-hidden", "true");
-    return img;
+  // v000: assistant messages sit in a row with the Companion's chosen
+  // avatar beside them, and a speaker button that reads the reply
+  // aloud with the phone's own voice.
+  const listenBtn = (text) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-small chat-listen";
+    b.setAttribute("aria-label", "Listen to this reply");
+    b.textContent = "🔊 Listen";
+    b.dataset.text = text;
+    b.addEventListener("click", () => {
+      if (isSpeaking()) { stopSpeaking(); b.textContent = "🔊 Listen"; return; }
+      if (speakCompanion(text)) {
+        b.textContent = "⏹ Stop";
+        const u = currentUtterance;
+        if (u) {
+          const done = () => { b.textContent = "🔊 Listen"; };
+          u.addEventListener("end", done);
+          u.addEventListener("error", done);
+        }
+      }
+    });
+    return b;
   };
   if (chatHistory.length === 0) {
+    const welcomeText = "Hi, I am " + companionDisplayName() + ". Ask me about protein, water, or movement, or tell me how your day is going.";
     const row = document.createElement("div");
     row.className = "chat-row assistant";
-    row.appendChild(lotusImg());
+    row.appendChild(companionAvatarImg());
+    const wrap = document.createElement("div");
+    wrap.className = "chat-msg-wrap";
     const welcome = document.createElement("div");
     welcome.className = "chat-msg assistant";
-    welcome.textContent = "Hi, I am your AI Wellness Companion. Ask me about protein, water, or movement, or tell me how your day is going.";
-    row.appendChild(welcome);
+    welcome.textContent = welcomeText;
+    wrap.appendChild(welcome);
+    wrap.appendChild(listenBtn(welcomeText));
+    row.appendChild(wrap);
     box.appendChild(row);
     return;
   }
   chatHistory.forEach((m) => {
     const row = document.createElement("div");
     row.className = "chat-row " + (m.role === "user" ? "user" : "assistant");
-    if (m.role === "assistant") row.appendChild(lotusImg());
-    const div = document.createElement("div");
-    div.className = "chat-msg " + (m.role === "user" ? "user" : "assistant");
+    if (m.role === "assistant") row.appendChild(companionAvatarImg());
     if (m.role === "assistant") {
+      const wrap = document.createElement("div");
+      wrap.className = "chat-msg-wrap";
+      const div = document.createElement("div");
+      div.className = "chat-msg assistant";
       div.innerHTML = renderMarkdown(m.content);
+      wrap.appendChild(div);
+      wrap.appendChild(listenBtn(m.content));
+      row.appendChild(wrap);
     } else {
+      const div = document.createElement("div");
+      div.className = "chat-msg user";
       div.textContent = m.content;
+      row.appendChild(div);
     }
-    row.appendChild(div);
     box.appendChild(row);
   });
   box.scrollTop = box.scrollHeight;
@@ -4188,12 +4783,7 @@ function addTypingIndicator() {
   if (!box) return null;
   const row = document.createElement("div");
   row.className = "chat-row assistant";
-  const img = document.createElement("img");
-  img.className = "chat-lotus";
-  img.src = "icons/lotus-gold-only-transparent.png";
-  img.alt = "";
-  img.setAttribute("aria-hidden", "true");
-  row.appendChild(img);
+  row.appendChild(companionAvatarImg());
   const div = document.createElement("div");
   div.className = "chat-msg assistant typing";
   div.id = "chat-typing";
@@ -4206,6 +4796,7 @@ function addTypingIndicator() {
 
 document.getElementById("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  stopSpeaking(); // a new message stops any reply still being read aloud
   const input = document.getElementById("chat-input");
   const text = input.value.trim();
   if (!text) {
@@ -4230,6 +4821,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     });
     saveChatHistory();
     renderChat();
+    maybeReadAloud();
     return;
   }
 
@@ -4247,7 +4839,10 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     const res = await fetch(COMPANION_API_URL, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify({ messages: chatHistory }),
+      // v000: pass the Companion's chosen name so the worker can
+      // include it in the system prompt ("Your name is X"). Sent
+      // only when a custom name is set.
+      body: JSON.stringify({ messages: chatHistory, companionName: companionDisplayName() === COMPANION_DEFAULT_NAME ? undefined : companionDisplayName() }),
     });
 
     const data = await res.json();
@@ -4290,8 +4885,74 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
   saveChatHistory();
   renderChat();
+  maybeReadAloud();
   sendBtn.disabled = false;
 });
+
+/* v000: two-way voice. The mic button starts the phone's built-in
+   speech recognition (webkitSpeechRecognition / SpeechRecognition),
+   on-device and free; no server, no cost. Recognized words fill the
+   chat input as the person speaks (interim results shown live). When
+   the person stops, the text stays in the input to check and send.
+   Nothing auto-sends, and no audio is recorded, saved, or sent
+   anywhere. If recognition is not available, the button stays hidden
+   and the chat works exactly as before. */
+(function setupChatMic() {
+  const micBtn = document.getElementById("chat-mic");
+  const input = document.getElementById("chat-input");
+  const statusEl = document.getElementById("chat-msg");
+  if (!micBtn || !input) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return; // not available: the button stays hidden
+  micBtn.classList.remove("hidden");
+  let rec = null;
+  let listening = false;
+  let finalText = "";
+  function setListening(on) {
+    listening = on;
+    micBtn.setAttribute("aria-label", on ? "Stop listening" : "Talk instead of typing");
+    micBtn.title = on ? "Stop listening" : "Talk instead of typing";
+    micBtn.textContent = on ? "⏹ Stop" : "🎤";
+    micBtn.classList.toggle("listening", on);
+    if (statusEl) setFormStatus(statusEl, on ? "Listening... Tap Stop when you are done." : "", false);
+  }
+  micBtn.addEventListener("click", () => {
+    if (listening) { try { rec.stop(); } catch {} return; }
+    stopSpeaking();
+    try {
+      rec = new SR();
+    } catch { return; }
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = navigator.language || "en-US";
+    finalText = input.value ? input.value.trim() + " " : "";
+    rec.onresult = (ev) => {
+      let interim = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      input.value = (finalText + interim).trimStart();
+    };
+    rec.onend = () => { setListening(false); };
+    rec.onerror = (ev) => {
+      setListening(false);
+      if (statusEl) {
+        const msg = ev && ev.error === "not-allowed"
+          ? "Microphone access was blocked. You can still type."
+          : "I could not hear you. You can still type.";
+        setFormStatus(statusEl, msg, true);
+      }
+    };
+    try {
+      rec.start();
+      setListening(true);
+    } catch {
+      setListening(false);
+    }
+  });
+})();
 
 /* v168: the chat tab lives under More now, so showTab renders the chat
    itself; no separate [data-tab="chat"] listener is needed. */

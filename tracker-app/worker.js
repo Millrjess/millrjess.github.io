@@ -449,6 +449,13 @@ async function handleChat(request, env, auth) {
 
   // Load opt-in memory profile to personalize the system prompt
   let systemPrompt = SYSTEM_PROMPT;
+  // v000: the user can name their Companion. When a custom name is
+  // sent, tell the model its name so it can call itself by it.
+  // (Repo only: the live worker updates from the Cloudflare dashboard,
+  // so the name-in-replies part waits for the next dashboard deploy.)
+  if (typeof body.companionName === "string" && body.companionName.trim()) {
+    systemPrompt += "\n\nYour name is " + body.companionName.trim().slice(0, 60) + ".";
+  }
   const memKey = memoryKey(auth);
   if (memKey) {
     try {

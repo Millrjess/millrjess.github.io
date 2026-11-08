@@ -117,12 +117,12 @@
 
     <div class="card goals-card" id="goals-card">
       <h2 class="card-title">Today's Goals</h2>
-      <p class="muted goals-hint">Slide left or right on a ring to change it.</p>
+      <p class="muted goals-hint">Slide left or right on a ring to change it. Tap the number to type an amount.</p>
       <div class="goals-rings">
         <div class="goal-ring">
           <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide left or right to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-            <div class="ring-value"><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></div>
+            <div class="ring-value"><button type="button" class="ring-num-btn" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></button></div>
           </div>
           <p class="goal-name">Water</p>
           <p class="goal-label">Goal <span id="water-goal-display">92</span> oz</p>
@@ -135,7 +135,7 @@
         <div class="goal-ring">
           <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide left or right to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-            <div class="ring-value"><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></div>
+            <div class="ring-value"><button type="button" class="ring-num-btn" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></button></div>
           </div>
           <p class="goal-name">Movement</p>
           <p class="goal-label">Goal <span id="exercise-goal-display">30</span> min</p>
@@ -164,13 +164,13 @@
           <span class="cap" id="macro-center-label">protein logged today</span>
         </div>
       </div>
-      <p class="donut-note">Each segment is that macro's share of the grams logged today. Tap a line below to see it in the center.</p>
+      <p class="donut-note">Each segment is that macro's share of the grams logged today. Tap a line below to see it in the center. Slide a line left or right to change it.</p>
 
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein" tabindex="0" role="button" aria-label="Show protein in the center of the chart">
           <span class="macro-name"><span class="dot protein"></span>Protein</span>
           <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">g</span></span>
-          <span class="macro-bar"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-bar" id="macro-bar-protein" role="slider" tabindex="0" aria-label="Protein logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-protein">0% of your target</span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="-1" aria-label="Log 1 gram less protein">−</button><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="1" aria-label="Log 1 gram more protein">+</button></span>
@@ -179,7 +179,7 @@
         <div class="macro-row" data-macro="carbs" tabindex="0" role="button" aria-label="Show carbs in the center of the chart">
           <span class="macro-name"><span class="dot carbs"></span>Carbs</span>
           <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">g</span></span>
-          <span class="macro-bar"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-bar" id="macro-bar-carbs" role="slider" tabindex="0" aria-label="Carbs logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="150" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-carbs">0% of your target</span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="-1" aria-label="Log 1 gram less carbs">−</button><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="1" aria-label="Log 1 gram more carbs">+</button></span>
@@ -188,7 +188,7 @@
         <div class="macro-row" data-macro="fat" tabindex="0" role="button" aria-label="Show fat in the center of the chart">
           <span class="macro-name"><span class="dot fat"></span>Fat</span>
           <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">g</span></span>
-          <span class="macro-bar"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-bar" id="macro-bar-fat" role="slider" tabindex="0" aria-label="Fat logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="60" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-fat">0% of your target</span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="-1" aria-label="Log 1 gram less fat">−</button><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="1" aria-label="Log 1 gram more fat">+</button></span>
@@ -232,11 +232,53 @@
       </div>
     </div>
 
+    <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
+      <div class="modal-card">
+        <h2 id="add-amount-title">Add water</h2>
+        <p class="muted" id="add-amount-now">Now: 0 oz</p>
+        <label>Amount to add
+          <input type="text" id="add-amount-input" inputmode="numeric" autocomplete="off" placeholder="16">
+        </label>
+        <p class="muted" id="add-amount-preview" aria-live="polite">Type a whole number to add.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" id="add-amount-add" disabled>Add</button>
+          <button type="button" class="btn" id="add-amount-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <div id="movement-plan-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Customize your movement plan">
       <div class="modal-card">
+        <button type="button" class="modal-x" id="movement-plan-x" aria-label="Close">×</button>
         <h2 style="margin-top:0">Your movement plan</h2>
         <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs 5 minutes to your Movement ring.</p>
         <div id="movement-plan-list"></div>
+        <div id="movement-plan-add">
+          <h3>Add your own exercise</h3>
+          <label>Exercise name
+            <input type="text" id="custom-ex-name" maxlength="80" placeholder="e.g. Step-ups">
+          </label>
+          <div style="display:flex;gap:10px">
+            <label style="flex:1">Pattern
+              <select id="custom-ex-pattern">
+                <option>Squat</option>
+                <option>Hinge</option>
+                <option>Push</option>
+                <option>Pull</option>
+                <option>Carry</option>
+                <option>Core</option>
+                <option selected>Other</option>
+              </select>
+            </label>
+            <label style="flex:1">Reps or time
+              <input type="text" id="custom-ex-detail" maxlength="40" placeholder="e.g. 10 reps">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" id="custom-ex-add">Add exercise</button>
+          </div>
+          <p class="code-msg" id="custom-ex-msg" style="min-height:1.2em"></p>
+        </div>
         <p class="code-msg" id="movement-plan-msg" style="min-height:1.2em"></p>
         <div class="form-actions" style="flex-wrap:wrap">
           <button type="button" class="btn btn-primary" id="movement-plan-save">Save plan</button>
@@ -371,14 +413,29 @@
   <!-- WEIGHT TAB -->
   <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
     <h2>Weight</h2>
-    <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
-    <button class="btn" id="doctor-summary-btn" style="margin-left:8px">Doctor visit summary</button>
+    <div class="weight-actions">
+      <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
+      <button class="btn" id="doctor-summary-btn">Doctor visit summary</button>
+    </div>
 
     <div class="weight-hero">
       <p class="weight-hero-label">Current weight</p>
       <p class="weight-hero-num"><span id="weight-hero-value">--</span> <span class="unit">lbs</span></p>
       <p class="weight-hero-date" id="weight-hero-date"></p>
       <p class="bmi-line" id="bmi-line"></p>
+      <p class="bmi-over" id="bmi-over-line"></p>
+      <div class="bmi-healthy" id="bmi-healthy-block" hidden>
+        <p id="bmi-healthy-range"></p>
+        <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obese 30 and above.</p>
+      </div>
+    </div>
+
+    <div class="card" id="weight-chart-card">
+      <h3>Progress over time</h3>
+      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
+      <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
     </div>
 
     <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
@@ -424,14 +481,6 @@
         <div id="milestone-bar" style="height:100%;width:0%;background:#5A6B52;border-radius:999px;transition:width .5s"></div>
       </div>
       <p class="muted" style="margin:8px 0 0;font-size:.85em" id="milestone-sub"></p>
-    </div>
-
-    <div class="card">
-      <h3>Progress over time</h3>
-      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
-      <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
     </div>
 
     <div id="weight-list" class="entry-list"></div>
@@ -521,6 +570,9 @@
     <p class="code-msg" id="journal-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div id="journal-list" class="entry-list"></div>
+
+    <h3 style="margin-top:20px">Side effects</h3>
+    <div id="journal-se-list" class="entry-list"></div>
   </section>
 
   <!-- SIDE EFFECTS TAB -->
@@ -559,7 +611,10 @@
 
   <!-- AI WELLNESS COMPANION TAB -->
   <section id="tab-chat" class="tab-panel" role="tabpanel" aria-label="AI Wellness Companion">
-    <h2>Your AI Wellness Companion</h2>
+    <div class="chat-header">
+      <img id="chat-header-avatar" class="chat-header-avatar" src="icons/lotus-gold-only-transparent.png" alt="">
+      <h2 id="chat-title">Your AI Wellness Companion</h2>
+    </div>
     <p class="muted" style="font-size:.85rem;margin-bottom:12px">Encouragement only, not medical advice. Messages leave this device. Your companion does not see your tracker entries. <a href="privacy.html">Privacy Policy</a></p>
     <div class="card hidden" id="morning-checkin" style="border-left:4px solid #E8B54A">
       <p style="margin:0 0 4px;font-weight:700">Good morning, Jessica.</p>
@@ -569,6 +624,7 @@
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <form id="chat-form" class="chat-form">
       <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
+      <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
@@ -620,6 +676,43 @@
             <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
           </label>
         </details>
+      </div>
+
+      <div class="card">
+        <h3>Your Companion</h3>
+        <p class="muted">Give your AI Wellness Companion a name and a look. This stays on this device.</p>
+        <label>Companion name
+          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
+        </label>
+        <p class="muted">Leave it blank to keep "AI Wellness Companion".</p>
+        <fieldset class="picker-fieldset" id="companion-avatar-picker">
+          <legend>Companion avatar</legend>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
+        </fieldset>
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
+          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
+          Read Companion replies aloud
+        </label>
+        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud.</p>
+      </div>
+
+      <div class="card">
+        <h3>Appearance</h3>
+        <p class="muted">Change how the app looks. The lotus stays gold.</p>
+        <fieldset class="picker-fieldset" id="theme-picker">
+          <legend>Theme</legend>
+          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
+          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
+          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
+        </fieldset>
+        <fieldset class="picker-fieldset" id="textsize-picker">
+          <legend>Text size</legend>
+          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
+          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
+        </fieldset>
       </div>
 
       <div id="play-subscription-card"></div>
@@ -680,6 +773,13 @@
           <input type="number" id="set-fat-goal" min="0" step="1" placeholder="60">
         </label>
         <p class="muted">Your own fat target for the Your Macros card on Today.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily calorie target (calories)
+          <input type="number" id="set-calorie-target" min="0" step="1">
+        </label>
+        <p class="muted">Your own calorie target for the Your Macros card on Today. Leave it blank if you do not want one. It stays on this device.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -767,7 +867,7 @@
       <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI Wellness Companion. Everything in one place.</p>
       <p class="muted">Developed by Jessica A. Miller, Founder, New Chapter.</p>
       <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
-      <p><strong>Who it is for:</strong> For women and adults over 50 navigating GLP-1 treatment.</p>
+      <p><strong>Who it is for:</strong> For adults navigating GLP-1 treatment.</p>
       <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
       <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while supporting your bones, heart, brain, skin, digestive health, and overall nutritional status. Think whole-body nutrition, not just weight loss. The tracker supports these areas through the habits it tracks, protein, water, and movement, plus injections, weight, and side effects.</p>
       <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
@@ -817,6 +917,11 @@
     <span class="tab-label">Journal</span>
     <span class="tab-dot" aria-hidden="true"></span>
   </button>
+  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="tab-label">Companion</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
   <button class="tab-btn" data-tab="more" role="tab" aria-selected="false" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet">
     <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>More</title><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8"/></svg></span>
     <span class="tab-label">More</span>
@@ -830,10 +935,6 @@
   <button type="button" class="more-item" data-more-goto="side-effects">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
     <span class="more-item-label">Effects</span>
-  </button>
-  <button type="button" class="more-item" data-more-goto="chat">
-    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-    <span class="more-item-label">AI Wellness Companion</span>
   </button>
   <button type="button" class="more-item" data-more-goto="settings">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>

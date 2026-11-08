@@ -422,6 +422,16 @@ input[aria-invalid="true"]:focus-visible {
   text-align: center;
   pointer-events: none;
 }
+/* Type an amount (v169): the big number inside each ring is a button.
+   The ring value wrapper passes pointer events through, so the button
+   re-enables them for itself. The ring drag ignores presses that start
+   on this button. */
+.ring-num-btn {
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: auto; border-radius: 50%; font: inherit; color: inherit;
+}
+.ring-num-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .ring-num {
   font-size: 1.9rem;
   font-weight: 300;
@@ -892,8 +902,18 @@ label textarea {
   background: var(--card, #fff); border-radius: 20px;
   max-width: 440px; width: 100%; padding: 28px 24px;
   box-shadow: 0 24px 60px -12px rgba(0,0,0,.3);
-  margin-top: 4vh;
+  margin-top: 4vh; position: relative;
 }
+/* Close X in the upper right of a modal (v169, movement plan editor).
+   It closes the same way Cancel, Escape and backdrop tap do. */
+.modal-x {
+  position: absolute; top: 10px; right: 10px;
+  width: 38px; height: 38px; border-radius: 50%; border: none;
+  background: transparent; color: var(--muted); font-size: 1.5rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.modal-x:hover { background: var(--sage-soft); }
+.modal-x:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .modal-card h2 { margin-top: 0; }
 .modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .92rem; }
 .modal-card label select, .modal-card label input {
@@ -1158,8 +1178,8 @@ details.card summary {
   font-size: 1.05rem;
 }
 
-/* WCAG 1.4.10: at 320px the 5 bottom tabs must fit without horizontal scrolling.
-   Allow tabs to shrink below 44px and use smaller labels at narrow widths, so all 5 fit in 320px.
+/* WCAG 1.4.10: at 320px the 6 bottom tabs must fit without horizontal scrolling.
+   Allow tabs to shrink below 44px and use smaller labels at narrow widths, so all 6 fit in 320px.
    Ported from live app v143. */
 @media (max-width: 400px) {
   .tab-btn {
@@ -1327,6 +1347,12 @@ textarea {
 .macro-vals { font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
 .macro-vals .of { color: var(--muted); }
 .macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: hidden; margin-top: 0.3rem; }
+/* Slide a macro row (v169): the bar is the slide target, like the rings.
+   touch-action none so the page does not scroll while sliding. The
+   padding widens the grab area to about 20px tall while the visible
+   track stays 6px; the negative margin keeps the row spacing the same. */
+.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: -7px 0 0.3rem; background-clip: content-box; }
+.macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
 .macro-pct { font-size: 0.82rem; color: var(--muted); }
@@ -1373,6 +1399,25 @@ li.done-move .move-name { color: #5C6656; }
   display: flex; align-items: center; gap: 10px;
   padding: 10px 0; border-top: 1px solid #EFE9D6;
 }
+/* Compact picker (v169): the exercise list scrolls inside a fixed box
+   showing about four rows, so the modal stays short. The add-your-own
+   section and the Save/Cancel buttons sit below it, always visible. */
+#movement-plan-list {
+  max-height: 264px; overflow-y: auto;
+  border: 1px solid #EFE9D6; border-radius: 12px; padding: 2px 12px;
+  margin: 12px 0;
+}
+#movement-plan-add { border-top: 1px solid #EFE9D6; margin-top: 12px; padding-top: 12px; }
+#movement-plan-add h3 { margin: 0 0 4px; font-size: 1rem; }
+#movement-plan-add .form-actions { margin-top: 10px; }
+/* Remove button on a custom exercise row (v169). */
+.plan-remove {
+  flex: none; width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: transparent; color: var(--muted); font-size: 1.3rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.plan-remove:hover { background: var(--sage-soft); }
+.plan-remove:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .plan-row:first-child { border-top: none; }
 .plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; }
 .plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
@@ -1418,6 +1463,11 @@ li.done-move .move-name { color: #5C6656; }
 
 /* Weight tab (v168): big calm current number, BMI under it. */
 .weight-hero { text-align: center; padding: 16px 0 4px; }
+/* Weight tab actions (v169): the two buttons sit side by side in one
+   row. Compact, but never below 44px tall; they wrap to two rows only
+   on very narrow screens. */
+.weight-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 6px; }
+.weight-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 10px 12px; font-size: 0.95rem; }
 .weight-hero-label { color: var(--muted); margin: 0; font-size: 0.95rem; }
 .weight-hero-num {
   font-family: Georgia, "Times New Roman", serif;
@@ -1428,6 +1478,13 @@ li.done-move .move-name { color: #5C6656; }
 .weight-hero-date:empty { display: none; }
 .bmi-line { text-align: center; color: var(--sage-deep); font-weight: 600; margin: 4px 0 0; font-size: 0.95rem; }
 .bmi-line:empty { display: none; }
+/* BMI extras (v169): how far the current weight sits from the healthy
+   range, and the healthy range for this height. Calm and compact. */
+.bmi-over { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.92rem; }
+.bmi-over:empty { display: none; }
+.bmi-healthy { text-align: center; margin: 10px auto 0; padding: 10px 14px; max-width: 340px; background: var(--sage-tint); border-radius: 12px; }
+.bmi-healthy p { margin: 0; font-size: 0.88rem; color: var(--sage-deep); line-height: 1.5; }
+.bmi-healthy .bmi-cutoffs { margin-top: 4px; font-size: 0.82rem; color: var(--muted); }
 
 /* Journal (v168): entries as elegant cards with the date in serif. */
 #tab-journal .entry-sub {
@@ -1440,3 +1497,144 @@ li.done-move .move-name { color: #5C6656; }
   border-bottom: 2px solid var(--gold-light);
   padding-bottom: 8px;
 }
+
+/* Appearance themes (v000). The theme switches CSS variables through
+   a data attribute on the root element. The default stays the sage,
+   gold, and cream brand look; gold accents stay gold and the lotus
+   stays gold in every theme. */
+html[data-theme="dark"] {
+  --cream: #2B332A;
+  --card-bg: #2B332A;
+  --ink: #F5F1E6;
+  --ink-soft: #E6E0CE;
+  --muted: #B9B4A4;
+  --border: #41503F;
+  --sage-light: #5C6B58;
+  --sage-soft: #37402F;
+  --sage-tint: #20261F;
+  --gold-soft: #3A3220;
+  --gold-dark: #E8B54A;
+  --danger: #D98A70;
+  --focus: #7FB0FF;
+  /* --sage stays #5A6B52: white text on it is 5.9:1, so the user
+     bubbles and buttons keep their contrast on dark backgrounds. */
+}
+html[data-theme="dark"] body { background: var(--sage-tint); }
+html[data-theme="dark"] .btn,
+html[data-theme="dark"] .btn-danger { background: #2B332A; }
+html[data-theme="dark"] label input,
+html[data-theme="dark"] label select,
+html[data-theme="dark"] label textarea,
+html[data-theme="dark"] .modal-card label input,
+html[data-theme="dark"] .modal-card label select,
+html[data-theme="dark"] .chat-form input { background: #2B332A; }
+html[data-theme="dark"] .btn-link { color: #9DB894; }
+html[data-theme="dark"] .streak-line { color: #9DB894; }
+html[data-theme="dark"] .se-timeline-item::before { border-color: #2B332A; }
+
+html[data-theme="cream"] {
+  --cream: #FFFDF8;
+  --sage-soft: #EDEFEA;
+  --sage-tint: #F1EDE3;
+  --border: #EDE6D6;
+}
+
+/* Text size (v000). The root font size scales every rem value; the
+   body size is set in px, so it is scaled here too. */
+html[data-text-size="large"] { font-size: 112.5%; }
+html[data-text-size="large"] body { font-size: 20.25px; }
+
+/* Chat header (v000): the Companion's chosen avatar beside its name. */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chat-header h2 { margin: 0; }
+.chat-header-avatar {
+  width: 34px;
+  height: 26px;
+  flex: none;
+}
+
+/* Companion avatar variants (v000): CSS tints of the existing gold
+   lotus asset. The default (no class) is the gold lotus, unchanged. */
+.avatar-sage { filter: hue-rotate(62deg) saturate(0.45) brightness(0.85); }
+.avatar-deep-gold { filter: brightness(0.62) saturate(0.7); }
+.avatar-tile {
+  background: var(--sage);
+  border-radius: 50%;
+  padding: 3px;
+}
+
+/* Assistant rows wrap the bubble and its Listen button together, so
+   the bubble keeps its full width and the button sits under it. */
+.chat-row.assistant .chat-msg-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chat-row.assistant .chat-msg-wrap .chat-msg { max-width: none; }
+.chat-listen {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+/* Mic button (v000): visible Listening state while recording. */
+.chat-mic.listening {
+  background: var(--gold);
+  border-color: var(--gold-dark);
+}
+
+/* Settings pickers (v000): Companion avatar, theme, text size. */
+.picker-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 12px 0;
+}
+.picker-fieldset legend {
+  font-weight: 700;
+  padding: 0 6px;
+}
+.picker-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 400;
+  margin: 4px 0;
+  cursor: pointer;
+}
+.picker-option input {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  flex: none;
+}
+.avatar-thumb {
+  flex: none;
+  width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-thumb img {
+  width: 40px;
+  height: 30px;
+  object-fit: contain;
+}
+.theme-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px solid var(--border);
+}
+.theme-swatch-sage { background: #5A6B52; }
+.theme-swatch-dark { background: #20261F; }
+.theme-swatch-cream { background: #FFFDF8; }
