@@ -1322,8 +1322,10 @@ textarea {
    padding widens the grab area to about 20px tall while the visible
    track stays 6px. No negative top margin: the 18px thumb sits inside
    the grab area, and a negative margin pulled it up over the
-   description line above. */
-.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: 0 0 0.3rem; background-clip: content-box; }
+   description line above. The 11px side padding keeps the thumb
+   inside the row at 0 percent, where it otherwise poked past the
+   left edge. */
+.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 11px; margin: 0 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { position: relative; display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 .macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #C9A96A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }

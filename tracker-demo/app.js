@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v006";
+const APP_VERSION = "v007";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -3178,6 +3178,7 @@ function drawBMIChart() {
   if (!(totalIn > 0)) {
     if (emptyMsg) { emptyMsg.style.display = ""; emptyMsg.textContent = "Add your height in Settings to see your BMI chart."; }
     if (chartText) chartText.textContent = "";
+    canvas.style.display = "none";
     return;
   }
   if (sorted.length < 2) {
@@ -3185,9 +3186,11 @@ function drawBMIChart() {
     if (chartText) chartText.textContent = sorted.length === 1
       ? "One weigh-in so far. Log another weigh-in to see your BMI chart."
       : "";
+    canvas.style.display = "none";
     return;
   }
   if (emptyMsg) emptyMsg.style.display = "none";
+  canvas.style.display = "";
   const bmis = sorted.map((w) => 703 * Number(w.value) / (totalIn * totalIn));
   const W = canvas.width, H = canvas.height;
   const padL = 52, padR = 16, padT = 16, padB = 40;
