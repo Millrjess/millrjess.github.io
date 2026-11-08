@@ -221,6 +221,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-secondary{background:transparent; color:var(--navy) !important; border:2px solid var(--navy); box-shadow:none}
+.btn-secondary:hover{background:var(--accent-soft); transform:translateY(-2px)}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -281,19 +283,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
 .skip-link:focus{left:8px}
 .site-footer a:focus-visible{outline:3px solid #f0dfae; outline-offset:3px; border-radius:4px}
-.viz-details{margin:1.2em 0 0}
-.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
-.viz-details>summary::-webkit-details-marker{display:none}
-.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
-.viz-details .entry-lede{display:block}
-.viz-details .entry-toggle{display:inline-block; margin-top:.5em; margin-left:.6em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
-.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
-.viz-details[open] .entry-toggle::after{content:"\2212"}
-.viz-details .show-less{display:none}
-.viz-details[open] .show-less{display:inline}
-.viz-details[open] .read-more{display:none}
-.viz-details>summary:hover .entry-toggle{color:var(--accent)}
-.viz-details summary h2,.viz-details summary h3{display:inline; font-size:1em; margin:0}
 </style>
 </head>
 <body>
@@ -311,65 +300,78 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main id="main" tabindex="-1" class="wrap page">
 <article>
 <h1>FAQs</h1>
-<details class="viz-details">
-<summary><h2 class="entry-lede">What do you do, and what platforms do you work with?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+<p class="lede">Answers about care plans, pricing, booking, and working with me.</p>
+<p class="hero-cta"><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a> <a class="btn btn-secondary" href="../pricing/">View pricing</a></p>
+
+<nav aria-label="On this page">
+<p>On this page:</p>
+<ul>
+<li><a href="#what-do-you-do">What do you do, and what platforms do you work with?</a></li>
+<li><a href="#do-you-provide-ongoing-support">Do you provide ongoing support?</a></li>
+<li><a href="#what-is-included-in-a-care-plan">What is included in a care plan?</a></li>
+<li><a href="#what-if-my-site-has-an-emergency">What if my site has an emergency?</a></li>
+<li><a href="#how-much-do-you-charge">How much do you charge?</a></li>
+<li><a href="#how-long-does-a-typical-project-take">How long does a typical project take?</a></li>
+<li><a href="#can-you-work-with-my-existing-team-or-developer">Can you work with my existing team or developer?</a></li>
+<li><a href="#why-hire-a-consultant-instead-of-doing-it-yourself">Why hire a consultant instead of doing it yourself?</a></li>
+<li><a href="#what-have-you-been-doing-and-are-you-taking-clients-now">What have you been doing, and are you taking clients now?</a></li>
+<li><a href="#do-you-work-remotely">Do you work remotely?</a></li>
+<li><a href="#how-do-i-book-a-consultation">How do I book a consultation?</a></li>
+<li><a href="#do-i-pay-before-we-meet">Do I pay before we meet?</a></li>
+<li><a href="#what-if-we-cannot-find-a-time">What if we cannot find a time?</a></li>
+<li><a href="#how-do-we-start">How do we start?</a></li>
+<li><a href="#still-have-a-question">Still Have a Question?</a></li>
+</ul>
+</nav>
+
+<h2 id="what-do-you-do">What do you do, and what platforms do you work with?</h2>
 <p>I keep business websites secure, reliable, and working as intended. I work with WordPress, Drupal, Joomla, and custom database-driven websites.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">Do you provide ongoing support?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="do-you-provide-ongoing-support">Do you provide ongoing support?</h2>
 <p>Yes, that&rsquo;s the core of what I do. Care plans cover updates, backups, security monitoring, and support every month, so small issues never become emergencies. They&rsquo;re available for all the platforms above, not just WordPress.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">What is included in a care plan?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="what-is-included-in-a-care-plan">What is included in a care plan?</h2>
 <ul>
 <li><strong>Essential, $150/month:</strong> CMS updates, daily off-site backups, uptime monitoring, and a monthly site health report.</li>
 <li><strong>Professional, $300/month:</strong> everything in Essential, plus security hardening and malware scanning, performance checks, one hour of content or design tweaks, and priority support.</li>
 </ul>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">What if my site has an emergency?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="what-if-my-site-has-an-emergency">What if my site has an emergency?</h2>
 <p>Emergency help is for clients on a care plan only. There is no fixed reply window. How fast help can come depends on the damage.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">How much do you charge?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="how-much-do-you-charge">How much do you charge?</h2>
 <p>Website care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One-time services start from $500 for a Site Health Audit, from $750 for a Website Standards Pass or a WCAG Accessibility Audit, and from $1,000 for Technical SEO or Analytics Dashboards. Strategy sessions are $200 per hour, payment at booking. See the full <a href="../pricing/">pricing page</a>.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">How long does a typical project take?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="how-long-does-a-typical-project-take">How long does a typical project take?</h2>
 <p>Every engagement is scoped individually, with a clear timeline before work begins.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">Can you work with my existing team or developer?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="can-you-work-with-my-existing-team-or-developer">Can you work with my existing team or developer?</h2>
 <p>Absolutely. I often act as the technical oversight layer: reviewing work, handling security and infrastructure, and making sure nothing falls through the cracks.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">Why hire a consultant instead of doing it yourself?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="why-hire-a-consultant-instead-of-doing-it-yourself">Why hire a consultant instead of doing it yourself?</h2>
 <p>You&rsquo;re hiring accountability, not just output. I judge whether work is correct and safe before it goes live, tell you in your proposal how to reach me if your site is compromised, and learn your business well enough to advise it.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">What have you been doing, and are you taking clients now?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="what-have-you-been-doing-and-are-you-taking-clients-now">What have you been doing, and are you taking clients now?</h2>
 <p>Yes, I&rsquo;m taking on website management clients and contract engagements, with 20 years of production experience behind me. In 2020 I stepped away from client work to raise my daughter. During that time I wrote The Ledger Series novels and earned 12 major course certificates between 2024 and 2026, including Google&rsquo;s Advanced Data Analytics Specialization, completed in January 2026. You can read the full story on my <a href="../about/">About page</a>.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">Do you work remotely?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="do-you-work-remotely">Do you work remotely?</h2>
 <p>Yes. I work remotely from North Andover, MA 01845, serving clients nationwide. Sessions are on Zoom, or onsite by arrangement in Greater Boston&rsquo;s North Shore and the Merrimack Valley.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">How do I book a consultation?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="how-do-i-book-a-consultation">How do I book a consultation?</h2>
 <p>Book on the <a href="../booking/">booking page</a>. The 15-minute discovery call is free. A 1-hour strategy session is $200. You choose your time immediately after payment, and I confirm every booking personally before it&rsquo;s final.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">Do I pay before we meet?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="do-i-pay-before-we-meet">Do I pay before we meet?</h2>
 <p>For a paid strategy session, yes. Session fee $200, payment at booking through Stripe, with a receipt, and no session starts until payment is received.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">What if we cannot find a time?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="what-if-we-cannot-find-a-time">What if we cannot find a time?</h2>
 <p>If we can&rsquo;t find a time that works, you&rsquo;ll be refunded.</p>
-</details>
-<details class="viz-details">
-<summary><h2 class="entry-lede">How do we start?</h2><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
+
+<h2 id="how-do-we-start">How do we start?</h2>
 <p><a href="../booking/">Book a consultation</a>, or <a href="../contact/">contact me</a>. Tell me about your site and what&rsquo;s worrying you, and I&rsquo;ll reply personally.</p>
-</details>
+
+<h2 id="still-have-a-question">Still Have a Question?</h2>
+<p>If your question is not answered here, contact me. Tell me about your site and what is worrying you, and I will reply personally.</p>
+<p class="hero-cta"><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a> <a class="btn btn-secondary" href="../contact/">Contact me</a></p>
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
