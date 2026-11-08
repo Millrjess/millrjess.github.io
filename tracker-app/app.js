@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v004";
+const APP_VERSION = "v005";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -53,12 +53,12 @@ const DEFAULTS = {
     dose: "",
     shotDay: "",
     waterGoal: 92,
-    proteinGoal: 90,
+    proteinGoal: "", // v005: no preset; the user sets their own target in Settings
     movementGoal: 30,
     waterStep: 8, // v004: ounces the "+ 8 oz" quick-add button adds
     movementStep: 5, // v004: minutes the "+ 5 min" quick-add button adds
-    carbGoal: 150, // v168: own carbs target for the Your Macros card
-    fatGoal: 60, // v168: own fat target for the Your Macros card
+    carbGoal: "", // v005: no preset; the user sets their own target in Settings
+    fatGoal: "", // v005: no preset; the user sets their own target in Settings
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
@@ -805,7 +805,7 @@ function showTab(name) {
   });
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
-  if (name === "weight") drawWeightChart();
+  if (name === "weight") { drawWeightChart(); drawBMIChart(); }
   if (name === "shots") renderInjectionCalendar();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
@@ -1009,9 +1009,9 @@ function renderMonthlyReview() {
 
   const lines = [];
   lines.push("You showed up " + daysLogged.size + " of " + daysInMonth + " days.");
-  if (proteinDays) lines.push("Protein goal reached " + proteinDays + " days.");
-  if (waterDays) lines.push("Water goal reached " + waterDays + " days.");
-  if (moveDays) lines.push("Movement goal reached " + moveDays + " days.");
+  if (proteinDays) lines.push("Protein goal reached " + proteinDays + " day" + (proteinDays === 1 ? "" : "s") + ".");
+  if (waterDays) lines.push("Water goal reached " + waterDays + " day" + (waterDays === 1 ? "" : "s") + ".");
+  if (moveDays) lines.push("Movement goal reached " + moveDays + " day" + (moveDays === 1 ? "" : "s") + ".");
   if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
   if (journals) lines.push(journals + " journal " + (journals === 1 ? "entry" : "entries") + " written.");
   if (weightLine) lines.push(weightLine);
@@ -1408,9 +1408,9 @@ function macroTotals(dateStr) {
 }
 function macroTargets() {
   return {
-    protein: Number(store.settings.proteinGoal) || 90,
-    carbs: Number(store.settings.carbGoal) || 150,
-    fat: Number(store.settings.fatGoal) || 60
+    protein: Number(store.settings.proteinGoal) || 0,
+    carbs: Number(store.settings.carbGoal) || 0,
+    fat: Number(store.settings.fatGoal) || 0
   };
 }
 function macroCalories(t) {
@@ -1451,7 +1451,7 @@ function paintDonut(totals) {
     const len = Math.max(0, frac * DONUT_C - DONUT_GAP);
     seg.setAttribute("stroke-dasharray", len.toFixed(1) + " " + DONUT_C.toFixed(1));
     seg.setAttribute("stroke-dashoffset", (-offset).toFixed(1));
-    seg.setAttribute("transform", "rotate(-90 108 108)");
+    seg.setAttribute("transform", "rotate(-90 130 130)");
     seg.style.opacity = selectedMacro === key ? "1" : "0.45";
     // v004: the macro's share of today's grams, as a label on its segment.
     // Hidden for tiny slices, so the text never crowds the ring.
@@ -1459,8 +1459,8 @@ function paintDonut(totals) {
     if (label) {
       const midFrac = total > 0 ? (offset + frac * DONUT_C / 2) / DONUT_C : 0;
       const angle = midFrac * Math.PI * 2;
-      label.setAttribute("x", (108 + 84 * Math.sin(angle)).toFixed(1));
-      label.setAttribute("y", (108 - 84 * Math.cos(angle)).toFixed(1));
+      label.setAttribute("x", (130 + 112 * Math.sin(angle)).toFixed(1));
+      label.setAttribute("y", (130 - 112 * Math.cos(angle)).toFixed(1));
       const pct = total > 0 ? Math.round(100 * totals[key] / total) : 0;
       label.textContent = pct >= 8 && totals[key] > 0 ? pct + "%" : "";
     }
@@ -1474,6 +1474,15 @@ function selectMacro(key) {
   renderMacros();
 }
 
+/* Nutrition Balance overage: when today's intake for a macro is above
+   its target, say by how much, in plain neutral language. Nothing extra
+   when the target is unset, or intake is at or below the target. */
+function macroProgressText(logged, target) {
+  if (!(target > 0)) return "";
+  const pct = Math.round(100 * logged / target);
+  const over = Math.round(logged - target);
+  return pct + "% of your target" + (over > 0 ? " · +" + over + "g over your target" : "");
+}
 function renderMacros() {
   const card = document.getElementById("macros-card");
   if (!card) return;
@@ -1481,17 +1490,34 @@ function renderMacros() {
   const totals = macroTotals(t);
   const targets = macroTargets();
   const total = totals.protein + totals.carbs + totals.fat;
-  paintDonut(totals);
+  // v005: no preset targets. Until the user sets their own targets in
+  // Settings, the donut stays empty and the card shows guidance instead
+  // of a 0% or a preset split.
+  const targetsSet = targets.protein > 0 || targets.carbs > 0 || targets.fat > 0;
+  const setupNote = document.getElementById("macro-setup-note");
+  if (setupNote) setupNote.classList.toggle("hidden", targetsSet);
+  paintDonut(targetsSet ? totals : { protein: 0, carbs: 0, fat: 0 });
+  // Nutrition Balance: the percentage split of the user's gram targets,
+  // as % of target calories (protein and carbs 4 cal/g, fat 9 cal/g).
+  // Updates whenever targets change, from the same render path.
+  const balanceEl = document.getElementById("macro-balance");
+  if (balanceEl) {
+    const pCal = targets.protein * 4, cCal = targets.carbs * 4, fCal = targets.fat * 9;
+    const tCal = pCal + cCal + fCal;
+    balanceEl.textContent = tCal > 0
+      ? "Your balance: " + Math.round(100 * pCal / tCal) + "% protein · " + Math.round(100 * cCal / tCal) + "% carbohydrates · " + Math.round(100 * fCal / tCal) + "% healthy fats"
+      : "";
+  }
   document.getElementById("macro-center-grams").textContent = totals[selectedMacro];
   document.getElementById("macro-center-label").textContent = selectedMacro + " logged today";
   MACRO_KEYS.forEach((key) => {
     const loggedEl = document.getElementById("logged-" + key);
     if (loggedEl) loggedEl.textContent = totals[key];
     const targetEl = document.getElementById("target-" + key + "-label");
-    if (targetEl) targetEl.textContent = targets[key];
+    if (targetEl) targetEl.textContent = targets[key] > 0 ? targets[key] : "—";
     const pct = targets[key] > 0 ? Math.round(100 * totals[key] / targets[key]) : 0;
     const pctEl = document.getElementById("pct-" + key);
-    if (pctEl) pctEl.textContent = pct + "% of your target";
+    if (pctEl) pctEl.textContent = macroProgressText(totals[key], targets[key]);
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
     // v169: the bar is a slider, so its value and max stay current.
@@ -1506,7 +1532,55 @@ function renderMacros() {
   renderCalories(totals);
   const svg = card.querySelector(".donut-wrap svg");
   if (svg) svg.setAttribute("aria-label", "Donut chart of today's macros. Protein " + totals.protein + " grams in gold, carbs " + totals.carbs + " grams in sage, fat " + totals.fat + " grams in cream tan.");
+  renderFoodList();
 }
+
+/* Today's food list: every food logged for the day being viewed, with
+   its macros and calories, so the user can check what they logged and
+   fix a mistake. Edit fills the Log food form; Delete removes the entry. */
+let editingFoodId = null;
+function renderFoodList() {
+  const listEl = document.getElementById("food-list");
+  if (!listEl) return;
+  const t = viewedDateStr();
+  const entries = [...(store.protein || [])].filter((e) => e.date === t);
+  if (!entries.length) {
+    listEl.innerHTML = "<p class=\"muted\" style=\"margin:0;font-size:.9em\">No foods logged yet today.</p>";
+    return;
+  }
+  listEl.innerHTML = entries.map((e) => {
+    const p = Number(e.grams) || 0, c = Number(e.carbs) || 0, f = Number(e.fat) || 0;
+    const kcal = Math.round(p * 4 + c * 4 + f * 9);
+    return "<div class=\"food-item\" style=\"display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--border)\">"
+      + "<div style=\"flex:1;min-width:0\"><div style=\"font-weight:600\">" + escapeHtml(e.food || "Logged food") + "</div>"
+      + "<div class=\"muted\" style=\"font-size:.85em\">" + p + "g protein · " + c + "g carbs · " + f + "g fat · " + kcal + " cal</div></div>"
+      + "<button type=\"button\" class=\"btn btn-small\" data-edit-food=\"" + e.id + "\" aria-label=\"Edit " + escapeHtml(e.food || "food") + "\">Edit</button>"
+      + "<button type=\"button\" class=\"btn btn-small btn-danger\" data-del-food=\"" + e.id + "\" aria-label=\"Delete " + escapeHtml(e.food || "food") + "\">Delete</button></div>";
+  }).join("");
+}
+document.getElementById("food-list").addEventListener("click", (e) => {
+  const editBtn = e.target.closest("[data-edit-food]");
+  const delBtn = e.target.closest("[data-del-food]");
+  if (editBtn) {
+    const entry = (store.protein || []).find((x) => x.id === editBtn.dataset.editFood);
+    if (!entry) return;
+    editingFoodId = entry.id;
+    document.getElementById("macro-food-name").value = entry.food || "";
+    document.getElementById("macro-food-protein").value = Number(entry.grams) || "";
+    document.getElementById("macro-food-carbs").value = Number(entry.carbs) || "";
+    document.getElementById("macro-food-fat").value = Number(entry.fat) || "";
+    document.getElementById("macro-food-form").classList.remove("hidden");
+    document.getElementById("macro-food-name").focus();
+    return;
+  }
+  if (delBtn) {
+    const idx = (store.protein || []).findIndex((x) => x.id === delBtn.dataset.delFood);
+    if (idx === -1) return;
+    store.protein.splice(idx, 1);
+    saveStore();
+    renderToday();
+  }
+});
 
 document.querySelectorAll(".macro-row").forEach((row) => {
   row.addEventListener("click", (e) => {
@@ -1588,11 +1662,12 @@ function bindMacroSlide(key) {
     if (loggedEl) loggedEl.textContent = liveTotal;
     const pct = targets[key] > 0 ? Math.round(100 * liveTotal / targets[key]) : 0;
     const pctEl = document.getElementById("pct-" + key);
-    if (pctEl) pctEl.textContent = pct + "% of your target";
+    if (pctEl) pctEl.textContent = macroProgressText(liveTotal, targets[key]);
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
     bar.setAttribute("aria-valuenow", liveTotal);
-    paintDonut(totals);
+    const slideTargetsSet = targets.protein > 0 || targets.carbs > 0 || targets.fat > 0;
+    paintDonut(slideTargetsSet ? totals : { protein: 0, carbs: 0, fat: 0 });
     if (selectedMacro === key) {
       document.getElementById("macro-center-grams").textContent = liveTotal;
     }
@@ -1641,10 +1716,15 @@ MACRO_KEYS.forEach(bindMacroSlide);
 
 document.getElementById("macro-log-food").addEventListener("click", () => {
   const form = document.getElementById("macro-food-form");
+  const wasHidden = form.classList.contains("hidden");
   form.classList.toggle("hidden");
-  if (!form.classList.contains("hidden")) document.getElementById("macro-food-name").focus();
+  if (wasHidden) {
+    editingFoodId = null;
+    document.getElementById("macro-food-name").focus();
+  }
 });
 document.getElementById("macro-food-cancel").addEventListener("click", () => {
+  editingFoodId = null;
   document.getElementById("macro-food-form").classList.add("hidden");
   document.getElementById("macro-food-msg").textContent = "";
   document.getElementById("macro-food-search-status").textContent = "";
@@ -1663,7 +1743,13 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
     return;
   }
   const food = document.getElementById("macro-food-name").value.trim().slice(0, 120) || "Logged food";
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  if (editingFoodId) {
+    const i = (store.protein || []).findIndex((x) => x.id === editingFoodId);
+    if (i !== -1) store.protein[i] = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food };
+    editingFoodId = null;
+  } else {
+    store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  }
   saveStore();
   renderToday();
   document.getElementById("macro-food-form").classList.add("hidden");
@@ -1689,7 +1775,7 @@ async function searchFoodByName() {
   results.classList.add("hidden");
   results.innerHTML = "";
   try {
-    const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,nutriments,serving_size");
+    const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     const data = await res.json();
     const products = (data && data.products) || [];
     if (!products.length) { status.textContent = "No foods found. Try different words, or enter the grams by hand."; return; }
@@ -2085,7 +2171,19 @@ function renderNextInjection() {
   const dose = store.settings.dose ? store.settings.dose + " mg" : "";
   const last = lastInjection();
   const lastSite = last ? " Last site: " + last.site + "." : "";
-  const when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
+  const due = nextShotDue();
+  let when;
+  if (due && due.overdueDays > 0) {
+    when = "Your shot was due " + formatDate(due.dateStr) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
+  } else if (due && due.daysUntil === 0) {
+    when = "Today is your shot day.";
+  } else if (due && due.daysUntil === 1) {
+    when = "Your next shot is tomorrow (" + formatDate(due.dateStr) + ").";
+  } else if (due) {
+    when = "Your next shot is in " + due.daysUntil + " days (" + formatDate(due.dateStr) + ").";
+  } else {
+    when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
+  }
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
   // One-tap shot logging uses the usual medication, dose, and last site
@@ -2157,13 +2255,38 @@ let injCalYear, injCalMonth;
 function nextShotDateStr() {
   const shotDay = store.settings.shotDay;
   if (!shotDay) return null;
+  const due = nextShotDue();
+  return due ? due.dateStr : null;
+}
+
+/* Next shot due date, from the last taken shot + 7 days (weekly).
+   If no shot is logged yet, use the next occurrence of the shot
+   weekday. Returns { dateStr, overdueDays, daysUntil } or null when
+   no shot day is set. An overdue shot stays overdue until it is
+   logged, it never silently rolls forward to next week. */
+function nextShotDue() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const target = days.indexOf(shotDay);
   if (target < 0) return null;
-  const now = new Date();
-  const diff = (target - now.getDay() + 7) % 7;
-  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const today = todayStr();
+  const last = lastInjection();
+  let dueDate;
+  if (last) {
+    const d = new Date(last.date + "T00:00:00");
+    d.setDate(d.getDate() + 7);
+    dueDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  } else {
+    const now = new Date();
+    const diff = (target - now.getDay() + 7) % 7;
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+    dueDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  const todayD = new Date(today + "T00:00:00");
+  const dueD = new Date(dueDate + "T00:00:00");
+  const diffDays = Math.round((dueD - todayD) / 86400000);
+  return { dateStr: dueDate, overdueDays: diffDays < 0 ? -diffDays : 0, daysUntil: diffDays > 0 ? diffDays : 0 };
 }
 
 /* Arrow-key navigation for a calendar grid: arrows move focus to the
@@ -2227,7 +2350,7 @@ function renderInjectionCalendar() {
       document.getElementById("inj-cal-detail").textContent =
         list.length
           ? formatDate(el.dataset.calDate) + ": " +
-            list.map((j) => j.medication + " " + j.dose + " mg (" + j.site + ", " + (j.status || "On time") + ")").join("; ")
+            list.map((j) => j.medication + (j.dose ? " " + j.dose + " mg" : "") + " (" + j.site + ", " + (j.status || "On time") + ")").join("; ")
           : "No shot logged on " + formatDate(el.dataset.calDate) + ".";
     };
     el.addEventListener("click", show);
@@ -2311,6 +2434,7 @@ document.getElementById("show-injection-form").addEventListener("click", () => {
   injForm.reset();
   document.getElementById("inj-date").value = todayStr();
   document.getElementById("inj-med").value = store.settings.medication || "";
+  document.getElementById("inj-dose").value = store.settings.dose || "";
   document.getElementById("inj-status").value = "On time";
   document.getElementById("inj-status-note").classList.add("hidden");
   toggleForm(injForm, document.getElementById("show-injection-form"), true);
@@ -2462,6 +2586,18 @@ function renderRotationGuide() {
     return;
   }
   el.innerHTML = "Next site: <strong>" + escapeHtml(next) + "</strong>. Last shot was " + escapeHtml(last.site) + " on " + escapeHtml(formatDate(last.date)) + ".";
+  const due = nextShotDue();
+  if (due) {
+    if (due.overdueDays > 0) {
+      el.innerHTML += " Next shot was due " + escapeHtml(formatDate(due.dateStr)) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
+    } else if (due.daysUntil === 0) {
+      el.innerHTML += " Next shot is due today.";
+    } else if (due.daysUntil === 1) {
+      el.innerHTML += " Next shot is due tomorrow (" + escapeHtml(formatDate(due.dateStr)) + ").";
+    } else {
+      el.innerHTML += " Next shot is due in " + due.daysUntil + " days (" + escapeHtml(formatDate(due.dateStr)) + ").";
+    }
+  }
   if (btn) {
     btn.classList.remove("hidden");
     btn.onclick = () => {
@@ -2488,13 +2624,13 @@ function renderInjections() {
     const missedOrDelayed = status === "Missed" || status === "Delayed";
     return `
     <div class="entry">
-      <p class="entry-title">${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg</p>
+      <p class="entry-title">${escapeHtml(inj.medication)}${inj.dose ? " " + escapeHtml(inj.dose) + " mg" : ""}</p>
       <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)} &middot; ${escapeHtml(status)}</p>
       ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
       ${missedOrDelayed ? `<p class="entry-notes">Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>` : ""}
       <div class="entry-actions">
-        <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Edit</button>
-        <button class="btn btn-small btn-danger" data-del-inj="${inj.id}" aria-label="Delete injection: ${escapeHtml(inj.medication)} ${escapeHtml(inj.dose)} mg on ${escapeHtml(formatDate(inj.date))}">Delete</button>
+        <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)}${inj.dose ? " " + escapeHtml(inj.dose) + " mg" : ""} on ${escapeHtml(formatDate(inj.date))}">Edit</button>
+        <button class="btn btn-small btn-danger" data-del-inj="${inj.id}" aria-label="Delete injection: ${escapeHtml(inj.medication)}${inj.dose ? " " + escapeHtml(inj.dose) + " mg" : ""} on ${escapeHtml(formatDate(inj.date))}">Delete</button>
       </div>
     </div>`;
   }).join("")
@@ -2720,6 +2856,7 @@ function renderWeight() {
 
   renderWeightMilestone();
   drawWeightChart();
+  drawBMIChart();
 }
 
 /* ---------- BMI (v168) ---------- */
@@ -2835,6 +2972,24 @@ function buildDoctorSummary() {
     lines.push("None logged in the last 30 days.");
   }
   lines.push("");
+  // Exercise (last 30 days)
+  const recentEx = (store.exercise || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  lines.push("Exercise (last 30 days)");
+  if (recentEx.length) {
+    const totalMin = recentEx.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
+    const activeDays = new Set(recentEx.map((e) => e.date)).size;
+    lines.push("Total movement: " + totalMin + " minutes across " + activeDays + " day" + (activeDays === 1 ? "" : "s") + ".");
+    if (activeDays) lines.push("Average: " + Math.round(totalMin / activeDays) + " minutes per active day.");
+    const planLen = getMovementPlan().length;
+    let routineDays = 0;
+    for (const [d, st] of Object.entries(store.movementDone || {})) {
+      if (d >= localDateStr(thirtyDaysAgo) && st && Array.isArray(st.done) && st.done.length >= planLen) routineDays++;
+    }
+    if (routineDays) lines.push("Daily movement routine completed on " + routineDays + " day" + (routineDays === 1 ? "" : "s") + ".");
+  } else {
+    lines.push("No movement logged in the last 30 days.");
+  }
+  lines.push("");
   lines.push("This summary is from your own log. It is not medical advice.");
   return lines.join("\n");
 }
@@ -2915,8 +3070,12 @@ function renderWeightMilestone() {
     subEl.textContent = "From " + startW + " to " + curW + " lbs. You did this.";
   } else {
     const milestone = pctRound >= 75 ? 75 : pctRound >= 50 ? 50 : pctRound >= 25 ? 25 : 0;
-    textEl.textContent = milestone > 0
-      ? "You've reached the " + milestone + "% milestone. Beautiful work."
+    textEl.textContent = milestone === 75
+      ? "Three quarters of the way there. Beautiful work."
+      : milestone === 50
+      ? "Halfway there. Beautiful work."
+      : milestone === 25
+      ? "A quarter of the way there. Beautiful work."
       : "You're on your way. Every day counts.";
     subEl.textContent = pctRound + "% of the way from " + startW + " to your goal of " + goalW
       + " lbs (" + Math.abs(curW - goalW).toFixed(1) + " lbs to go).";
@@ -3075,6 +3234,92 @@ function drawWeightChart() {
   }
 
   renderWeightMilestone();
+}
+
+/* ---------- BMI history chart ---------- */
+/* BMI over time, from the same weigh-ins as the weight chart.
+   BMI = 703 × weight(lb) / height(in)². Only drawn when height is
+   set and there are at least two weigh-ins. A light band marks the
+   healthy range (BMI 18.5–24.9). */
+function drawBMIChart() {
+  const canvas = document.getElementById("bmi-chart");
+  const emptyMsg = document.getElementById("bmi-chart-empty");
+  if (!canvas) return;
+  const sorted = [...(store.weight || [])].sort(byDate);
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const chartText = document.getElementById("bmi-chart-text");
+  const ft = Number(store.settings && store.settings.heightFt);
+  const inch = Number(store.settings && store.settings.heightIn);
+  const totalIn = (Number.isFinite(ft) ? ft : 0) * 12 + (Number.isFinite(inch) ? inch : 0);
+  if (!(totalIn > 0)) {
+    if (emptyMsg) { emptyMsg.style.display = ""; emptyMsg.textContent = "Add your height in Settings to see your BMI chart."; }
+    if (chartText) chartText.textContent = "";
+    return;
+  }
+  if (sorted.length < 2) {
+    if (emptyMsg) { emptyMsg.style.display = ""; emptyMsg.textContent = "Log at least two weigh-ins to see your BMI chart."; }
+    if (chartText) chartText.textContent = sorted.length === 1
+      ? "One weigh-in so far. Log another weigh-in to see your BMI chart."
+      : "";
+    return;
+  }
+  if (emptyMsg) emptyMsg.style.display = "none";
+  const bmis = sorted.map((w) => 703 * Number(w.value) / (totalIn * totalIn));
+  const W = canvas.width, H = canvas.height;
+  const padL = 52, padR = 16, padT = 16, padB = 40;
+  const min = Math.min(...bmis), max = Math.max(...bmis);
+  const span = Math.max(max - min, 1);
+  const lo = Math.min(min - span * 0.15, 18.5 - span * 0.1);
+  const hi = Math.max(max + span * 0.15, 24.9 + span * 0.1);
+  const x = (i) => padL + (i / (sorted.length - 1)) * (W - padL - padR);
+  const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
+  ctx.fillStyle = "rgba(90,107,82,0.10)";
+  ctx.fillRect(padL, y(24.9), W - padL - padR, y(18.5) - y(24.9));
+  ctx.strokeStyle = "#E5E0D5";
+  ctx.fillStyle = "#6E6A5E";
+  ctx.font = "20px sans-serif";
+  ctx.textAlign = "right";
+  for (let g = 0; g <= 4; g++) {
+    const gv = lo + ((hi - lo) / 4) * g;
+    ctx.beginPath();
+    ctx.moveTo(padL, y(gv));
+    ctx.lineTo(W - padR, y(gv));
+    ctx.stroke();
+    ctx.fillText(gv.toFixed(1), padL - 8, y(gv) + 7);
+  }
+  ctx.textAlign = "center";
+  const labelEvery = Math.max(1, Math.ceil(sorted.length / 5));
+  sorted.forEach((w, i) => {
+    if (i % labelEvery === 0 || i === sorted.length - 1) {
+      ctx.textAlign = i === sorted.length - 1 ? "right" : i === 0 ? "left" : "center";
+      ctx.fillText(formatDate(w.date).replace(/, \d{4}$/, ""),
+        i === sorted.length - 1 ? W - 4 : i === 0 ? 4 : x(i), H - 12);
+      ctx.textAlign = "center";
+    }
+  });
+  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
+  grad.addColorStop(0, "rgba(201,169,106,0.35)");
+  grad.addColorStop(1, "rgba(201,169,106,0.02)");
+  ctx.beginPath();
+  bmis.forEach((v, i) => (i === 0 ? ctx.moveTo(x(i), y(v)) : ctx.lineTo(x(i), y(v))));
+  ctx.strokeStyle = "#E8B54A";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  ctx.lineTo(x(bmis.length - 1), H - padB);
+  ctx.lineTo(x(0), H - padB);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.fillStyle = "#E8B54A";
+  bmis.forEach((v, i) => {
+    ctx.beginPath();
+    ctx.arc(x(i), y(v), 7, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  if (chartText) {
+    chartText.textContent = "BMI from " + bmis[0].toFixed(1) + " on " + formatDate(sorted[0].date) + " to " + bmis[bmis.length - 1].toFixed(1) + " on " + formatDate(sorted[sorted.length - 1].date) + " over " + sorted.length + " weigh-ins. Healthy range 18.5–24.9.";
+  }
 }
 
 /* ---------- Measurements ---------- */
@@ -3555,7 +3800,273 @@ document.getElementById("medicine-form").addEventListener("submit", (e) => {
 /* ---------- Saved recipes ---------- */
 /* Recipes from the Companion, saved to cook again. Title plus the
    ingredients and steps, pasted in. Stored on this device only. */
+/* ---------- New Chapter Kitchen ---------- */
+/* Built-in recipe library. Per-serving macros are estimated from USDA
+   FoodData Central values for the listed ingredients (chicken breast
+   roasted FDC 171477, Greek yogurt nonfat FDC 174833, salmon Atlantic
+   cooked FDC 175168, egg FDC 171727, and standard entries for oats,
+   quinoa, vegetables, and grains). Calories are 4/4/9 from the rounded
+   macros, the same conversion the app uses everywhere. Tags drive the
+   filter chips. Low-oxalate is tagged only where every ingredient is
+   generally low in oxalate (no spinach, sweet potato, or oats). */
+const KITCHEN_RECIPES = [
+  {
+    id: "lemon-garlic-chicken",
+    name: "Lemon Garlic Chicken with Zucchini",
+    category: "High Protein",
+    time: 25, difficulty: "Easy", servings: 2,
+    protein: 36, carbs: 5, fat: 9, calories: 245,
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium", "low-oxalate"],
+    ingredients: [
+      "2 chicken breasts (about 225 g total)",
+      "2 zucchini, sliced",
+      "1 lemon, juiced",
+      "2 garlic cloves, minced",
+      "1 tablespoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    steps: [
+      "Season the chicken with lemon juice, garlic, salt, and pepper.",
+      "Cook in a pan with olive oil until the center reaches 165°F.",
+      "Add the zucchini and cook until just tender.",
+      "Serve the chicken over the zucchini."
+    ]
+  },
+  {
+    id: "greek-yogurt-egg-bowl",
+    name: "Greek Yogurt Egg Power Bowl",
+    category: "High Protein",
+    time: 10, difficulty: "Easy", servings: 1,
+    protein: 25, carbs: 9, fat: 6, calories: 190,
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "170 g plain nonfat Greek yogurt (about 3/4 cup)",
+      "1 boiled egg, halved",
+      "30 g fresh spinach (about 1 cup)",
+      "50 g cucumber, sliced"
+    ],
+    steps: [
+      "Spoon the yogurt into a bowl.",
+      "Add the egg, spinach, and cucumber.",
+      "Season with a little salt and pepper.",
+      "Eat right away, or chill and take it with you."
+    ]
+  },
+  {
+    id: "berry-yogurt-bowl",
+    name: "Berry Greek Yogurt Bowl",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 20, carbs: 31, fat: 2, calories: 222,
+    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "170 g plain nonfat Greek yogurt (about 3/4 cup)",
+      "75 g blueberries (about 1/2 cup)",
+      "20 g rolled oats (about 2 tablespoons)"
+    ],
+    steps: [
+      "Spoon the yogurt into a bowl.",
+      "Top with blueberries and oats.",
+      "Stir lightly and eat."
+    ]
+  },
+  {
+    id: "spinach-scrambled-eggs",
+    name: "Spinach Scrambled Eggs with Toast",
+    category: "Easy Breakfasts",
+    time: 10, difficulty: "Easy", servings: 1,
+    protein: 17, carbs: 14, fat: 16, calories: 268,
+    tags: ["breakfast", "easy-prep", "low-carb", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "2 eggs",
+      "30 g fresh spinach (about 1 cup)",
+      "1 teaspoon olive oil",
+      "1 slice whole wheat bread, toasted"
+    ],
+    steps: [
+      "Whisk the eggs in a bowl.",
+      "Warm the oil in a pan and wilt the spinach.",
+      "Pour in the eggs and stir gently until just set.",
+      "Serve with the toast."
+    ]
+  },
+  {
+    id: "salmon-quinoa-broccoli",
+    name: "Salmon, Quinoa and Broccoli",
+    category: "Balanced Dinners",
+    time: 25, difficulty: "Easy", servings: 2,
+    protein: 32, carbs: 28, fat: 21, calories: 429,
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    ingredients: [
+      "2 salmon fillets (about 225 g total)",
+      "200 g cooked quinoa (about 1 cup)",
+      "200 g broccoli florets",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and lemon to taste"
+    ],
+    steps: [
+      "Cook the salmon in a pan with 1 teaspoon of olive oil until it flakes.",
+      "Steam or roast the broccoli until tender.",
+      "Toss the quinoa with the remaining oil.",
+      "Serve the salmon over the quinoa with broccoli on the side."
+    ]
+  },
+  {
+    id: "turkey-vegetable-skillet",
+    name: "Turkey and Vegetable Skillet",
+    category: "Balanced Dinners",
+    time: 20, difficulty: "Easy", servings: 2,
+    protein: 31, carbs: 28, fat: 16, calories: 380,
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "240 g lean ground turkey",
+      "200 g cooked sweet potato, cubed (about 1 cup)",
+      "200 g green beans",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    steps: [
+      "Brown the turkey in a pan with the olive oil.",
+      "Add the green beans and cook until tender.",
+      "Stir in the sweet potato and warm through.",
+      "Season and serve."
+    ]
+  },
+  {
+    id: "berry-protein-smoothie",
+    name: "Berry Protein Smoothie",
+    category: "Small Appetite",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 15, carbs: 30, fat: 5, calories: 225,
+    tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "low-oxalate"],
+    ingredients: [
+      "100 g plain nonfat Greek yogurt",
+      "120 ml whole milk (about 1/2 cup)",
+      "1/2 banana",
+      "50 g blueberries (about 1/3 cup)"
+    ],
+    steps: [
+      "Put everything in a blender.",
+      "Blend until smooth.",
+      "Pour into a glass and drink right away."
+    ]
+  },
+  {
+    id: "egg-toast-plate",
+    name: "Egg and Toast Plate",
+    category: "Small Appetite",
+    time: 10, difficulty: "Easy", servings: 1,
+    protein: 18, carbs: 16, fat: 7, calories: 199,
+    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-sodium", "low-oxalate"],
+    ingredients: [
+      "1 egg, boiled or fried",
+      "1 slice whole wheat bread, toasted",
+      "60 g low-fat cottage cheese (about 1/4 cup)",
+      "50 g cucumber, sliced"
+    ],
+    steps: [
+      "Cook the egg the way you like it.",
+      "Toast the bread.",
+      "Plate the egg, toast, cottage cheese, and cucumber.",
+      "Season lightly and eat."
+    ]
+  }
+];
+let kitchenFilter = "all";
+const kitchenServings = {}; // recipe id -> servings to add (default 1)
+const kitchenAddedAt = {}; // recipe id -> timestamp of last Add to Today
+
+function kitchenIsSaved(id) {
+  return store.recipes.some((r) => r.kitchenId === id);
+}
+function kitchenBodyText(r) {
+  return "Ingredients\n" + r.ingredients.map((i) => "- " + i).join("\n")
+    + "\n\nSteps\n" + r.steps.map((s, i) => (i + 1) + ". " + s).join("\n")
+    + "\n\nPer serving: " + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat, " + r.calories + " calories.";
+}
+function renderKitchen() {
+  const list = document.getElementById("kitchen-list");
+  if (!list) return;
+  const shown = KITCHEN_RECIPES.filter((r) => kitchenFilter === "all" || r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+  if (!shown.length) {
+    list.innerHTML = '<p class="empty-state">No recipes match this filter yet.</p>';
+    return;
+  }
+  list.innerHTML = shown.map((r) => {
+    const n = kitchenServings[r.id] || 1;
+    const saved = kitchenIsSaved(r.id);
+    const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
+    return `<article class="kitchen-card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+        <strong>${escapeHtml(r.name)}</strong>
+        <span class="muted" style="font-size:.85em;white-space:nowrap">${escapeHtml(r.category)}</span>
+      </div>
+      <p class="muted" style="font-size:.85em;margin:4px 0 8px">${r.time} minutes · ${escapeHtml(r.difficulty)} · Serves ${r.servings}</p>
+      <div class="kitchen-macros">
+        <div class="kitchen-macro"><b>${r.protein}g</b><span>Protein</span></div>
+        <div class="kitchen-macro"><b>${r.carbs}g</b><span>Carbs</span></div>
+        <div class="kitchen-macro"><b>${r.fat}g</b><span>Fat</span></div>
+        <div class="kitchen-macro"><b>${r.calories}</b><span>Calories</span></div>
+      </div>
+      <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving</p>
+      <details class="kitchen-details"><summary>Ingredients and steps</summary>
+        <ul>${r.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
+        <ol>${r.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
+      </details>
+      <div class="kitchen-actions">
+        <button type="button" class="btn btn-small" data-kitchen-save="${r.id}">${saved ? "Saved ✓" : "Save"}</button>
+        <span class="kitchen-stepper">
+          <button type="button" class="btn btn-small" data-kitchen-serv="${r.id}" data-dir="-1" aria-label="One fewer serving">−</button>
+          <span aria-live="polite">Servings: ${n}</span>
+          <button type="button" class="btn btn-small" data-kitchen-serv="${r.id}" data-dir="1" aria-label="One more serving">+</button>
+        </span>
+        <button type="button" class="btn btn-small btn-primary" data-kitchen-add="${r.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
+      </div>
+      <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${r.protein * n}g protein, ${r.carbs * n}g carbs, ${r.fat * n}g fat.</p>
+    </article>`;
+  }).join("");
+  list.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => {
+    const r = KITCHEN_RECIPES.find((x) => x.id === btn.dataset.kitchenSave);
+    if (!r) return;
+    if (kitchenIsSaved(r.id)) {
+      store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
+    } else {
+      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id });
+    }
+    saveStore();
+    renderRecipes();
+  }));
+  list.querySelectorAll("[data-kitchen-serv]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.kitchenServ;
+    kitchenServings[id] = Math.max(1, (kitchenServings[id] || 1) + Number(btn.dataset.dir));
+    renderKitchen();
+  }));
+  list.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => {
+    const r = KITCHEN_RECIPES.find((x) => x.id === btn.dataset.kitchenAdd);
+    if (!r) return;
+    const n = kitchenServings[r.id] || 1;
+    /* Same path as the Log food form: one macro entry for the day,
+       then saveStore + renderToday, so entries, snapshots, and the
+       backup cap behave exactly as for logging food. Calories come
+       from the macros via the existing 4/4/9 calculation. */
+    store.protein.push({ id: uid(), date: viewedDateStr(), grams: r.protein * n, carbs: r.carbs * n, fat: r.fat * n, food: r.name });
+    saveStore();
+    renderToday();
+    kitchenAddedAt[r.id] = Date.now();
+    renderKitchen();
+    setTimeout(() => { delete kitchenAddedAt[r.id]; renderKitchen(); }, 2500);
+  }));
+}
+document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
+  kitchenFilter = chip.dataset.filter;
+  document.querySelectorAll("#kitchen-filters [data-filter]").forEach((c) => c.classList.toggle("active", c === chip));
+  const note = document.getElementById("kitchen-oxalate-note");
+  if (note) note.classList.toggle("hidden", kitchenFilter !== "low-oxalate");
+  renderKitchen();
+}));
+
 function renderRecipes() {
+  renderKitchen();
   const list = document.getElementById("recipe-list");
   if (!list) return;
   if (!store.recipes.length) {
@@ -3662,19 +4173,20 @@ function renderSettings() {
   const s = store.settings;
   document.getElementById("set-companion-key").value = maskToken(getAuthToken());
   updateCoachStatus();
+  updateSubscriptionStatus();
   renderPlaySubscription();
   document.getElementById("set-med").value = s.medication || "";
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
   document.getElementById("set-water-step").value = s.waterStep || 8;
-  document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
+  document.getElementById("set-protein-goal").value = s.proteinGoal || "";
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   document.getElementById("set-movement-step").value = s.movementStep || 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
-  document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
-  document.getElementById("set-fat-goal").value = s.fatGoal || 60;
+  document.getElementById("set-carbs-goal").value = s.carbGoal || "";
+  document.getElementById("set-fat-goal").value = s.fatGoal || "";
   // v169: the calorie target is optional; blank stays blank.
   document.getElementById("set-calorie-target").value = s.calorieTarget === "" || s.calorieTarget === undefined ? "" : s.calorieTarget;
   document.getElementById("set-height-ft").value = s.heightFt === "" || s.heightFt === undefined ? "" : s.heightFt;
@@ -3768,7 +4280,8 @@ function renderRefillCountdown() {
 })();
 
 /* v169: a blank or invalid macro target leaves the existing target
-   unchanged; the default applies only when nothing was ever set.
+   unchanged; v005: there is no preset default, so a blank save when
+   nothing was ever set stays unset.
    (The type-in fields already exist under Your goals; this only changes
    what a blank or invalid save does, so clearing a field by mistake
    cannot reset a target she set.) */
@@ -3806,7 +4319,7 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   const ws = Number(document.getElementById("set-water-step").value);
   store.settings.waterStep = ws > 0 ? Math.round(ws) : 8;
   // v169: a blank or invalid macro target keeps the existing target.
-  store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
+  store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, "");
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
   const ms = Number(document.getElementById("set-movement-step").value);
@@ -3814,8 +4327,8 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
-  store.settings.carbGoal = keepMacroTarget(document.getElementById("set-carbs-goal").value, store.settings.carbGoal, 150);
-  store.settings.fatGoal = keepMacroTarget(document.getElementById("set-fat-goal").value, store.settings.fatGoal, 60);
+  store.settings.carbGoal = keepMacroTarget(document.getElementById("set-carbs-goal").value, store.settings.carbGoal, "");
+  store.settings.fatGoal = keepMacroTarget(document.getElementById("set-fat-goal").value, store.settings.fatGoal, "");
   // v169: the calorie target is optional and has no default. Whole
   // numbers only; blank or invalid stays unset.
   const ctRaw = document.getElementById("set-calorie-target").value.trim();
@@ -3892,6 +4405,26 @@ function updateCoachStatus() {
   }
 }
 
+/* Subscription status in Settings. Uses only the paid access this device
+   already tracks (the companion token from the website flow, or a Play
+   entitlement). It never invents a plan type: the app does not store
+   whether a website subscriber is monthly or annual. */
+function updateSubscriptionStatus() {
+  const line = document.getElementById("subscription-status-line");
+  if (!line) return;
+  const token = getAuthToken();
+  if (token && token.length >= 16) {
+    line.textContent = "Your subscription is active, and your AI Wellness Companion is connected.";
+    line.style.color = "var(--sage-dark)";
+  } else if (isPlayEntitled()) {
+    line.textContent = "Your Play subscription is active.";
+    line.style.color = "var(--sage-dark)";
+  } else {
+    line.textContent = "No active subscription on this device.";
+    line.style.color = "";
+  }
+}
+
 function setCodeError(text) {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
@@ -3955,6 +4488,19 @@ async function redeemAccessCode() {
 }
 
 document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+
+/* Subscription section in Settings: Resubscribe reveals the two Stripe
+   plan links; Cancel is a pre-filled email (one-tap portal cancel needs a
+   server and is a post-November 30 follow up). */
+document.getElementById("resubscribe-btn").addEventListener("click", () => {
+  const btn = document.getElementById("resubscribe-btn");
+  const plans = document.getElementById("resubscribe-plans");
+  if (!btn || !plans) return;
+  const opening = plans.classList.contains("hidden");
+  plans.classList.toggle("hidden", !opening);
+  btn.setAttribute("aria-expanded", opening ? "true" : "false");
+  btn.textContent = opening ? "Hide plans" : "Resubscribe";
+});
 document.getElementById("set-access-code").addEventListener("input", () => {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
@@ -4820,14 +5366,66 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
   // User can change everything in Settings.
   if (!store.settings.medication) store.settings.medication = "Zepbound";
   if (!store.settings.waterGoal) store.settings.waterGoal = 92;
-  if (!store.settings.proteinGoal) store.settings.proteinGoal = 90;
+  // v005: no preset macro targets; the user sets their own in Settings.
   // Only save when there is actually something to save. Saving an empty
   // store here would write over a missing save with blank defaults (S2).
   try {
     if (JSON.stringify(store) !== JSON.stringify(DEFAULTS)) saveStore();
   } catch {}
-  localStorage.setItem("nct-setup-done", "1");
+  // The flag is set only when the first-run setup is finished or
+  // skipped (see the setup overlay below), so a fresh install sees
+  // the setup steps instead of landing on blank fields.
 })();
+
+/* ---------- First-run setup ---------- */
+/* A 4-step setup shown once, on a fresh install: name, medication +
+   dose, shot day, height + goal weight. Nothing is required: every
+   step can be left blank, and Skip closes the setup without saving.
+   Existing installs already have nct-setup-done set and never see it. */
+let setupStep = 1;
+function showSetupStep(n) {
+  setupStep = n;
+  document.querySelectorAll("#setup-overlay .setup-step").forEach((s) => {
+    s.classList.toggle("hidden", Number(s.dataset.step) !== n);
+  });
+  document.getElementById("setup-step-label").textContent = "Step " + n + " of 4";
+  document.getElementById("setup-back").classList.toggle("hidden", n === 1);
+  document.getElementById("setup-next").textContent = n === 4 ? "Finish" : "Next";
+}
+function finishSetup(save) {
+  if (save) {
+    const name = document.getElementById("setup-name").value.trim().slice(0, 60);
+    if (name) store.settings.yourName = name;
+    const med = document.getElementById("setup-med").value.trim();
+    if (med) store.settings.medication = med;
+    const dose = document.getElementById("setup-dose").value;
+    if (dose) store.settings.dose = dose;
+    const shotDay = document.getElementById("setup-shot-day").value;
+    if (shotDay) store.settings.shotDay = shotDay;
+    const hft = Number(document.getElementById("setup-height-ft").value);
+    if (Number.isFinite(hft) && hft >= 0 && hft <= 8) store.settings.heightFt = hft;
+    const hin = Number(document.getElementById("setup-height-in").value);
+    if (Number.isFinite(hin) && hin >= 0 && hin <= 11) store.settings.heightIn = hin;
+    const gw = Number(document.getElementById("setup-goal-weight").value);
+    if (gw > 0) store.settings.goalWeight = gw;
+    saveStore();
+  }
+  try { localStorage.setItem("nct-setup-done", "1"); } catch {}
+  document.getElementById("setup-overlay").classList.add("hidden");
+  renderToday();
+}
+document.getElementById("setup-next").addEventListener("click", () => {
+  if (setupStep < 4) showSetupStep(setupStep + 1);
+  else finishSetup(true);
+});
+document.getElementById("setup-back").addEventListener("click", () => {
+  if (setupStep > 1) showSetupStep(setupStep - 1);
+});
+document.getElementById("setup-skip").addEventListener("click", () => finishSetup(false));
+if (!localStorage.getItem("nct-setup-done")) {
+  showSetupStep(1);
+  document.getElementById("setup-overlay").classList.remove("hidden");
+}
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
   if (!confirm("Delete ALL your data? Your entries will be gone. A safety copy will stay in Backup & restore in Settings, in case this was a mistake. Consider downloading a backup first.")) return;
@@ -4978,6 +5576,39 @@ checkForAppUpdate();
 const COMPANION_API_URL = "https://github-fetcher.millrjess.workers.dev/api/chat";
 const MEMORY_API_URL = "https://github-fetcher.millrjess.workers.dev/api/memory";
 
+/* Build the GLP-1 context sent with each Companion chat message so
+   replies are personalized to this user's treatment, not generic.
+   Only includes what the user has already logged in the app. */
+function buildCompanionContext() {
+  const s = store.settings || {};
+  const ctx = {};
+  if (s.medication) ctx.medication = s.medication;
+  if (s.dose) ctx.dose = s.dose;
+  if (s.shotDay) ctx.shotDay = s.shotDay;
+  const today = todayStr();
+  const proteinLogged = Math.round(sumForDate(store.protein || [], today, "grams"));
+  const proteinTarget = Number(s.proteinGoal) || 0;
+  if (proteinTarget) { ctx.proteinLogged = proteinLogged; ctx.proteinTarget = proteinTarget; }
+  ctx.movementMinutes = Math.round(sumForDate(store.exercise || [], today, "minutes"));
+  ctx.waterOz = Math.round(sumForDate(store.water || [], today, "oz"));
+  const sortedW = [...(store.weight || [])].sort(byDate);
+  const latest = sortedW[sortedW.length - 1];
+  const start = getStartingWeight();
+  if (latest && start) {
+    const change = Number(start.value) - Number(latest.value);
+    ctx.weightChange = "Latest " + Number(latest.value).toFixed(1) + " lbs, " + (change >= 0 ? "-" : "+") + Math.abs(change).toFixed(1) + " lbs since starting";
+  } else if (latest) {
+    ctx.weightChange = "Latest " + Number(latest.value).toFixed(1) + " lbs";
+  }
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentE = [...(store.sideEffects || [])].filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  if (recentE.length) {
+    ctx.recentSideEffects = recentE.slice(0, 5).map((e) => e.symptom + " (" + e.severity + ")").join(", ");
+  }
+  return ctx;
+}
+
 /* ---------- Companion memory (opt-in) ---------- */
 
 function memoryHeaders() {
@@ -5007,6 +5638,9 @@ async function loadCoachMemory() {
       }
       document.getElementById("memory-goals").value = data.profile.goals || "";
       document.getElementById("memory-preferences").value = data.profile.preferences || "";
+      document.getElementById("memory-medication").value = data.profile.medication || "";
+      document.getElementById("memory-dose").value = data.profile.dose || "";
+      document.getElementById("memory-shot-day").value = data.profile.shotDay || "";
       document.getElementById("memory-saved-msg").classList.remove("hidden");
       document.getElementById("memory-optin-card").removeAttribute("open");
     }
@@ -5040,6 +5674,9 @@ document.getElementById("memory-save").addEventListener("click", async () => {
     name: document.getElementById("memory-name").value.trim(),
     goals: document.getElementById("memory-goals").value.trim(),
     preferences: document.getElementById("memory-preferences").value.trim(),
+    medication: document.getElementById("memory-medication").value.trim(),
+    dose: document.getElementById("memory-dose").value.trim(),
+    shotDay: document.getElementById("memory-shot-day").value.trim(),
   };
   try {
     const res = await fetch(MEMORY_API_URL, {
@@ -5225,6 +5862,7 @@ function speakCompanion(text) {
     const u = new SpeechSynthesisUtterance(clean);
     const voice = selectedVoice();
     if (voice) u.voice = voice;
+    u.rate = 0.9; // v004: a slightly slower read, so the Companion sounds calm and relaxed.
     currentUtterance = u;
     u.onend = () => { if (currentUtterance === u) currentUtterance = null; };
     u.onerror = () => { if (currentUtterance === u) currentUtterance = null; };
@@ -5241,21 +5879,41 @@ function stopSpeaking() {
 /* v001: Companion voice picker. Lists the phone's built-in speech
    voices (speechSynthesis), on-device and free. The chosen voice name
    is stored in settings; blank means the phone default. Voices load
-   asynchronously, so the picker refills on voiceschanged. */
+   asynchronously, so the picker refills on voiceschanged. Only the
+   best voices are offered: premium/enhanced first, compact voices
+   dropped, so the list never shows the jerky robotic ones. */
 function availableVoices() {
   if (!("speechSynthesis" in window)) return [];
   try { return window.speechSynthesis.getVoices() || []; } catch { return []; }
 }
+/* Best voices only, in preference order: voices matching the device
+   language; among those, premium/enhanced voices if any exist;
+   otherwise all but the compact ones; if that leaves none, all
+   voices for the language, so the picker is never empty. */
+function bestVoices(voices) {
+  const list = voices || [];
+  const lang = (navigator.language || "en").toLowerCase();
+  const prefix = lang.split("-")[0];
+  let same = list.filter((v) => (v.lang || "").toLowerCase() === lang);
+  if (!same.length) same = list.filter((v) => (v.lang || "").toLowerCase().split("-")[0] === prefix);
+  if (!same.length) same = list;
+  const uri = (v) => String(v.voiceURI || "").toLowerCase();
+  const premium = same.filter((v) => uri(v).indexOf("premium") !== -1 || uri(v).indexOf("enhanced") !== -1);
+  if (premium.length) return premium;
+  const nonCompact = same.filter((v) => uri(v).indexOf("compact") === -1);
+  if (nonCompact.length) return nonCompact;
+  return same;
+}
 function selectedVoice() {
   const name = store.settings.companionVoice || "";
   if (!name) return null;
-  const voices = availableVoices();
-  return voices.find((v) => v.name === name) || null;
+  const voices = bestVoices(availableVoices());
+  return voices.find((v) => v.name === name) || voices[0] || null;
 }
 function populateVoicePicker() {
   const sel = document.getElementById("set-companion-voice");
   if (!sel) return;
-  const voices = availableVoices();
+  const voices = bestVoices(availableVoices());
   const current = store.settings.companionVoice || "";
   sel.innerHTML = "";
   const def = document.createElement("option");
@@ -5271,6 +5929,23 @@ function populateVoicePicker() {
   sel.value = voices.some((v) => v.name === current) ? current : "";
   if (sel.value !== current) store.settings.companionVoice = "";
 }
+/* v004: Preview the voice. Speaks a sample line in the voice currently
+   chosen in the picker, so you can hear it before saving. Uses the same
+   calm rate as the real read-aloud. */
+document.getElementById("companion-voice-preview").addEventListener("click", () => {
+  if (!("speechSynthesis" in window)) return;
+  const sel = document.getElementById("set-companion-voice");
+  const name = sel ? sel.value : "";
+  const voices = bestVoices(availableVoices());
+  const voice = name ? voices.find((v) => v.name === name) || null : null;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance("Hello. I am your AI Wellness Companion. I am here to help you stay strong while the medicine works.");
+    if (voice) u.voice = voice;
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  } catch {}
+});
 function isSpeaking() { return currentUtterance !== null; }
 let lastSpokenReply = "";
 function maybeReadAloud() {
@@ -5337,12 +6012,14 @@ function renderChat() {
     b.textContent = "🔊 Listen";
     b.dataset.text = text;
     b.addEventListener("click", () => {
-      if (isSpeaking()) { stopSpeaking(); b.textContent = "🔊 Listen"; return; }
+      if (isSpeaking()) { stopSpeaking(); b.textContent = "🔊 Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); return; }
       if (speakCompanion(text)) {
         b.textContent = "⏹ Stop";
+        b.classList.add("playing");
+        b.setAttribute("aria-label", "Stop listening");
         const u = currentUtterance;
         if (u) {
-          const done = () => { b.textContent = "🔊 Listen"; };
+          const done = () => { b.textContent = "🔊 Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); };
           u.addEventListener("end", done);
           u.addEventListener("error", done);
         }
@@ -5467,8 +6144,10 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
       headers: headers,
       // v000: pass the Companion's chosen name so the worker can
       // include it in the system prompt ("Your name is X"). Sent
-      // only when a custom name is set.
-      body: JSON.stringify({ messages: chatHistory, companionName: companionDisplayName() === COMPANION_DEFAULT_NAME ? undefined : companionDisplayName() }),
+      // only when a custom name is set. Also send the GLP-1 context
+      // (medication, dose, shot day, today's protein/movement/water,
+      // weight trend, recent side effects) so replies are personalized.
+      body: JSON.stringify({ messages: chatHistory, companionName: companionDisplayName() === COMPANION_DEFAULT_NAME ? undefined : companionDisplayName(), context: buildCompanionContext() }),
     });
 
     const data = await res.json();

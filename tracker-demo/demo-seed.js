@@ -19,15 +19,15 @@
       var store = {
         settings: {
           medication: "Zepbound",
-          dose: "",
-          shotDay: "",
+          dose: "5",
+          shotDay: "Wednesday",
           waterGoal: 92,
           proteinGoal: 90,
           movementGoal: 30,
           carbGoal: 150,
           fatGoal: 60,
           heightFt: 5,
-          heightIn: 6,
+          heightIn: 5,
           refillDate: "",
           goalWeight: "160"
         },

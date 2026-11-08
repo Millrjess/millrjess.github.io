@@ -1317,10 +1317,10 @@ textarea {
 /* Your Macros donut card: protein gold, carbs sage, fat soft cream tan.
    Same donut geometry as the approved preview (r=84, circumference
    527.79). Tap a row or a segment to show that macro in the center. */
-.donut-wrap { position: relative; width: 216px; height: 216px; margin: 1rem auto 0.25rem; }
+.donut-wrap { position: relative; width: 260px; height: 260px; margin: 1rem auto 0.25rem; }
 .donut-wrap svg { display: block; }
 .donut-seg { transition: opacity 0.25s ease; cursor: pointer; }
-.donut-label { font-size: 13px; font-weight: 700; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,0.35); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.donut-label { font-size: 14px; font-weight: 700; fill: #333; pointer-events: none; }
 .donut-center {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center; pointer-events: none;
@@ -1347,14 +1347,17 @@ textarea {
 .dot.fat { background: #DCC9A3; border: 1px solid #C9B586; }
 .macro-vals { font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
 .macro-vals .of { color: var(--muted); }
-.macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: hidden; margin-top: 0.3rem; }
+.macro-why { grid-column: 1 / -1; font-size: .85em; }
+.macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: visible; margin-top: 0.3rem; }
 /* Slide a macro row (v169): the bar is the slide target, like the rings.
    touch-action none so the page does not scroll while sliding. The
    padding widens the grab area to about 20px tall while the visible
    track stays 6px; the negative margin keeps the row spacing the same. */
 .macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: -7px 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.macro-bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.macro-bar i { position: relative; display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #C9A96A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.macro-row, .macro-bar { user-select: none; -webkit-user-select: none; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
 .macro-pct { font-size: 0.82rem; color: var(--muted); }
 /* Log steppers on each macro row: change the day's logged grams by
@@ -1583,6 +1586,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   font-size: 0.85rem;
   padding: 6px 12px;
 }
+.chat-listen.playing { background: #E8B54A; border-color: #C9A96A; color: #2B2B28; font-weight: 700; }
 
 /* Mic button (v000): visible Listening state while recording. */
 .chat-mic.listening {
@@ -1639,3 +1643,34 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .theme-swatch-sage { background: #5A6B52; }
 .theme-swatch-dark { background: #20261F; }
 .theme-swatch-cream { background: #FFFDF8; }
+
+/* New Chapter Kitchen: filter chips and recipe cards. */
+.kitchen-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.kitchen-chip {
+  font: inherit;
+  font-size: .85em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.kitchen-chip.active { background: var(--sage); border-color: var(--sage); color: #fff; }
+.kitchen-list { display: grid; gap: 12px; margin: 4px 0 12px; }
+.kitchen-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+.kitchen-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; margin-top: 8px; }
+.kitchen-macro b { display: block; font-size: 1.05em; }
+.kitchen-macro span { font-size: .8em; color: var(--muted); }
+.kitchen-details { margin-top: 8px; font-size: .9em; }
+.kitchen-details summary { cursor: pointer; font-weight: 500; }
+.kitchen-details ul, .kitchen-details ol { margin: 6px 0 0 18px; padding: 0; }
+.kitchen-details li { margin: 2px 0; }
+.kitchen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.kitchen-stepper { display: inline-flex; align-items: center; gap: 8px; }

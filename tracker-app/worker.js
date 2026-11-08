@@ -21,13 +21,18 @@ const ALLOWED_ORIGINS = [
 ];
 
 // --- System prompt with brand guardrails ---
-const SYSTEM_PROMPT = `You are a supportive wellness companion inside the New Chapter: GLP-1 Tracker™ app, made for women over 50 on GLP-1 medications like Zepbound, Wegovy, and Mounjaro.
+const SYSTEM_PROMPT = `You are a supportive wellness companion inside the New Chapter: GLP-1 Tracker™ app, made for adults on GLP-1 medications like Zepbound, Wegovy, Mounjaro, and Ozempic.
+
+Core principles — these govern every reply:
+- Ethical: you are honest about what you are (an AI companion, not a human, not a medical professional). You never manipulate, never use guilt or fear, and never push the user toward a purchase or a choice. You respect their autonomy.
+- Unbiased: you treat every user with the same respect regardless of age, gender, body size, medication, or background. You never shame anyone about food, weight, or habits. You never favor one product, diet, or medication over another.
+- Factual: you only state facts you are confident about. You never invent citations, studies, statistics, or medical claims. If you are unsure, say so plainly. You never present a guess as a fact.
+- Compassion and empathy: you speak with authentic human warmth. You acknowledge how hard this journey can be. You validate feelings before offering tips. You celebrate small wins and consistency over perfection. Strength and energy matter more than any number. You sound like a caring person, not a textbook.
 
 Your role:
 - Offer encouragement and practical tips. Help the user reflect on the habits they describe in chat, such as protein, water, movement, and mood.
-- You do not see the user's tracker entries. Only respond to what the user tells you in chat, plus the opt-in memory profile below. Never claim to have seen, analyzed, or checked their logged data.
-- Be warm, compassionate, and nonjudgmental. Never shame the user about food, weight, or habits.
-- Celebrate small wins and consistency over perfection. Strength and energy matter more than any number.
+- Personalize for GLP-1 treatment: you know their medication, dose, and shot day when the app shares it. Tailor your replies to their GLP-1 journey: protein for muscle protection while the medicine works, staying hydrated, gentle movement, managing common side effects like nausea and fatigue, and injection site rotation.
+- Use the GLP-1 context the app sends with each message (medication, dose, shot day, protein targets, today's logged protein, recent side effects, weight trend) to give specific, relevant replies. Never claim to have seen their full tracker history, only the context the app shares in this message.
 
 Strict boundaries:
 - You are NOT a medical professional. Never give medical advice, diagnose, recommend doses, or suggest changing medication.
@@ -373,6 +378,9 @@ async function handleSaveMemory(request, env, auth) {
     goals: String(body.goals || "").slice(0, 500),
     preferences: String(body.preferences || "").slice(0, 500),
     notes: String(body.notes || "").slice(0, 1000),
+    medication: String(body.medication || "").slice(0, 60),
+    dose: String(body.dose || "").slice(0, 20),
+    shotDay: String(body.shotDay || "").slice(0, 20),
     updatedAt: new Date().toISOString(),
   };
   try {
@@ -464,6 +472,7 @@ async function handleChat(request, env, auth) {
         const p = JSON.parse(raw);
         const parts = [];
         if (p.name) parts.push("The user's name is " + p.name + ".");
+        if (p.medication) parts.push("Their GLP-1 medication: " + p.medication + (p.dose ? " " + p.dose : "") + (p.shotDay ? ", shot day " + p.shotDay : "") + ".");
         if (p.goals) parts.push("Their goals: " + p.goals);
         if (p.preferences) parts.push("Preferences to respect: " + p.preferences);
         if (p.notes) parts.push("Notes about them: " + p.notes);
@@ -473,6 +482,23 @@ async function handleChat(request, env, auth) {
       }
     } catch (e) {
       console.error("Memory load KV error:", e);
+    }
+  }
+  // Per-message GLP-1 context from the app (today's logged data).
+  // Sent by the app with each chat message so replies can be specific.
+  if (body.context && typeof body.context === "object") {
+    const c = body.context;
+    const ctx = [];
+    if (c.medication) ctx.push("Medication: " + String(c.medication).slice(0, 60) + (c.dose ? " " + String(c.dose).slice(0, 20) : ""));
+    if (c.shotDay) ctx.push("Shot day: " + String(c.shotDay).slice(0, 20));
+    if (c.nextShot) ctx.push("Next shot: " + String(c.nextShot).slice(0, 40));
+    if (typeof c.proteinLogged === "number" && typeof c.proteinTarget === "number") ctx.push("Protein today: " + c.proteinLogged + "g of " + c.proteinTarget + "g target");
+    if (typeof c.movementMinutes === "number") ctx.push("Movement today: " + c.movementMinutes + " minutes");
+    if (typeof c.waterOz === "number") ctx.push("Water today: " + c.waterOz + " oz");
+    if (c.weightChange) ctx.push("Weight: " + String(c.weightChange).slice(0, 80));
+    if (c.recentSideEffects) ctx.push("Recent side effects: " + String(c.recentSideEffects).slice(0, 300));
+    if (ctx.length) {
+      systemPrompt += "\n\nTheir GLP-1 context today (from their tracker, shared with this message):\n" + ctx.join("\n");
     }
   }
 

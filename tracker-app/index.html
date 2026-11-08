@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=004">
+<link rel="stylesheet" href="styles.css?v=005">
 </head>
 <body>
 
@@ -177,51 +177,56 @@
     </div>
 
     <div class="card" id="macros-card" aria-label="Your Macros">
-      <h2 class="card-title">Your Macros</h2>
-      <p class="muted" style="margin:0">Today's protein, carbs, and fat, against your own targets.</p>
+      <h2 class="card-title">Nutrition Balance</h2>
+      <p class="muted" style="margin:0">Today's Nutrition — a balanced approach. Protein, carbohydrates, and healthy fats, against your own targets.</p>
+      <p class="muted hidden" id="macro-setup-note" style="margin:8px 0 0;font-size:.9em">Set your protein, carbohydrate, and fat targets in Settings to see your personal balance.</p>
 
       <div class="donut-wrap">
-        <svg width="216" height="216" viewBox="0 0 216 216" role="img" aria-label="Donut chart of today's macros">
-          <circle cx="108" cy="108" r="84" fill="none" stroke="#F0EAD6" stroke-width="30"></circle>
-          <circle id="seg-protein" class="donut-seg" data-macro="protein" cx="108" cy="108" r="84" fill="none" stroke="#E8B54A" stroke-width="30"></circle>
-          <circle id="seg-carbs" class="donut-seg" data-macro="carbs" cx="108" cy="108" r="84" fill="none" stroke="#5A6B52" stroke-width="30"></circle>
-          <circle id="seg-fat" class="donut-seg" data-macro="fat" cx="108" cy="108" r="84" fill="none" stroke="#DCC9A3" stroke-width="30"></circle>
+        <svg width="260" height="260" viewBox="0 0 260 260" role="img" aria-label="Donut chart of today's macros">
+          <circle cx="130" cy="130" r="84" fill="none" stroke="#F0EAD6" stroke-width="30"></circle>
+          <circle id="seg-protein" class="donut-seg" data-macro="protein" cx="130" cy="130" r="84" fill="none" stroke="#E8B54A" stroke-width="30"></circle>
+          <circle id="seg-carbs" class="donut-seg" data-macro="carbs" cx="130" cy="130" r="84" fill="none" stroke="#5A6B52" stroke-width="30"></circle>
+          <circle id="seg-fat" class="donut-seg" data-macro="fat" cx="130" cy="130" r="84" fill="none" stroke="#DCC9A3" stroke-width="30"></circle>
           <text id="seg-label-protein" class="donut-label" x="108" y="108" text-anchor="middle" dominant-baseline="middle"></text>
           <text id="seg-label-carbs" class="donut-label" x="108" y="108" text-anchor="middle" dominant-baseline="middle"></text>
           <text id="seg-label-fat" class="donut-label" x="108" y="108" text-anchor="middle" dominant-baseline="middle"></text>
         </svg>
         <div class="donut-center">
-          <span class="big"><span id="macro-center-grams">0</span><small> g</small></span>
+          <span class="big"><span id="macro-center-grams">0</span><small> grams</small></span>
           <span class="cap" id="macro-center-label">protein logged today</span>
         </div>
       </div>
       <p class="donut-note">Each segment is that macro's share of the grams logged today. Tap a line below to see it in the center. Slide a line left or right to change it.</p>
+      <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
 
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein" tabindex="0" role="button" aria-label="Show protein in the center of the chart">
           <span class="macro-name"><span class="dot protein"></span>Protein</span>
-          <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">g</span></span>
-          <span class="macro-bar" id="macro-bar-protein" role="slider" tabindex="0" aria-label="Protein logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></span>
+          <span class="macro-why muted">Supports muscle maintenance</span>
+          <span class="macro-bar" id="macro-bar-protein" role="slider" tabindex="0" aria-label="Protein logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-meta">
-            <span class="macro-pct" id="pct-protein">0% of your target</span>
+            <span class="macro-pct" id="pct-protein"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="-1" aria-label="Log 1 gram less protein">−</button><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="1" aria-label="Log 1 gram more protein">+</button></span>
           </span>
         </div>
         <div class="macro-row" data-macro="carbs" tabindex="0" role="button" aria-label="Show carbs in the center of the chart">
           <span class="macro-name"><span class="dot carbs"></span>Carbs</span>
-          <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">g</span></span>
-          <span class="macro-bar" id="macro-bar-carbs" role="slider" tabindex="0" aria-label="Carbs logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="150" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></span>
+          <span class="macro-why muted">Supports energy and daily activity</span>
+          <span class="macro-bar" id="macro-bar-carbs" role="slider" tabindex="0" aria-label="Carbs logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-meta">
-            <span class="macro-pct" id="pct-carbs">0% of your target</span>
+            <span class="macro-pct" id="pct-carbs"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="-1" aria-label="Log 1 gram less carbs">−</button><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="1" aria-label="Log 1 gram more carbs">+</button></span>
           </span>
         </div>
         <div class="macro-row" data-macro="fat" tabindex="0" role="button" aria-label="Show fat in the center of the chart">
           <span class="macro-name"><span class="dot fat"></span>Fat</span>
-          <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">g</span></span>
-          <span class="macro-bar" id="macro-bar-fat" role="slider" tabindex="0" aria-label="Fat logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="60" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></span>
+          <span class="macro-why muted">Supports essential body functions</span>
+          <span class="macro-bar" id="macro-bar-fat" role="slider" tabindex="0" aria-label="Fat logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-meta">
-            <span class="macro-pct" id="pct-fat">0% of your target</span>
+            <span class="macro-pct" id="pct-fat"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="-1" aria-label="Log 1 gram less fat">−</button><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="1" aria-label="Log 1 gram more fat">+</button></span>
           </span>
         </div>
@@ -231,9 +236,10 @@
         <p style="margin:0;font-weight:600">Calories today: <span id="calories-today">0</span><span id="calories-target-part"></span></p>
         <div style="height:10px;border-radius:99px;background:#EDEBE3;overflow:hidden;margin-top:8px"><i id="calories-fill" style="display:block;height:100%;width:0%;background:#E8B54A;border-radius:99px"></i></div>
         <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.85em"></p>
+        <p class="muted" style="margin:6px 0 0;font-size:.85em">Calculated from your macros. Label calories may differ slightly due to rounding, fiber, and other factors.</p>
       </div>
       <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
-      <button class="btn btn-small" id="macro-log-food" style="margin-top:12px">Log food</button>
+      <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
 
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
@@ -256,6 +262,11 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
+
+      <div id="food-list-section" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+        <h3 style="margin:0 0 8px;font-size:1em">Today's food</h3>
+        <div id="food-list"></div>
+      </div>
     </div>
 
     <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
@@ -440,7 +451,7 @@
 
   <!-- WEIGHT TAB -->
   <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
-    <h2>Weight</h2>
+    <h2>My Body Profile</h2>
     <div class="weight-actions">
       <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
       <button class="btn" id="doctor-summary-btn">Doctor visit summary</button>
@@ -454,8 +465,9 @@
       <p class="bmi-over" id="bmi-over-line"></p>
       <div class="bmi-healthy" id="bmi-healthy-block" hidden>
         <p id="bmi-healthy-range"></p>
-        <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obese 30 and above.</p>
+        <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obesity Class I 30–34.9 · Class II 35–39.9 · Class III 40+</p>
       </div>
+      <p class="muted" id="bmi-disclaimer" style="font-size:.85em;margin:8px 0 0">BMI is a screening measurement, not a diagnosis. It does not distinguish muscle from fat or describe body composition.</p>
     </div>
 
     <div class="card" id="weight-chart-card">
@@ -464,6 +476,13 @@
       <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
+    </div>
+
+    <div class="card" id="bmi-chart-card">
+      <h3>BMI over time</h3>
+      <canvas id="bmi-chart" width="600" height="300" aria-label="BMI progress chart" aria-describedby="bmi-chart-text"></canvas>
+      <p class="muted" id="bmi-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="bmi-chart-empty">Add your height in Settings and log at least two weigh-ins to see your BMI chart.</p>
     </div>
 
     <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
@@ -657,9 +676,31 @@
   </section>
 
   <!-- RECIPES TAB -->
-  <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="Saved recipes">
-    <h2>Saved Recipes</h2>
-    <p class="muted" style="font-size:.85em">Recipes from your Companion, saved to cook again.</p>
+  <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
+    <h2>New Chapter Kitchen</h2>
+    <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
+    <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
+      <button type="button" class="kitchen-chip active" data-filter="all">All</button>
+      <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
+      <button type="button" class="kitchen-chip" data-filter="easy-breakfasts">Easy Breakfasts</button>
+      <button type="button" class="kitchen-chip" data-filter="balanced-dinners">Balanced Dinners</button>
+      <button type="button" class="kitchen-chip" data-filter="small-appetite">Small Appetite</button>
+      <button type="button" class="kitchen-chip" data-filter="low-carb">Low Carb</button>
+      <button type="button" class="kitchen-chip" data-filter="balanced-macros">Balanced Macros</button>
+      <button type="button" class="kitchen-chip" data-filter="small-portions">Small Portions</button>
+      <button type="button" class="kitchen-chip" data-filter="easy-prep">Easy Prep</button>
+      <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
+      <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
+      <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
+      <button type="button" class="kitchen-chip" data-filter="snacks-smoothies">Snacks &amp; Smoothies</button>
+      <button type="button" class="kitchen-chip" data-filter="budget-friendly">Budget-Friendly</button>
+      <button type="button" class="kitchen-chip" data-filter="low-sodium">Low Sodium</button>
+      <button type="button" class="kitchen-chip" data-filter="low-oxalate">Low-Oxalate</button>
+    </div>
+    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.85em">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
+    <div id="kitchen-list" class="kitchen-list"></div>
+    <p class="muted" style="font-size:.85em">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
+    <h3 style="margin-top:18px">Your saved recipes</h3>
     <form id="recipe-form" aria-label="Save a recipe" novalidate>
       <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
       <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
@@ -715,6 +756,15 @@
         <label>Preferences
           <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
         </label>
+        <label>Your GLP-1 medication
+          <input type="text" id="memory-medication" maxlength="60" placeholder="e.g. Zepbound">
+        </label>
+        <label>Dose
+          <input type="text" id="memory-dose" maxlength="20" placeholder="e.g. 5 mg">
+        </label>
+        <label>Shot day
+          <input type="text" id="memory-shot-day" maxlength="20" placeholder="e.g. Wednesday">
+        </label>
         <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
       </div>
       <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your companion will remember you now.</p>
@@ -747,6 +797,23 @@
       </div>
 
       <div class="card">
+        <h3>Subscription</h3>
+        <p class="muted" id="subscription-status-line">Manage your subscription</p>
+        <button type="button" id="resubscribe-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem" aria-expanded="false" aria-controls="resubscribe-plans">Resubscribe</button>
+        <div id="resubscribe-plans" class="hidden" style="margin-top:12px">
+          <a class="btn btn-primary" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">Monthly · $3.99 a month</a>
+          <a class="btn btn-primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Annual · $29.99 a year</a>
+          <p class="muted">After paying, get your new access code from the welcome page, as today.</p>
+        </div>
+        <p class="muted">Resubscribing unlocks the same account, data, and Companion.</p>
+        <div style="margin-top:16px">
+          <a class="btn" href="mailto:millrjess@gmail.com?subject=Cancel%20my%20New%20Chapter%20subscription&amp;body=I%20would%20like%20to%20cancel%20my%20New%20Chapter%3A%20GLP-1%20Tracker%20subscription.%20Please%20confirm%20my%20cancellation%20and%20let%20me%20know%20my%20last%20day%20of%20access." style="display:block;text-align:center;text-decoration:none">Cancel subscription</a>
+          <p class="muted">You keep access until the end of your paid period. After that, the Companion locks but your entries stay on your device and you can resubscribe anytime.</p>
+          <p class="muted">One-tap cancel in Settings is coming soon.</p>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>Your Companion</h3>
         <p class="muted">Give your AI Wellness Companion a name and a look. This stays on this device.</p>
         <label>Companion name
@@ -768,6 +835,8 @@
         <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
           <option value="">Phone default voice</option>
         </select>
+        <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
+        <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
         <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud. Pick a voice above, or add more voices in your phone's Settings, Accessibility, Spoken Content, Voices.</p>
       </div>
 
@@ -789,7 +858,7 @@
 
       <div id="play-subscription-card"></div>
 
-      <details class="card">
+      <details class="card" open>
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
           <div style="margin-bottom:16px">
@@ -840,31 +909,31 @@
       </div>
 
           <div style="margin-bottom:16px">
-        <label>Daily protein goal (g)
-          <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
+        <label>Daily protein goal (grams)
+          <input type="number" id="set-protein-goal" min="0" step="1" placeholder="Set your target">
         </label>
         <p class="muted">Protein helps protect muscle during weight loss.</p>
       </div>
 
           <div style="margin-bottom:16px">
-        <label>Daily carbs goal (g)
-          <input type="number" id="set-carbs-goal" min="0" step="1" placeholder="150">
+        <label>Daily carbs goal (grams)
+          <input type="number" id="set-carbs-goal" min="0" step="1" placeholder="Set your target">
         </label>
-        <p class="muted">Your own carbs target for the Your Macros card on Today.</p>
+        <p class="muted">Your own carbs target for the Nutrition Balance card on Today.</p>
       </div>
 
           <div style="margin-bottom:16px">
-        <label>Daily fat goal (g)
-          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="60">
+        <label>Daily fat goal (grams)
+          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="Set your target">
         </label>
-        <p class="muted">Your own fat target for the Your Macros card on Today.</p>
+        <p class="muted">Your own fat target for the Nutrition Balance card on Today.</p>
       </div>
 
           <div style="margin-bottom:16px">
         <label>Daily calorie target (calories)
           <input type="number" id="set-calorie-target" min="0" step="1">
         </label>
-        <p class="muted">Your own calorie target for the Your Macros card on Today. Leave it blank if you do not want one. It stays on this device.</p>
+        <p class="muted">Your own calorie target for the Nutrition Balance card on Today. Leave it blank if you do not want one. It stays on this device.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1043,7 +1112,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="app.js?v=004"></script>
+<script src="app.js?v=005"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
@@ -1111,5 +1180,67 @@ document.getElementById("update-now").addEventListener("click", () => {
   }).catch(reload);
 });
 </script>
+
+<div id="setup-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+  <div class="modal-card" style="max-width:420px">
+    <h2 id="setup-title" style="margin-top:0">Welcome to New Chapter</h2>
+    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 4</p>
+
+    <div class="setup-step" data-step="1">
+      <p style="margin:0 0 12px">What should I call you? Your greeting on Today will use this name.</p>
+      <label>Your first name
+        <input type="text" id="setup-name" maxlength="60" placeholder="Your first name" autocomplete="off">
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="2">
+      <p style="margin:0 0 12px">Which GLP-1 medication are you taking, and at what dose?</p>
+      <label>Current medication
+        <input type="text" id="setup-med" placeholder="e.g. Zepbound" autocomplete="off">
+      </label>
+      <label>Current dose (mg)
+        <input type="number" id="setup-dose" step="0.1" min="0" placeholder="e.g. 2.5">
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="3">
+      <p style="margin:0 0 12px">Which day of the week is your shot day? Today will count down to your next shot.</p>
+      <label>Shot day
+        <select id="setup-shot-day">
+          <option value="">Choose a day</option>
+          <option>Monday</option>
+          <option>Tuesday</option>
+          <option>Wednesday</option>
+          <option>Thursday</option>
+          <option>Friday</option>
+          <option>Saturday</option>
+          <option>Sunday</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="4">
+      <p style="margin:0 0 12px">Your height is used only to work out your BMI on the Weight tab. Your goal weight adds a goal line to your weight chart. Both stay on this device.</p>
+      <div style="display:flex;gap:10px">
+        <label style="flex:1">Height, feet
+          <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="5">
+        </label>
+        <label style="flex:1">Height, inches
+          <input type="number" id="setup-height-in" min="0" max="11" step="1" placeholder="6">
+        </label>
+      </div>
+      <label>Goal weight (lbs)
+        <input type="number" id="setup-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
+      </label>
+      <p class="muted">Set your goal weight with your clinician's guidance.</p>
+    </div>
+
+    <div class="form-actions" style="margin-top:16px">
+      <button type="button" class="btn hidden" id="setup-back">Back</button>
+      <button type="button" class="btn btn-primary" id="setup-next">Next</button>
+    </div>
+    <p style="text-align:center;margin:12px 0 0"><button type="button" class="btn btn-small" id="setup-skip" style="background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer">Skip setup</button></p>
+  </div>
+</div>
 </body>
 </html>
