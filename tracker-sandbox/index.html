@@ -239,6 +239,7 @@
         </label>
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
+          <button type="button" class="btn btn-small hidden" id="macro-food-voice-btn" aria-label="Speak the food name">🎤 Speak</button>
           <span class="muted" id="macro-food-search-status" style="font-size:.85em"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
@@ -640,7 +641,42 @@
     </form>
     <p class="code-msg" id="se-saved-msg" role="status" style="min-height:1.2em"></p>
 
+    <div id="se-trends" style="margin-top:12px"></div>
+
     <div id="sideeffect-list" class="entry-list"></div>
+  </section>
+
+  <!-- MEDICINES TAB -->
+  <section id="tab-medicines" class="tab-panel" role="tabpanel" aria-label="Medicines">
+    <h2>Medicines</h2>
+    <p class="muted" style="font-size:.85em">Daily medicines besides your GLP-1 shot. Tap the circle when you take one.</p>
+    <form id="medicine-form" aria-label="Add a medicine" novalidate>
+      <div class="measure-grid" style="grid-template-columns:2fr 1fr 1fr">
+        <label>Medicine<input type="text" id="med-name" maxlength="80" placeholder="e.g. Vitamin D"></label>
+        <label>Dose<input type="text" id="med-dose" maxlength="40" placeholder="e.g. 1000 IU"></label>
+        <label>Time<input type="text" id="med-time" maxlength="20" placeholder="e.g. Morning"></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Add medicine</button>
+      </div>
+      <p class="code-msg" id="med-msg" style="min-height:1.2em"></p>
+    </form>
+    <div id="medicine-list" class="entry-list"></div>
+  </section>
+
+  <!-- RECIPES TAB -->
+  <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="Saved recipes">
+    <h2>Saved Recipes</h2>
+    <p class="muted" style="font-size:.85em">Recipes from your Companion, saved to cook again.</p>
+    <form id="recipe-form" aria-label="Save a recipe" novalidate>
+      <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
+      <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save recipe</button>
+      </div>
+      <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
+    </form>
+    <div id="recipe-list" class="entry-list"></div>
   </section>
 
   <!-- AI WELLNESS COMPANION TAB -->
@@ -1014,6 +1050,14 @@
   <button type="button" class="more-item" data-more-goto="settings">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="more-item-label">Settings</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="medicines">
+    <span class="more-item-icon" aria-hidden="true">💊</span>
+    <span class="more-item-label">Medicines</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="recipes">
+    <span class="more-item-icon" aria-hidden="true">🍲</span>
+    <span class="more-item-label">Recipes</span>
   </button>
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>

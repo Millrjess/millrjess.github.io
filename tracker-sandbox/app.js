@@ -81,7 +81,10 @@ const DEFAULTS = {
   journal: [],      // { id, date, mood, notes }
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {},        // { "YYYY-MM-DD": "Good" }
-  movementDone: {}  // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
+  movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
+  medicines: [],    // sandbox: { id, name, dose, time, date } daily medicines besides the GLP-1 shot
+  medicineTaken: {}, // sandbox: { "YYYY-MM-DD": [medicine ids taken that day] }
+  recipes: []       // sandbox: { id, title, body, date } saved recipes
 };
 
 /* v000: the Companion's chosen name and avatar. The variants are
@@ -117,7 +120,7 @@ function companionAvatarImg(className) {
 
 /* Collections that must be arrays, and the settings keys with their defaults.
    Used to validate anything loaded from storage or from a file (S3/S11). */
-const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects"];
+const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "medicines", "recipes"];
 
 /* Validate a parsed store shape: arrays must be arrays (bad entries dropped),
    settings must be an object merged key-by-key over the defaults so a bad or
@@ -286,6 +289,18 @@ function validateStore(parsed, strict) {
       };
     }
     out.movementDone = cleanDone;
+  }
+  // sandbox: per-day medicine check-offs. Keep only real dates; each
+  // day holds the medicine ids taken that day.
+  if (parsed.medicineTaken !== undefined && (typeof parsed.medicineTaken !== "object" || Array.isArray(parsed.medicineTaken))) {
+    lastValidateDropped.push("medicineTaken");
+  } else if (parsed.medicineTaken && typeof parsed.medicineTaken === "object" && !Array.isArray(parsed.medicineTaken)) {
+    const cleanTaken = {};
+    for (const [d, v] of Object.entries(parsed.medicineTaken)) {
+      if (!isValidDateStr(d) || !Array.isArray(v)) continue;
+      cleanTaken[d] = v.filter((id) => typeof id === "string");
+    }
+    out.medicineTaken = cleanTaken;
   }
   return out;
 }
@@ -775,7 +790,7 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 /* Panels that live under the More button: when one of them is showing,
    More is the active tab. */
-const MORE_TABS = ["side-effects", "settings"];
+const MORE_TABS = ["side-effects", "settings", "medicines", "recipes"];
 
 function showTab(name) {
   if (name === "more") { openMoreSheet(); return; }
@@ -796,6 +811,8 @@ function showTab(name) {
   if (name === "shots") renderInjectionCalendar();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
+  if (name === "medicines") renderMedicines();
+  if (name === "recipes") renderRecipes();
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
@@ -1698,6 +1715,59 @@ async function searchFoodByName() {
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
+
+/* ---------- Voice food logging (sandbox feature) ---------- */
+/* Speak a food name with the phone's built-in speech recognition; the
+   words fill the name field as you speak, and when you stop, the food
+   search runs automatically so the macros fill in from the label.
+   On-device and free; no audio is recorded, saved, or sent anywhere.
+   The button stays hidden when recognition is not available. */
+(function setupFoodVoice() {
+  const btn = document.getElementById("macro-food-voice-btn");
+  const nameInput = document.getElementById("macro-food-name");
+  const status = document.getElementById("macro-food-search-status");
+  if (!btn || !nameInput) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  btn.classList.remove("hidden");
+  let rec = null;
+  let listening = false;
+  let finalText = "";
+  function setListening(on) {
+    listening = on;
+    btn.textContent = on ? "⏹ Stop" : "🎤 Speak";
+    btn.setAttribute("aria-label", on ? "Stop listening" : "Speak the food name");
+    if (status) status.textContent = on ? "Listening... Tap Stop when you are done." : "";
+  }
+  btn.addEventListener("click", () => {
+    if (listening) { try { rec.stop(); } catch {} return; }
+    try { rec = new SR(); } catch { return; }
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = navigator.language || "en-US";
+    finalText = "";
+    rec.onresult = (ev) => {
+      let interim = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      nameInput.value = (finalText + interim).trimStart().slice(0, 120);
+    };
+    rec.onend = () => {
+      setListening(false);
+      if (nameInput.value.trim().length >= 2) searchFoodByName();
+    };
+    rec.onerror = (ev) => {
+      setListening(false);
+      if (status) status.textContent = ev && ev.error === "not-allowed"
+        ? "Microphone access was blocked. You can still type."
+        : "I could not hear you. You can still type.";
+    };
+    try { rec.start(); setListening(true); } catch { setListening(false); }
+  });
+})();
 
 /* ---------- Food photo (sandbox feature) ---------- */
 /* A photo is a visual record attached to a food entry. It is stored as a
@@ -3725,9 +3795,123 @@ function bindSeButtons(container) {
   }));
 }
 
+/* ---------- Side effect trends (sandbox feature) ---------- */
+/* Last 30 days, grouped by symptom: how many times it happened and the
+   average severity, so patterns are easy to see without reading every
+   entry. */
+function renderSeTrends() {
+  const el = document.getElementById("se-trends");
+  if (!el) return;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recent = (store.sideEffects || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  if (!recent.length) { el.innerHTML = ""; return; }
+  const sevNum = { "Mild": 1, "Moderate": 2, "Severe": 3 };
+  const groups = {};
+  recent.forEach((e) => {
+    const key = (e.symptom || "Effect").trim();
+    if (!groups[key]) groups[key] = { count: 0, sev: 0, n: 0 };
+    groups[key].count++;
+    if (sevNum[e.severity]) { groups[key].sev += sevNum[e.severity]; groups[key].n++; }
+  });
+  const rows = Object.entries(groups).sort((a, b) => b[1].count - a[1].count).map(([name, g]) => {
+    const avg = g.n ? (g.sev / g.n).toFixed(1) : "—";
+    return `<li><strong>${escapeHtml(name)}</strong>: ${g.count} time${g.count === 1 ? "" : "s"} in the last 30 days, average severity ${avg} of 3</li>`;
+  }).join("");
+  el.innerHTML = `<h3 style="margin:12px 0 6px">Trends, last 30 days</h3><ul style="margin:0;padding-left:20px">${rows}</ul>`;
+}
+
+/* ---------- Medicines (sandbox feature) ---------- */
+/* Daily medicines besides the GLP-1 shot. A standing list (name, dose,
+   time) with a per-day check-off: tap the circle when you take one.
+   Taken state is per date, so a new day starts unchecked. */
+function renderMedicines() {
+  const list = document.getElementById("medicine-list");
+  if (!list) return;
+  const date = viewedDateStr();
+  const taken = (store.medicineTaken && store.medicineTaken[date]) || [];
+  if (!store.medicines.length) {
+    list.innerHTML = '<p class="empty-state">No medicines added yet. Add one above.</p>';
+    return;
+  }
+  list.innerHTML = store.medicines.map((m) => {
+    const isTaken = taken.includes(m.id);
+    return `<div class="entry-row" style="display:flex;align-items:center;gap:10px">
+      <button type="button" class="move-check${isTaken ? " done" : ""}" data-med="${m.id}" aria-pressed="${isTaken ? "true" : "false"}" aria-label="Mark ${escapeHtml(m.name)} taken today"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
+      <span style="flex:1"><strong>${escapeHtml(m.name)}</strong>${m.dose ? " · " + escapeHtml(m.dose) : ""}${m.time ? " · " + escapeHtml(m.time) : ""}</span>
+      <button type="button" class="btn btn-small" data-med-del="${m.id}">Delete</button>
+    </div>`;
+  }).join("");
+  list.querySelectorAll("[data-med]").forEach((btn) => btn.addEventListener("click", () => {
+    const d = viewedDateStr();
+    if (!store.medicineTaken) store.medicineTaken = {};
+    const arr = store.medicineTaken[d] || [];
+    const i = arr.indexOf(btn.dataset.med);
+    if (i === -1) arr.push(btn.dataset.med); else arr.splice(i, 1);
+    store.medicineTaken[d] = arr;
+    saveStore();
+    renderMedicines();
+  }));
+  list.querySelectorAll("[data-med-del]").forEach((btn) => btn.addEventListener("click", () => {
+    store.medicines = store.medicines.filter((m) => m.id !== btn.dataset.medDel);
+    saveStore();
+    renderMedicines();
+  }));
+}
+document.getElementById("medicine-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("med-msg");
+  const name = document.getElementById("med-name").value.trim().slice(0, 80);
+  if (!name) { setFormStatus(msg, "Type the medicine name first.", true); return; }
+  store.medicines.push({ id: uid(), name, dose: document.getElementById("med-dose").value.trim().slice(0, 40), time: document.getElementById("med-time").value.trim().slice(0, 20), date: viewedDateStr() });
+  saveStore();
+  document.getElementById("medicine-form").reset();
+  setFormStatus(msg, "Medicine added.", false);
+  renderMedicines();
+});
+
+/* ---------- Saved recipes (sandbox feature) ---------- */
+/* Recipes from the Companion, saved to cook again. Title plus the
+   ingredients and steps, pasted in. Stored on this device only. */
+function renderRecipes() {
+  const list = document.getElementById("recipe-list");
+  if (!list) return;
+  if (!store.recipes.length) {
+    list.innerHTML = '<p class="empty-state">No recipes saved yet. Save one above.</p>';
+    return;
+  }
+  const sorted = [...store.recipes].sort(byDateDesc);
+  list.innerHTML = sorted.map((r) => `<div class="entry-row">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+      <strong>${escapeHtml(r.title)}</strong>
+      <button type="button" class="btn btn-small" data-recipe-del="${r.id}">Delete</button>
+    </div>
+    <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
+  </div>`).join("");
+  list.querySelectorAll("[data-recipe-del]").forEach((btn) => btn.addEventListener("click", () => {
+    store.recipes = store.recipes.filter((r) => r.id !== btn.dataset.recipeDel);
+    saveStore();
+    renderRecipes();
+  }));
+}
+document.getElementById("recipe-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("recipe-msg");
+  const title = document.getElementById("recipe-title").value.trim().slice(0, 120);
+  const body = document.getElementById("recipe-body").value.trim().slice(0, 4000);
+  if (!title) { setFormStatus(msg, "Type a title first.", true); return; }
+  if (!body) { setFormStatus(msg, "Paste the recipe first.", true); return; }
+  store.recipes.push({ id: uid(), title, body, date: viewedDateStr() });
+  saveStore();
+  document.getElementById("recipe-form").reset();
+  setFormStatus(msg, "Recipe saved.", false);
+  renderRecipes();
+});
+
 function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
   if (!list) return;
+  renderSeTrends();
   const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
