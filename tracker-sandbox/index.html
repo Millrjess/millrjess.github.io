@@ -218,6 +218,11 @@
         <label>Food
           <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
         </label>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
+          <span class="muted" id="macro-food-search-status" style="font-size:.85em"></span>
+        </div>
+        <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
         <div class="measure-grid" style="grid-template-columns:1fr 1fr 1fr">
           <label>Protein (g)<input type="number" id="macro-food-protein" min="0" step="1" placeholder="0"></label>
           <label>Carbs (g)<input type="number" id="macro-food-carbs" min="0" step="1" placeholder="0"></label>

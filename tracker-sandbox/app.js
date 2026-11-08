@@ -802,7 +802,7 @@ function showTab(name) {
       // The URL can carry the companion token in ?key=...; report only
       // the path and tab, never the query string.
       page_location: location.origin + location.pathname + "#" + name,
-      page_path: "/tracker-sandbox/#" + name
+      page_path: "/tracker-app/#" + name
     });
   } catch (e) { /* analytics unavailable; app keeps working */ }
 }
@@ -1608,6 +1608,10 @@ document.getElementById("macro-log-food").addEventListener("click", () => {
 document.getElementById("macro-food-cancel").addEventListener("click", () => {
   document.getElementById("macro-food-form").classList.add("hidden");
   document.getElementById("macro-food-msg").textContent = "";
+  document.getElementById("macro-food-search-status").textContent = "";
+  const sr = document.getElementById("macro-food-search-results");
+  sr.classList.add("hidden");
+  sr.innerHTML = "";
 });
 document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -1627,8 +1631,67 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   renderToday();
   document.getElementById("macro-food-form").classList.add("hidden");
   document.getElementById("macro-food-form").reset();
+  document.getElementById("macro-food-search-status").textContent = "";
+  const sr2 = document.getElementById("macro-food-search-results");
+  sr2.classList.add("hidden");
+  sr2.innerHTML = "";
   clearFoodPhoto();
 });
+
+/* ---------- Food search by name (sandbox feature) ---------- */
+/* Type a food name, search Open Food Facts (free, no key), and tap a
+   result to fill the name and macros from the label. Values are per
+   serving when available, otherwise per 100 g, and the user edits them
+   before logging. */
+async function searchFoodByName() {
+  const nameInput = document.getElementById("macro-food-name");
+  const status = document.getElementById("macro-food-search-status");
+  const results = document.getElementById("macro-food-search-results");
+  const query = (nameInput.value || "").trim();
+  if (query.length < 2) { status.textContent = "Type at least 2 letters first."; return; }
+  status.textContent = "Searching foods...";
+  results.classList.add("hidden");
+  results.innerHTML = "";
+  try {
+    const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,nutriments,serving_size");
+    const data = await res.json();
+    const products = (data && data.products) || [];
+    if (!products.length) { status.textContent = "No foods found. Try different words, or enter the grams by hand."; return; }
+    status.textContent = "Tap a food to fill the macros.";
+    products.forEach((p) => {
+      const n = p.nutriments || {};
+      const pick = (servingKey, hundredKey) => {
+        if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
+        if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
+        return 0;
+      };
+      const protein = pick("proteins_serving", "proteins_100g");
+      const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
+      const fat = pick("fat_serving", "fat_100g");
+      const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
+      const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small";
+      b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
+      b.textContent = name + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
+      b.addEventListener("click", () => {
+        nameInput.value = name.slice(0, 120);
+        document.getElementById("macro-food-protein").value = protein || "";
+        document.getElementById("macro-food-carbs").value = carbs || "";
+        document.getElementById("macro-food-fat").value = fat || "";
+        status.textContent = hasServing ? "Filled from the label. Check and edit before saving." : "Filled per 100 g. Scale to your portion before saving.";
+        results.classList.add("hidden");
+        results.innerHTML = "";
+      });
+      results.appendChild(b);
+    });
+    results.classList.remove("hidden");
+  } catch (e) {
+    status.textContent = "Search failed. Check your connection, or enter the grams by hand.";
+  }
+}
+document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
 
 /* ---------- Food photo (sandbox feature) ---------- */
 /* A photo is a visual record attached to a food entry. It is stored as a
