@@ -1,0 +1,1635 @@
+/*
+ * A New Chapter Tracker
+ * Copyright (c) 2026 Jessica A. Miller. All rights reserved.
+ * https://millrjess.github.io/tracker/
+ */
+
+:root {
+  --gold: #E8B54A;
+  --gold-dark: #A78235;
+  --gold-light: #F5DEAE;
+  --gold-soft: #FDF8ED;
+  --sage: #5A6B52;
+  --sage-dark: #44503E;
+  --sage-deep: #364031;
+  --sage-light: #B5BCB1;
+  --sage-soft: #DEE1DC;
+  /* Very light sage tint: 12% exact sage #5A6B52 mixed with white, so the
+     white cards stand out against the page (v164 beauty redesign). */
+  --sage-tint: #EBEDEA;
+  --cream: #FDFBF7;
+  --card-bg: #FFFFFF;
+  --ink: #2B2B28;
+  --ink-soft: #4A4840;
+  --muted: #6E6A5E;
+  --border: #E8E2D4;
+  --danger: #B0563E;
+  --focus: #2F6FED;
+  --radius: 20px;
+  --radius-sm: 14px;
+  --shadow: 0 2px 16px rgba(78, 92, 70, 0.08);
+  --shadow-lift: 0 8px 28px rgba(78, 92, 70, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  background: #0b1a30;
+  color: #f0dfae;
+  padding: 12px 16px;
+  border-radius: 8px;
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 700;
+}
+.skip-link:focus {
+  top: 12px;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .progress-fill {
+    transition: none;
+  }
+  .ring-fill {
+    transition: none;
+  }
+}
+
+h1, h2, h3, .card {
+  overflow-wrap: break-word;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  margin-top: 0;
+}
+
+.app-header {
+  background: linear-gradient(160deg, var(--sage-deep) 0%, var(--sage-dark) 50%, var(--sage-deep) 100%);
+  color: #fff;
+  padding: 24px 20px 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(78, 92, 70, 0.18);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 3px solid var(--gold);
+}
+
+.app-header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 140%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.app-header h1 {
+  color: #fff;
+  font-size: clamp(1.4rem, 5vw, 2.1rem);
+  margin: 0 0 8px;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  font-weight: 700;
+  position: relative;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* v168 header: the real gold lotus above the title, tagline in gold. */
+.app-header .header-lotus {
+  display: block;
+  margin: 0 auto 8px;
+  height: 48px;
+  width: auto;
+  position: relative;
+}
+
+.app-header .tagline {
+  margin: 0;
+  font-size: 1.02rem;
+  opacity: 0.92;
+  font-style: italic;
+  position: relative;
+  letter-spacing: 0.02em;
+  color: #F0DFAE;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px 16px 28px;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel h2 {
+  font-size: 1.75rem;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.date-line {
+  color: var(--muted);
+  margin-top: 0;
+  font-size: 0.95rem;
+}
+
+.card h3, .card h2.card-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card h3::before, .card h2.card-title::before {
+  content: "";
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sage-soft);
+  flex-shrink: 0;
+  background-image: var(--card-icon, none);
+  background-size: 20px 20px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.card p {
+  margin: 8px 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Status and error messages: never muted grey, so they meet contrast and are not missed */
+.code-msg {
+  color: var(--danger);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.code-msg.success {
+  color: var(--sage-dark);
+}
+input[aria-invalid="true"] {
+  border: 2px solid var(--danger);
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
+}
+input[aria-invalid="true"]:focus-visible {
+  outline: 3px solid var(--danger);
+}
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.big-number {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.goal-label {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.progress-bar {
+  background: #F0EBDD;
+  border-radius: 12px;
+  height: 12px;
+  overflow: hidden;
+  margin: 12px 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 60%, var(--gold-light) 100%);
+  height: 100%;
+  width: 0%;
+  border-radius: 12px;
+  transition: width 0.4s ease;
+}
+
+.percent-line {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+/* Interactive progress rings (v164, horizontal since v165): gold rings
+   in the single Today's Goals card. Slide left or right on a ring to
+   change the day's total; the number and fill update live. r=52 in a
+   120 viewBox, so the circumference is 326.73. */
+.ring-box {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  flex-shrink: 0;
+  touch-action: none;
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 50%;
+}
+.ring-box:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.ring-box.ring-dragging {
+  cursor: grabbing;
+}
+.ring-box svg {
+  display: block;
+  width: 132px;
+  height: 132px;
+  transform: rotate(-90deg);
+}
+.ring-track {
+  fill: none;
+  stroke: #F0EBDD;
+  stroke-width: 10;
+}
+.ring-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 326.73;
+  transition: stroke-dashoffset 0.25s ease;
+}
+
+/* Goal glow (v165): when a day's goal is met, the ring glows gold with a
+   slow pulse. The reduced-motion rule at the top of this file stills it. */
+.ring-box.goal-reached .ring-fill {
+  filter: drop-shadow(0 0 6px rgba(232, 181, 74, 0.9));
+  animation: goal-glow 2.4s ease-in-out infinite;
+}
+@keyframes goal-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(232, 181, 74, 0.55)); }
+  50% { filter: drop-shadow(0 0 12px rgba(232, 181, 74, 0.95)); }
+}
+
+/* Today's Goals card (v165): one card, three rings side by side, each
+   with its own gold add button. Rings scale down on narrow phones. */
+.goals-card { text-align: left; }
+.goals-hint { color: var(--muted); margin: 0 0 4px; font-size: 0.95rem; }
+.goals-rings { display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; }
+.goal-ring { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.goals-rings .ring-box { width: 100%; max-width: 108px; height: auto; aspect-ratio: 1 / 1; }
+.goals-rings .ring-box svg { width: 100%; height: 100%; }
+.goals-rings .ring-num { font-size: 1.6rem; }
+.goal-name { font-weight: 700; margin: 10px 0 0; font-size: 1rem; }
+.goal-label { color: var(--muted); font-size: 0.9rem; margin: 2px 0 0; }
+.goals-add {
+  border: 1.5px solid var(--gold);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  min-height: 44px;
+  /* v167: stops iOS Safari double-tap zoom on rapid taps. */
+  touch-action: manipulation;
+}
+
+/* Personal greeting (v165): serif, sage-deep, under the date nav. */
+.greeting-line {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  color: var(--sage-deep);
+  margin: 14px 0 0;
+  text-align: center;
+}
+.greeting-line:empty { display: none; }
+
+/* Streak count (v166): small and calm, under the greeting. */
+.streak-line {
+  text-align: center;
+  color: var(--sage);
+  font-size: 0.95rem;
+  margin: 6px 0 0;
+}
+.streak-line:empty { display: none; }
+
+/* Fine-control nudge buttons (v166): one tap changes a ring total by
+   exactly 1 (1 oz, 1 g, 1 min), for fine control after sliding. */
+.ring-nudge {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.ring-nudge-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sage);
+  background: #fff;
+  color: var(--sage-deep);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  /* v167: stops iOS Safari double-tap zoom when the nudge buttons are
+     tapped rapidly; single taps still work. */
+  touch-action: manipulation;
+}
+.ring-nudge-btn:active { background: var(--sage-soft); }
+
+/* Journal monthly chapters (v166): serif month headings. */
+.journal-chapter {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sage-deep);
+  font-size: 1.15rem;
+  margin: 18px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #EDE9DF;
+}
+.journal-chapter:first-child { margin-top: 4px; }
+
+/* Side-effects timeline (v166): a quiet vertical line with a
+   severity-colored dot per entry, newest first. */
+.se-timeline {
+  border-left: 2px solid #EDE9DF;
+  margin: 4px 0 0 8px;
+  padding-left: 20px;
+}
+.se-timeline-item { position: relative; }
+.se-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--sage);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #EDE9DF;
+}
+.se-timeline-item.se-sev-moderate::before { background: var(--gold); }
+.se-timeline-item.se-sev-severe::before { background: #A33A1F; }
+.ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+/* Type an amount (v169): the big number inside each ring is a button.
+   The ring value wrapper passes pointer events through, so the button
+   re-enables them for itself. The ring drag ignores presses that start
+   on this button. */
+.ring-num-btn {
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: auto; border-radius: 50%; font: inherit; color: inherit;
+}
+.ring-num-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.ring-num {
+  font-size: 1.9rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+.ring-unit {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+
+.btn {
+  font: inherit;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(78, 92, 70, 0.06);
+}
+
+.btn:hover {
+  border-color: var(--gold);
+  box-shadow: 0 2px 8px rgba(78, 92, 70, 0.10);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-small {
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  min-height: 44px;
+}
+
+/* AA contrast: lighter gold end stop, dark button text 4.90:1 (was 3.59:1 on gold-dark) */
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, #87692B 100%);
+  border-color: var(--gold-dark);
+  color: #2D2D2D;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(201, 169, 106, 0.35);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 14px rgba(201, 169, 106, 0.45);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-link {
+  border: none;
+  background: none;
+  color: var(--sage-dark);
+  font-weight: 600;
+  padding: 6px 0;
+  text-decoration: underline;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 14px;
+  font-size: 1.05rem;
+}
+
+.btn-danger {
+  background: #fff;
+  border-color: var(--danger);
+  color: var(--danger);
+  font-size: 0.88rem;
+  padding: 6px 12px;
+}
+
+
+label {
+  display: block;
+  margin: 12px 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+label input,
+label select,
+label textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+/* The hidden attribute must always hide, even inside a label: the
+   `label input` rule above otherwise forces hidden file inputs
+   (Restore backup, Add photo) to render as visible "Choose File" fields
+   instead of their label buttons. */
+[hidden] {
+  display: none !important;
+}
+
+/* Same label styling for the injection-site block, which uses a div
+   wrapper (a label cannot contain the site-map div). */
+.field-group {
+  display: block;
+  margin: 12px 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field-group select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.hidden {
+  display: none;
+}
+
+.mood-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mood-btn {
+  min-height: 44px;
+  min-width: 44px;
+  font: inherit;
+  font-size: 0.9rem;
+  border: 2px solid var(--border);
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+  flex: 1;
+  white-space: nowrap;
+}
+
+.mood-btn.selected {
+  border-color: var(--sage);
+  background: var(--sage-light);
+  font-weight: 700;
+}
+
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+
+
+
+.app-footer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 8px 14px calc(96px + env(safe-area-inset-bottom));
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.app-footer a {
+  color: var(--sage-dark);
+  font-weight: 600;
+}
+
+.app-footer .footer-copy {
+  margin-top: 4px;
+  font-size: 0.78rem;
+}
+
+.measure-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.measure-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.measure-grid input {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.photo-upload-label {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.photo-grid:empty {
+  display: none;
+}
+
+.photo-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 3/4;
+  background: var(--accent-soft, #f7f5ef);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-date {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.photo-date button {
+  background: #2B2B28;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.entry {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+
+.entry-title {
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.entry-sub {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0 0 4px;
+}
+
+.entry-notes {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin: 4px 0;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.badge-mild {
+  background: #DFF0DC;
+  color: #256B28;
+}
+
+.badge-moderate {
+  background: #FBEFD2;
+  color: #8A5A00;
+}
+
+.badge-severe {
+  background: #F8DCD2;
+  color: #A33A1F;
+}
+
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card {
+  flex: 1 1 140px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 2px;
+}
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-value.loss {
+  color: #2F7A33;
+}
+
+.stat-unit {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+#weight-chart {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+}
+
+.legal-card h3 {
+  margin-top: 16px;
+}
+
+.legal-card h3:first-child {
+  margin-top: 0;
+}
+
+.copyright {
+  margin-top: 16px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 8px 2px calc(8px + env(safe-area-inset-bottom));
+  z-index: 100;
+  box-shadow: 0 -2px 16px rgba(78, 92, 70, 0.06);
+}
+
+/* v168: gold active state is the gold icon and label plus a small gold
+   dot under the active tab (no gold circle behind the icon). */
+.tab-btn.active .tab-icon {
+  color: #87692B;
+}
+
+.tab-btn.active .tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 2px;
+}
+
+.tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  margin-top: 2px;
+}
+
+.tab-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tab-btn.active {
+  color: #87692B;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 24px 12px;
+}
+
+@media (min-width: 480px) {
+  .tab-label {
+    font-size: 0.7rem;
+  }
+}
+
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(43, 43, 40, 0.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px; overflow-y: auto;
+}
+.modal-overlay.hidden { display: none; }
+.modal-card {
+  background: var(--card, #fff); border-radius: 20px;
+  max-width: 440px; width: 100%; padding: 28px 24px;
+  box-shadow: 0 24px 60px -12px rgba(0,0,0,.3);
+  margin-top: 4vh; position: relative;
+}
+/* Close X in the upper right of a modal (v169, movement plan editor).
+   It closes the same way Cancel, Escape and backdrop tap do. */
+.modal-x {
+  position: absolute; top: 10px; right: 10px;
+  width: 44px; height: 44px; border-radius: 50%; border: none;
+  background: transparent; color: var(--muted); font-size: 1.5rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.modal-x:hover { background: var(--sage-soft); }
+.modal-x:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.modal-card h2 { margin-top: 0; }
+.modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .92rem; }
+.modal-card label select, .modal-card label input {
+  display: block; width: 100%; margin-top: 6px; padding: 10px 12px;
+  border: 1px solid var(--border, #ddd); border-radius: 10px; font-size: 1rem;
+}
+
+/* Today dashboard: encouragement banner and summary grid */
+.encouragement {
+  background: var(--sage-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  text-align: center;
+  margin: 16px 0 4px;
+}
+
+.encouragement p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  color: var(--sage-deep);
+  font-size: 1rem;
+}
+
+
+
+
+
+
+/* Recent foods quick-pick */
+
+
+.recent-label {
+  width: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+
+
+/* AI Companion chat (v168: sage user bubbles, cream Companion bubbles,
+   small lotus beside the Companion's messages). */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 2px 12px;
+  margin-bottom: 12px;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: var(--sage);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: var(--cream);
+  border: 1px solid var(--border, #e8e0d4);
+  border-bottom-left-radius: 4px;
+}
+.chat-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.chat-row .chat-lotus {
+  width: 26px;
+  height: 20px;
+  flex: none;
+  margin-top: 10px;
+}
+.chat-row.assistant .chat-msg {
+  flex: 1;
+  max-width: none;
+}
+.chat-msg.typing {
+  color: var(--muted, #6E6A5E);
+  font-style: italic;
+}
+.chat-form {
+  display: flex;
+  gap: 8px;
+}
+.chat-form input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+/* Companion chat markdown lists */
+.chat-msg ul {
+  margin: 8px 0 4px;
+  padding-left: 20px;
+}
+.chat-msg li {
+  margin-bottom: 6px;
+}
+.chat-msg li:last-child {
+  margin-bottom: 0;
+}
+
+/* Injection calendar */
+.mini-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+}
+.mini-calendar .dow {
+  text-align: center;
+  font-size: .72em;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 4px 0;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.mini-calendar .day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: .92em;
+  min-height: 40px;
+  min-width: 0;
+}
+.mini-calendar .day.other-month {
+  visibility: hidden;
+}
+.mini-calendar .day.today {
+  box-shadow: inset 0 0 0 2px #E8B54A;
+  font-weight: 700;
+}
+.mini-calendar .day.logged {
+  position: relative;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+.mini-calendar .day.logged::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.mini-calendar .day.logged.today {
+  box-shadow: inset 0 0 0 2px #E8B54A;
+}
+.mini-calendar .day.scheduled {
+  box-shadow: inset 0 0 0 2px #5A6B52;
+}
+.mini-calendar .day.selected {
+  background: #5A6B52;
+  color: #fff;
+  font-weight: 700;
+}
+.mini-calendar .day.disabled {
+  opacity: .3;
+}
+.mini-calendar .day[data-pick-date] {
+  cursor: pointer;
+  min-height: 44px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* 50+ readability and calm: larger base type, roomier tap targets */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--sage-tint);
+  color: var(--ink);
+  padding-bottom: 144px;
+  scroll-padding-bottom: 156px;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+/* Bigger progress numbers for at-a-glance reading */
+.pc-value {
+  font-weight: 700;
+  margin: 0 0 8px;
+  /* WCAG 1.4.12: allow wrapping instead of nowrap with ellipsis, so numbers are not truncated at larger text spacing */
+  white-space: normal;
+  overflow: visible;
+  font-size: 1.5rem;
+}
+.pc-goal {
+  white-space: normal;
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Roomier cards (v164: rounder, softer shadow, more space between sections) */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(78, 92, 70, 0.10);
+  padding: 24px 22px;
+  margin: 20px 0;
+  transition: box-shadow 0.2s ease;
+  margin-bottom: 20px;
+}
+
+/* Tab bar labels, sized so the longest labels clear their neighbors */
+.tab-label {
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 0.68rem;
+}
+.tab-btn {
+  flex: 1 0 auto;
+  border: none;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  min-width: 44px;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, background 0.2s ease;
+  min-height: 60px;
+}
+
+/* Collapsible sections: clean disclosure triangles, generous tap targets */
+details.card summary {
+  list-style: none;
+  padding: 4px 0;
+  font-size: 1.05rem;
+}
+
+/* WCAG 1.4.10: at 320px the 6 bottom tabs must fit without horizontal scrolling.
+   Allow tabs to shrink below 44px and use smaller labels at narrow widths, so all 6 fit in 320px. */
+@media (max-width: 400px) {
+  .tab-btn {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 6px 1px;
+  }
+  .tab-label {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+  .tab-bar {
+    gap: 0;
+  }
+}
+details.card summary::-webkit-details-marker {
+  display: none;
+}
+details.card summary::before {
+  content: "\25B6";
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 0.75em;
+  color: var(--sage-dark, #5A6B52);
+  transition: transform 0.15s ease;
+}
+details.card[open] summary::before {
+  transform: rotate(90deg);
+}
+details.card summary h3 {
+  font-size: 1.05rem;
+}
+
+/* Injection site map */
+.site-map-wrap {
+  display: block;
+  margin: 10px 0 6px;
+}
+#site-map {
+  display: block;
+  width: 172px;
+  height: auto;
+  max-height: 480px;
+  margin: 0 auto;
+}
+#site-map #map-front[hidden],
+#site-map #map-back[hidden] {
+  display: none;
+}
+#site-map .body-outline {
+  fill: none;
+  stroke: #8A8A8A;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+#site-map .site-zone {
+  fill: var(--sage-soft);
+  stroke: var(--sage);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+#site-map .site-zone:hover,
+#site-map .site-zone:focus-visible {
+  fill: var(--gold-light);
+}
+#site-map .site-zone.selected {
+  fill: var(--gold);
+  stroke: var(--gold-dark);
+  stroke-width: 3;
+}
+#site-map .site-zone.last-used {
+  stroke: var(--gold-dark);
+  stroke-width: 3;
+  stroke-dasharray: 6 3;
+}
+.site-map-caption {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 8px 0 4px;
+}
+.site-map-caption .rotation-nudge {
+  display: block;
+  margin-top: 4px;
+  color: #7A6238;
+  font-weight: 600;
+}
+
+/* ---------- Steppers ---------- */
+
+
+/* ---------- Overflow fix ---------- */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+
+/* ---------- Readable inputs ---------- */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  font-size: 16px; /* prevents iOS zoom on focus */
+  min-height: 48px; /* comfortable tap target */
+}
+
+/* ---------- v168 ---------- */
+
+/* Your Macros donut card: protein gold, carbs sage, fat soft cream tan.
+   Same donut geometry as the approved preview (r=84, circumference
+   527.79). Tap a row or a segment to show that macro in the center. */
+.donut-wrap { position: relative; width: 216px; height: 216px; margin: 1rem auto 0.25rem; }
+.donut-wrap svg { display: block; }
+.donut-seg { transition: opacity 0.25s ease; cursor: pointer; }
+.donut-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; pointer-events: none;
+}
+.donut-center .big {
+  font-family: Georgia, "Times New Roman", serif; font-size: 2.3rem; font-weight: 600; line-height: 1; color: var(--ink);
+}
+.donut-center .big small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }
+.donut-center .cap { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
+.donut-note { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; }
+
+.macro-rows { margin-top: 0.9rem; border-top: 1px solid #EFE9D6; }
+.macro-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.75rem;
+  padding: 0.7rem 0.35rem; border-bottom: 1px solid #EFE9D6; border-radius: 8px;
+  cursor: pointer; align-items: center;
+}
+.macro-row:last-child { border-bottom: none; }
+.macro-row.selected { background: #FBF6E6; }
+.macro-name { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 1rem; color: var(--ink); }
+.dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
+.dot.protein { background: var(--gold); }
+.dot.carbs { background: var(--sage); }
+.dot.fat { background: #DCC9A3; border: 1px solid #C9B586; }
+.macro-vals { font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
+.macro-vals .of { color: var(--muted); }
+.macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: hidden; margin-top: 0.3rem; }
+/* Slide a macro row (v169): the bar is the slide target, like the rings.
+   touch-action none so the page does not scroll while sliding. The
+   padding widens the grab area to about 20px tall while the visible
+   track stays 6px; the negative margin keeps the row spacing the same. */
+.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: -7px 0 0.3rem; background-clip: content-box; }
+.macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.macro-bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
+.macro-pct { font-size: 0.82rem; color: var(--muted); }
+/* Log steppers on each macro row: change the day's logged grams by
+   exactly 1, like the ring nudge buttons. */
+.macro-stepper { display: inline-flex; align-items: center; gap: 8px; }
+.macro-log-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--sage); background: #fff; color: var(--sage-deep);
+  font-size: 1.25rem; font-weight: 700; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  touch-action: manipulation;
+}
+.macro-log-btn:active { background: var(--sage-soft); }
+
+/* Today's Movement card */
+.movement-sub { margin: 0.25rem 0 0; font-size: 0.92rem; font-weight: 700; color: #87692B; }
+.movement-desc { margin: 0.3rem 0 0; font-size: 0.88rem; line-height: 1.45; color: var(--muted); }
+.moves { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+.moves li { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0; border-top: 1px solid #EFE9D6; }
+.moves li:first-child { border-top: none; }
+.move-check {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  border: 2.5px solid var(--gold); background: #FFF9EA; color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; touch-action: manipulation; padding: 0;
+}
+.move-check svg { opacity: 0; display: block; }
+.move-check.done { background: var(--gold); }
+.move-check.done svg { opacity: 1; }
+.move-check:focus-visible { outline: 3px solid var(--sage); outline-offset: 2px; }
+.move-name { flex: 1; font-weight: 600; font-size: 0.98rem; line-height: 1.3; color: var(--ink); }
+li.done-move .move-name { color: #5C6656; }
+.move-reps { font-size: 0.88rem; color: var(--muted); white-space: nowrap; text-align: right; }
+.move-progress { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid #EFE9D6; }
+.move-track { height: 8px; border-radius: 4px; background: #F0EAD6; overflow: hidden; }
+.move-track i { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 4px; transition: width 0.3s ease; }
+.move-count { margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted); }
+.move-logged { margin: 0.25rem 0 0; font-size: 0.88rem; font-weight: 700; color: var(--sage-dark); display: none; }
+.move-logged.show { display: block; }
+
+/* Movement plan editor: one row per exercise, checkbox plus reps. */
+.plan-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-top: 1px solid #EFE9D6;
+}
+/* Compact picker (v169): the exercise list scrolls inside a fixed box
+   showing about four rows, so the modal stays short. The add-your-own
+   section and the Save/Cancel buttons sit below it, always visible. */
+#movement-plan-list {
+  max-height: 264px; overflow-y: auto;
+  border: 1px solid #EFE9D6; border-radius: 12px; padding: 2px 12px;
+  margin: 12px 0;
+}
+#movement-plan-add { border-top: 1px solid #EFE9D6; margin-top: 12px; padding-top: 12px; }
+#movement-plan-add h3 { margin: 0 0 4px; font-size: 1rem; }
+#movement-plan-add .form-actions { margin-top: 10px; }
+/* Remove button on a custom exercise row (v169). */
+.plan-remove {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; border: none;
+  background: transparent; color: var(--muted); font-size: 1.3rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.plan-remove:hover { background: var(--sage-soft); }
+.plan-remove:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.plan-row:first-child { border-top: none; }
+.plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; }
+.plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
+.plan-row .plan-pattern { font-size: 0.78rem; color: var(--muted); font-weight: 400; display: block; }
+.plan-row .plan-detail { width: 110px; flex: none; margin: 0; }
+
+/* More sheet: slides up from above the tab bar. Effects, Companion,
+   Settings live here now that the bar has five tabs. */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(43, 43, 40, 0.45);
+}
+.more-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 151;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 28px rgba(78, 92, 70, 0.18);
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+  max-width: 640px;
+  margin: 0 auto;
+}
+.more-sheet-handle {
+  width: 40px; height: 5px; border-radius: 3px;
+  background: #E5E0D5; margin: 4px auto 12px;
+}
+.more-item {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; min-height: 56px;
+  font: inherit; font-weight: 600; font-size: 1.05rem; color: var(--ink);
+  background: none; border: none; border-bottom: 1px solid #EFE9D6;
+  padding: 12px 4px; cursor: pointer; text-align: left;
+}
+.more-item:last-of-type { border-bottom: none; }
+.more-item-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--sage-soft); color: var(--sage-deep);
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.more-item-icon svg { width: 22px; height: 22px; }
+.more-item-label { flex: 1; }
+.more-close { justify-content: center; color: var(--muted); }
+
+/* Weight tab (v168): big calm current number, BMI under it. */
+.weight-hero { text-align: center; padding: 16px 0 4px; }
+/* Weight tab actions (v169): the two buttons sit side by side in one
+   row. Compact, but never below 44px tall; they wrap to two rows only
+   on very narrow screens. */
+.weight-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 6px; }
+.weight-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 10px 12px; font-size: 0.95rem; }
+.weight-hero-label { color: var(--muted); margin: 0; font-size: 0.95rem; }
+.weight-hero-num {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3rem; font-weight: 600; margin: 0; line-height: 1.1; color: var(--ink);
+}
+.weight-hero-num .unit { font-size: 1.2rem; color: var(--muted); font-weight: 400; }
+.weight-hero-date { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.9rem; }
+.weight-hero-date:empty { display: none; }
+.bmi-line { text-align: center; color: var(--sage-deep); font-weight: 600; margin: 4px 0 0; font-size: 0.95rem; }
+.bmi-line:empty { display: none; }
+/* BMI extras (v169): how far the current weight sits from the healthy
+   range, and the healthy range for this height. Calm and compact. */
+.bmi-over { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.92rem; }
+.bmi-over:empty { display: none; }
+.bmi-healthy { text-align: center; margin: 10px auto 0; padding: 10px 14px; max-width: 340px; background: var(--sage-tint); border-radius: 12px; }
+.bmi-healthy p { margin: 0; font-size: 0.88rem; color: var(--sage-deep); line-height: 1.5; }
+.bmi-healthy .bmi-cutoffs { margin-top: 4px; font-size: 0.82rem; color: var(--muted); }
+
+/* Journal (v168): entries as elegant cards with the date in serif. */
+#tab-journal .entry-sub {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+}
+
+/* Settings (v168): grouped sections with clear headings. */
+#tab-settings .card h3 {
+  border-bottom: 2px solid var(--gold-light);
+  padding-bottom: 8px;
+}
+
+/* ---------- v000: Companion name and avatar, Appearance, voice ---------- */
+
+/* Appearance themes. The theme switches CSS variables through a data
+   attribute on the root element. The default stays the sage, gold,
+   and cream brand look; gold accents stay gold and the lotus stays
+   gold in every theme. */
+html[data-theme="dark"] {
+  --cream: #2B332A;
+  --card-bg: #2B332A;
+  --ink: #F5F1E6;
+  --ink-soft: #E6E0CE;
+  --muted: #B9B4A4;
+  --border: #41503F;
+  --sage-light: #5C6B58;
+  --sage-soft: #37402F;
+  --sage-tint: #20261F;
+  --gold-soft: #3A3220;
+  --gold-dark: #E8B54A;
+  --danger: #D98A70;
+  --focus: #7FB0FF;
+  /* --sage stays #5A6B52: white text on it is 5.9:1, so the user
+     bubbles and buttons keep their contrast on dark backgrounds. */
+}
+html[data-theme="dark"] body { background: var(--sage-tint); }
+/* :not(.btn-primary): the gold primary buttons keep their gold
+   gradient in dark mode; every other button goes dark. */
+html[data-theme="dark"] .btn:not(.btn-primary) { background: #2B332A; }
+html[data-theme="dark"] label input,
+html[data-theme="dark"] label select,
+html[data-theme="dark"] label textarea,
+html[data-theme="dark"] .modal-card label input,
+html[data-theme="dark"] .modal-card label select,
+html[data-theme="dark"] .chat-form input { background: #2B332A; }
+html[data-theme="dark"] .btn-link { color: #9DB894; }
+html[data-theme="dark"] .streak-line { color: #9DB894; }
+html[data-theme="dark"] .se-timeline-item::before { border-color: #2B332A; }
+
+html[data-theme="cream"] {
+  --cream: #FFFDF8;
+  --sage-soft: #EDEFEA;
+  --sage-tint: #F1EDE3;
+  --border: #EDE6D6;
+}
+
+/* Text size. The root font size scales every rem value; the body
+   size is set in px, so it is scaled here too. */
+html[data-text-size="large"] { font-size: 112.5%; }
+html[data-text-size="large"] body { font-size: 20.25px; }
+
+/* Chat header: the Companion's chosen avatar beside its name. */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chat-header h2 { margin: 0; }
+.chat-header-avatar {
+  width: 34px;
+  height: 26px;
+  flex: none;
+}
+
+/* Companion avatar variants: CSS tints of the existing gold lotus
+   asset. The default (no class) is the gold lotus, unchanged. */
+.avatar-sage { filter: hue-rotate(62deg) saturate(0.45) brightness(0.85); }
+.avatar-deep-gold { filter: brightness(0.62) saturate(0.7); }
+.avatar-tile {
+  background: var(--sage);
+  border-radius: 50%;
+  padding: 3px;
+}
+
+/* Assistant rows wrap the bubble and its Listen button together, so
+   the bubble keeps its full width and the button sits under it. */
+.chat-row.assistant .chat-msg-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chat-row.assistant .chat-msg-wrap .chat-msg { max-width: none; }
+.chat-listen {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+/* Mic button: visible Listening state while recording. */
+.chat-mic.listening {
+  background: var(--gold);
+  border-color: var(--gold-dark);
+}
+
+/* Settings pickers: Companion avatar, theme, text size. */
+.picker-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 12px 0;
+}
+.picker-fieldset legend {
+  font-weight: 700;
+  padding: 0 6px;
+}
+.picker-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 400;
+  margin: 4px 0;
+  cursor: pointer;
+}
+.picker-option input {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  flex: none;
+}
+.avatar-thumb {
+  flex: none;
+  width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar-thumb img {
+  width: 40px;
+  height: 30px;
+  object-fit: contain;
+}
+.theme-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px solid var(--border);
+}
+.theme-swatch-sage { background: #5A6B52; }
+.theme-swatch-dark { background: #20261F; }
+.theme-swatch-cream { background: #FFFDF8; }
+
+/* Print fallback for the doctor summary PDF (sandbox feature). When the
+   PDF library is unavailable, the print dialog shows only the summary. */
+@media print {
+  body * { visibility: hidden; }
+  #doctor-modal, #doctor-modal * { visibility: visible; }
+  #doctor-modal {
+    position: absolute;
+    inset: 0;
+    display: block !important;
+    background: #fff;
+  }
+  #doctor-modal .modal-card {
+    box-shadow: none;
+    border: none;
+    max-width: none;
+  }
+  #doctor-modal .form-actions, #doctor-modal #doctor-msg { display: none !important; }
+  #doctor-modal textarea {
+    border: none;
+    background: #fff;
+    height: auto;
+  }
+}

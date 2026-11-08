@@ -1,0 +1,28 @@
+{
+  "background_color": "#5A6B52",
+  "description": "Your GLP-1 wellness journey, beautifully tracked.",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "icons/lotus-icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "icons/lotus-icon-512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "icons/lotus-icon-512.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "New Chapter: GLP-1 Tracker (Sandbox)",
+  "short_name": "GLP-1 Tracker SB",
+  "theme_color": "#5A6B52",
+  "scope": "./"
+}

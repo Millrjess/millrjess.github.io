@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>New Chapter: GLP-1 Tracker™</title>
+<meta name="description" content="Your GLP-1 wellness journey, beautifully tracked. Injection logging, weight, measurements, progress photos, side effects, and daily journal for Zepbound, Wegovy, Ozempic, and Mounjaro.">
+<meta name="author" content="Jessica A. Miller">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://millrjess.github.io/tracker-app/">
+<meta property="og:title" content="New Chapter: GLP-1 Tracker™">
+<meta property="og:description" content="Your GLP-1 wellness journey, beautifully tracked.">
+<meta property="og:image" content="https://millrjess.github.io/tracker-app/icons/lotus-icon-512.png">
+<meta property="og:url" content="https://millrjess.github.io/tracker-app/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="New Chapter: GLP-1 Tracker™">
+<meta name="twitter:description" content="Your GLP-1 wellness journey, beautifully tracked.">
+<meta name="twitter:image" content="https://millrjess.github.io/tracker-app/icons/lotus-icon-512.png">
+<meta name="theme-color" content="#5A6B52">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SHDGWWFBV7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  // Never send the page URL to Analytics as-is: the buyer link carries
+  // the companion token in ?key=..., and the token must never leave the
+  // device. Report only the path, never the query string.
+  gtag('config', 'G-SHDGWWFBV7', { page_location: location.origin + location.pathname });
+</script>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
+<style>html{background:#EBEDEA}</style>
+<link rel="stylesheet" href="styles.css?v=000-features">
+</head>
+<body>
+
+
+<a class="skip-link" href="#app-main">Skip to main content</a>
+<header class="app-header" role="banner" aria-label="App header">
+  <img class="header-lotus" src="icons/lotus-gold-only-transparent.png" alt="New Chapter gold lotus logo" width="63" height="48">
+  <h1>New Chapter: GLP-1 Tracker™</h1>
+  <p class="tagline">Stay strong while the medicine works.</p>
+</header>
+
+<main id="app-main" tabindex="-1">
+
+  <!-- TODAY TAB -->
+  <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
+    <div class="card hidden" id="backup-nudge" style="border-left:4px solid #E8B54A">
+      <p style="margin:0 0 8px" id="backup-nudge-text"></p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-small" id="backup-now">Back up now</button>
+        <button class="btn btn-small" id="backup-later">Remind me later</button>
+      </div>
+    </div>
+    <div class="card hidden" id="restore-notice" role="status" style="border-left:4px solid #5A6B52">
+      <p style="margin:0" id="restore-notice-text"></p>
+      <button class="btn btn-small" id="restore-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="corrupt-notice" role="alert" style="border-left:4px solid #B3261E">
+      <p style="margin:0" id="corrupt-notice-text"></p>
+      <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="empty-notice" role="alert" style="border-left:4px solid #B3261E">
+      <p style="margin:0" id="empty-notice-text"></p>
+      <button class="btn btn-small" id="empty-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="update-notice" role="status" style="border-left:4px solid #5A6B52">
+      <p style="margin:0">A new version of the app is ready.</p>
+      <button class="btn btn-primary btn-small" id="update-now" style="margin-top:8px">Update now</button>
+    </div>
+    <div class="card hidden" id="version-notice" role="status" style="border-left:4px solid #5A6B52">
+      <p style="margin:0" id="version-notice-text"></p>
+      <button class="btn btn-small" id="version-notice-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div class="card hidden" id="storage-warning" role="alert" style="border-left:4px solid #E8B54A">
+      <p style="margin:0" id="storage-warning-text"></p>
+      <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
+      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
+        <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
+        <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
+      </div>
+      <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
+      <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
+    </div>
+
+    <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Pick a date">
+      <div class="modal-card" style="max-width:340px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button class="btn btn-small" id="day-cal-prev" aria-label="Previous month">←</button>
+          <strong id="day-cal-title"></strong>
+          <button class="btn btn-small" id="day-cal-next" aria-label="Next month">→</button>
+        </div>
+        <div id="day-cal-grid" class="mini-calendar" style="font-size:1.1rem;padding:0 4px;box-sizing:border-box"></div>
+        <button class="btn btn-secondary" id="day-cal-close" style="width:100%;margin-top:12px;padding:12px">Close</button>
+      </div>
+    </div>
+
+    <p class="greeting-line" id="greeting-line" aria-live="off"></p>
+
+    <p class="streak-line" id="streak-line" aria-live="off"></p>
+
+    <div class="encouragement" role="note">
+      <p id="encouragement-text" style="margin:0"></p>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2 class="card-title">Next Injection</h2>
+      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="quick-log-shot">Log today's shot</button>
+      </div>
+    </div>
+
+    <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
+      <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
+      <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
+      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+    </details>
+
+    <div class="card goals-card" id="goals-card">
+      <h2 class="card-title">Today's Goals</h2>
+      <p class="muted goals-hint">Slide left or right on a ring to change it. Tap the number to type an amount.</p>
+      <div class="goals-rings">
+        <div class="goal-ring">
+          <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide left or right to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-value"><button type="button" class="ring-num-btn" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></button></div>
+          </div>
+          <p class="goal-name">Water</p>
+          <p class="goal-label">Goal <span id="water-goal-display">92</span> oz</p>
+          <button class="btn btn-small goals-add" id="goals-water-add" aria-label="Add 8 ounces of water">+ 8 oz</button>
+          <div class="ring-nudge" role="group" aria-label="Adjust water by one ounce">
+            <button type="button" class="ring-nudge-btn" id="water-minus-1" aria-label="Remove 1 ounce of water">−</button>
+            <button type="button" class="ring-nudge-btn" id="water-plus-1" aria-label="Add 1 ounce of water">+</button>
+          </div>
+        </div>
+        <div class="goal-ring">
+          <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide left or right to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-value"><button type="button" class="ring-num-btn" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></button></div>
+          </div>
+          <p class="goal-name">Movement</p>
+          <p class="goal-label">Goal <span id="exercise-goal-display">30</span> min</p>
+          <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
+          <div class="ring-nudge" role="group" aria-label="Adjust movement by one minute">
+            <button type="button" class="ring-nudge-btn" id="exercise-minus-1" aria-label="Remove 1 minute of movement">−</button>
+            <button type="button" class="ring-nudge-btn" id="exercise-plus-1" aria-label="Add 1 minute of movement">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="macros-card" aria-label="Your Macros">
+      <h2 class="card-title">Your Macros</h2>
+      <p class="muted" style="margin:0">Today's protein, carbs, and fat, against your own targets.</p>
+
+      <div class="donut-wrap">
+        <svg width="216" height="216" viewBox="0 0 216 216" role="img" aria-label="Donut chart of today's macros">
+          <circle cx="108" cy="108" r="84" fill="none" stroke="#F0EAD6" stroke-width="30"></circle>
+          <circle id="seg-protein" class="donut-seg" data-macro="protein" cx="108" cy="108" r="84" fill="none" stroke="#E8B54A" stroke-width="30"></circle>
+          <circle id="seg-carbs" class="donut-seg" data-macro="carbs" cx="108" cy="108" r="84" fill="none" stroke="#5A6B52" stroke-width="30"></circle>
+          <circle id="seg-fat" class="donut-seg" data-macro="fat" cx="108" cy="108" r="84" fill="none" stroke="#DCC9A3" stroke-width="30"></circle>
+        </svg>
+        <div class="donut-center">
+          <span class="big"><span id="macro-center-grams">0</span><small> g</small></span>
+          <span class="cap" id="macro-center-label">protein logged today</span>
+        </div>
+      </div>
+      <p class="donut-note">Each segment is that macro's share of the grams logged today. Tap a line below to see it in the center. Slide a line left or right to change it.</p>
+
+      <div class="macro-rows">
+        <div class="macro-row selected" data-macro="protein" tabindex="0" role="button" aria-label="Show protein in the center of the chart">
+          <span class="macro-name"><span class="dot protein"></span>Protein</span>
+          <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">g</span></span>
+          <span class="macro-bar" id="macro-bar-protein" role="slider" tabindex="0" aria-label="Protein logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="90" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-protein">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="-1" aria-label="Log 1 gram less protein">−</button><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="1" aria-label="Log 1 gram more protein">+</button></span>
+          </span>
+        </div>
+        <div class="macro-row" data-macro="carbs" tabindex="0" role="button" aria-label="Show carbs in the center of the chart">
+          <span class="macro-name"><span class="dot carbs"></span>Carbs</span>
+          <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">g</span></span>
+          <span class="macro-bar" id="macro-bar-carbs" role="slider" tabindex="0" aria-label="Carbs logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="150" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-carbs">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="-1" aria-label="Log 1 gram less carbs">−</button><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="1" aria-label="Log 1 gram more carbs">+</button></span>
+          </span>
+        </div>
+        <div class="macro-row" data-macro="fat" tabindex="0" role="button" aria-label="Show fat in the center of the chart">
+          <span class="macro-name"><span class="dot fat"></span>Fat</span>
+          <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">g</span></span>
+          <span class="macro-bar" id="macro-bar-fat" role="slider" tabindex="0" aria-label="Fat logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="60" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-meta">
+            <span class="macro-pct" id="pct-fat">0% of your target</span>
+            <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="-1" aria-label="Log 1 gram less fat">−</button><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="1" aria-label="Log 1 gram more fat">+</button></span>
+          </span>
+        </div>
+      </div>
+
+      <p class="muted" id="macro-calories" style="margin:12px 0 0"></p>
+      <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
+      <button class="btn btn-small" id="macro-log-food" style="margin-top:12px">Log food</button>
+      <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
+
+      <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
+        <label>Food
+          <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
+        </label>
+        <div class="measure-grid" style="grid-template-columns:1fr 1fr 1fr">
+          <label>Protein (g)<input type="number" id="macro-food-protein" min="0" step="1" placeholder="0"></label>
+          <label>Carbs (g)<input type="number" id="macro-food-carbs" min="0" step="1" placeholder="0"></label>
+          <label>Fat (g)<input type="number" id="macro-food-fat" min="0" step="1" placeholder="0"></label>
+        </div>
+        <div style="margin-top:10px">
+          <button type="button" class="btn btn-small" id="macro-food-photo-btn">Take a photo</button>
+          <input type="file" id="macro-food-photo" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your food">
+          <div id="macro-food-photo-preview" class="hidden" style="margin-top:8px;display:flex;align-items:center;gap:10px">
+            <img id="macro-food-photo-thumb" src="" alt="Photo of this food" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--sage-border)">
+            <button type="button" class="btn btn-small" id="macro-food-photo-remove">Remove photo</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="macro-food-submit">Save</button>
+          <button type="button" class="btn" id="macro-food-cancel">Cancel</button>
+        </div>
+        <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
+      </form>
+      <div id="food-log-wrap" style="margin-top:12px">
+        <h3 style="margin:0 0 6px;font-size:1rem">Logged today</h3>
+        <div id="food-log-list"></div>
+      </div>
+    </div>
+
+    <div class="card" id="movement-card" aria-label="Today's Movement">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+        <h2 class="card-title" style="margin-bottom:0">Today's Movement</h2>
+        <button class="btn btn-small" id="movement-customize" style="flex:none">Customize</button>
+      </div>
+      <p class="movement-sub" id="movement-sub">5 minutes. No equipment.</p>
+      <p class="movement-desc">A short daily routine. Tap the gold circle as you finish each move.</p>
+      <ul class="moves" id="moves-list"></ul>
+      <div class="move-progress">
+        <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
+        <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
+        <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement ring.</p>
+      </div>
+    </div>
+
+    <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
+      <div class="modal-card">
+        <h2 id="add-amount-title">Add water</h2>
+        <p class="muted" id="add-amount-now">Now: 0 oz</p>
+        <label>Amount to add
+          <input type="text" id="add-amount-input" inputmode="numeric" autocomplete="off" placeholder="16">
+        </label>
+        <p class="muted" id="add-amount-preview" aria-live="polite">Type a whole number to add.</p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" id="add-amount-add" disabled>Add</button>
+          <button type="button" class="btn" id="add-amount-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="movement-plan-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Customize your movement plan">
+      <div class="modal-card">
+        <button type="button" class="modal-x" id="movement-plan-x" aria-label="Close">×</button>
+        <h2 style="margin-top:0">Your movement plan</h2>
+        <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs 5 minutes to your Movement ring.</p>
+        <div id="movement-plan-list"></div>
+        <div id="movement-plan-add">
+          <h3>Add your own exercise</h3>
+          <label>Exercise name
+            <input type="text" id="custom-ex-name" maxlength="80" placeholder="e.g. Step-ups">
+          </label>
+          <div style="display:flex;gap:10px">
+            <label style="flex:1">Pattern
+              <select id="custom-ex-pattern">
+                <option>Squat</option>
+                <option>Hinge</option>
+                <option>Push</option>
+                <option>Pull</option>
+                <option>Carry</option>
+                <option>Core</option>
+                <option selected>Other</option>
+              </select>
+            </label>
+            <label style="flex:1">Reps or time
+              <input type="text" id="custom-ex-detail" maxlength="40" placeholder="e.g. 10 reps">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" id="custom-ex-add">Add exercise</button>
+          </div>
+          <p class="code-msg" id="custom-ex-msg" style="min-height:1.2em"></p>
+        </div>
+        <p class="code-msg" id="movement-plan-msg" style="min-height:1.2em"></p>
+        <div class="form-actions" style="flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="movement-plan-save">Save plan</button>
+          <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
+          <button type="button" class="btn btn-link" id="movement-plan-reset">Use the 5-minute default</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Daily Mood</h2>
+      <div class="mood-row" id="mood-row">
+        <button class="mood-btn" data-mood="Great">Great</button>
+        <button class="mood-btn" data-mood="Good">Good</button>
+        <button class="mood-btn" data-mood="Okay">Okay</button>
+        <button class="mood-btn" data-mood="Low">Low</button>
+      </div>
+      <p class="muted" id="mood-today-label">No mood logged today yet.</p>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Evening Reflection</h2>
+      <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
+      <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
+    </div>
+
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
+        <h2 class="card-title" style="margin:0;font-size:1rem" id="review-title">This month</h2>
+        <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
+      </div>
+      <div id="review-body" style="margin-top:12px"></div>
+    </details>
+  </section>
+
+  <!-- INJECTIONS TAB -->
+  <section id="tab-shots" class="tab-panel" role="tabpanel" aria-label="Shots">
+    <h2>Shots</h2>
+    <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
+    <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
+    <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <button class="btn btn-small" id="inj-cal-prev" aria-label="Previous month">←</button>
+        <h3 style="margin:0" id="inj-cal-title">This month</h3>
+        <button class="btn btn-small" id="inj-cal-next" aria-label="Next month">→</button>
+      </div>
+      <div id="inj-calendar" class="mini-calendar" role="grid" aria-label="Injection calendar"></div>
+      <p class="muted" style="font-size:.85em;margin:8px 0 0">
+        <span style="color:#E8B54A">●</span> Shot logged &nbsp;
+        <span style="color:#5A6B52">○</span> Next scheduled
+      </p>
+      <p style="margin:8px 0 0;font-size:.9em" id="inj-cal-detail" aria-live="polite"></p>
+    </div>
+
+    <div class="card" id="rotation-guide-card" style="border-left:4px solid #E8B54A">
+      <p style="margin:0" id="rotation-guide"></p>
+      <button class="btn btn-small hidden" id="rotation-use-site" style="margin-top:8px">Use this site</button>
+    </div>
+
+    <form id="injection-form" class="card hidden" aria-label="Log injection" novalidate>
+      <h3>Log Injection</h3>
+      <label>Date
+        <input type="date" id="inj-date" required>
+      </label>
+      <label>Medication name
+        <input type="text" id="inj-med" placeholder="e.g. Zepbound" required>
+      </label>
+      <label>Dose (mg)
+        <input type="number" id="inj-dose" step="0.1" min="0" placeholder="e.g. 2.5" required>
+      </label>
+      <label>Dose status
+        <select id="inj-status">
+          <option>On time</option>
+          <option>Missed</option>
+          <option>Delayed</option>
+        </select>
+      </label>
+      <p class="muted hidden" id="inj-status-note" style="font-size:.85em">If a dose was missed or delayed, always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
+      <div class="field-group">
+        <span id="inj-site-label">Injection site</span>
+        <div class="site-map-wrap">
+          <svg id="site-map" viewBox="0 0 200 240" role="group" aria-label="Injection site map. Tap a highlighted zone to select it.">
+            <title>Injection site map</title>
+            <!-- Front view: abdomen and thighs. Back view: upper arms. Slim body outline, like the reference: no head, neck stub, grey outline. -->
+            <g id="map-front">
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="site-zone" data-site="Left Abdomen" tabindex="0" role="button" aria-label="Left abdomen" d="M100 98 C87 98 76 106 76 118 C76 130 87 138 100 138 Z"/>
+              <path class="site-zone" data-site="Right Abdomen" tabindex="0" role="button" aria-label="Right abdomen" d="M100 98 C113 98 124 106 124 118 C124 130 113 138 100 138 Z"/>
+              <circle cx="100" cy="118" r="7" class="body-outline" fill="#fff"/>
+              <circle cx="100" cy="118" r="2" fill="#8A8A8A"/>
+              <ellipse cx="82" cy="196" rx="13" ry="22" class="site-zone" data-site="Left Thigh" tabindex="0" role="button" aria-label="Left thigh"/>
+              <ellipse cx="118" cy="196" rx="13" ry="22" class="site-zone" data-site="Right Thigh" tabindex="0" role="button" aria-label="Right thigh"/>
+            </g>
+            <g id="map-back" style="display:none">
+              <path class="body-outline" d="M86 6 C86 12 82 16 76 19 C62 25 54 34 52 48 C50 62 52 78 54 92 C56 108 52 126 50 144 C48 164 50 184 54 204 C56 216 58 228 60 238 M114 6 C114 12 118 16 124 19 C138 25 146 34 148 48 C150 62 148 78 146 92 C144 108 148 126 150 144 C152 164 150 184 146 204 C144 216 142 228 140 238 M100 150 C98 178 98 206 100 238"/>
+              <path class="body-outline" d="M74 146 C84 154 94 154 100 148 C106 154 116 154 126 146"/>
+              <path class="site-zone" data-site="Left Upper Arm" tabindex="0" role="button" aria-label="Left upper arm, back of arm" d="M64 70 C56 70 51 78 51 88 C51 98 56 104 64 104 C66 94 66 80 64 70 Z"/>
+              <path class="site-zone" data-site="Right Upper Arm" tabindex="0" role="button" aria-label="Right upper arm, back of arm" d="M136 70 C144 70 149 78 149 88 C149 98 144 104 136 104 C134 94 134 80 136 70 Z"/>
+            </g>
+          </svg>
+          <p class="site-map-caption" id="site-map-caption">Tap a zone to select it.</p>
+          <button type="button" class="btn btn-small" id="site-map-flip" style="display:block;margin:6px auto 0" aria-label="Flip injection site map to back view">Flip to Back</button>
+        </div>
+        <select id="inj-site" aria-labelledby="inj-site-label" required>
+          <option value="">Choose a site</option>
+          <option>Left Abdomen</option>
+          <option>Right Abdomen</option>
+          <option>Left Thigh</option>
+          <option>Right Thigh</option>
+          <option>Left Upper Arm</option>
+          <option>Right Upper Arm</option>
+        </select>
+      </div>
+      <label>Notes
+        <textarea id="inj-notes" rows="2" maxlength="2000" placeholder="Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-injection">Cancel</button>
+      </div>
+    </form>
+    <p class="code-msg" id="inj-saved-msg" role="status" style="min-height:1.2em"></p>
+
+    <div id="injection-list" class="entry-list"></div>
+  </section>
+
+  <!-- WEIGHT TAB -->
+  <section id="tab-weight" class="tab-panel" role="tabpanel" aria-label="Weight">
+    <h2>Weight</h2>
+    <div class="weight-actions">
+      <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
+      <button class="btn" id="doctor-summary-btn">Doctor visit summary</button>
+    </div>
+
+    <div class="weight-hero">
+      <p class="weight-hero-label">Current weight</p>
+      <p class="weight-hero-num"><span id="weight-hero-value">--</span> <span class="unit">lbs</span></p>
+      <p class="weight-hero-date" id="weight-hero-date"></p>
+      <p class="bmi-line" id="bmi-line"></p>
+      <p class="bmi-over" id="bmi-over-line"></p>
+      <div class="bmi-healthy" id="bmi-healthy-block" hidden>
+        <p id="bmi-healthy-range"></p>
+        <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obese 30 and above.</p>
+      </div>
+    </div>
+
+    <div class="card" id="weight-chart-card">
+      <h3>Progress over time</h3>
+      <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
+      <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
+    </div>
+
+    <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
+      <h3>Log weigh-in</h3>
+      <label>Date
+        <input type="date" id="weight-date" required>
+      </label>
+      <label>Weight (lbs)
+        <input type="number" id="weight-value" step="0.1" min="0" placeholder="e.g. 184.2" required>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-weight">Cancel</button>
+      </div>
+    </form>
+    <p class="code-msg" id="weight-saved-msg" role="status" style="min-height:1.2em"></p>
+
+    <div class="stats-row">
+      <div class="card stat-card">
+        <p class="stat-label">Starting weight</p>
+        <p class="stat-value"><span id="starting-weight">--</span> <span class="stat-unit">lbs</span></p>
+        <p class="stat-label" id="starting-weight-date" style="margin-top:2px"></p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label">Current weight</p>
+        <p class="stat-value"><span id="current-weight">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label" id="total-lost-label">Total lost</p>
+        <p class="stat-value loss"><span id="total-lost">--</span> <span class="stat-unit">lbs</span></p>
+      </div>
+      <div class="card stat-card">
+        <p class="stat-label" id="percent-lost-label">Percent lost</p>
+        <p class="stat-value loss"><span id="percent-lost">--</span> <span class="stat-unit">%</span></p>
+      </div>
+    </div>
+    <p class="muted" id="weight-change-note" style="font-size:.9em"></p>
+
+    <div class="card hidden" id="milestone-card">
+      <h3>Goal progress</h3>
+      <p style="margin:0 0 8px" id="milestone-text"></p>
+      <div style="background:#EDE9DF;border-radius:999px;height:14px;overflow:hidden" role="progressbar" aria-label="Progress toward goal weight" id="milestone-barwrap">
+        <div id="milestone-bar" style="height:100%;width:0%;background:#5A6B52;border-radius:999px;transition:width .5s"></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em" id="milestone-sub"></p>
+    </div>
+
+    <div id="weight-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Body Measurements</h3>
+      <p class="muted">Track inches lost alongside pounds. Measure monthly for the clearest picture.</p>
+      <button class="btn btn-primary" id="show-measurement-form">+ Log measurements</button>
+    </div>
+
+    <form id="measurement-form" class="card hidden" aria-label="Log measurements">
+      <h3>Log Measurements</h3>
+      <label>Date
+        <input type="date" id="meas-date" required>
+      </label>
+      <div class="measure-grid">
+        <label>Waist (in)<input type="number" id="meas-waist" step="0.1" min="0" placeholder="e.g. 34.5"></label>
+        <label>Hips (in)<input type="number" id="meas-hips" step="0.1" min="0" placeholder="e.g. 42.0"></label>
+        <label>Chest (in)<input type="number" id="meas-chest" step="0.1" min="0" placeholder="e.g. 38.0"></label>
+        <label>Arm (in)<input type="number" id="meas-arm" step="0.1" min="0" placeholder="e.g. 13.5"></label>
+        <label>Thigh (in)<input type="number" id="meas-thigh" step="0.1" min="0" placeholder="e.g. 24.0"></label>
+        <label>Neck (in)<input type="number" id="meas-neck" step="0.1" min="0" placeholder="e.g. 14.0"></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-measurement">Cancel</button>
+      </div>
+      <p class="code-msg" id="meas-msg" style="min-height:1.2em"></p>
+    </form>
+    <p class="code-msg" id="meas-saved-msg" role="status" style="min-height:1.2em"></p>
+
+    <div id="measurement-list" class="entry-list"></div>
+
+    <div class="card">
+      <h3>Progress Photos</h3>
+      <p class="muted">Photos stay on this device only. Take them monthly in similar lighting for the best comparison.</p>
+      <label class="btn btn-primary photo-upload-label">+ Add photo
+        <input type="file" id="photo-input" accept="image/*" hidden>
+      </label>
+    </div>
+
+    <div id="photo-grid" class="photo-grid"></div>
+
+    <div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
+      <div class="modal-card">
+        <h2 style="margin-top:0">Doctor visit summary</h2>
+        <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
+        <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.95rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
+        <div class="form-actions" style="flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
+          <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
+          <button type="button" class="btn" id="doctor-pdf">Download PDF</button>
+          <button type="button" class="btn" id="doctor-close">Close</button>
+        </div>
+        <p class="code-msg" id="doctor-msg" style="min-height:1.2em"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNAL TAB -->
+  <section id="tab-journal" class="tab-panel" role="tabpanel" aria-label="Journal">
+    <h2>Journal</h2>
+    <button class="btn btn-primary" id="show-journal-form">+ New entry</button>
+
+    <form id="journal-form" class="card hidden" aria-label="New journal entry" novalidate>
+      <h3>New Journal Entry</h3>
+      <label>Date
+        <input type="date" id="journal-date" required>
+      </label>
+      <label>Mood
+        <select id="journal-mood" required>
+          <option value="">Choose a mood</option>
+          <option>Great</option>
+          <option>Good</option>
+          <option>Okay</option>
+          <option>Low</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="journal-notes" rows="4" maxlength="2000" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-journal">Cancel</button>
+      </div>
+    </form>
+    <p class="code-msg" id="journal-saved-msg" role="status" style="min-height:1.2em"></p>
+
+    <div id="journal-list" class="entry-list"></div>
+
+    <h3 style="margin-top:20px">Side effects</h3>
+    <div id="journal-se-list" class="entry-list"></div>
+  </section>
+
+  <!-- SIDE EFFECTS TAB -->
+  <section id="tab-side-effects" class="tab-panel" role="tabpanel" aria-label="Side effects">
+    <h2>Side Effects</h2>
+    <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+
+    <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
+      <h3>Log Side Effect</h3>
+      <label>Date
+        <input type="date" id="se-date" required>
+      </label>
+      <label>Symptom
+        <input type="text" id="se-symptom" placeholder="e.g. Nausea" required>
+      </label>
+      <label>Severity
+        <select id="se-severity" required>
+          <option value="">Choose severity</option>
+          <option>Mild</option>
+          <option>Moderate</option>
+          <option>Severe</option>
+        </select>
+      </label>
+      <label>Notes
+        <textarea id="se-notes" rows="2" maxlength="2000" placeholder="What helped? Optional notes"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn" id="cancel-sideeffect">Cancel</button>
+      </div>
+    </form>
+    <p class="code-msg" id="se-saved-msg" role="status" style="min-height:1.2em"></p>
+
+    <div id="sideeffect-list" class="entry-list"></div>
+  </section>
+
+  <!-- AI WELLNESS COMPANION TAB -->
+  <section id="tab-chat" class="tab-panel" role="tabpanel" aria-label="AI Wellness Companion">
+    <div class="chat-header">
+      <img id="chat-header-avatar" class="chat-header-avatar" src="icons/lotus-gold-only-transparent.png" alt="">
+      <h2 id="chat-title">Your AI Wellness Companion</h2>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin-bottom:12px">Encouragement only, not medical advice. Messages leave this device. Your companion does not see your tracker entries. <a href="privacy.html">Privacy Policy</a></p>
+    <div class="card hidden" id="morning-checkin" style="border-left:4px solid #E8B54A">
+      <p style="margin:0 0 4px;font-weight:700">Good morning, Jessica.</p>
+      <p style="margin:0" id="morning-checkin-q"></p>
+      <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
+    </div>
+    <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
+      <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
+      <button type="submit" class="btn btn-small" id="chat-send">Send</button>
+    </form>
+    <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
+
+    <details class="card" style="margin-top:16px" id="memory-optin-card" open>
+      <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
+      <div style="margin-top:12px">
+      <p class="muted" style="font-size:.9em">Want your companion to remember you? Turn this on and it will remember your name, goals, and preferences to personalize its replies. It's off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <label style="display:flex;align-items:center;gap:10px;font-weight:600">
+        <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
+        Remember me
+      </label>
+      <div id="memory-fields" class="hidden" style="margin-top:12px">
+        <label>Your name
+          <input type="text" id="memory-name" maxlength="60" placeholder="What should your companion call you?">
+        </label>
+        <label>Your goals
+          <input type="text" id="memory-goals" maxlength="500" placeholder="e.g. Protect muscle, steady energy">
+        </label>
+        <label>Preferences
+          <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
+        </label>
+        <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
+      </div>
+      <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your companion will remember you now.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- SETTINGS TAB -->
+  <section id="tab-settings" class="tab-panel" role="tabpanel" aria-label="Settings">
+    <h2>Settings</h2>
+
+    <form id="settings-form">
+      <div class="card">
+        <h3>AI Wellness Companion access</h3>
+        <p class="muted" id="coach-status-line">Checking companion status...</p>
+        <div id="coach-code-entry">
+          <label>Access code
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+          </label>
+          <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
+          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
+        </div>
+        <details style="margin-top:8px">
+          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
+          <label style="margin-top:8px">Access key
+            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
+          </label>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>Your Companion</h3>
+        <p class="muted">Give your AI Wellness Companion a name and a look. This stays on this device.</p>
+        <label>Companion name
+          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
+        </label>
+        <p class="muted">Leave it blank to keep "AI Wellness Companion".</p>
+        <fieldset class="picker-fieldset" id="companion-avatar-picker">
+          <legend>Companion avatar</legend>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
+        </fieldset>
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
+          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
+          Read Companion replies aloud
+        </label>
+        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud.</p>
+      </div>
+
+      <div class="card">
+        <h3>Appearance</h3>
+        <p class="muted">Change how the app looks. The lotus stays gold.</p>
+        <fieldset class="picker-fieldset" id="theme-picker">
+          <legend>Theme</legend>
+          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
+          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
+          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
+        </fieldset>
+        <fieldset class="picker-fieldset" id="textsize-picker">
+          <legend>Text size</legend>
+          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
+          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
+        </fieldset>
+      </div>
+
+      <div id="play-subscription-card"></div>
+
+      <details class="card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
+        <div style="margin-top:12px">
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Medication</h4>
+        <label>Current medication
+          <input type="text" id="set-med" placeholder="e.g. Zepbound">
+        </label>
+        <label>Current dose (mg)
+          <input type="number" id="set-dose" step="0.1" min="0" placeholder="e.g. 2.5">
+        </label>
+      </div>
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Weekly shot day</h4>
+        <label>Shot day
+          <select id="set-shot-day">
+            <option value="">Choose a day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+          </select>
+        </label>
+        <p class="muted">Your Today tab will show how many days until your next scheduled shot.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily water goal (oz)
+          <input type="number" id="set-water-goal" min="0" step="1" placeholder="92">
+        </label>
+        <p class="muted">Staying well hydrated supports digestion and may ease side effects.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily protein goal (g)
+          <input type="number" id="set-protein-goal" min="0" step="1" placeholder="90">
+        </label>
+        <p class="muted">Protein helps protect muscle during weight loss.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily carbs goal (g)
+          <input type="number" id="set-carbs-goal" min="0" step="1" placeholder="150">
+        </label>
+        <p class="muted">Your own carbs target for the Your Macros card on Today.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily fat goal (g)
+          <input type="number" id="set-fat-goal" min="0" step="1" placeholder="60">
+        </label>
+        <p class="muted">Your own fat target for the Your Macros card on Today.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily calorie target (calories)
+          <input type="number" id="set-calorie-target" min="0" step="1">
+        </label>
+        <p class="muted">Your own calorie target for the Your Macros card on Today. Leave it blank if you do not want one. It stays on this device.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <h4 style="margin:0 0 8px">Your height</h4>
+        <div style="display:flex;gap:10px">
+          <label style="flex:1">Feet
+            <input type="number" id="set-height-ft" min="0" max="8" step="1" placeholder="5">
+          </label>
+          <label style="flex:1">Inches
+            <input type="number" id="set-height-in" min="0" max="11" step="1" placeholder="6">
+          </label>
+        </div>
+        <p class="muted">Your height is used only to work out your BMI on the Weight tab. It stays on this device.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Daily movement goal (min)
+          <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
+        </label>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Goal weight (lbs)
+          <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
+        </label>
+        <p class="muted">Your weight chart will show a goal line and track your milestones toward it. Set this with your clinician's guidance.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Starting weight (lbs)
+          <input type="number" id="set-starting-weight" min="0" step="0.1" placeholder="e.g. 200">
+        </label>
+        <p class="muted">The weight your total lost is measured from. It stays fixed unless you change it here. Leave it blank to use your earliest weigh-in.</p>
+      </div>
+
+          <div style="margin-bottom:16px">
+          <h4 style="margin:0 0 8px">Prescription refill reminder</h4>
+        <label>Refill date
+          <input type="date" id="set-refill-date">
+        </label>
+        <p class="muted" id="refill-countdown"></p>
+        <p class="muted">A reminder to request your prescription before you run out.</p>
+      </div>
+
+        </div>
+      </details>
+
+      <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+      <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
+    </form>
+
+    <details class="card" open>
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
+      <div style="margin-top:12px">
+    <div class="card">
+      <p class="muted">Download everything you have tracked as a tab-delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
+      <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
+    </div>
+
+    <div class="card">
+      <h3>Backup &amp; restore</h3>
+      <p class="muted">Download backup saves a file to this phone, in Files under Downloads, and also keeps a copy inside the app below. Restore from file opens a picker: choose On My iPhone or Downloads. A backup is not in Google Drive unless you moved a copy there yourself.</p>
+      <p class="muted">Your entries live only in this app on this phone. Always open the tracker from its home-screen app icon. Opening it in Safari or from a link shows a separate, empty copy.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
+        <label class="btn" style="cursor:pointer">Restore backup
+          <input type="file" id="restore-input" accept=".json,application/json" hidden>
+        </label>
+      </div>
+      <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
+      <p class="muted" id="backup-version-line" style="margin-top:6px"></p>
+      <div id="snapshot-list" style="margin-top:14px"></div>
+      <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
+      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
+    </div>
+
+      </div>
+    </details>
+
+    <details class="card legal-card">
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">About</h3></summary>
+      <div style="margin-top:12px">
+    <div>
+      <p>New Chapter: GLP-1 Tracker™ is not a calorie counter. It tracks the habits that protect muscle while the medicine works: protein, water, and movement, plus your injections and your weight.</p>
+      <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI Wellness Companion. Everything in one place.</p>
+      <p class="muted">Developed by Jessica A. Miller, Founder, New Chapter.</p>
+      <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
+      <p><strong>Who it is for:</strong> For adults navigating GLP-1 treatment.</p>
+      <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
+      <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while supporting your bones, heart, brain, skin, digestive health, and overall nutritional status. Think whole-body nutrition, not just weight loss. The tracker supports these areas through the habits it tracks, protein, water, and movement, plus injections, weight, and side effects.</p>
+      <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
+      <p>Track medication, injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
+      <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
+      <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
+      <h4 style="margin:16px 0 8px">Privacy</h4>
+      <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
+      <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your messages leave this device and are processed by our service to generate a reply. Messages are not stored on our servers afterward, unless you turn on Companion Memory. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
+      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
+        <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
+      </div>
+      <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
+      <p class="muted" id="app-version-line"></p>
+    </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- Barcode scanner (sandbox feature). Camera scanning works on iPhone
+       with the fallback reader. If camera scanning is not available, type
+       the barcode number. Lookup is free from Open Food Facts. -->
+  <div id="scan-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Barcode scanner" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
+      <h2 style="margin-top:0">Scan barcode</h2>
+      <p class="muted">Point your camera at a food barcode. Free lookup from Open Food Facts. If camera scanning is not available, type the barcode number below.</p>
+      <video id="scan-video" playsinline muted style="width:100%;border-radius:12px;background:#000"></video>
+      <div id="scan-reader" style="width:100%"></div>
+      <p id="scan-status" class="muted" role="status"></p>
+      <label>Barcode number
+        <input type="text" id="scan-barcode-input" inputmode="numeric" placeholder="e.g. 3017620422003" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:1rem">
+      </label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+        <button type="button" class="btn btn-primary" id="scan-start-btn">Start camera</button>
+        <button type="button" class="btn btn-small" id="scan-lookup-btn">Look up barcode</button>
+        <button type="button" class="btn btn-small" id="scan-close-btn">Close</button>
+      </div>
+      <div id="scan-result" class="hidden" style="border-top:1px solid #ddd;padding-top:12px">
+        <p><strong id="scan-product-name"></strong></p>
+        <p class="muted" id="scan-product-serving"></p>
+        <label>Food name <input type="text" id="scan-food" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Protein (g) <input type="number" id="scan-protein" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Carbs (g) <input type="number" id="scan-carbs" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <label>Fat (g) <input type="number" id="scan-fat" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
+        <p class="muted">Check the label and edit these grams before logging. No calories are shown or logged.</p>
+        <button type="button" class="btn btn-primary btn-block" id="scan-log-btn">Log scanned food</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Food photo viewer (sandbox feature). Tapping a thumbnail in the food
+       log opens the photo larger. -->
+  <div id="food-photo-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Food photo">
+    <div class="modal-card">
+      <img id="food-photo-large" src="" alt="Food photo, larger view" style="width:100%;border-radius:12px">
+      <div class="form-actions" style="margin-top:12px">
+        <button type="button" class="btn" id="food-photo-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="app-footer" role="contentinfo" aria-label="App footer">
+  <p>How can we make this app better? <a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
+  <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+</footer>
+
+<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
+  <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Today</title><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg></span>
+    <span class="tab-label">Today</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="shots" role="tab" aria-selected="false" aria-controls="tab-shots">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Shots</title><g transform="rotate(45 12 12)"><rect x="9" y="5" width="6" height="11" rx="1"/><path d="M12 16v4"/><path d="M12 5V3"/><path d="M9.5 3h5"/><path d="M10 9.5h4"/></g></svg></span>
+    <span class="tab-label">Shots</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Weight</title><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-4.5"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg></span>
+    <span class="tab-label">Weight</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Journal</title><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
+    <span class="tab-label">Journal</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="tab-label">Companion</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="more" role="tab" aria-selected="false" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>More</title><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8"/></svg></span>
+    <span class="tab-label">More</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+</div></nav>
+
+<div id="more-sheet-backdrop" class="sheet-backdrop hidden"></div>
+<div id="more-sheet" class="more-sheet hidden" role="dialog" aria-modal="true" aria-label="More">
+  <div class="more-sheet-handle" aria-hidden="true"></div>
+  <button type="button" class="more-item" data-more-goto="side-effects">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
+    <span class="more-item-label">Effects</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="settings">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+    <span class="more-item-label">Settings</span>
+  </button>
+  <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="app.js?v=000-features"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      // v150: ask for an update on every load, so a new version reaches
+      // the installed app instead of waiting on the browser's own
+      // schedule, which can leave an old copy running for days.
+      if (reg && reg.update) reg.update().catch(() => {});
+      if (reg) {
+        reg.addEventListener("updatefound", () => {
+          const nw = reg.installing;
+          if (nw) nw.addEventListener("statechange", () => {
+            if (nw.state === "installed" && navigator.serviceWorker.controller) showUpdateNotice();
+          });
+        });
+      }
+    }).catch(() => {});
+  });
+  // A new service worker taking over means new code is ready: offer the update.
+  let updateShown = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (updateShown) return;
+    updateShown = true;
+    showUpdateNotice();
+  });
+}
+function showUpdateNotice() {
+  const card = document.getElementById("update-notice");
+  if (card) card.classList.remove("hidden");
+}
+document.getElementById("update-now").addEventListener("click", () => {
+  // v154: the new worker already skips waiting and claims the page on
+  // install, so by the time this card shows the new worker is usually
+  // controlling the page, and a plain reload serves the new files
+  // (network-first). Never unregister here: the old handler did, and
+  // that threw the new worker away and fell back to the browser cache,
+  // which served the old copy again, so Update now flickered and never
+  // landed. If a new worker is still waiting, ask it to take over first.
+  const reload = () => location.reload();
+  if (!("serviceWorker" in navigator) || !navigator.serviceWorker.getRegistration) { reload(); return; }
+  navigator.serviceWorker.getRegistration().then((reg) => {
+    if (!reg) { reload(); return; }
+    const proceed = () => {
+      if (reg.waiting) {
+        let done = false;
+        const go = () => { if (done) return; done = true; reload(); };
+        navigator.serviceWorker.addEventListener("controllerchange", go);
+        reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        // Safety net: if nothing takes over, reload anyway.
+        setTimeout(go, 2000);
+        return;
+      }
+      reload();
+    };
+    if (reg.update) {
+      reg.update().catch(() => {}).finally(() => setTimeout(proceed, 500));
+    } else proceed();
+  }).catch(reload);
+});
+</script>
+</body>
+</html>
