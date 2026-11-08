@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v008";
+const APP_VERSION = "v009";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1040,6 +1040,111 @@ document.getElementById("review-next").addEventListener("click", () => {
   renderMonthlyReview();
 });
 
+/* ---------- Weekly digest ---------- */
+/* A short weekly report: protein and water averages, movement total,
+   weight trend, shots, and side effects. Monday to Sunday, with
+   previous and next week navigation. Plain facts only, no failure
+   language. */
+let digestWeekStart = null; // Date of the Monday starting the shown week
+function weekMonday(d) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = x.getDay(); // 0 Sunday, 1 Monday
+  x.setDate(x.getDate() - ((day + 6) % 7));
+  return x;
+}
+function dateStrOf(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function renderWeeklyDigest() {
+  const body = document.getElementById("digest-body");
+  if (!body) return;
+  const now = new Date();
+  if (!digestWeekStart) digestWeekStart = weekMonday(now);
+  const thisWeek = weekMonday(now);
+  if (digestWeekStart > thisWeek) digestWeekStart = thisWeek;
+  const start = new Date(digestWeekStart);
+  const end = new Date(start); end.setDate(end.getDate() + 6);
+  const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const isCurrent = dateStrOf(start) === dateStrOf(thisWeek);
+  document.getElementById("digest-title").textContent = isCurrent
+    ? "This week"
+    : fmt(start) + " to " + fmt(end);
+
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    days.push(dateStrOf(d));
+  }
+  const inWeek = (d) => d && days.includes(d);
+
+  const daysLogged = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (inWeek(e.date)) daysLogged.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => { if (inWeek(d)) daysLogged.add(d); });
+
+  const sumField = (key, field) => (store[key] || []).reduce((t, e) => inWeek(e.date) ? t + (Number(e[field]) || 0) : t, 0);
+  const proteinTotal = sumField("protein", "grams");
+  const waterTotal = sumField("water", "oz");
+  const moveTotal = sumField("exercise", "minutes");
+  const shots = (store.injections || []).filter((e) => inWeek(e.date)).length;
+  const effects = (store.sideEffects || []).filter((e) => inWeek(e.date));
+
+  const weights = (store.weight || []).filter((e) => inWeek(e.date)).sort(byDate);
+  let weightLine = "";
+  if (weights.length >= 2) {
+    const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+    const change = startW - endW;
+    weightLine = change > 0
+      ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+      : change < 0
+        ? "Weight went from " + startW + " to " + endW + " lbs, up " + Math.abs(change).toFixed(1) + "."
+        : "Weight held steady at " + endW + " lbs.";
+  } else if (weights.length === 1) {
+    weightLine = "You logged your weight at " + weights[0].value + " lbs.";
+  }
+
+  let effectLine = "";
+  if (effects.length) {
+    const counts = {};
+    effects.forEach((e) => { const s = (e.symptom || "Side effect").trim(); counts[s] = (counts[s] || 0) + 1; });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    effectLine = effects.length + " side effect" + (effects.length === 1 ? "" : "s") + " noted" +
+      (top ? ", most often " + top[0] + " (" + top[1] + ")." : ".");
+  }
+
+  const lines = [];
+  lines.push("You showed up " + daysLogged.size + " of 7 days.");
+  if (proteinTotal) lines.push("Protein averaged " + Math.round(proteinTotal / 7) + " grams a day.");
+  if (waterTotal) lines.push("Water averaged " + Math.round(waterTotal / 7) + " ounces a day.");
+  if (moveTotal) lines.push("Movement totaled " + moveTotal + " minutes.");
+  if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+  if (effectLine) lines.push(effectLine);
+  if (weightLine) lines.push(weightLine);
+
+  const closing = daysLogged.size === 0
+    ? "A quiet week. Next week is yours to write."
+    : isCurrent
+      ? "The week isn't over yet. Keep writing."
+      : "That's a week worth keeping.";
+
+  body.innerHTML = lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("") +
+    `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
+
+  document.getElementById("digest-next").style.visibility = isCurrent ? "hidden" : "";
+}
+
+document.getElementById("digest-prev").addEventListener("click", () => {
+  if (!digestWeekStart) digestWeekStart = weekMonday(new Date());
+  digestWeekStart.setDate(digestWeekStart.getDate() - 7);
+  renderWeeklyDigest();
+});
+document.getElementById("digest-next").addEventListener("click", () => {
+  if (!digestWeekStart) digestWeekStart = weekMonday(new Date());
+  digestWeekStart.setDate(digestWeekStart.getDate() + 7);
+  renderWeeklyDigest();
+});
+
 /* ---------- Today tab ---------- */
 
 function sumForDate(list, dateStr, field) {
@@ -1133,6 +1238,7 @@ function renderToday() {
   if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
+  renderWeeklyDigest();
 }
 
 /* Streak count (v166): consecutive days with at least one logged entry
@@ -1792,11 +1898,12 @@ async function searchFoodByName() {
       const fat = pick("fat_serving", "fat_100g");
       const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
       const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
+      const cals = Math.round(protein * 4 + carbs * 4 + fat * 9);
       const b = document.createElement("button");
       b.type = "button";
       b.className = "btn btn-small";
       b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
-      b.textContent = name + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
+      b.textContent = name + (cals > 0 ? "  ·  " + cals + " cal" : "") + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
       b.addEventListener("click", () => {
         nameInput.value = name.slice(0, 120);
         document.getElementById("macro-food-protein").value = protein || "";
@@ -1814,6 +1921,230 @@ async function searchFoodByName() {
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
+
+/* ---------- Barcode scanning ---------- */
+/* Camera scanning uses the native BarcodeDetector when available, then
+   html5-qrcode for iPhone, then ZXing as a backup. Typing the barcode
+   number works when the camera is unavailable. Lookup is free from
+   Open Food Facts. Values are per serving when available, otherwise
+   per 100 g, and the user edits them before logging. */
+let scanStream = null;
+let scanZxingReader = null;
+let scanHtml5 = null;
+async function stopScanCamera() {
+  try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
+  try { if (scanZxingReader) scanZxingReader.reset(); } catch {}
+  if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
+}
+function openScanModal() {
+  const m = document.getElementById("scan-modal");
+  if (!m) return;
+  m.classList.remove("hidden");
+  m.style.display = "flex";
+  document.getElementById("scan-status").textContent = "Starting camera...";
+  startScanCamera();
+}
+function closeScanModal() {
+  stopScanCamera();
+  const m = document.getElementById("scan-modal");
+  if (m) { m.classList.add("hidden"); m.style.display = "none"; }
+}
+async function lookupBarcode(code) {
+  const status = document.getElementById("scan-status");
+  code = (code || "").trim().replace(/[^0-9]/g, "");
+  if (!code) { status.textContent = "Enter a barcode number first."; return; }
+  status.textContent = "Looking up barcode, free from Open Food Facts...";
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_size,quantity`);
+    const data = await res.json();
+    if (!data || data.status !== 1 || !data.product) { status.textContent = "Barcode not found in Open Food Facts. Check the number, or enter the grams by hand."; return; }
+    const p = data.product;
+    const n = p.nutriments || {};
+    const pick = (servingKey, hundredKey) => {
+      if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
+      if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
+      return 0;
+    };
+    const protein = pick("proteins_serving", "proteins_100g");
+    const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
+    const fat = pick("fat_serving", "fat_100g");
+    const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Scanned food";
+    document.getElementById("scan-product-name").textContent = name;
+    const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
+    document.getElementById("scan-product-serving").textContent = hasServing
+      ? (p.serving_size ? `Serving: ${p.serving_size}. Values below are per serving. Edit them to match your portion.` : "Values below are per serving. Edit them to match your portion.")
+      : "These values are per 100 g, not per serving. Scale them to your portion before logging.";
+    document.getElementById("scan-food").value = name;
+    document.getElementById("scan-protein").value = protein || "";
+    document.getElementById("scan-carbs").value = carbs || "";
+    document.getElementById("scan-fat").value = fat || "";
+    const scanCals = Math.round(protein * 4 + carbs * 4 + fat * 9);
+    document.getElementById("scan-product-calories").textContent = scanCals > 0
+      ? "This adds about " + scanCals + " calories to your day."
+      : "";
+    document.getElementById("scan-result").classList.remove("hidden");
+    status.textContent = hasServing
+      ? "Found. Check the label and edit the grams before logging."
+      : "Found, but only per 100 g values were available. Scale them to your portion before logging.";
+  } catch (e) {
+    status.textContent = "Lookup failed. Check your connection, or enter the grams by hand.";
+  }
+}
+async function startScanCamera() {
+  const status = document.getElementById("scan-status");
+  const video = document.getElementById("scan-video");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    scanStream = stream; video.srcObject = stream; await video.play();
+    status.textContent = "Camera on. Hold the barcode steady in view.";
+    if ("BarcodeDetector" in window) {
+      try {
+        const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
+        const loop = async () => {
+          if (!scanStream) return;
+          try {
+            const codes = await detector.detect(video);
+            if (codes && codes.length) {
+              document.getElementById("scan-barcode-input").value = codes[0].rawValue;
+              stopScanCamera(); lookupBarcode(codes[0].rawValue); return;
+            }
+          } catch {}
+          setTimeout(loop, 500);
+        };
+        loop(); return;
+      } catch {}
+    }
+    try {
+      if (!window.Html5Qrcode) {
+        status.textContent = "Loading the iPhone camera reader...";
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
+          s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+        });
+      }
+      if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
+      video.srcObject = null;
+      scanHtml5 = new Html5Qrcode("scan-reader");
+      status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
+      await scanHtml5.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+          document.getElementById("scan-barcode-input").value = decodedText;
+          stopScanCamera(); lookupBarcode(decodedText);
+        },
+        () => {}
+      );
+      return;
+    } catch (e) {
+      status.textContent = "Camera reader did not start. Trying the backup reader, or type the number below.";
+      try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
+    }
+    if (!scanStream) {
+      try {
+        scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = scanStream; await video.play();
+      } catch {}
+    }
+    if (!window.ZXingBrowser) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
+        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+      });
+    }
+    const ZX = window.ZXingBrowser;
+    scanZxingReader = new ZX.BrowserMultiFormatReader();
+    status.textContent = "Backup camera reader loaded. Hold the barcode steady. If nothing happens, type the number below instead.";
+    const onResult = (result) => {
+      if (result) {
+        const code = result.getText();
+        document.getElementById("scan-barcode-input").value = code;
+        stopScanCamera(); lookupBarcode(code);
+      }
+    };
+    if (scanStream && typeof scanZxingReader.decodeFromStream === "function") {
+      scanZxingReader.decodeFromStream(scanStream, video, onResult);
+    } else {
+      scanZxingReader.decodeFromVideoDevice(null, video, onResult);
+    }
+  } catch (e) {
+    status.textContent = "Camera is not available here. Type the barcode number below instead.";
+  }
+}
+/* Manual capture: when automatic detection does not fire, the user
+   taps Capture barcode to take a still photo of the current camera
+   frame and read the barcode from it. Finds whichever video element
+   is actually showing the camera (the html5-qrcode view inside
+   #scan-reader, or the #scan-video element). */
+async function captureBarcodeFrame() {
+  const status = document.getElementById("scan-status");
+  const readerVideo = document.querySelector("#scan-reader video");
+  const mainVideo = document.getElementById("scan-video");
+  const video = (readerVideo && readerVideo.videoWidth) ? readerVideo : mainVideo;
+  if (!video || !video.videoWidth) { status.textContent = "Camera is not ready yet. Wait a moment, then try again."; return; }
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  status.textContent = "Reading the barcode from this photo...";
+  if ("BarcodeDetector" in window) {
+    try {
+      const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
+      const codes = await detector.detect(canvas);
+      if (codes && codes.length) {
+        document.getElementById("scan-barcode-input").value = codes[0].rawValue;
+        stopScanCamera(); lookupBarcode(codes[0].rawValue); return;
+      }
+    } catch {}
+  }
+  try {
+    if (!window.ZXingBrowser) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
+        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+      });
+    }
+    const ZX = window.ZXingBrowser;
+    const reader = new ZX.BrowserMultiFormatReader();
+    let result = null;
+    if (typeof reader.decodeFromCanvas === "function") {
+      result = await reader.decodeFromCanvas(canvas);
+    } else {
+      const url = canvas.toDataURL("image/png");
+      result = await reader.decodeFromImageUrl(url);
+    }
+    if (result) {
+      const code = result.getText();
+      document.getElementById("scan-barcode-input").value = code;
+      stopScanCamera(); lookupBarcode(code); return;
+    }
+  } catch {}
+  status.textContent = "No barcode found in this photo. Hold it steady and try again, or type the number below.";
+}
+document.getElementById("macro-scan-food").addEventListener("click", openScanModal);
+document.getElementById("scan-close-btn").addEventListener("click", closeScanModal);
+document.getElementById("scan-start-btn").addEventListener("click", startScanCamera);
+document.getElementById("scan-capture-btn").addEventListener("click", captureBarcodeFrame);
+document.getElementById("scan-lookup-btn").addEventListener("click", () => lookupBarcode(document.getElementById("scan-barcode-input").value));
+document.getElementById("scan-log-btn").addEventListener("click", () => {
+  const food = document.getElementById("scan-food").value.trim() || "Scanned food";
+  const grams = Math.max(0, Math.round(Number(document.getElementById("scan-protein").value) || 0));
+  const carbs = Math.max(0, Math.round(Number(document.getElementById("scan-carbs").value) || 0));
+  const fat = Math.max(0, Math.round(Number(document.getElementById("scan-fat").value) || 0));
+  if (!grams && !carbs && !fat) {
+    document.getElementById("scan-status").textContent = "Add at least one macro above zero first.";
+    return;
+  }
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  saveStore();
+  renderToday();
+  closeScanModal();
+  document.getElementById("scan-result").classList.add("hidden");
+  document.getElementById("scan-barcode-input").value = "";
+});
 
 /* ---------- Voice food logging ---------- */
 /* Speak a food name with the phone's built-in speech recognition; the
@@ -2944,6 +3275,11 @@ function buildDoctorSummary() {
   // Shots
   const sortedI = [...(store.injections || [])].sort(byDateDesc);
   lines.push("Shots");
+  const curMed = (store.settings && store.settings.medication) || "";
+  const curDose = (store.settings && store.settings.dose) || "";
+  if (curMed || curDose) {
+    lines.push("Current: " + (curMed || "medication not recorded") + (curDose ? " " + curDose + " mg" : "") + ".");
+  }
   if (sortedI.length) {
     const last = sortedI[0];
     lines.push("Last shot: " + formatDate(last.date) + " (" + (last.site || "site not recorded") + ", " + (last.medication || "medication not recorded") + (last.dose ? ", " + last.dose : "") + ").");

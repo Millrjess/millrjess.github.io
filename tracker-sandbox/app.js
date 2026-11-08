@@ -2088,9 +2088,61 @@ async function startScanCamera() {
     status.textContent = "Camera is not available here. Type the barcode number below instead.";
   }
 }
+/* Manual capture: when automatic detection does not fire, the user
+   taps Capture barcode to take a still photo of the current camera
+   frame and read the barcode from it. Finds whichever video element
+   is actually showing the camera (the html5-qrcode view inside
+   #scan-reader, or the #scan-video element). */
+async function captureBarcodeFrame() {
+  const status = document.getElementById("scan-status");
+  const readerVideo = document.querySelector("#scan-reader video");
+  const mainVideo = document.getElementById("scan-video");
+  const video = (readerVideo && readerVideo.videoWidth) ? readerVideo : mainVideo;
+  if (!video || !video.videoWidth) { status.textContent = "Camera is not ready yet. Wait a moment, then try again."; return; }
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  status.textContent = "Reading the barcode from this photo...";
+  if ("BarcodeDetector" in window) {
+    try {
+      const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
+      const codes = await detector.detect(canvas);
+      if (codes && codes.length) {
+        document.getElementById("scan-barcode-input").value = codes[0].rawValue;
+        stopScanCamera(); lookupBarcode(codes[0].rawValue); return;
+      }
+    } catch {}
+  }
+  try {
+    if (!window.ZXingBrowser) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
+        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+      });
+    }
+    const ZX = window.ZXingBrowser;
+    const reader = new ZX.BrowserMultiFormatReader();
+    let result = null;
+    if (typeof reader.decodeFromCanvas === "function") {
+      result = await reader.decodeFromCanvas(canvas);
+    } else {
+      const url = canvas.toDataURL("image/png");
+      result = await reader.decodeFromImageUrl(url);
+    }
+    if (result) {
+      const code = result.getText();
+      document.getElementById("scan-barcode-input").value = code;
+      stopScanCamera(); lookupBarcode(code); return;
+    }
+  } catch {}
+  status.textContent = "No barcode found in this photo. Hold it steady and try again, or type the number below.";
+}
 document.getElementById("macro-scan-food").addEventListener("click", openScanModal);
 document.getElementById("scan-close-btn").addEventListener("click", closeScanModal);
 document.getElementById("scan-start-btn").addEventListener("click", startScanCamera);
+document.getElementById("scan-capture-btn").addEventListener("click", captureBarcodeFrame);
 document.getElementById("scan-lookup-btn").addEventListener("click", () => lookupBarcode(document.getElementById("scan-barcode-input").value));
 document.getElementById("scan-log-btn").addEventListener("click", () => {
   const food = document.getElementById("scan-food").value.trim() || "Scanned food";
