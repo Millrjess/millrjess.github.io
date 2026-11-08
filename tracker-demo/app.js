@@ -5651,12 +5651,11 @@ function maybeReadAloud() {
   }
 }
 
-/* v000: the Companion chat shows a not-connected state before the
-   user types, when no code has been entered. The demo keeps its
-   sample replies working, so the input stays enabled here; the banner
-   states the companion is not connected and links to Settings and to
-   the welcome page. Play subscribers without a token see the
-   Play-specific text. */
+/* The demo never has a live Companion connection, so when no code
+   has been entered the chat input is disabled: the demo must not
+   accept a message and answer it with a canned reply. The sample
+   conversation above stays visible to show how it works. Play
+   subscribers without a token see the Play-specific text. */
 function renderChatGate() {
   const banner = document.getElementById("chat-not-connected");
   if (!banner) return;
@@ -5667,6 +5666,15 @@ function renderChatGate() {
   const playBlocked = !connected && isPlayEntitled();
   if (playMsg) playMsg.classList.toggle("hidden", !playBlocked);
   if (webMsg) webMsg.classList.toggle("hidden", playBlocked);
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("chat-send");
+  const micBtn = document.getElementById("chat-mic");
+  if (input) {
+    input.disabled = !connected;
+    input.placeholder = connected ? "Ask " + companionDisplayName() + "..." : "Chat is not available in the demo";
+  }
+  if (sendBtn) sendBtn.disabled = !connected;
+  if (micBtn) micBtn.disabled = !connected;
 }
 
 function renderChat() {
@@ -5682,7 +5690,7 @@ function renderChat() {
     headerAvatar.replaceWith(fresh);
   }
   const input = document.getElementById("chat-input");
-  if (input) input.placeholder = "Ask " + companionDisplayName() + "...";
+  if (input && !input.disabled) input.placeholder = "Ask " + companionDisplayName() + "...";
   const box = document.getElementById("chat-messages");
   if (!box) return;
   box.innerHTML = "";
@@ -5780,6 +5788,15 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   }
   setFormStatus(document.getElementById("chat-msg"), "", false);
   input.value = "";
+
+  // The demo never has a live Companion connection. If somehow a
+  // message is submitted while not connected, do not send it and do
+  // not answer it: show the not-available state instead.
+  if (!getAuthToken()) {
+    setFormStatus(document.getElementById("chat-msg"), "Chat with your AI Wellness Companion is not available in the demo. It is part of the full app.", true);
+    renderChatGate();
+    return;
+  }
 
   // Add user message
   chatHistory.push({ role: "user", content: text });
