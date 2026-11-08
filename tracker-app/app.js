@@ -5414,17 +5414,21 @@ function finishSetup(save) {
   document.getElementById("setup-overlay").classList.add("hidden");
   renderToday();
 }
-document.getElementById("setup-next").addEventListener("click", () => {
+const setupNextBtn = document.getElementById("setup-next");
+const setupBackBtn = document.getElementById("setup-back");
+const setupSkipBtn = document.getElementById("setup-skip");
+const setupOverlayEl = document.getElementById("setup-overlay");
+if (setupNextBtn) setupNextBtn.addEventListener("click", () => {
   if (setupStep < 4) showSetupStep(setupStep + 1);
   else finishSetup(true);
 });
-document.getElementById("setup-back").addEventListener("click", () => {
+if (setupBackBtn) setupBackBtn.addEventListener("click", () => {
   if (setupStep > 1) showSetupStep(setupStep - 1);
 });
-document.getElementById("setup-skip").addEventListener("click", () => finishSetup(false));
-if (!localStorage.getItem("nct-setup-done")) {
+if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => finishSetup(false));
+if (!localStorage.getItem("nct-setup-done") && setupOverlayEl) {
   showSetupStep(1);
-  document.getElementById("setup-overlay").classList.remove("hidden");
+  setupOverlayEl.classList.remove("hidden");
 }
 
 document.getElementById("clear-all-data").addEventListener("click", () => {

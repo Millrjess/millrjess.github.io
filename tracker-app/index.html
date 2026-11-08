@@ -1112,6 +1112,68 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
+<div id="setup-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+  <div class="modal-card" style="max-width:420px">
+    <h2 id="setup-title" style="margin-top:0">Welcome to New Chapter</h2>
+    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 4</p>
+
+    <div class="setup-step" data-step="1">
+      <p style="margin:0 0 12px">What should I call you? Your greeting on Today will use this name.</p>
+      <label>Your first name
+        <input type="text" id="setup-name" maxlength="60" placeholder="Your first name" autocomplete="off">
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="2">
+      <p style="margin:0 0 12px">Which GLP-1 medication are you taking, and at what dose?</p>
+      <label>Current medication
+        <input type="text" id="setup-med" placeholder="e.g. Zepbound" autocomplete="off">
+      </label>
+      <label>Current dose (mg)
+        <input type="number" id="setup-dose" step="0.1" min="0" placeholder="e.g. 2.5">
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="3">
+      <p style="margin:0 0 12px">Which day of the week is your shot day? Today will count down to your next shot.</p>
+      <label>Shot day
+        <select id="setup-shot-day">
+          <option value="">Choose a day</option>
+          <option>Monday</option>
+          <option>Tuesday</option>
+          <option>Wednesday</option>
+          <option>Thursday</option>
+          <option>Friday</option>
+          <option>Saturday</option>
+          <option>Sunday</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="setup-step hidden" data-step="4">
+      <p style="margin:0 0 12px">Your height is used only to work out your BMI on the Weight tab. Your goal weight adds a goal line to your weight chart. Both stay on this device.</p>
+      <div style="display:flex;gap:10px">
+        <label style="flex:1">Height, feet
+          <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="5">
+        </label>
+        <label style="flex:1">Height, inches
+          <input type="number" id="setup-height-in" min="0" max="11" step="1" placeholder="6">
+        </label>
+      </div>
+      <label>Goal weight (lbs)
+        <input type="number" id="setup-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
+      </label>
+      <p class="muted">Set your goal weight with your clinician's guidance.</p>
+    </div>
+
+    <div class="form-actions" style="margin-top:16px">
+      <button type="button" class="btn hidden" id="setup-back">Back</button>
+      <button type="button" class="btn btn-primary" id="setup-next">Next</button>
+    </div>
+    <p style="text-align:center;margin:12px 0 0"><button type="button" class="btn btn-small" id="setup-skip" style="background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer">Skip setup</button></p>
+  </div>
+</div>
+
 <script src="app.js?v=005"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
@@ -1180,67 +1242,5 @@ document.getElementById("update-now").addEventListener("click", () => {
   }).catch(reload);
 });
 </script>
-
-<div id="setup-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
-  <div class="modal-card" style="max-width:420px">
-    <h2 id="setup-title" style="margin-top:0">Welcome to New Chapter</h2>
-    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 4</p>
-
-    <div class="setup-step" data-step="1">
-      <p style="margin:0 0 12px">What should I call you? Your greeting on Today will use this name.</p>
-      <label>Your first name
-        <input type="text" id="setup-name" maxlength="60" placeholder="Your first name" autocomplete="off">
-      </label>
-    </div>
-
-    <div class="setup-step hidden" data-step="2">
-      <p style="margin:0 0 12px">Which GLP-1 medication are you taking, and at what dose?</p>
-      <label>Current medication
-        <input type="text" id="setup-med" placeholder="e.g. Zepbound" autocomplete="off">
-      </label>
-      <label>Current dose (mg)
-        <input type="number" id="setup-dose" step="0.1" min="0" placeholder="e.g. 2.5">
-      </label>
-    </div>
-
-    <div class="setup-step hidden" data-step="3">
-      <p style="margin:0 0 12px">Which day of the week is your shot day? Today will count down to your next shot.</p>
-      <label>Shot day
-        <select id="setup-shot-day">
-          <option value="">Choose a day</option>
-          <option>Monday</option>
-          <option>Tuesday</option>
-          <option>Wednesday</option>
-          <option>Thursday</option>
-          <option>Friday</option>
-          <option>Saturday</option>
-          <option>Sunday</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="setup-step hidden" data-step="4">
-      <p style="margin:0 0 12px">Your height is used only to work out your BMI on the Weight tab. Your goal weight adds a goal line to your weight chart. Both stay on this device.</p>
-      <div style="display:flex;gap:10px">
-        <label style="flex:1">Height, feet
-          <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="5">
-        </label>
-        <label style="flex:1">Height, inches
-          <input type="number" id="setup-height-in" min="0" max="11" step="1" placeholder="6">
-        </label>
-      </div>
-      <label>Goal weight (lbs)
-        <input type="number" id="setup-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
-      </label>
-      <p class="muted">Set your goal weight with your clinician's guidance.</p>
-    </div>
-
-    <div class="form-actions" style="margin-top:16px">
-      <button type="button" class="btn hidden" id="setup-back">Back</button>
-      <button type="button" class="btn btn-primary" id="setup-next">Next</button>
-    </div>
-    <p style="text-align:center;margin:12px 0 0"><button type="button" class="btn btn-small" id="setup-skip" style="background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer">Skip setup</button></p>
-  </div>
-</div>
 </body>
 </html>
