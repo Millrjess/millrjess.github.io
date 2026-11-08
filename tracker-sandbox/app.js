@@ -1908,7 +1908,8 @@ function openScanModal() {
   if (!m) return;
   m.classList.remove("hidden");
   m.style.display = "flex";
-  document.getElementById("scan-status").textContent = "Camera scanning works on iPhone with the fallback reader. If camera scanning is not available, type the barcode number.";
+  document.getElementById("scan-status").textContent = "Starting camera...";
+  startScanCamera();
 }
 function closeScanModal() {
   stopScanCamera();
