@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v001";
+const APP_VERSION = "v002";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1387,13 +1387,26 @@ function macroCalories(t) {
   return Math.round(t.protein * 4 + t.carbs * 4 + t.fat * 9);
 }
 
-/* Calories line (v169): when a daily calorie target is set, the line
-   reads "About 212 of 1,400 calories ...". With no target, the plain
-   line stays exactly as before. */
-function caloriesLine(totals) {
+/* Calories section: a clear "Calories today" total from macros (protein
+   and carbs 4 cal/g, fat 9 cal/g), a progress bar toward the daily
+   calorie target from Settings, and a note. With no target set, the
+   note points to Settings. */
+function renderCalories(totals) {
+  const cals = macroCalories(totals);
   const target = Number(store.settings.calorieTarget) || 0;
-  const cals = macroCalories(totals).toLocaleString("en-US");
-  return "About " + cals + (target > 0 ? " of " + target.toLocaleString("en-US") : "") + " calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).";
+  const total = totals.protein + totals.carbs + totals.fat;
+  const todayEl = document.getElementById("calories-today");
+  if (todayEl) todayEl.textContent = cals.toLocaleString("en-US");
+  const targetEl = document.getElementById("calories-target-part");
+  if (targetEl) targetEl.textContent = target > 0 ? " of " + target.toLocaleString("en-US") : "";
+  const fill = document.getElementById("calories-fill");
+  if (fill) fill.style.width = target > 0 ? Math.min(100, Math.round(100 * cals / target)) + "%" : "0%";
+  const note = document.getElementById("calories-note");
+  if (note) {
+    if (total <= 0) note.textContent = "No macros logged yet today.";
+    else if (target > 0) note.textContent = "Calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).";
+    else note.textContent = "Calories from macros today. Set a daily calorie target in Settings, under Your goals, to track against it.";
+  }
 }
 
 /* Donut segments, from a totals object. Shared by renderMacros and the
@@ -1449,10 +1462,7 @@ function renderMacros() {
     const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
     if (row) row.classList.toggle("selected", selectedMacro === key);
   });
-  const calEl = document.getElementById("macro-calories");
-  if (calEl) {
-    calEl.textContent = total > 0 ? caloriesLine(totals) : "No macros logged yet today.";
-  }
+  renderCalories(totals);
   const svg = card.querySelector(".donut-wrap svg");
   if (svg) svg.setAttribute("aria-label", "Donut chart of today's macros. Protein " + totals.protein + " grams in gold, carbs " + totals.carbs + " grams in sage, fat " + totals.fat + " grams in cream tan.");
 }
@@ -1545,11 +1555,7 @@ function bindMacroSlide(key) {
     if (selectedMacro === key) {
       document.getElementById("macro-center-grams").textContent = liveTotal;
     }
-    const calEl = document.getElementById("macro-calories");
-    if (calEl) {
-      const total = totals.protein + totals.carbs + totals.fat;
-      calEl.textContent = total > 0 ? caloriesLine(totals) : "No macros logged yet today.";
-    }
+    renderCalories(totals);
   }
   bar.addEventListener("pointerdown", (e) => {
     sliding = true;
@@ -1686,7 +1692,7 @@ function removeMovementBonus(date) {
 }
 
 function renderMovement() {
-  const card = document.getElementById("movement-card");
+  const card = document.getElementById("movement-routine");
   if (!card) return;
   const plan = getMovementPlan();
   const date = viewedDateStr();
@@ -1711,6 +1717,14 @@ function renderMovement() {
   if (count) count.textContent = done.length + " of " + plan.length + " moves done";
   const logged = document.getElementById("move-logged");
   if (logged) logged.classList.toggle("show", done.length === plan.length && plan.length > 0);
+  // Shared total: the routine and the ring are one movement total, so
+  // minutes logged anywhere show here too.
+  const totalEl = document.getElementById("movement-total");
+  if (totalEl) {
+    const mins = sumForDate(store.exercise, date, "minutes");
+    const goal = Number(store.settings.movementGoal) || 30;
+    totalEl.textContent = mins + " of " + goal + " minutes logged today, from the routine and anything else.";
+  }
 }
 
 function toggleMove(name) {

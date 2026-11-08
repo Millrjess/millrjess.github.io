@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=001">
+<link rel="stylesheet" href="styles.css?v=002">
 </head>
 <body>
 
@@ -159,6 +159,21 @@
           </div>
         </div>
       </div>
+      <div id="movement-routine" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+          <h3 class="card-title" style="margin-bottom:0">Today's Movement</h3>
+          <button class="btn btn-small" id="movement-customize" style="flex:none">Customize</button>
+        </div>
+        <p class="movement-sub" id="movement-sub">5 minutes. No equipment.</p>
+        <p class="movement-desc">A short daily routine. Tap the gold circle as you finish each move.</p>
+        <ul class="moves" id="moves-list"></ul>
+        <div class="move-progress">
+          <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
+          <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
+          <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement ring.</p>
+        </div>
+        <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
+      </div>
     </div>
 
     <div class="card" id="macros-card" aria-label="Your Macros">
@@ -209,7 +224,11 @@
         </div>
       </div>
 
-      <p class="muted" id="macro-calories" style="margin:12px 0 0"></p>
+      <div id="calories-section" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+        <p style="margin:0;font-weight:600">Calories today: <span id="calories-today">0</span><span id="calories-target-part"></span></p>
+        <div style="height:10px;border-radius:99px;background:#EDEBE3;overflow:hidden;margin-top:8px"><i id="calories-fill" style="display:block;height:100%;width:0%;background:#E8B54A;border-radius:99px"></i></div>
+        <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.85em"></p>
+      </div>
       <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
       <button class="btn btn-small" id="macro-log-food" style="margin-top:12px">Log food</button>
 
@@ -228,21 +247,6 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
-    </div>
-
-    <div class="card" id="movement-card" aria-label="Today's Movement">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-        <h2 class="card-title" style="margin-bottom:0">Today's Movement</h2>
-        <button class="btn btn-small" id="movement-customize" style="flex:none">Customize</button>
-      </div>
-      <p class="movement-sub" id="movement-sub">5 minutes. No equipment.</p>
-      <p class="movement-desc">A short daily routine. Tap the gold circle as you finish each move.</p>
-      <ul class="moves" id="moves-list"></ul>
-      <div class="move-progress">
-        <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
-        <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
-        <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement ring.</p>
-      </div>
     </div>
 
     <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
@@ -963,7 +967,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="app.js?v=001"></script>
+<script src="app.js?v=002"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
