@@ -1319,8 +1319,10 @@ textarea {
 /* Slide a macro row (v169): the bar is the slide target, like the rings.
    touch-action none so the page does not scroll while sliding. The
    padding widens the grab area to about 20px tall while the visible
-   track stays 6px; the negative margin keeps the row spacing the same. */
-.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: -7px 0 0.3rem; background-clip: content-box; }
+   track stays 6px. No negative top margin: the 18px thumb sits inside
+   the grab area, and a negative margin pulled it up over the
+   description line above. */
+.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 0; margin: 0 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
