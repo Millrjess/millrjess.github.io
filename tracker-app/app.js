@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v003";
+const APP_VERSION = "v004";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -55,12 +55,15 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
+    waterStep: 8, // v004: ounces the "+ 8 oz" quick-add button adds
+    movementStep: 5, // v004: minutes the "+ 5 min" quick-add button adds
     carbGoal: 150, // v168: own carbs target for the Your Macros card
     fatGoal: 60, // v168: own fat target for the Your Macros card
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
     movementPlan: null, // v168: null means the 5-minute default routine; otherwise [{ name, detail }]
+    routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
     goalWeight: "",
@@ -70,7 +73,8 @@ const DEFAULTS = {
     theme: "sage", // v000: sage | dark | cream
     textSize: "normal", // v000: normal | large
     readAloud: false, // v000: read Companion replies aloud with the phone's own voice
-    companionVoice: "" // v001: the chosen speech voice name; blank means the phone default
+    companionVoice: "", // v001: the chosen speech voice name; blank means the phone default
+    yourName: "" // v004: your own first name, for the greeting on Today; blank means just "Good morning."
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
@@ -82,7 +86,10 @@ const DEFAULTS = {
   journal: [],      // { id, date, mood, notes }
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {},        // { "YYYY-MM-DD": "Good" }
-  movementDone: {}  // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
+  movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
+  medicines: [],    // { id, name, dose, time, date } daily medicines besides the GLP-1 shot
+  medicineTaken: {}, // { "YYYY-MM-DD": [medicine ids taken that day] }
+  recipes: []       // { id, title, body, date } saved recipes
 };
 
 /* v000: the Companion's chosen name and avatar. The variants are
@@ -118,7 +125,7 @@ function companionAvatarImg(className) {
 
 /* Collections that must be arrays, and the settings keys with their defaults.
    Used to validate anything loaded from storage or from a file (S3/S11). */
-const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects"];
+const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "medicines", "recipes"];
 
 /* Validate a parsed store shape: arrays must be arrays (bad entries dropped),
    settings must be an object merged key-by-key over the defaults so a bad or
@@ -178,7 +185,7 @@ function validateStore(parsed, strict) {
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     if (typeof out.settings.shotDay !== "string" || (out.settings.shotDay !== "" && !dayNames.includes(out.settings.shotDay))) out.settings.shotDay = "";
     if (typeof out.settings.refillDate !== "string" || (out.settings.refillDate !== "" && !isValidDateStr(out.settings.refillDate))) out.settings.refillDate = "";
-    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal"]) {
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes", "waterStep", "movementStep"]) {
       const n = Number(out.settings[g]);
       out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
     }
@@ -234,6 +241,8 @@ function validateStore(parsed, strict) {
     // on this device. A bad value falls back to the default.
     const cn = out.settings.companionName;
     out.settings.companionName = typeof cn === "string" ? cn.trim().slice(0, 60) : "";
+    const yn = out.settings.yourName;
+    out.settings.yourName = typeof yn === "string" ? yn.trim().slice(0, 60) : "";
     const ca = out.settings.companionAvatar;
     out.settings.companionAvatar = ["gold", "sage", "deep-gold", "sage-tile"].includes(ca) ? ca : "gold";
     const th = out.settings.theme;
@@ -288,6 +297,18 @@ function validateStore(parsed, strict) {
       };
     }
     out.movementDone = cleanDone;
+  }
+  // Per-day medicine check-offs. Keep only real dates; each day holds
+  // the medicine ids taken that day.
+  if (parsed.medicineTaken !== undefined && (typeof parsed.medicineTaken !== "object" || Array.isArray(parsed.medicineTaken))) {
+    lastValidateDropped.push("medicineTaken");
+  } else if (parsed.medicineTaken && typeof parsed.medicineTaken === "object" && !Array.isArray(parsed.medicineTaken)) {
+    const cleanTaken = {};
+    for (const [d, v] of Object.entries(parsed.medicineTaken)) {
+      if (!isValidDateStr(d) || !Array.isArray(v)) continue;
+      cleanTaken[d] = v.filter((id) => typeof id === "string");
+    }
+    out.medicineTaken = cleanTaken;
   }
   return out;
 }
@@ -767,7 +788,7 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 /* Panels that live under the More button: when one of them is showing,
    More is the active tab. */
-const MORE_TABS = ["side-effects", "settings"];
+const MORE_TABS = ["side-effects", "settings", "medicines", "recipes"];
 
 function showTab(name) {
   if (name === "more") { openMoreSheet(); return; }
@@ -788,6 +809,8 @@ function showTab(name) {
   if (name === "shots") renderInjectionCalendar();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
+  if (name === "medicines") renderMedicines();
+  if (name === "recipes") renderRecipes();
   try {
     gtag("event", "page_view", {
       page_title: "Tracker - " + name,
@@ -1091,6 +1114,11 @@ function renderToday() {
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   setRing("exercise", exMin, moveGoal);
+  // v004: the quick-add buttons show the amount they add, from Settings.
+  const wAdd = document.getElementById("goals-water-add");
+  if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
+  const eAdd = document.getElementById("goals-exercise-add");
+  if (eAdd) eAdd.textContent = "+ " + (Number(store.settings.movementStep) || 5) + " min";
 
   renderMacros();
   renderMovement();
@@ -1134,26 +1162,28 @@ function renderStreak() {
   el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
 }
 
-/* Greeting (v165): time of day only, no name. The app is sold to
-   other people, so it must never greet a buyer by the founder's name. */
+/* Greeting (v165, v004): time of day, plus the user's own name when
+   they set it in Settings. The name is the buyer's own, never the
+   founder's, so a buyer who leaves it blank just sees the time of day. */
 function renderGreeting() {
   const el = document.getElementById("greeting-line");
   if (!el) return;
   const h = new Date().getHours();
   const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  el.textContent = part + ".";
+  const name = (store.settings.yourName || "").trim();
+  el.textContent = name ? part + ", " + name + "." : part + ".";
 }
 
 /* Today's Goals add buttons (v165): one quick entry per tap, logged to
    the day being viewed. Water 8 oz, protein 10 g (Quick add), movement
    5 min. Same store shape as before; entries are still plain entries. */
 document.getElementById("goals-water-add").addEventListener("click", () => {
-  store.water.push({ id: uid(), date: viewedDateStr(), oz: 8 });
+  store.water.push({ id: uid(), date: viewedDateStr(), oz: Number(store.settings.waterStep) || 8 });
   saveStore();
   renderToday();
 });
 document.getElementById("goals-exercise-add").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
+  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: Number(store.settings.movementStep) || 5, label: "Movement" });
   saveStore();
   renderToday();
 });
@@ -1423,6 +1453,17 @@ function paintDonut(totals) {
     seg.setAttribute("stroke-dashoffset", (-offset).toFixed(1));
     seg.setAttribute("transform", "rotate(-90 108 108)");
     seg.style.opacity = selectedMacro === key ? "1" : "0.45";
+    // v004: the macro's share of today's grams, as a label on its segment.
+    // Hidden for tiny slices, so the text never crowds the ring.
+    const label = document.getElementById("seg-label-" + key);
+    if (label) {
+      const midFrac = total > 0 ? (offset + frac * DONUT_C / 2) / DONUT_C : 0;
+      const angle = midFrac * Math.PI * 2;
+      label.setAttribute("x", (108 + 84 * Math.sin(angle)).toFixed(1));
+      label.setAttribute("y", (108 - 84 * Math.cos(angle)).toFixed(1));
+      const pct = total > 0 ? Math.round(100 * totals[key] / total) : 0;
+      label.textContent = pct >= 8 && totals[key] > 0 ? pct + "%" : "";
+    }
     offset += frac * DONUT_C;
   });
 }
@@ -1606,6 +1647,10 @@ document.getElementById("macro-log-food").addEventListener("click", () => {
 document.getElementById("macro-food-cancel").addEventListener("click", () => {
   document.getElementById("macro-food-form").classList.add("hidden");
   document.getElementById("macro-food-msg").textContent = "";
+  document.getElementById("macro-food-search-status").textContent = "";
+  const sr = document.getElementById("macro-food-search-results");
+  sr.classList.add("hidden");
+  sr.innerHTML = "";
 });
 document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -1623,7 +1668,119 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   renderToday();
   document.getElementById("macro-food-form").classList.add("hidden");
   document.getElementById("macro-food-form").reset();
+  document.getElementById("macro-food-search-status").textContent = "";
+  const sr2 = document.getElementById("macro-food-search-results");
+  sr2.classList.add("hidden");
+  sr2.innerHTML = "";
 });
+
+/* ---------- Food search by name ---------- */
+/* Type a food name, search Open Food Facts (free, no key), and tap a
+   result to fill the name and macros from the label. Values are per
+   serving when available, otherwise per 100 g, and the user edits them
+   before logging. */
+async function searchFoodByName() {
+  const nameInput = document.getElementById("macro-food-name");
+  const status = document.getElementById("macro-food-search-status");
+  const results = document.getElementById("macro-food-search-results");
+  const query = (nameInput.value || "").trim();
+  if (query.length < 2) { status.textContent = "Type at least 2 letters first."; return; }
+  status.textContent = "Searching foods...";
+  results.classList.add("hidden");
+  results.innerHTML = "";
+  try {
+    const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,nutriments,serving_size");
+    const data = await res.json();
+    const products = (data && data.products) || [];
+    if (!products.length) { status.textContent = "No foods found. Try different words, or enter the grams by hand."; return; }
+    status.textContent = "Tap a food to fill the macros.";
+    products.forEach((p) => {
+      const n = p.nutriments || {};
+      const pick = (servingKey, hundredKey) => {
+        if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
+        if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
+        return 0;
+      };
+      const protein = pick("proteins_serving", "proteins_100g");
+      const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
+      const fat = pick("fat_serving", "fat_100g");
+      const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
+      const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small";
+      b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
+      b.textContent = name + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
+      b.addEventListener("click", () => {
+        nameInput.value = name.slice(0, 120);
+        document.getElementById("macro-food-protein").value = protein || "";
+        document.getElementById("macro-food-carbs").value = carbs || "";
+        document.getElementById("macro-food-fat").value = fat || "";
+        status.textContent = hasServing ? "Filled from the label. Check and edit before saving." : "Filled per 100 g. Scale to your portion before saving.";
+        results.classList.add("hidden");
+        results.innerHTML = "";
+      });
+      results.appendChild(b);
+    });
+    results.classList.remove("hidden");
+  } catch (e) {
+    status.textContent = "Search failed. Check your connection, or enter the grams by hand.";
+  }
+}
+document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
+
+/* ---------- Voice food logging ---------- */
+/* Speak a food name with the phone's built-in speech recognition; the
+   words fill the name field as you speak, and when you stop, the food
+   search runs automatically so the macros fill in from the label.
+   On-device and free; no audio is recorded, saved, or sent anywhere.
+   The button stays hidden when recognition is not available. */
+(function setupFoodVoice() {
+  const btn = document.getElementById("macro-food-voice-btn");
+  const nameInput = document.getElementById("macro-food-name");
+  const status = document.getElementById("macro-food-search-status");
+  if (!btn || !nameInput) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  btn.classList.remove("hidden");
+  let rec = null;
+  let listening = false;
+  let finalText = "";
+  function setListening(on) {
+    listening = on;
+    btn.textContent = on ? "⏹ Stop" : "🎤 Speak";
+    btn.setAttribute("aria-label", on ? "Stop listening" : "Speak the food name");
+    if (status) status.textContent = on ? "Listening... Tap Stop when you are done." : "";
+  }
+  btn.addEventListener("click", () => {
+    if (listening) { try { rec.stop(); } catch {} return; }
+    try { rec = new SR(); } catch { return; }
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = navigator.language || "en-US";
+    finalText = "";
+    rec.onresult = (ev) => {
+      let interim = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      nameInput.value = (finalText + interim).trimStart().slice(0, 120);
+    };
+    rec.onend = () => {
+      setListening(false);
+      if (nameInput.value.trim().length >= 2) searchFoodByName();
+    };
+    rec.onerror = (ev) => {
+      setListening(false);
+      if (status) status.textContent = ev && ev.error === "not-allowed"
+        ? "Microphone access was blocked. You can still type."
+        : "I could not hear you. You can still type.";
+    };
+    try { rec.start(); setListening(true); } catch { setListening(false); }
+  });
+})();
 
 /* ---------- Today's Movement (v168) ---------- */
 /* A short daily routine on the front page. Finishing every move logs
@@ -1660,6 +1817,11 @@ const EXERCISE_LIBRARY = [
 ];
 const MOVEMENT_BONUS_LABEL = "Daily movement routine";
 const MOVEMENT_BONUS_MINUTES = 5;
+/* Minutes the daily routine is worth when finished. Set in the plan
+   editor; defaults to 5. */
+function routineMinutes() {
+  return Number(store.settings.routineMinutes) || MOVEMENT_BONUS_MINUTES;
+}
 
 function getMovementPlan() {
   const plan = store.settings && store.settings.movementPlan;
@@ -1683,7 +1845,9 @@ function setMovementDayState(date, state) {
 function removeMovementBonus(date) {
   for (let i = store.exercise.length - 1; i >= 0; i--) {
     const e = store.exercise[i];
-    if (e.date === date && e.label === MOVEMENT_BONUS_LABEL && Number(e.minutes) === MOVEMENT_BONUS_MINUTES) {
+    // Match by label and date only: the routine minutes can change,
+    // so an old bonus entry may carry a different number.
+    if (e.date === date && e.label === MOVEMENT_BONUS_LABEL) {
       store.exercise.splice(i, 1);
       return true;
     }
@@ -1700,7 +1864,7 @@ function renderMovement() {
   // Done names that are no longer in the plan (plan changed) do not count.
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const sub = document.getElementById("movement-sub");
-  if (sub) sub.textContent = isDefaultPlan() ? "5 minutes. No equipment." : "Your plan · " + plan.length + " moves.";
+  if (sub) sub.textContent = isDefaultPlan() ? routineMinutes() + " minutes. No equipment." : "Your plan · " + plan.length + " moves.";
   const list = document.getElementById("moves-list");
   list.innerHTML = plan.map((m) => {
     const isDone = done.includes(m.name);
@@ -1716,7 +1880,7 @@ function renderMovement() {
   const count = document.getElementById("move-count");
   if (count) count.textContent = done.length + " of " + plan.length + " moves done";
   const logged = document.getElementById("move-logged");
-  if (logged) logged.classList.toggle("show", done.length === plan.length && plan.length > 0);
+  if (logged) { logged.textContent = "All done. " + routineMinutes() + " minutes added to your Movement ring."; logged.classList.toggle("show", done.length === plan.length && plan.length > 0); }
   // Shared total: the routine and the ring are one movement total, so
   // minutes logged anywhere show here too.
   const totalEl = document.getElementById("movement-total");
@@ -1737,7 +1901,7 @@ function toggleMove(name) {
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const allDone = plan.length > 0 && done.length === plan.length;
   if (allDone && !state.bonus) {
-    store.exercise.push({ id: uid(), date, minutes: MOVEMENT_BONUS_MINUTES, label: MOVEMENT_BONUS_LABEL });
+    store.exercise.push({ id: uid(), date, minutes: routineMinutes(), label: MOVEMENT_BONUS_LABEL });
     state.bonus = true;
   } else if (!allDone && state.bonus) {
     removeMovementBonus(date);
@@ -1782,6 +1946,8 @@ function openMovementPlanEditor() {
   if (nameInput) nameInput.value = "";
   const detailInput = document.getElementById("custom-ex-detail");
   if (detailInput) detailInput.value = "";
+  const minInput = document.getElementById("movement-plan-minutes");
+  if (minInput) minInput.value = routineMinutes();
   modal.classList.remove("hidden");
   const first = modal.querySelector("input[type='checkbox']");
   if (first) first.focus();
@@ -1839,6 +2005,7 @@ document.getElementById("custom-ex-add").addEventListener("click", () => {
 });
 document.getElementById("movement-plan-reset").addEventListener("click", () => {
   store.settings.movementPlan = null;
+  store.settings.routineMinutes = 5;
   saveStore();
   closeMovementPlanEditor();
   renderToday();
@@ -1872,6 +2039,9 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
   });
   store.settings.customExercises = customs;
   store.settings.movementPlan = picked;
+  const rmInput = document.getElementById("movement-plan-minutes");
+  const rm = rmInput ? Number(rmInput.value) : NaN;
+  store.settings.routineMinutes = Number.isFinite(rm) && rm > 0 ? Math.round(rm) : 5;
   // A new plan can un-complete today: take the bonus back if the new
   // plan is not fully done.
   const date = viewedDateStr();
@@ -3307,9 +3477,123 @@ function bindSeButtons(container) {
   }));
 }
 
+/* ---------- Side effect trends ---------- */
+/* Last 30 days, grouped by symptom: how many times it happened and the
+   average severity, so patterns are easy to see without reading every
+   entry. */
+function renderSeTrends() {
+  const el = document.getElementById("se-trends");
+  if (!el) return;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recent = (store.sideEffects || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  if (!recent.length) { el.innerHTML = ""; return; }
+  const sevNum = { "Mild": 1, "Moderate": 2, "Severe": 3 };
+  const groups = {};
+  recent.forEach((e) => {
+    const key = (e.symptom || "Effect").trim();
+    if (!groups[key]) groups[key] = { count: 0, sev: 0, n: 0 };
+    groups[key].count++;
+    if (sevNum[e.severity]) { groups[key].sev += sevNum[e.severity]; groups[key].n++; }
+  });
+  const rows = Object.entries(groups).sort((a, b) => b[1].count - a[1].count).map(([name, g]) => {
+    const avg = g.n ? (g.sev / g.n).toFixed(1) : "—";
+    return `<li><strong>${escapeHtml(name)}</strong>: ${g.count} time${g.count === 1 ? "" : "s"} in the last 30 days, average severity ${avg} of 3</li>`;
+  }).join("");
+  el.innerHTML = `<h3 style="margin:12px 0 6px">Trends, last 30 days</h3><ul style="margin:0;padding-left:20px">${rows}</ul>`;
+}
+
+/* ---------- Medicines ---------- */
+/* Daily medicines besides the GLP-1 shot. A standing list (name, dose,
+   time) with a per-day check-off: tap the circle when you take one.
+   Taken state is per date, so a new day starts unchecked. */
+function renderMedicines() {
+  const list = document.getElementById("medicine-list");
+  if (!list) return;
+  const date = viewedDateStr();
+  const taken = (store.medicineTaken && store.medicineTaken[date]) || [];
+  if (!store.medicines.length) {
+    list.innerHTML = '<p class="empty-state">No medicines added yet. Add one above.</p>';
+    return;
+  }
+  list.innerHTML = store.medicines.map((m) => {
+    const isTaken = taken.includes(m.id);
+    return `<div class="entry-row" style="display:flex;align-items:center;gap:10px">
+      <button type="button" class="move-check${isTaken ? " done" : ""}" data-med="${m.id}" aria-pressed="${isTaken ? "true" : "false"}" aria-label="Mark ${escapeHtml(m.name)} taken today"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
+      <span style="flex:1"><strong>${escapeHtml(m.name)}</strong>${m.dose ? " · " + escapeHtml(m.dose) : ""}${m.time ? " · " + escapeHtml(m.time) : ""}</span>
+      <button type="button" class="btn btn-small" data-med-del="${m.id}">Delete</button>
+    </div>`;
+  }).join("");
+  list.querySelectorAll("[data-med]").forEach((btn) => btn.addEventListener("click", () => {
+    const d = viewedDateStr();
+    if (!store.medicineTaken) store.medicineTaken = {};
+    const arr = store.medicineTaken[d] || [];
+    const i = arr.indexOf(btn.dataset.med);
+    if (i === -1) arr.push(btn.dataset.med); else arr.splice(i, 1);
+    store.medicineTaken[d] = arr;
+    saveStore();
+    renderMedicines();
+  }));
+  list.querySelectorAll("[data-med-del]").forEach((btn) => btn.addEventListener("click", () => {
+    store.medicines = store.medicines.filter((m) => m.id !== btn.dataset.medDel);
+    saveStore();
+    renderMedicines();
+  }));
+}
+document.getElementById("medicine-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("med-msg");
+  const name = document.getElementById("med-name").value.trim().slice(0, 80);
+  if (!name) { setFormStatus(msg, "Type the medicine name first.", true); return; }
+  store.medicines.push({ id: uid(), name, dose: document.getElementById("med-dose").value.trim().slice(0, 40), time: document.getElementById("med-time").value.trim().slice(0, 20), date: viewedDateStr() });
+  saveStore();
+  document.getElementById("medicine-form").reset();
+  setFormStatus(msg, "Medicine added.", false);
+  renderMedicines();
+});
+
+/* ---------- Saved recipes ---------- */
+/* Recipes from the Companion, saved to cook again. Title plus the
+   ingredients and steps, pasted in. Stored on this device only. */
+function renderRecipes() {
+  const list = document.getElementById("recipe-list");
+  if (!list) return;
+  if (!store.recipes.length) {
+    list.innerHTML = '<p class="empty-state">No recipes saved yet. Save one above.</p>';
+    return;
+  }
+  const sorted = [...store.recipes].sort(byDateDesc);
+  list.innerHTML = sorted.map((r) => `<div class="entry-row">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+      <strong>${escapeHtml(r.title)}</strong>
+      <button type="button" class="btn btn-small" data-recipe-del="${r.id}">Delete</button>
+    </div>
+    <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
+  </div>`).join("");
+  list.querySelectorAll("[data-recipe-del]").forEach((btn) => btn.addEventListener("click", () => {
+    store.recipes = store.recipes.filter((r) => r.id !== btn.dataset.recipeDel);
+    saveStore();
+    renderRecipes();
+  }));
+}
+document.getElementById("recipe-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("recipe-msg");
+  const title = document.getElementById("recipe-title").value.trim().slice(0, 120);
+  const body = document.getElementById("recipe-body").value.trim().slice(0, 4000);
+  if (!title) { setFormStatus(msg, "Type a title first.", true); return; }
+  if (!body) { setFormStatus(msg, "Paste the recipe first.", true); return; }
+  store.recipes.push({ id: uid(), title, body, date: viewedDateStr() });
+  saveStore();
+  document.getElementById("recipe-form").reset();
+  setFormStatus(msg, "Recipe saved.", false);
+  renderRecipes();
+});
+
 function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
   if (!list) return;
+  renderSeTrends();
   const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
@@ -3383,8 +3667,10 @@ function renderSettings() {
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
+  document.getElementById("set-water-step").value = s.waterStep || 8;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  document.getElementById("set-movement-step").value = s.movementStep || 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
@@ -3400,6 +3686,8 @@ function renderSettings() {
   // and the read-aloud setting.
   const nameInput = document.getElementById("set-companion-name");
   if (nameInput) nameInput.value = s.companionName || "";
+  const yourNameInput = document.getElementById("set-your-name");
+  if (yourNameInput) yourNameInput.value = s.yourName || "";
   const avatarRadio = document.querySelector('input[name="companion-avatar"][value="' + (COMPANION_AVATARS[s.companionAvatar] ? s.companionAvatar : "gold") + '"]');
   if (avatarRadio) avatarRadio.checked = true;
   const themeRadio = document.querySelector('input[name="theme"][value="' + (["sage", "dark", "cream"].includes(s.theme) ? s.theme : "sage") + '"]');
@@ -3515,10 +3803,14 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 92;
+  const ws = Number(document.getElementById("set-water-step").value);
+  store.settings.waterStep = ws > 0 ? Math.round(ws) : 8;
   // v169: a blank or invalid macro target keeps the existing target.
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
+  const ms = Number(document.getElementById("set-movement-step").value);
+  store.settings.movementStep = ms > 0 ? Math.round(ms) : 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
@@ -3549,6 +3841,8 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   // when blank.
   const cnInput = document.getElementById("set-companion-name");
   store.settings.companionName = cnInput ? cnInput.value.trim().slice(0, 60) : "";
+  const ynInput = document.getElementById("set-your-name");
+  store.settings.yourName = ynInput ? ynInput.value.trim().slice(0, 60) : "";
   const avatarChecked = document.querySelector('input[name="companion-avatar"]:checked');
   if (avatarChecked && COMPANION_AVATARS[avatarChecked.value]) store.settings.companionAvatar = avatarChecked.value;
   const themeChecked = document.querySelector('input[name="theme"]:checked');
@@ -4704,6 +4998,13 @@ async function loadCoachMemory() {
       toggle.checked = true;
       document.getElementById("memory-fields").classList.remove("hidden");
       document.getElementById("memory-name").value = data.profile.name || "";
+      // v004: if the greeting name is blank, fill it from the name already
+      // saved here, so the greeting uses it without typing it twice.
+      if (!(store.settings.yourName || "").trim() && data.profile.name) {
+        store.settings.yourName = String(data.profile.name).trim().slice(0, 60);
+        saveStore();
+        renderGreeting();
+      }
       document.getElementById("memory-goals").value = data.profile.goals || "";
       document.getElementById("memory-preferences").value = data.profile.preferences || "";
       document.getElementById("memory-saved-msg").classList.remove("hidden");

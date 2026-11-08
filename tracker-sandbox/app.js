@@ -55,12 +55,15 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
+    waterStep: 8, // v004: ounces the "+ 8 oz" quick-add button adds
+    movementStep: 5, // v004: minutes the "+ 5 min" quick-add button adds
     carbGoal: 150, // v168: own carbs target for the Your Macros card
     fatGoal: 60, // v168: own fat target for the Your Macros card
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
     movementPlan: null, // v168: null means the 5-minute default routine; otherwise [{ name, detail }]
+    routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
     goalWeight: "",
@@ -69,7 +72,8 @@ const DEFAULTS = {
     companionAvatar: "gold", // v000: gold | sage | deep-gold | sage-tile
     theme: "sage", // v000: sage | dark | cream
     textSize: "normal", // v000: normal | large
-    readAloud: false // v000: read Companion replies aloud with the phone's own voice
+    readAloud: false, // v000: read Companion replies aloud with the phone's own voice
+    yourName: "" // v004: your own first name, for the greeting on Today; blank means just "Good morning."
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
@@ -180,7 +184,7 @@ function validateStore(parsed, strict) {
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     if (typeof out.settings.shotDay !== "string" || (out.settings.shotDay !== "" && !dayNames.includes(out.settings.shotDay))) out.settings.shotDay = "";
     if (typeof out.settings.refillDate !== "string" || (out.settings.refillDate !== "" && !isValidDateStr(out.settings.refillDate))) out.settings.refillDate = "";
-    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal"]) {
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes", "waterStep", "movementStep"]) {
       const n = Number(out.settings[g]);
       out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
     }
@@ -236,6 +240,8 @@ function validateStore(parsed, strict) {
     // on this device. A bad value falls back to the default.
     const cn = out.settings.companionName;
     out.settings.companionName = typeof cn === "string" ? cn.trim().slice(0, 60) : "";
+    const yn = out.settings.yourName;
+    out.settings.yourName = typeof yn === "string" ? yn.trim().slice(0, 60) : "";
     const ca = out.settings.companionAvatar;
     out.settings.companionAvatar = ["gold", "sage", "deep-gold", "sage-tile"].includes(ca) ? ca : "gold";
     const th = out.settings.theme;
@@ -1116,6 +1122,11 @@ function renderToday() {
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   setRing("exercise", exMin, moveGoal);
+  // v004: the quick-add buttons show the amount they add, from Settings.
+  const wAdd = document.getElementById("goals-water-add");
+  if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
+  const eAdd = document.getElementById("goals-exercise-add");
+  if (eAdd) eAdd.textContent = "+ " + (Number(store.settings.movementStep) || 5) + " min";
 
   renderMacros();
   renderMovement();
@@ -1160,25 +1171,28 @@ function renderStreak() {
   el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
 }
 
-/* Personal greeting (v165): time of day, by name. */
+/* Greeting (v165, v004): time of day, plus the user's own name when
+   they set it in Settings. The name is the buyer's own, never the
+   founder's, so a buyer who leaves it blank just sees the time of day. */
 function renderGreeting() {
   const el = document.getElementById("greeting-line");
   if (!el) return;
   const h = new Date().getHours();
   const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  el.textContent = part + ", Jessica.";
+  const name = (store.settings.yourName || "").trim();
+  el.textContent = name ? part + ", " + name + "." : part + ".";
 }
 
 /* Today's Goals add buttons (v165): one quick entry per tap, logged to
    the day being viewed. Water 8 oz, protein 10 g (Quick add), movement
    5 min. Same store shape as before; entries are still plain entries. */
 document.getElementById("goals-water-add").addEventListener("click", () => {
-  store.water.push({ id: uid(), date: viewedDateStr(), oz: 8 });
+  store.water.push({ id: uid(), date: viewedDateStr(), oz: Number(store.settings.waterStep) || 8 });
   saveStore();
   renderToday();
 });
 document.getElementById("goals-exercise-add").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
+  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: Number(store.settings.movementStep) || 5, label: "Movement" });
   saveStore();
   renderToday();
 });
@@ -1448,6 +1462,17 @@ function paintDonut(totals) {
     seg.setAttribute("stroke-dashoffset", (-offset).toFixed(1));
     seg.setAttribute("transform", "rotate(-90 108 108)");
     seg.style.opacity = selectedMacro === key ? "1" : "0.45";
+    // v004: the macro's share of today's grams, as a label on its segment.
+    // Hidden for tiny slices, so the text never crowds the ring.
+    const label = document.getElementById("seg-label-" + key);
+    if (label) {
+      const midFrac = total > 0 ? (offset + frac * DONUT_C / 2) / DONUT_C : 0;
+      const angle = midFrac * Math.PI * 2;
+      label.setAttribute("x", (108 + 84 * Math.sin(angle)).toFixed(1));
+      label.setAttribute("y", (108 - 84 * Math.cos(angle)).toFixed(1));
+      const pct = total > 0 ? Math.round(100 * totals[key] / total) : 0;
+      label.textContent = pct >= 8 && totals[key] > 0 ? pct + "%" : "";
+    }
     offset += frac * DONUT_C;
   });
 }
@@ -2066,6 +2091,11 @@ const EXERCISE_LIBRARY = [
 ];
 const MOVEMENT_BONUS_LABEL = "Daily movement routine";
 const MOVEMENT_BONUS_MINUTES = 5;
+/* Minutes the daily routine is worth when finished. Set in the plan
+   editor; defaults to 5. */
+function routineMinutes() {
+  return Number(store.settings.routineMinutes) || MOVEMENT_BONUS_MINUTES;
+}
 
 function getMovementPlan() {
   const plan = store.settings && store.settings.movementPlan;
@@ -2089,7 +2119,9 @@ function setMovementDayState(date, state) {
 function removeMovementBonus(date) {
   for (let i = store.exercise.length - 1; i >= 0; i--) {
     const e = store.exercise[i];
-    if (e.date === date && e.label === MOVEMENT_BONUS_LABEL && Number(e.minutes) === MOVEMENT_BONUS_MINUTES) {
+    // Match by label and date only: the routine minutes can change,
+    // so an old bonus entry may carry a different number.
+    if (e.date === date && e.label === MOVEMENT_BONUS_LABEL) {
       store.exercise.splice(i, 1);
       return true;
     }
@@ -2106,7 +2138,7 @@ function renderMovement() {
   // Done names that are no longer in the plan (plan changed) do not count.
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const sub = document.getElementById("movement-sub");
-  if (sub) sub.textContent = isDefaultPlan() ? "5 minutes. No equipment." : "Your plan · " + plan.length + " moves.";
+  if (sub) sub.textContent = isDefaultPlan() ? routineMinutes() + " minutes. No equipment." : "Your plan · " + plan.length + " moves.";
   const list = document.getElementById("moves-list");
   list.innerHTML = plan.map((m) => {
     const isDone = done.includes(m.name);
@@ -2122,7 +2154,7 @@ function renderMovement() {
   const count = document.getElementById("move-count");
   if (count) count.textContent = done.length + " of " + plan.length + " moves done";
   const logged = document.getElementById("move-logged");
-  if (logged) logged.classList.toggle("show", done.length === plan.length && plan.length > 0);
+  if (logged) { logged.textContent = "All done. " + routineMinutes() + " minutes added to your Movement ring."; logged.classList.toggle("show", done.length === plan.length && plan.length > 0); }
   // Shared total: the routine and the ring are one movement total, so
   // minutes logged anywhere show here too.
   const totalEl = document.getElementById("movement-total");
@@ -2143,7 +2175,7 @@ function toggleMove(name) {
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const allDone = plan.length > 0 && done.length === plan.length;
   if (allDone && !state.bonus) {
-    store.exercise.push({ id: uid(), date, minutes: MOVEMENT_BONUS_MINUTES, label: MOVEMENT_BONUS_LABEL });
+    store.exercise.push({ id: uid(), date, minutes: routineMinutes(), label: MOVEMENT_BONUS_LABEL });
     state.bonus = true;
   } else if (!allDone && state.bonus) {
     removeMovementBonus(date);
@@ -2188,6 +2220,8 @@ function openMovementPlanEditor() {
   if (nameInput) nameInput.value = "";
   const detailInput = document.getElementById("custom-ex-detail");
   if (detailInput) detailInput.value = "";
+  const minInput = document.getElementById("movement-plan-minutes");
+  if (minInput) minInput.value = routineMinutes();
   modal.classList.remove("hidden");
   const first = modal.querySelector("input[type='checkbox']");
   if (first) first.focus();
@@ -2245,6 +2279,7 @@ document.getElementById("custom-ex-add").addEventListener("click", () => {
 });
 document.getElementById("movement-plan-reset").addEventListener("click", () => {
   store.settings.movementPlan = null;
+  store.settings.routineMinutes = 5;
   saveStore();
   closeMovementPlanEditor();
   renderToday();
@@ -2278,6 +2313,9 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
   });
   store.settings.customExercises = customs;
   store.settings.movementPlan = picked;
+  const rmInput = document.getElementById("movement-plan-minutes");
+  const rm = rmInput ? Number(rmInput.value) : NaN;
+  store.settings.routineMinutes = Number.isFinite(rm) && rm > 0 ? Math.round(rm) : 5;
   // A new plan can un-complete today: take the bonus back if the new
   // plan is not fully done.
   const date = viewedDateStr();
@@ -3985,8 +4023,10 @@ function renderSettings() {
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
+  document.getElementById("set-water-step").value = s.waterStep || 8;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  document.getElementById("set-movement-step").value = s.movementStep || 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
@@ -4002,6 +4042,8 @@ function renderSettings() {
   // and the read-aloud setting.
   const nameInput = document.getElementById("set-companion-name");
   if (nameInput) nameInput.value = s.companionName || "";
+  const yourNameInput = document.getElementById("set-your-name");
+  if (yourNameInput) yourNameInput.value = s.yourName || "";
   const avatarRadio = document.querySelector('input[name="companion-avatar"][value="' + (COMPANION_AVATARS[s.companionAvatar] ? s.companionAvatar : "gold") + '"]');
   if (avatarRadio) avatarRadio.checked = true;
   const themeRadio = document.querySelector('input[name="theme"][value="' + (["sage", "dark", "cream"].includes(s.theme) ? s.theme : "sage") + '"]');
@@ -4108,10 +4150,14 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 92;
+  const ws = Number(document.getElementById("set-water-step").value);
+  store.settings.waterStep = ws > 0 ? Math.round(ws) : 8;
   // v169: a blank or invalid macro target keeps the existing target.
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
+  const ms = Number(document.getElementById("set-movement-step").value);
+  store.settings.movementStep = ms > 0 ? Math.round(ms) : 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
@@ -4142,6 +4188,8 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   // when blank.
   const cnInput = document.getElementById("set-companion-name");
   store.settings.companionName = cnInput ? cnInput.value.trim().slice(0, 60) : "";
+  const ynInput = document.getElementById("set-your-name");
+  store.settings.yourName = ynInput ? ynInput.value.trim().slice(0, 60) : "";
   const avatarChecked = document.querySelector('input[name="companion-avatar"]:checked');
   if (avatarChecked && COMPANION_AVATARS[avatarChecked.value]) store.settings.companionAvatar = avatarChecked.value;
   const themeChecked = document.querySelector('input[name="theme"]:checked');
@@ -5295,6 +5343,13 @@ async function loadCoachMemory() {
       toggle.checked = true;
       document.getElementById("memory-fields").classList.remove("hidden");
       document.getElementById("memory-name").value = data.profile.name || "";
+      // v004: if the greeting name is blank, fill it from the name already
+      // saved here, so the greeting uses it without typing it twice.
+      if (!(store.settings.yourName || "").trim() && data.profile.name) {
+        store.settings.yourName = String(data.profile.name).trim().slice(0, 60);
+        saveStore();
+        renderGreeting();
+      }
       document.getElementById("memory-goals").value = data.profile.goals || "";
       document.getElementById("memory-preferences").value = data.profile.preferences || "";
       document.getElementById("memory-saved-msg").classList.remove("hidden");
