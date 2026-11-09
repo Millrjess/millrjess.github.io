@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v017";
+const APP_VERSION = "v018";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -2537,13 +2537,13 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
-  const quickBtn = document.getElementById("quick-log-shot");
+  const gotoBtn = document.getElementById("goto-shots-btn");
   // Done state first: it applies even before a shot day is set, so a
-  // buyer who logged a shot never sees "Log today's shot" again today
+  // buyer who logged a shot never sees "Log it in Shots" again today
   // and cannot double-log. (The old code returned early above when no
   // shot day was set, so the button stayed visible with no done state.)
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
-  quickBtn.style.display = alreadyLogged ? "none" : "";
+  gotoBtn.style.display = alreadyLogged ? "none" : "";
   if (alreadyLogged) {
     el.textContent = "\u2713 Today's shot logged.";
     return;
@@ -2575,36 +2575,15 @@ function renderNextInjection() {
   }
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
-  // One-tap shot logging uses the usual medication, dose, and last site
-  if (last && last.site) {
-    quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
-  } else {
-    quickBtn.textContent = "Log today's shot";
-  }
+  // The Today card never logs a shot. It only takes you to the Shots
+  // tab, where the shot is logged deliberately with the site and dose.
+  gotoBtn.textContent = "Log it in Shots";
 }
 
-document.getElementById("quick-log-shot").addEventListener("click", () => {
-  const t = todayStr();
-  if (store.injections.some((e) => e.date === t && (e.status || "On time") !== "Missed")) return;
-  const last = lastInjection();
-  if (!last || !last.site) {
-    alert("Log your first shot in the Shots tab so I know your usual site. After that, one tap does it.");
-    showTab("shots");
-    return;
-  }
-  store.injections.push({
-    id: uid(),
-    date: t,
-    medication: store.settings.medication || last.medication || "Zepbound",
-    dose: Number(store.settings.dose) || Number(last.dose) || 0,
-    site: last.site,
-    status: "On time",
-    notes: ""
-  });
-  saveStore();
-  renderInjections();
-  renderInjectionCalendar();
-  renderToday();
+// The Today card never logs a shot. It takes you to the Shots tab,
+// where the shot is logged deliberately with the site and dose.
+document.getElementById("goto-shots-btn").addEventListener("click", () => {
+  showTab("shots");
 });
 
 /* Daily mood */

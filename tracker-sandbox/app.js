@@ -2529,38 +2529,18 @@ function renderNextInjection() {
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
   // One-tap shot logging uses the usual medication, dose, and last site
-  const quickBtn = document.getElementById("quick-log-shot");
+  const gotoBtn = document.getElementById("goto-shots-btn");
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
-  quickBtn.style.display = alreadyLogged ? "none" : "";
-  if (!alreadyLogged && last && last.site) {
-    quickBtn.textContent = "Log today's shot (" + med + (dose ? " " + dose : "") + ", " + last.site + ")";
-  } else {
-    quickBtn.textContent = "Log today's shot";
-  }
+  gotoBtn.style.display = alreadyLogged ? "none" : "";
+  // The Today card never logs a shot. It only takes you to the Shots
+  // tab, where the shot is logged deliberately with the site and dose.
+  gotoBtn.textContent = "Log it in Shots";
 }
 
-document.getElementById("quick-log-shot").addEventListener("click", () => {
-  const t = todayStr();
-  if (store.injections.some((e) => e.date === t && (e.status || "On time") !== "Missed")) return;
-  const last = lastInjection();
-  if (!last || !last.site) {
-    alert("Log your first shot in the Shots tab so I know your usual site. After that, one tap does it.");
-    showTab("shots");
-    return;
-  }
-  store.injections.push({
-    id: uid(),
-    date: t,
-    medication: store.settings.medication || last.medication || "Zepbound",
-    dose: Number(store.settings.dose) || Number(last.dose) || 0,
-    site: last.site,
-    status: "On time",
-    notes: ""
-  });
-  saveStore();
-  renderInjections();
-  renderInjectionCalendar();
-  renderToday();
+// The Today card never logs a shot. It takes you to the Shots tab,
+// where the shot is logged deliberately with the site and dose.
+document.getElementById("goto-shots-btn").addEventListener("click", () => {
+  showTab("shots");
 });
 
 /* Daily mood */
