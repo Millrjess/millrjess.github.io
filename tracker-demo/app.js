@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v028";
+const APP_VERSION = "v029";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -280,19 +280,21 @@ function validateStore(parsed, strict) {
     }
     out.medicineTaken = cleanTaken;
   }
-  // v028: the food library. Keyed by barcode; each entry keeps the food
-  // name and macros. A bad shape is dropped whole, and a bad entry is
-  // dropped, so a bad value can never crash the app.
+  // v028: the food library, keyed by barcode or by name ("name:...").
+  // Keep only entries with a key and a name; sanitize the macros to
+  // non-negative numbers. A bad shape is dropped whole, and a bad entry
+  // is dropped, so a bad value can never crash the app.
   if (parsed.foodLibrary !== undefined && (typeof parsed.foodLibrary !== "object" || Array.isArray(parsed.foodLibrary))) {
     lastValidateDropped.push("foodLibrary");
   } else if (parsed.foodLibrary && typeof parsed.foodLibrary === "object" && !Array.isArray(parsed.foodLibrary)) {
-    const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
     const cleanLib = {};
     for (const [code, f] of Object.entries(parsed.foodLibrary)) {
-      const c = String(code || "").trim().replace(/[^0-9]/g, "");
-      if (!c || !f || typeof f !== "object" || typeof f.name !== "string" || f.name.trim() === "") continue;
-      cleanLib[c] = {
-        barcode: c,
+      if (!f || typeof f !== "object" || Array.isArray(f)) continue;
+      const barcode = typeof f.barcode === "string" && f.barcode.trim() !== "" ? f.barcode.trim().slice(0, 40) : String(code).trim().slice(0, 40);
+      if (!barcode || typeof f.name !== "string" || f.name.trim() === "") continue;
+      const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+      cleanLib[barcode] = {
+        barcode,
         name: f.name.trim().slice(0, 120),
         brand: typeof f.brand === "string" ? f.brand.trim().slice(0, 80) : "",
         protein: num(f.protein),
@@ -1683,6 +1685,9 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   } else {
     store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
   }
+  // Auto-save to Your foods so this food can be picked again and the
+  // macros fill in. No barcode here, so it saves by name. No extra tap.
+  saveFoodToLibrary("", { name: food, brand: "", protein: grams, carbs, fat, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
   saveStore();
   renderToday();
   document.getElementById("macro-food-form").classList.add("hidden");
@@ -1694,11 +1699,12 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
 });
 
 /* ---------- Food library (v028) ---------- */
-/* Foods already scanned, saved on this device only and reused instantly.
-   Keyed by barcode. A lookup that succeeds saves the food here on its
-   own, so there is no extra save step. A scan checks here first. The
-   demo has no barcode scanner, so the library is filled only by foods
-   already saved here; the search below still checks it first. */
+/* Foods already logged, saved on this device only and reused instantly.
+   Keyed by barcode when scanned, or by name ("name:...") when logged by
+   hand. A lookup or a log that succeeds saves the food here on its own,
+   so there is no extra save step. The demo has no barcode scanner, so
+   the library is filled only by foods already saved here; the search
+   below still checks it first. */
 const FOOD_LIBRARY_MAX = 200;
 function foodLibrary() {
   if (!store.foodLibrary || typeof store.foodLibrary !== "object" || Array.isArray(store.foodLibrary)) store.foodLibrary = {};
@@ -1706,11 +1712,21 @@ function foodLibrary() {
 }
 function saveFoodToLibrary(barcode, food) {
   const lib = foodLibrary();
-  const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
-  if (!code || !food || typeof food.name !== "string" || food.name.trim() === "") return;
+  if (!food || typeof food.name !== "string" || food.name.trim() === "") return;
+  // Key: barcode digits when present, otherwise a name key so a food
+  // logged by hand (no barcode) still saves and can be picked again.
+  // The "name:" prefix keeps name keys from colliding with barcodes.
+  // The name part is capped so the key stays within the 40-char limit
+  // the stored-value validation uses for the barcode field.
+  let key = String(barcode || "").trim().replace(/[^0-9]/g, "");
+  if (!key) {
+    const norm = food.name.trim().toLowerCase().replace(/\s+/g, " ").slice(0, 32);
+    if (!norm) return;
+    key = "name:" + norm;
+  }
   const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
-  lib[code] = {
-    barcode: code,
+  lib[key] = {
+    barcode: key,
     name: food.name.trim().slice(0, 120),
     brand: typeof food.brand === "string" ? food.brand.trim().slice(0, 80) : "",
     protein: num(food.protein),
@@ -1753,7 +1769,7 @@ function fillFoodForm(name, protein, carbs, fat, note) {
   const status = document.getElementById("macro-food-search-status");
   if (status && note) status.textContent = note;
 }
-/* The "Your foods" list: every food already scanned, newest first.
+/* The "Your foods" list: every food already logged, newest first.
    Tap a row to fill the form and log it again. The small x removes
    that one entry. Hidden when the library is empty. */
 function renderFoodLibrary() {
@@ -1761,7 +1777,7 @@ function renderFoodLibrary() {
   if (!list) return;
   const foods = Object.values(foodLibrary()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
   if (!foods.length) {
-    list.innerHTML = "<p class=\"muted\" style=\"font-size:.9em;margin:0\">No foods saved yet. Scan a barcode and it saves here on its own.</p>";
+    list.innerHTML = "<p class=\"muted\" style=\"font-size:.9em;margin:0\">No foods saved yet. Log a food and it saves here on its own.</p>";
     return;
   }
   list.innerHTML = "";
@@ -1962,6 +1978,8 @@ document.getElementById("plate-log-btn").addEventListener("click", () => {
     return;
   }
   store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  // Auto-save to Your foods by name, so this plate can be picked again.
+  saveFoodToLibrary("", { name: food, brand: "", protein: grams, carbs, fat, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
   saveStore();
   renderToday();
   closePlateModal();
