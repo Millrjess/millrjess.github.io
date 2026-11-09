@@ -715,6 +715,16 @@
       <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
     </form>
     <div id="recipe-list" class="entry-list"></div>
+    <h3 style="margin-top:18px">Search recipes online</h3>
+    <p class="muted" style="font-size:.85em">Search the recipe database for a dish, and pull it in with its photo and nutrition.</p>
+    <form id="recipe-search-form" aria-label="Search recipes online" novalidate>
+      <div style="display:flex;gap:8px">
+        <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken" aria-label="Search recipes" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+      <p class="code-msg" id="recipe-search-msg" style="min-height:1.2em"></p>
+    </form>
+    <div id="recipe-search-results" class="entry-list"></div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <button type="button" class="kitchen-chip active" data-filter="all">All</button>
       <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>

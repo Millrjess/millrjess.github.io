@@ -4693,6 +4693,19 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   setFormStatus(msg, "Recipe saved.", false);
   renderRecipes();
 });
+/* Recipe search (online database). The live lookup arrives after
+   November 30, when the Worker can call the FatSecret recipe database.
+   Until then the box shows what is coming, the same pattern as Scan my
+   plate. */
+document.getElementById("recipe-search-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("recipe-search-msg");
+  const results = document.getElementById("recipe-search-results");
+  const q = document.getElementById("recipe-search-input").value.trim();
+  if (!q) { setFormStatus(msg, "Type a dish first.", true); results.innerHTML = ""; return; }
+  setFormStatus(msg, "", false);
+  results.innerHTML = `<p class="muted">Online recipe search is coming soon. After November 30, searching for "${escapeHtml(q)}" here will pull the recipe with its photo and nutrition, and you can add it to today's macros or save it to your Kitchen. For now, try the Kitchen recipes below, or save your own recipe above.</p>`;
+});
 
 function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
