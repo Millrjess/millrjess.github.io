@@ -714,6 +714,14 @@
     <form id="recipe-form" aria-label="Save a recipe" novalidate>
       <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
       <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
+      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
+      <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
+      <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
+        <button type="button" class="btn btn-small" id="recipe-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small" id="recipe-upload-btn">Upload photo</button>
+        <button type="button" class="btn btn-small hidden" id="recipe-remove-photo-btn">Remove photo</button>
+      </div>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save recipe</button>
       </div>

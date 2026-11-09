@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v020";
+const APP_VERSION = "v021";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -511,7 +511,12 @@ const SNAPSHOT_WARN_BYTES = 2000000;
    a usable snapshot of all its non-photo data. */
 function buildSnapshotRaw(s) {
   const stripped = Object.assign({}, s, {
-    photos: (Array.isArray(s.photos) ? s.photos : []).map((p) => ({ id: p.id, date: p.date, photo: true }))
+    photos: (Array.isArray(s.photos) ? s.photos : []).map((p) => ({ id: p.id, date: p.date, photo: true })),
+    recipes: (Array.isArray(s.recipes) ? s.recipes : []).map((r) => {
+      const copy = Object.assign({}, r);
+      if (copy.photo) delete copy.photo;
+      return copy;
+    })
   });
   const raw = JSON.stringify(stripped);
   return { raw, photosOmitted: (Array.isArray(s.photos) ? s.photos.length : 0) > 0, nearCap: raw.length > SNAPSHOT_WARN_BYTES };
@@ -616,6 +621,17 @@ function uid() {
   return "id" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+// A date string the app can trust: YYYY-MM-DD, a real calendar date.
+// Anything else (a number, garbage, a crafted restore value) must never
+// reach formatDate() or a sort, because both throw on non-string dates.
+function isValidDateStr(s) {
+  if (typeof s !== "string") return false;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return false;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return d.getFullYear() === Number(m[1]) && d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[3]);
+}
+
 function todayStr(offsetDays) {
   const d = new Date();
   if (offsetDays) d.setDate(d.getDate() + offsetDays);
@@ -683,6 +699,11 @@ const ENCOURAGEMENTS = [
   "You are doing this for the life you want to live, not for a number.",
   "Strong today, stronger tomorrow, one habit at a time."
 ];
+
+// Date comparators that never throw, even if an entry somehow carries a
+// non-string date. Use these everywhere instead of inline localeCompare.
+function byDate(a, b) { return String((a && a.date) || "").localeCompare(String((b && b.date) || "")); }
+function byDateDesc(a, b) { return byDate(b, a); }
 
 function renderEncouragement() {
   const now = new Date();
@@ -4058,7 +4079,7 @@ function renderKitchen() {
     if (kitchenIsSaved(r.id)) {
       store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
     } else {
-      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id });
+      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "" });
     }
     saveStore();
     renderRecipes();
@@ -4092,6 +4113,14 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
   renderKitchen();
 }));
 
+/* The photo on a saved recipe card: the user's own photo when they
+   added one, otherwise the Kitchen photo (and credit) when the recipe
+   was saved from the Kitchen. */
+function recipePhotoHtml(r) {
+  const src = r.photo || r.image || "";
+  if (!src) return "";
+  return `<img class="kitchen-photo" src="${escapeHtml(src)}" alt="${escapeHtml(r.title)}" loading="lazy">` + (r.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(r.credit)}</p>` : "");
+}
 function renderRecipes() {
   renderKitchen();
   const list = document.getElementById("recipe-list");
@@ -4102,6 +4131,7 @@ function renderRecipes() {
   }
   const sorted = [...store.recipes].sort(byDateDesc);
   list.innerHTML = sorted.map((r) => `<div class="entry-row">
+    ${recipePhotoHtml(r)}
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
       <strong>${escapeHtml(r.title)}</strong>
       <button type="button" class="btn btn-small" data-recipe-del="${r.id}">Delete</button>
@@ -4114,6 +4144,59 @@ function renderRecipes() {
     renderRecipes();
   }));
 }
+/* A photo for a saved recipe. The photo is shrunk to at most 800px wide
+   and saved as a JPEG, so it stays small in local storage. It is the
+   user's own photo, kept on the device like everything else. */
+let recipePhotoDataUrl = "";
+function compressRecipePhoto(file, done) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 800;
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      done(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = () => done("");
+    img.src = String(reader.result || "");
+  };
+  reader.onerror = () => done("");
+  reader.readAsDataURL(file);
+}
+function setRecipePhoto(dataUrl) {
+  recipePhotoDataUrl = dataUrl || "";
+  const preview = document.getElementById("recipe-photo-preview");
+  const removeBtn = document.getElementById("recipe-remove-photo-btn");
+  if (recipePhotoDataUrl) {
+    preview.src = recipePhotoDataUrl;
+    preview.classList.remove("hidden");
+    removeBtn.classList.remove("hidden");
+  } else {
+    preview.src = "";
+    preview.classList.add("hidden");
+    removeBtn.classList.add("hidden");
+  }
+}
+document.getElementById("recipe-take-btn").addEventListener("click", () => document.getElementById("recipe-photo-input").click());
+document.getElementById("recipe-photo-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (file) compressRecipePhoto(file, setRecipePhoto);
+});
+document.getElementById("recipe-upload-btn").addEventListener("click", () => document.getElementById("recipe-upload-input").click());
+document.getElementById("recipe-upload-input").addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (file) compressRecipePhoto(file, setRecipePhoto);
+});
+document.getElementById("recipe-remove-photo-btn").addEventListener("click", () => setRecipePhoto(""));
 document.getElementById("recipe-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const msg = document.getElementById("recipe-msg");
@@ -4121,9 +4204,10 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   const body = document.getElementById("recipe-body").value.trim().slice(0, 4000);
   if (!title) { setFormStatus(msg, "Type a title first.", true); return; }
   if (!body) { setFormStatus(msg, "Paste the recipe first.", true); return; }
-  store.recipes.push({ id: uid(), title, body, date: viewedDateStr() });
+  store.recipes.push({ id: uid(), title, body, date: viewedDateStr(), ...(recipePhotoDataUrl ? { photo: recipePhotoDataUrl } : {}) });
   saveStore();
   document.getElementById("recipe-form").reset();
+  setRecipePhoto("");
   setFormStatus(msg, "Recipe saved.", false);
   renderRecipes();
 });
