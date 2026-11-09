@@ -2256,6 +2256,33 @@ const EXERCISE_LIBRARY = [
 ];
 const MOVEMENT_BONUS_LABEL = "Daily movement routine";
 const MOVEMENT_BONUS_MINUTES = 5;
+/* Minutes a single routine move is worth, read from its detail text.
+   Only an explicit minute value counts ("15 min", "1 minute"); reps
+   ("10 reps") and bare numbers ("2") add no minutes, so we never
+   guess a duration the user did not state. */
+function moveMinutesFromDetail(detail) {
+  if (!detail) return 0;
+  const m = String(detail).match(/(\d+)\s*(?:min|mins|minute|minutes)/i);
+  return m ? Number(m[1]) : 0;
+}
+/* Label for the exercise entry a checked routine move adds, so the
+   minutes can be removed again when the move is unchecked without
+   touching a separately logged exercise of the same name. */
+function routineMoveLabel(name) {
+  return "Routine: " + name;
+}
+/* Remove one routine move's minutes entry for a day, if present. */
+function removeRoutineMoveMinutes(date, name) {
+  const label = routineMoveLabel(name);
+  for (let i = store.exercise.length - 1; i >= 0; i--) {
+    const e = store.exercise[i];
+    if (e.date === date && e.label === label) {
+      store.exercise.splice(i, 1);
+      return true;
+    }
+  }
+  return false;
+}
 /* Minutes the daily routine is worth when finished. Set in the plan
    editor; defaults to 5. */
 function routineMinutes() {
@@ -2334,9 +2361,18 @@ function toggleMove(name) {
   const date = viewedDateStr();
   const plan = getMovementPlan();
   const state = movementDayState(date);
+  const move = plan.find((m) => m.name === name);
+  const mins = move ? moveMinutesFromDetail(move.detail) : 0;
   const idx = state.done.indexOf(name);
-  if (idx === -1) state.done.push(name);
-  else state.done.splice(idx, 1);
+  if (idx === -1) {
+    state.done.push(name);
+    // A move with a minute value adds those minutes to the Movement
+    // ring right away, so checking it off updates the ring.
+    if (mins > 0) store.exercise.push({ id: uid(), date, minutes: mins, label: routineMoveLabel(name) });
+  } else {
+    state.done.splice(idx, 1);
+    if (mins > 0) removeRoutineMoveMinutes(date, name);
+  }
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const allDone = plan.length > 0 && done.length === plan.length;
   if (allDone && !state.bonus) {
