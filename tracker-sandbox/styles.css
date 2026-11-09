@@ -1681,3 +1681,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-details li { margin: 2px 0; }
 .kitchen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .kitchen-stepper { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Charts: the 600px canvas must shrink to fit a phone screen, or the
+   right side of the chart (and the latest point) is cut off. */
+canvas { max-width: 100%; height: auto; display: block; }
