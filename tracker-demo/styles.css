@@ -427,7 +427,7 @@ input[aria-invalid="true"]:focus-visible {
    re-enables them for itself. The ring drag ignores presses that start
    on this button. */
 .ring-num-btn {
-  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  background: none; border: none; padding: 4px; margin: 0; cursor: pointer; min-width: 44px; min-height: 44px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   pointer-events: auto; border-radius: 50%; font: inherit; color: inherit;
 }
@@ -1044,6 +1044,11 @@ label textarea {
   gap: 4px;
   margin-top: 12px;
 }
+/* Injection calendar rows (a11y): the grid is built from week rows,
+   so the container stacks rows and each row is its own 7-column grid.
+   The date picker (#day-cal-grid) keeps the flat 7-column grid above. */
+#inj-calendar { display: flex; flex-direction: column; gap: 4px; }
+#inj-calendar .cal-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .mini-calendar .dow {
   text-align: center;
   font-size: .72em;
@@ -1349,6 +1354,8 @@ textarea {
 .macro-row:last-child { border-bottom: none; }
 .macro-row.selected { background: #FBF6E6; }
 .macro-name { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 1rem; color: var(--ink); }
+button.macro-name { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 .dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
 .dot.protein { background: var(--gold); }
 .dot.carbs { background: var(--sage); }
@@ -1365,7 +1372,7 @@ textarea {
    description line above. The 11px side padding keeps the thumb
    inside the row at 0 percent, where it otherwise poked past the
    left edge. */
-.macro-bar { touch-action: none; cursor: ew-resize; padding: 7px 11px; margin: 0 0 0.3rem; background-clip: content-box; }
+.macro-bar { touch-action: none; cursor: ew-resize; padding: 9px 11px; margin: 0 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { position: relative; display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
 .macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #C9A96A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }

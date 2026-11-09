@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=015">
+<link rel="stylesheet" href="styles.css?v=017">
 </head>
 <body>
 
@@ -133,7 +133,7 @@
       <p class="muted goals-hint">Slide left or right on a ring to change it. Tap the number to type an amount.</p>
       <div class="goals-rings">
         <div class="goal-ring">
-          <div class="ring-box" id="water-ring" tabindex="0" role="slider" aria-label="Water intake. Slide left or right to change." aria-valuemin="0" aria-valuemax="92" aria-valuenow="0" aria-valuetext="0 of 92 ounces">
+          <div class="ring-box" id="water-ring">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
             <div class="ring-value"><button type="button" class="ring-num-btn" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></button></div>
           </div>
@@ -146,7 +146,7 @@
           </div>
         </div>
         <div class="goal-ring">
-          <div class="ring-box" id="exercise-ring" tabindex="0" role="slider" aria-label="Movement. Slide left or right to change." aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-valuetext="0 of 30 minutes">
+          <div class="ring-box" id="exercise-ring">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
             <div class="ring-value"><button type="button" class="ring-num-btn" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></button></div>
           </div>
@@ -200,31 +200,31 @@
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
 
       <div class="macro-rows">
-        <div class="macro-row selected" data-macro="protein" tabindex="0" role="button" aria-label="Show protein in the center of the chart">
-          <span class="macro-name"><span class="dot protein"></span>Protein</span>
+        <div class="macro-row selected" data-macro="protein">
+          <button type="button" class="macro-name" aria-label="Show protein in the center of the chart"><span class="dot protein"></span>Protein</button>
           <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></span>
           <span class="macro-why muted">Supports muscle maintenance</span>
-          <span class="macro-bar" id="macro-bar-protein" role="slider" tabindex="0" aria-label="Protein logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-bar" id="macro-bar-protein"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-protein"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="-1" aria-label="Log 1 gram less protein">−</button><button type="button" class="macro-log-btn" data-macro-log="protein" data-dir="1" aria-label="Log 1 gram more protein">+</button></span>
           </span>
         </div>
-        <div class="macro-row" data-macro="carbs" tabindex="0" role="button" aria-label="Show carbs in the center of the chart">
-          <span class="macro-name"><span class="dot carbs"></span>Carbs</span>
+        <div class="macro-row" data-macro="carbs">
+          <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart"><span class="dot carbs"></span>Carbs</button>
           <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></span>
           <span class="macro-why muted">Supports energy and daily activity</span>
-          <span class="macro-bar" id="macro-bar-carbs" role="slider" tabindex="0" aria-label="Carbs logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-bar" id="macro-bar-carbs"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-carbs"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="-1" aria-label="Log 1 gram less carbs">−</button><button type="button" class="macro-log-btn" data-macro-log="carbs" data-dir="1" aria-label="Log 1 gram more carbs">+</button></span>
           </span>
         </div>
-        <div class="macro-row" data-macro="fat" tabindex="0" role="button" aria-label="Show fat in the center of the chart">
-          <span class="macro-name"><span class="dot fat"></span>Fat</span>
+        <div class="macro-row" data-macro="fat">
+          <button type="button" class="macro-name" aria-label="Show fat in the center of the chart"><span class="dot fat"></span>Fat</button>
           <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></span>
           <span class="macro-why muted">Supports essential body functions</span>
-          <span class="macro-bar" id="macro-bar-fat" role="slider" tabindex="0" aria-label="Fat logged. Slide left or right to change." aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-bar" id="macro-bar-fat"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-meta">
             <span class="macro-pct" id="pct-fat"></span>
             <span class="macro-stepper"><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="-1" aria-label="Log 1 gram less fat">−</button><button type="button" class="macro-log-btn" data-macro-log="fat" data-dir="1" aria-label="Log 1 gram more fat">+</button></span>
@@ -1260,7 +1260,7 @@
     </div>
   </div>
 
-<script src="app.js?v=015"></script>
+<script src="app.js?v=017"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

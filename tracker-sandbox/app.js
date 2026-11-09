@@ -1079,9 +1079,6 @@ function setRing(key, value, goal) {
   }[key];
   const ring = document.getElementById(ids[0]);
   if (ring) {
-    ring.setAttribute("aria-valuemax", goal);
-    ring.setAttribute("aria-valuenow", value);
-    ring.setAttribute("aria-valuetext", value + " of " + goal + " " + ids[2]);
     // Gold glow when the day's goal is met (v165).
     ring.classList.toggle("goal-reached", goal > 0 && value >= goal);
   }
@@ -1261,8 +1258,6 @@ function bindRing(ringId, key, field, extra) {
     if (num) num.textContent = liveTotal;
     setRingFill(fillId, liveTotal, goal);
     ring.classList.toggle("goal-reached", goal > 0 && liveTotal >= goal);
-    ring.setAttribute("aria-valuenow", liveTotal);
-    ring.setAttribute("aria-valuetext", liveTotal + " of " + goal + " " + unitWord);
   }
   ring.addEventListener("pointerdown", (e) => {
     // v169: a press that starts on the number button is a tap to open
@@ -1523,12 +1518,6 @@ function renderMacros() {
     if (pctEl) pctEl.textContent = macroProgressText(totals[key], targets[key]);
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
-    // v169: the bar is a slider, so its value and max stay current.
-    const barWrap = document.getElementById("macro-bar-" + key);
-    if (barWrap) {
-      barWrap.setAttribute("aria-valuenow", totals[key]);
-      barWrap.setAttribute("aria-valuemax", targets[key]);
-    }
     const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
     if (row) row.classList.toggle("selected", selectedMacro === key);
   });
@@ -1549,9 +1538,6 @@ document.querySelectorAll(".macro-row").forEach((row) => {
     // A slide on the bar must not also select the macro on release.
     if (suppressMacroRowClick) { suppressMacroRowClick = false; return; }
     selectMacro(row.dataset.macro);
-  });
-  row.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectMacro(row.dataset.macro); }
   });
 });
 document.querySelectorAll(".donut-seg").forEach((seg) => {
@@ -1625,7 +1611,6 @@ function bindMacroSlide(key) {
     if (pctEl) pctEl.textContent = macroProgressText(liveTotal, targets[key]);
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
-    bar.setAttribute("aria-valuenow", liveTotal);
     paintDonut(totals);
     if (selectedMacro === key) {
       document.getElementById("macro-center-grams").textContent = liveTotal;
@@ -2682,9 +2667,13 @@ function renderInjectionCalendar() {
 
   const startDow = new Date(injCalYear, injCalMonth, 1).getDay();
   const daysInMonth = new Date(injCalYear, injCalMonth + 1, 0).getDate();
-  let html = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    .map((d) => `<div class="dow">${d}</div>`).join("");
-  for (let i = 0; i < startDow; i++) html += `<div class="day other-month"></div>`;
+  // Grid rows: a header row, then one row per week. Each row holds
+  // seven cells, so the grid has the row structure a screen reader
+  // expects. Trailing blanks complete the last week.
+  let html = `<div class="cal-row" role="row">` + ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    .map((d) => `<div class="dow" role="columnheader">${d}</div>`).join("") + `</div>`;
+  const cells = [];
+  for (let i = 0; i < startDow; i++) cells.push(`<div class="day other-month" role="gridcell" aria-hidden="true"></div>`);
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = injCalYear + "-" + String(injCalMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
     const dayEntries = loggedByDate[ds] || [];
@@ -2700,7 +2689,11 @@ function renderInjectionCalendar() {
     if (dayEntries.some((j) => (j.status || "On time") === "Delayed")) states.push("shot delayed");
     if (ds === nextShot) states.push("next scheduled shot");
     const label = formatDate(ds) + (states.length ? ", " + states.join(", ") : "");
-    html += `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`;
+    cells.push( `<div class="${cls.join(" ")}" role="gridcell" data-cal-date="${ds}" tabindex="0" aria-label="${label}">${d}</div>`);
+  }
+  while (cells.length % 7 !== 0) cells.push(`<div class="day other-month" role="gridcell" aria-hidden="true"></div>`);
+  for (let i = 0; i < cells.length; i += 7) {
+    html += `<div class="cal-row" role="row">` + cells.slice(i, i + 7).join("") + `</div>`;
   }
   cal.innerHTML = html;
 
