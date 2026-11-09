@@ -261,7 +261,7 @@
           <span class="cap" id="macro-center-label">protein logged today</span>
         </div>
       </div>
-      <p class="donut-note">Each segment is one macro's share. Tap to expand, slide to change.</p>
+      <p class="donut-note">Each segment is one macro's share. Tap to expand.</p>
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
 
       <div class="macro-rows">
@@ -294,7 +294,7 @@
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
-      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate</button>
+      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate (coming soon)</button>
 
     </div>
 
@@ -375,6 +375,9 @@
         <button class="mood-btn" data-mood="Good">Good</button>
         <button class="mood-btn" data-mood="Okay">Okay</button>
         <button class="mood-btn" data-mood="Low">Low</button>
+        <button class="mood-btn" data-mood="Calm">Calm</button>
+        <button class="mood-btn" data-mood="Bad">Bad</button>
+        <button class="mood-btn" data-mood="Terrible">Terrible</button>
       </div>
       <p class="muted" id="mood-today-label" hidden></p>
     </div>
@@ -436,6 +439,7 @@
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
     <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
     <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+    <p class="muted hidden" id="shot-reminder-note" style="font-size:.85em;margin:6px 0 0"></p>
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between">
@@ -679,6 +683,9 @@
           <option>Good</option>
           <option>Okay</option>
           <option>Low</option>
+          <option>Calm</option>
+          <option>Bad</option>
+          <option>Terrible</option>
         </select>
       </label>
       <label>Notes
@@ -854,11 +861,12 @@
       <img id="chat-header-avatar" class="chat-header-avatar" src="icons/lotus-gold-only-transparent.png" alt="">
       <h2 id="chat-title">Companion</h2>
     </div>
-    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">Messages leave this device. Your companion does not see your tracker entries. <a href="privacy.html">Privacy Policy</a></p></details>
+    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">Messages leave this device. Your companion sees only a short summary of today, not your full log. <a href="privacy.html">Privacy Policy</a></p></details>
     <div class="card hidden" id="morning-checkin" style="border-left:4px solid #E8B54A">
       <p style="margin:0 0 4px;font-weight:700">Good morning, Jessica.</p>
       <p style="margin:0" id="morning-checkin-q"></p>
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
+      <p class="muted hidden" id="morning-checkin-connect" style="margin:8px 0 0">Connect your Companion in Settings to reply.</p>
     </div>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <form id="chat-form" class="chat-form">
@@ -898,64 +906,7 @@
     <h2>Settings</h2>
 
     <form id="settings-form">
-      <div class="card">
-        <h3>AI Wellness Companion access</h3>
-        <p class="muted" id="coach-status-line">Checking companion status...</p>
-        <div id="coach-code-entry">
-          <label>Access code
-            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
-          </label>
-          <button type="button" id="redeem-code-btn" class="btn btn-primary btn-block">Connect my companion</button>
-          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
-          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
-        </div>
-        <details style="margin-top:8px">
-          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
-          <label style="margin-top:8px">Access key
-            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
-          </label>
-        </details>
-      </div>
-
-      <div class="card">
-        <h3>Your Companion</h3>
-        <p class="muted">Give your AI Wellness Companion a name and a look.</p>
-        <label>Companion name
-          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
-        </label>
-        <fieldset class="picker-fieldset" id="companion-avatar-picker">
-          <legend>Companion avatar</legend>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
-        </fieldset>
-        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
-          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
-          Read Companion replies aloud
-        </label>
-        <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
-      </div>
-
-      <div class="card">
-        <h3>Appearance</h3>
-        <p class="muted">Change how the app looks. The lotus stays gold.</p>
-        <fieldset class="picker-fieldset" id="theme-picker">
-          <legend>Theme</legend>
-          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
-          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
-          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
-        </fieldset>
-        <fieldset class="picker-fieldset" id="textsize-picker">
-          <legend>Text size</legend>
-          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
-          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
-        </fieldset>
-      </div>
-
-      <div id="play-subscription-card"></div>
-
-      <details class="card" open>
+      <details class="card" open id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
           <div style="margin-bottom:16px">
@@ -1089,6 +1040,65 @@
 
         </div>
       </details>
+
+      <div class="card" id="settings-companion-card">
+        <h3>AI Wellness Companion access</h3>
+        <p class="muted" id="coach-status-line">Checking companion status...</p>
+        <div id="coach-code-entry">
+          <label>Access code
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+          </label>
+          <button type="button" id="redeem-code-btn" class="btn btn-primary btn-block">Connect my companion</button>
+          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 24 hours.</p>
+        </div>
+        <details style="margin-top:8px">
+          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
+          <label style="margin-top:8px">Access key
+            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
+          </label>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>Your Companion</h3>
+        <p class="muted">Give your AI Wellness Companion a name and a look.</p>
+        <label>Companion name
+          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
+        </label>
+        <fieldset class="picker-fieldset" id="companion-avatar-picker">
+          <legend>Companion avatar</legend>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
+        </fieldset>
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
+          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
+          Read Companion replies aloud
+        </label>
+        <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
+      </div>
+
+      <div class="card">
+        <h3>Appearance</h3>
+        <p class="muted">Change how the app looks. The lotus stays gold.</p>
+        <fieldset class="picker-fieldset" id="theme-picker">
+          <legend>Theme</legend>
+          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
+          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
+          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
+        </fieldset>
+        <fieldset class="picker-fieldset" id="textsize-picker">
+          <legend>Text size</legend>
+          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
+          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
+        </fieldset>
+      </div>
+
+      <div id="play-subscription-card"></div>
+
+
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
       <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
@@ -1279,7 +1289,7 @@
 <div id="setup-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
   <div class="modal-card" style="max-width:420px">
     <h2 id="setup-title" style="margin-top:0">Welcome to New Chapter</h2>
-    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 4</p>
+    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 5</p>
 
     <div class="setup-step" data-step="1">
       <p style="margin:0 0 12px">What should I call you?</p>
@@ -1328,6 +1338,26 @@
         <input type="number" id="setup-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
       </label>
       <p class="muted">Set your goal weight with your clinician's guidance.</p>
+    </div>
+
+    <div class="setup-step hidden" data-step="5">
+      <p style="margin:0 0 12px">What are your daily macro targets? You can leave these blank and set them later in Settings.</p>
+      <label>Daily calorie target
+        <input type="number" id="setup-calorie-target" min="0" step="1" placeholder="Calories">
+      </label>
+      <div style="display:flex;gap:10px">
+        <label style="flex:1">Protein (g)
+          <input type="number" id="setup-protein-goal" min="0" step="1" placeholder="Grams">
+        </label>
+        <label style="flex:1">Carbs (g)
+          <input type="number" id="setup-carb-goal" min="0" step="1" placeholder="Grams">
+        </label>
+        <label style="flex:1">Fat (g)
+          <input type="number" id="setup-fat-goal" min="0" step="1" placeholder="Grams">
+        </label>
+      </div>
+      <button type="button" class="btn btn-small" id="setup-fill-percent" style="margin-top:10px">Use 35% carbs, 33% fat, 32% protein</button>
+      <p class="muted" id="setup-percent-note" style="font-size:.85em">Fills the grams from your calorie target.</p>
     </div>
 
     <div class="form-actions" style="margin-top:16px">

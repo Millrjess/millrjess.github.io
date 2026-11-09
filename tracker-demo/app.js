@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v042";
+const APP_VERSION = "v043";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -436,7 +436,7 @@ function showStorageWarning(text) {
    save. */
 window.addEventListener("storage", (e) => {
   if (e.key === LS_KEY) {
-    showStorageWarning("Your demo entries were changed in another window or tab. Reload this page to see the newest entries.");
+    showStorageWarning("This demo is open in two places, and the other copy changed your entries. Reload this page to see the newest entries.");
   }
 });
 
@@ -511,28 +511,31 @@ function saveStore() {
     if (persistedGen !== loadedGen) {
       if (persistedStore) {
         store = mergeStores(persistedStore, store);
-        showStorageWarning("Your demo entries were changed in another window or tab. The two copies were combined, so nothing was lost. Reload this page to see the newest entries.");
+        showStorageWarning("This demo is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Reload this page to see the newest entries.");
       }
     }
-    // (2) Never let a smaller in-memory store replace a saved store that
+    // (2) A smaller in-memory store never replaces a saved store that
     // has more entries. A deliberate empty restore sets allowEmptySave
     // first. A user deleting entries keeps her own settings, which is how
     // a deliberate deletion is told apart from a fresh start: a fresh
     // start has default settings while the saved copy has hers. When the
     // settings match, the smaller store is deliberate and the save is
-    // allowed. When they differ, the save is refused and nothing is lost.
-    // The frozen starting weight (K3) is left out of the comparison: it is
-    // derived from the weight log, not a user preference, so clearing it
-    // when the log is emptied must not look like a fresh start.
+    // allowed. When they differ, merge the two copies instead of
+    // refusing: the merged copy holds every entry from both, so the
+    // change is kept and nothing is lost. The frozen starting weight
+    // (K3) is left out of the comparison: it is derived from the weight
+    // log, not a user preference, so clearing it when the log is emptied
+    // must not look like a fresh start.
     const myCount = countStoreEntries(store);
     if (persistedCount > myCount && !allowEmptySave) {
       let settingsMatch = false;
       try {
         settingsMatch = !!persistedStore && settingsEqualIgnoringFreeze(store.settings, persistedStore.settings);
       } catch {}
-      if (!settingsMatch) {
-        showStorageWarning("Your latest change was not saved, because the saved copy in this browser has entries that this screen does not show. Nothing was lost. Reload this page to see your entries.");
-        return false;
+      if (!settingsMatch && persistedStore) {
+        store = mergeStores(persistedStore, store);
+        loadedGen = persistedGen;
+        showStorageWarning("This demo is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Reload this page to see the newest entries.");
       }
     }
     // (3) A collection was dropped at load because it was damaged: do not
@@ -851,6 +854,16 @@ document.querySelectorAll("[data-goto]").forEach((el) => {
   el.addEventListener("click", () => showTab(el.dataset.goto));
 });
 
+/* Open Settings scrolled to one card. A closed details card opens
+   first. Used by the BMI button and the Companion banner. */
+function openSettingsAt(cardId) {
+  showTab("settings");
+  const el = document.getElementById(cardId);
+  if (!el) return;
+  if (el.tagName === "DETAILS") el.open = true;
+  setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+}
+
 /* More sheet (v168, Companion moved to the main nav in v169): Effects
    and Settings live here. Opens from the More tab; picking one shows
    its panel and closes the sheet. Escape or the backdrop closes it
@@ -1115,15 +1128,18 @@ function renderProgress() {
       return total > 0 ? total : null;
     });
     const total = values.reduce((t, v) => t + (v || 0), 0);
-    const avg = Math.round(total / PROGRESS_DAYS);
+    const daysWith = values.filter((v) => v !== null).length;
+    const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
     const big = document.getElementById("progress-" + def.key + "-big");
     if (big) big.textContent = String(avg);
-    const daysWith = values.filter((v) => v !== null).length;
     const note = document.getElementById("progress-" + def.key + "-note");
     if (note) {
+      const goalPart = def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "";
       note.textContent = daysWith === 0
         ? "Nothing logged this week yet."
-        : "Logged " + daysWith + " of 7 days." + (def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "");
+        : daysWith < PROGRESS_DAYS
+          ? "Average over " + daysWith + " logged day" + (daysWith === 1 ? "" : "s") + "." + goalPart
+          : "Logged 7 of 7 days." + goalPart;
     }
     const boxEl = document.getElementById("progress-bars-" + def.key);
     if (boxEl) {
@@ -1361,7 +1377,7 @@ function renderStreak() {
   const el = document.getElementById("streak-line");
   if (!el) return;
   const n = currentStreak();
-  el.textContent = n >= 2 ? n + " days in a row." : n === 1 ? "Day 1." : "";
+  el.textContent = n >= 2 ? "Logged " + n + " days in a row." : n === 1 ? "Logged day 1." : "";
 }
 
 /* Greeting (v165): time of day only, no name. The demo is shown to
@@ -1578,15 +1594,13 @@ function entryCalories(e) {
    on the foods logged for the viewed day, so the total and the food
    list agree. An entry without stored calories falls back to 4/4/9
    from its own macros. The "Your balance" split still uses 4/4/9 on
-   the targets, since that is about the targets, not the day. While a
-   macro row slides, the passed totals are the live preview, so the
-   calories preview follows the slide by the same 4/4/9 delta. */
+   the targets, since that is about the targets, not the day. Totals
+   change only through food logging, so the passed totals are always
+   the day totals. */
 function renderCalories(totals) {
   const t = viewedDateStr();
   const entries = (store.protein || []).filter((e) => e.date === t);
-  let cals = entries.reduce((s, e) => s + entryCalories(e), 0);
-  const dayTotals = macroTotals(t);
-  cals += Math.round(4 * ((totals.protein || 0) - dayTotals.protein) + 4 * ((totals.carbs || 0) - dayTotals.carbs) + 9 * ((totals.fat || 0) - dayTotals.fat));
+  const cals = entries.reduce((s, e) => s + entryCalories(e), 0);
   const target = Number(store.settings.calorieTarget) || 0;
   const todayEl = document.getElementById("calories-today");
   if (todayEl) todayEl.textContent = cals.toLocaleString("en-US");
@@ -1602,8 +1616,7 @@ function renderCalories(totals) {
   }
 }
 
-/* Donut segments, from a totals object. Shared by renderMacros and the
-   v169 row slide, so the donut stays live while sliding. */
+/* Donut segments, from a totals object. Shared by renderMacros. */
 function paintDonut(totals) {
   const total = totals.protein + totals.carbs + totals.fat;
   let offset = 0;
@@ -1764,13 +1777,8 @@ document.getElementById("food-list").addEventListener("click", (e) => {
   }
 });
 
-/* A slide on a macro bar must not also select the macro on release
-   (v169). Set when a slide actually moved the total. */
-let suppressMacroRowClick = false;
 document.querySelectorAll(".macro-row").forEach((row) => {
-  row.addEventListener("click", (e) => {
-    // A slide on the bar must not also select the macro on release.
-    if (suppressMacroRowClick) { suppressMacroRowClick = false; return; }
+  row.addEventListener("click", () => {
     selectMacro(row.dataset.macro);
   });
 });
@@ -1778,109 +1786,6 @@ document.querySelectorAll(".donut-seg").forEach((seg) => {
   seg.addEventListener("click", () => selectMacro(seg.dataset.macro));
 });
 
-/* adjustMacroBy: change the day's logged grams by a magnitude, used
-   by the v169 row slide: a drag of N grams is one entry of N, or one
-   trim of N. Carbs and fat attach to the day's most recent food entry,
-   or a fresh Quick add entry when the day has none yet, so one slide
-   never spams the log with tiny entries. */
-function adjustMacroBy(key, delta) {
-  if (!delta) return;
-  const date = viewedDateStr();
-  if (key === "protein") {
-    if (delta > 0) {
-      store.protein.push({ id: uid(), date, grams: delta, food: "Quick add" });
-    } else {
-      trimDayEntries("protein", "grams", date, -delta);
-    }
-  } else if (delta > 0) {
-    const todays = store.protein.filter((e) => e.date === date);
-    if (todays.length) {
-      const last = todays[todays.length - 1];
-      last[key] = (Number(last[key]) || 0) + delta;
-      if (Number(last.calories) > 0) last.calories = entryCalories(last);
-    } else {
-      const entry = { id: uid(), date, grams: 0, food: "Quick add" };
-      entry[key] = delta;
-      store.protein.push(entry);
-    }
-  } else {
-    trimDayEntries("protein", key, date, -delta);
-  }
-  saveStore();
-  renderToday();
-}
-
-/* Slide a macro row (v169): horizontal slide on the row's progress bar
-   changes that macro's logged grams, 1 g per 8px, the same step as the
-   rings. The donut itself does not slide; tapping a row still selects
-   the macro. The row updates live while sliding; the store is written
-   once, on release, through adjustMacroBy, so entries, snapshots, and
-   the backup cap behave exactly as for a stepper tap. Clamped at zero. */
-function bindMacroSlide(key) {
-  const bar = document.getElementById("macro-bar-" + key);
-  if (!bar) return;
-  let sliding = false;
-  let startX = 0;
-  let startTotal = 0;
-  let liveTotal = 0;
-  let moved = false;
-  function paintLive() {
-    const totals = macroTotals(viewedDateStr());
-    totals[key] = liveTotal;
-    const targets = macroTargets();
-    const loggedEl = document.getElementById("logged-" + key);
-    if (loggedEl) loggedEl.textContent = liveTotal;
-    const pct = targets[key] > 0 ? Math.round(100 * liveTotal / targets[key]) : 0;
-    const pctEl = document.getElementById("pct-" + key);
-    if (pctEl) pctEl.textContent = macroProgressText(liveTotal, targets[key]);
-    const barEl = document.getElementById("bar-" + key);
-    if (barEl) barEl.style.width = Math.min(100, pct) + "%";
-    paintDonut(totals);
-    if (selectedMacro === key) {
-      document.getElementById("macro-center-grams").textContent = liveTotal;
-    }
-    renderCalories(totals);
-  }
-  bar.addEventListener("pointerdown", (e) => {
-    sliding = true;
-    moved = false;
-    startX = e.clientX;
-    startTotal = macroTotals(viewedDateStr())[key];
-    liveTotal = startTotal;
-    try { bar.setPointerCapture(e.pointerId); } catch {}
-    e.preventDefault();
-  });
-  bar.addEventListener("pointermove", (e) => {
-    if (!sliding) return;
-    const next = Math.max(0, startTotal + Math.round((e.clientX - startX) / 8));
-    if (next !== liveTotal) moved = true;
-    liveTotal = next;
-    paintLive();
-  });
-  function endSlide() {
-    if (!sliding) return;
-    sliding = false;
-    const delta = liveTotal - startTotal;
-    if (delta !== 0) {
-      if (moved) suppressMacroRowClick = true;
-      adjustMacroBy(key, delta);
-    } else {
-      renderToday();
-    }
-  }
-  bar.addEventListener("pointerup", endSlide);
-  bar.addEventListener("pointercancel", () => {
-    sliding = false;
-    renderToday();
-  });
-  bar.addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault();
-    e.stopPropagation();
-    adjustMacroBy(key, e.key === "ArrowRight" ? 1 : -1);
-  });
-}
-MACRO_KEYS.forEach(bindMacroSlide);
 
 document.getElementById("macro-log-food").addEventListener("click", () => {
   const form = document.getElementById("macro-food-form");
@@ -2258,6 +2163,14 @@ async function fetchFoodJson(url) {
    result to fill the name and macros from the label. Values are per
    serving when available, otherwise per 100 g, and the user edits them
    before logging. */
+/* Open the Your foods library: the working fallback when the food
+   database is down, so the user can log from foods already saved. */
+function openFoodLibrary() {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  if (list.classList.contains("hidden")) { renderFoodLibrary(); list.classList.remove("hidden"); }
+}
+
 async function searchFoodByName() {
   const nameInput = document.getElementById("macro-food-name");
   const status = document.getElementById("macro-food-search-status");
@@ -2294,7 +2207,7 @@ async function searchFoodByName() {
   }
   try {
     const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
-    if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; return; }
+    if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; openFoodLibrary(); return; }
     const products = (data && data.products) || [];
     if (!products.length) {
       status.textContent = mine.length ? "Pick a food, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
@@ -2333,6 +2246,7 @@ async function searchFoodByName() {
     results.classList.remove("hidden");
   } catch (e) {
     status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand.";
+    openFoodLibrary();
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
@@ -3174,6 +3088,11 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  const note = document.getElementById("shot-reminder-note");
+  if (note) {
+    note.textContent = "Open the downloaded file to add it to your calendar.";
+    note.classList.remove("hidden");
+  }
 });
 
 document.getElementById("show-injection-form").addEventListener("click", () => {
@@ -3183,8 +3102,15 @@ document.getElementById("show-injection-form").addEventListener("click", () => {
   document.getElementById("inj-date").value = todayStr();
   document.getElementById("inj-med").value = store.settings.medication || "";
   document.getElementById("inj-dose").value = store.settings.dose || "";
-  document.getElementById("inj-status").value = "On time";
-  document.getElementById("inj-status-note").classList.add("hidden");
+  const shotDayName = store.settings.shotDay;
+  let defaultStatus = "On time";
+  if (shotDayName) {
+    const d = new Date(document.getElementById("inj-date").value + "T12:00:00");
+    const dayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d.getDay()];
+    if (dayName !== shotDayName) defaultStatus = "Delayed";
+  }
+  document.getElementById("inj-status").value = defaultStatus;
+  document.getElementById("inj-status-note").classList.toggle("hidden", defaultStatus !== "Missed" && defaultStatus !== "Delayed");
   toggleForm(injForm, document.getElementById("show-injection-form"), true);
   showSiteMapView("front");
   renderSiteMap();
@@ -3636,7 +3562,13 @@ function renderBMI() {
   const healthyBlock = document.getElementById("bmi-healthy-block");
   const healthyRange = document.getElementById("bmi-healthy-range");
   if (!bmi) {
-    line.textContent = "Add your height in Settings to see your BMI here.";
+    line.textContent = "";
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-small";
+    b.textContent = "Add your height in Settings to see your BMI here.";
+    b.addEventListener("click", () => openSettingsAt("settings-goals-card"));
+    line.appendChild(b);
     if (overLine) overLine.textContent = "";
     if (healthyBlock) healthyBlock.hidden = true;
     return;
@@ -6009,6 +5941,13 @@ async function redeemAccessCode() {
       updateCoachStatus();
     } else {
       setCodeError(data.error || "That code did not work. Try again.");
+      const m = document.getElementById("code-msg");
+      if (m) {
+        const a = document.createElement("a");
+        a.href = "https://millrjess.github.io/tracker/welcome/";
+        a.textContent = " Get a new code from the welcome page.";
+        m.appendChild(a);
+      }
     }
   } catch (e) {
     setCodeError("Could not reach the service. Check your connection.");
@@ -7232,6 +7171,11 @@ function renderMorningCheckin() {
   const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
   const q = MORNING_CHECKIN_QUESTIONS[dayOfYear % MORNING_CHECKIN_QUESTIONS.length];
   document.getElementById("morning-checkin-q").textContent = q;
+  const connected = !!getAuthToken();
+  const replyBtn = document.getElementById("morning-checkin-reply");
+  if (replyBtn) replyBtn.classList.toggle("hidden", !connected);
+  const connectLine = document.getElementById("morning-checkin-connect");
+  if (connectLine) connectLine.classList.toggle("hidden", connected);
   card.classList.remove("hidden");
   // v000: when read-aloud is on, the morning question is read aloud
   // once per day, using the phone's own voice.

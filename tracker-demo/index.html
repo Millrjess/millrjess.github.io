@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=042">
+<link rel="stylesheet" href="styles.css?v=043">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -248,7 +248,7 @@
           <span class="cap" id="macro-center-label">protein logged today</span>
         </div>
       </div>
-      <p class="donut-note">Each segment is one macro's share. Tap to expand, slide to change.</p>
+      <p class="donut-note">Each segment is one macro's share. Tap to expand.</p>
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
 
       <div class="macro-rows">
@@ -280,7 +280,7 @@
       <p class="muted" style="margin:6px 0 0;font-size:.85em">Targets are private. Change them in Settings.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
-      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate</button>
+      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate (coming soon)</button>
 
     </div>
 
@@ -353,6 +353,9 @@
         <button class="mood-btn" data-mood="Good">Good</button>
         <button class="mood-btn" data-mood="Okay">Okay</button>
         <button class="mood-btn" data-mood="Low">Low</button>
+        <button class="mood-btn" data-mood="Calm">Calm</button>
+        <button class="mood-btn" data-mood="Bad">Bad</button>
+        <button class="mood-btn" data-mood="Terrible">Terrible</button>
       </div>
       <p class="muted" id="mood-today-label" hidden></p>
     </div>
@@ -414,6 +417,7 @@
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
     <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
     <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+    <p class="muted hidden" id="shot-reminder-note" style="font-size:.85em;margin:6px 0 0"></p>
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between">
@@ -657,6 +661,9 @@
           <option>Good</option>
           <option>Okay</option>
           <option>Low</option>
+          <option>Calm</option>
+          <option>Bad</option>
+          <option>Terrible</option>
         </select>
       </label>
       <label>Notes
@@ -832,7 +839,7 @@
       <img id="chat-header-avatar" class="chat-header-avatar" src="icons/lotus-gold-only-transparent.png" alt="">
       <h2 id="chat-title">Companion</h2>
     </div>
-    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">Messages leave this device. Your companion does not see your tracker entries. <a href="privacy.html">Privacy Policy</a></p></details>
+    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">Messages leave this device. Your companion sees only a short summary of today, not your full log. <a href="privacy.html">Privacy Policy</a></p></details>
     <div class="card hidden" id="chat-not-connected" style="border-left:4px solid #E8B54A;margin-bottom:12px">
       <p style="margin:0 0 4px;font-weight:700">Your AI Wellness Companion is not connected yet.</p>
       <p style="margin:0" id="chat-not-connected-web">Chat is not available in this demo. The sample conversation below shows how it works. In the full app, get your code from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> with your purchase email, then enter it in Settings.</p>
@@ -843,8 +850,11 @@
       <p style="margin:0 0 4px;font-weight:700">Good morning.</p>
       <p style="margin:0" id="morning-checkin-q"></p>
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
+      <p class="muted hidden" id="morning-checkin-connect" style="margin:8px 0 0">Chat is not available in the demo.</p>
     </div>
+    <p class="muted" style="font-size:.85em;margin:0 0 6px">Sample conversation</p>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+    <p class="muted" style="font-size:.85em;margin:0 0 6px">Chat is not available in the demo. It is part of the full app.</p>
     <form id="chat-form" class="chat-form">
       <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
@@ -891,70 +901,7 @@
     <h2>Settings</h2>
 
     <form id="settings-form">
-      <div class="card">
-        <h3>AI Wellness Companion access</h3>
-        <p class="muted" id="coach-status-line">Checking companion status...</p>
-        <div id="coach-code-entry">
-          <label>Access code
-            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
-          </label>
-          <button type="button" id="redeem-code-btn" class="btn btn-primary btn-block">Connect my companion</button>
-          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
-          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 1 hour.</p>
-        </div>
-        <details style="margin-top:8px" hidden>
-          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
-          <label style="margin-top:8px">Access key
-            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
-          </label>
-        </details>
-      </div>
-
-      <div class="card">
-        <h3>Your Companion</h3>
-        <p class="muted">Give your AI Wellness Companion a name and a look.</p>
-        <label>Companion name
-          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
-        </label>
-        <fieldset class="picker-fieldset" id="companion-avatar-picker">
-          <legend>Companion avatar</legend>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
-          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
-        </fieldset>
-        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
-          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
-          Read Companion replies aloud
-        </label>
-        <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
-        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
-          <option value="">Phone default voice</option>
-        </select>
-        <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
-        <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
-        <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
-      </div>
-
-      <div class="card">
-        <h3>Appearance</h3>
-        <p class="muted">Change how the app looks. The lotus stays gold.</p>
-        <fieldset class="picker-fieldset" id="theme-picker">
-          <legend>Theme</legend>
-          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
-          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
-          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
-        </fieldset>
-        <fieldset class="picker-fieldset" id="textsize-picker">
-          <legend>Text size</legend>
-          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
-          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
-        </fieldset>
-      </div>
-
-      <div id="play-subscription-card"></div>
-
-      <details class="card" open>
+      <details class="card" open id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
           <div style="margin-bottom:16px">
@@ -1090,6 +1037,71 @@
 
         </div>
       </details>
+
+      <div class="card">
+        <h3>AI Wellness Companion access</h3>
+        <p class="muted" id="coach-status-line">Checking companion status...</p>
+        <div id="coach-code-entry">
+          <label>Access code
+            <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
+          </label>
+          <button type="button" id="redeem-code-btn" class="btn btn-primary btn-block">Connect my companion</button>
+          <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
+          <p class="muted">Get your code from the welcome page with your purchase email. It expires after 1 hour.</p>
+        </div>
+        <details style="margin-top:8px" hidden>
+          <summary class="muted" style="cursor:pointer;font-size:.9rem">Have a full key instead?</summary>
+          <label style="margin-top:8px">Access key
+            <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
+          </label>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>Your Companion</h3>
+        <p class="muted">Give your AI Wellness Companion a name and a look.</p>
+        <label>Companion name
+          <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
+        </label>
+        <fieldset class="picker-fieldset" id="companion-avatar-picker">
+          <legend>Companion avatar</legend>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-sage"></span>Sage lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="deep-gold"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-deep-gold"></span>Deep gold lotus</label>
+          <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
+        </fieldset>
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
+          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
+          Read Companion replies aloud
+        </label>
+        <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
+        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
+          <option value="">Phone default voice</option>
+        </select>
+        <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
+        <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
+        <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
+      </div>
+
+      <div class="card">
+        <h3>Appearance</h3>
+        <p class="muted">Change how the app looks. The lotus stays gold.</p>
+        <fieldset class="picker-fieldset" id="theme-picker">
+          <legend>Theme</legend>
+          <label class="picker-option"><input type="radio" name="theme" value="sage" checked><span class="theme-swatch theme-swatch-sage"></span>Sage</label>
+          <label class="picker-option"><input type="radio" name="theme" value="dark"><span class="theme-swatch theme-swatch-dark"></span>Dark</label>
+          <label class="picker-option"><input type="radio" name="theme" value="cream"><span class="theme-swatch theme-swatch-cream"></span>Cream</label>
+        </fieldset>
+        <fieldset class="picker-fieldset" id="textsize-picker">
+          <legend>Text size</legend>
+          <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
+          <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
+        </fieldset>
+      </div>
+
+      <div id="play-subscription-card"></div>
+
+
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
       <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
@@ -1229,7 +1241,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=042"></script>
+<script src="demo-seed.js?v=043"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1254,7 +1266,7 @@
     </div>
   </div>
 
-<script src="app.js?v=042"></script>
+<script src="app.js?v=043"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

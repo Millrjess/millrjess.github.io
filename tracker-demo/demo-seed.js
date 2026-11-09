@@ -88,7 +88,7 @@
         photos: [],
         journal: [
           { id: id("j1"), date: iso(0), mood: "Calm", notes: "A steady day. Logged everything and felt good." },
-          { id: id("j2"), date: iso(-2), mood: "Busy", notes: "A busy day, still logged." }
+          { id: id("j2"), date: iso(-2), mood: "Okay", notes: "A full day, still logged." }
         ],
         sideEffects: [
           { id: id("s1"), date: iso(-2), symptom: "Nausea", severity: "Mild", notes: "A little queasy after lunch." },
@@ -99,7 +99,7 @@
       };
       store.moods[iso(0)] = "Good";
       store.moods[iso(-1)] = "Calm";
-      store.moods[iso(-2)] = "Busy";
+      store.moods[iso(-2)] = "Okay";
       store.moods[iso(-4)] = "Good";
       store.moods[iso(-5)] = "Calm";
       store.movementDone[iso(0)] = {
