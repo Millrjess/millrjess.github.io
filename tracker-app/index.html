@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=011">
+<link rel="stylesheet" href="styles.css?v=012">
 </head>
 <body>
 
@@ -1222,9 +1222,11 @@
       <p class="muted">Take a photo of your plate. The app will identify the food and fill in the macros.</p>
       <img id="plate-photo-preview" src="" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
       <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
+      <input type="file" id="plate-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo of your plate">
       <p id="plate-status" class="muted" role="status"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
         <button type="button" class="btn btn-primary" id="plate-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small" id="plate-upload-btn">Upload photo</button>
         <button type="button" class="btn btn-small" id="plate-close-btn">Close</button>
       </div>
       <div id="plate-result" class="hidden" style="border-top:1px solid #ddd;padding-top:12px">
@@ -1238,7 +1240,7 @@
     </div>
   </div>
 
-<script src="app.js?v=011"></script>
+<script src="app.js?v=012"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

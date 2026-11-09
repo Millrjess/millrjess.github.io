@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v009";
+const APP_VERSION = "v010";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1748,8 +1748,7 @@ async function recognizePlate(dataUrl) {
 document.getElementById("macro-plate-food").addEventListener("click", openPlateModal);
 document.getElementById("plate-close-btn").addEventListener("click", closePlateModal);
 document.getElementById("plate-take-btn").addEventListener("click", () => document.getElementById("plate-photo-input").click());
-document.getElementById("plate-photo-input").addEventListener("change", (e) => {
-  const file = e.target.files && e.target.files[0];
+function handlePlatePhotoFile(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
@@ -1760,6 +1759,14 @@ document.getElementById("plate-photo-input").addEventListener("change", (e) => {
     recognizePlate(platePhotoDataUrl);
   };
   reader.readAsDataURL(file);
+}
+document.getElementById("plate-photo-input").addEventListener("change", (e) => {
+  handlePlatePhotoFile(e.target.files && e.target.files[0]);
+  e.target.value = "";
+});
+document.getElementById("plate-upload-btn").addEventListener("click", () => document.getElementById("plate-upload-input").click());
+document.getElementById("plate-upload-input").addEventListener("change", (e) => {
+  handlePlatePhotoFile(e.target.files && e.target.files[0]);
   e.target.value = "";
 });
 document.getElementById("plate-log-btn").addEventListener("click", () => {
