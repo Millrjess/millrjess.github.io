@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v024";
+const APP_VERSION = "v025";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1745,7 +1745,7 @@ function closePlateModal() {
 }
 async function recognizePlate(dataUrl) {
   const status = document.getElementById("plate-status");
-  status.textContent = "Plate recognition is coming soon. For now, name the food and enter the macros below.";
+  status.textContent = "Scan my plate is coming soon. Take a photo of your plate, and the app identifies the food and fills in the macros for you. No typing. For now, name the food and enter the macros below.";
   document.getElementById("plate-result").classList.remove("hidden");
   // Post-November 30: send dataUrl to the Worker vision endpoint and
   // fill plate-food, plate-protein, plate-carbs, plate-fat from the

@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v025";
+const APP_VERSION = "v026";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -2161,7 +2161,7 @@ function closePlateModal() {
 }
 async function recognizePlate(dataUrl) {
   const status = document.getElementById("plate-status");
-  status.textContent = "Plate recognition is coming soon. For now, name the food and enter the macros below.";
+  status.textContent = "Scan my plate is coming soon. Take a photo of your plate, and the app identifies the food and fills in the macros for you. No typing. For now, name the food and enter the macros below.";
   document.getElementById("plate-result").classList.remove("hidden");
   // Post-November 30: send dataUrl to the Worker vision endpoint and
   // fill plate-food, plate-protein, plate-carbs, plate-fat from the
