@@ -67,9 +67,6 @@
   .progress-fill {
     transition: none;
   }
-  .ring-fill {
-    transition: none;
-  }
 }
 
 h1, h2, h3, .card {
@@ -224,12 +221,6 @@ input[aria-invalid="true"]:focus-visible {
   letter-spacing: -0.02em;
 }
 
-.goal-label {
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: var(--muted);
-}
-
 .progress-bar {
   background: #F0EBDD;
   border-radius: 12px;
@@ -253,71 +244,7 @@ input[aria-invalid="true"]:focus-visible {
   margin-bottom: 10px;
 }
 
-/* Interactive progress rings (v164, horizontal since v165): gold rings
-   in the single Today's Goals card. Slide left or right on a ring to
-   change the day's total; the number and fill update live. r=52 in a
-   120 viewBox, so the circumference is 326.73. */
-.ring-box {
-  position: relative;
-  width: 132px;
-  height: 132px;
-  flex-shrink: 0;
-  touch-action: none;
-  cursor: ew-resize;
-  user-select: none;
-  -webkit-user-select: none;
-  border-radius: 50%;
-}
-.ring-box:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-}
-.ring-box.ring-dragging {
-  cursor: grabbing;
-}
-.ring-box svg {
-  display: block;
-  width: 132px;
-  height: 132px;
-  transform: rotate(-90deg);
-}
-.ring-track {
-  fill: none;
-  stroke: #F0EBDD;
-  stroke-width: 10;
-}
-.ring-fill {
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 10;
-  stroke-linecap: round;
-  stroke-dasharray: 326.73;
-  stroke-dashoffset: 326.73;
-  transition: stroke-dashoffset 0.25s ease;
-}
 
-/* Goal glow (v165): when a day's goal is met, the ring glows gold with a
-   slow pulse. The reduced-motion rule at the top of this file stills it. */
-.ring-box.goal-reached .ring-fill {
-  filter: drop-shadow(0 0 6px rgba(232, 181, 74, 0.9));
-  animation: goal-glow 2.4s ease-in-out infinite;
-}
-@keyframes goal-glow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(232, 181, 74, 0.55)); }
-  50% { filter: drop-shadow(0 0 12px rgba(232, 181, 74, 0.95)); }
-}
-
-/* Today's Goals card (v165): one card, three rings side by side, each
-   with its own gold add button. Rings scale down on narrow phones. */
-.goals-card { text-align: left; }
-.goals-hint { color: var(--muted); margin: 0 0 4px; font-size: 0.95rem; }
-.goals-rings { display: flex; gap: 8px; justify-content: space-between; margin-top: 10px; }
-.goal-ring { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
-.goals-rings .ring-box { width: 100%; max-width: 108px; height: auto; aspect-ratio: 1 / 1; }
-.goals-rings .ring-box svg { width: 100%; height: 100%; }
-.goals-rings .ring-num { font-size: 1.6rem; }
-.goal-name { font-weight: 700; margin: 10px 0 0; font-size: 1rem; }
-.goal-label { color: var(--muted); font-size: 0.9rem; margin: 2px 0 0; }
 .goals-add {
   border: 1.5px solid var(--gold);
   background: #fff;
@@ -350,33 +277,6 @@ input[aria-invalid="true"]:focus-visible {
 }
 .streak-line:empty { display: none; }
 
-/* Fine-control nudge buttons (v166): one tap changes a ring total by
-   exactly 1 (1 oz, 1 g, 1 min), for fine control after sliding. */
-.ring-nudge {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-.ring-nudge-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid var(--sage);
-  background: #fff;
-  color: var(--sage-deep);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  /* v167: stops iOS Safari double-tap zoom when the nudge buttons are
-     tapped rapidly; single taps still work. */
-  touch-action: manipulation;
-}
-.ring-nudge-btn:active { background: var(--sage-soft); }
 
 /* Journal monthly chapters (v166): serif month headings. */
 .journal-chapter {
@@ -411,39 +311,6 @@ input[aria-invalid="true"]:focus-visible {
 }
 .se-timeline-item.se-sev-moderate::before { background: var(--gold); }
 .se-timeline-item.se-sev-severe::before { background: #A33A1F; }
-.ring-value {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  pointer-events: none;
-}
-/* Type an amount (v169): the big number inside each ring is a button.
-   The ring value wrapper passes pointer events through, so the button
-   re-enables them for itself. The ring drag ignores presses that start
-   on this button. */
-.ring-num-btn {
-  background: none; border: none; padding: 4px; margin: 0; cursor: pointer; min-width: 44px; min-height: 44px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  pointer-events: auto; border-radius: 50%; font: inherit; color: inherit;
-}
-.ring-num-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.ring-num {
-  font-size: 1.9rem;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--ink);
-}
-.ring-unit {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: 3px;
-}
-
 
 .btn {
   font: inherit;
@@ -1713,3 +1580,21 @@ canvas { max-width: 100%; height: auto; display: block; }
 /* GLP-1 quick actions (v035): three links in one row on Today. */
 .quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .quick-actions .btn { flex:1; }
+
+/* Compact slider rows (v036): water and movement as one row with the
+   big amount and the goal, a horizontal slider, and a slim progress
+   bar. Sage slider, gold progress fill, sage when the goal is met. */
+.slider-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.slider-row .goals-add { margin-top: 0; flex: none; }
+.slider-amount { background: none; border: none; padding: 0; margin: 0; cursor: pointer; font: inherit; color: inherit; text-align: left; display: flex; align-items: baseline; gap: 6px; min-height: 44px; }
+.slider-amount:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.slider-goal { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+.goal-slider { width: 100%; margin: 10px 0 8px; accent-color: var(--sage); height: 28px; display: block; }
+.slider-progress { height: 6px; border-radius: 999px; background: #F0EBDD; overflow: hidden; }
+.slider-progress i { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 999px; transition: width 0.2s ease; }
+.slider-progress.goal-reached i { background: var(--sage); }
+.slider-hint { color: var(--muted); margin: 6px 0 0; font-size: 0.9rem; }
+
+/* Compact Today (v036): tighter cards on Today only, so the tab reads
+   shorter without losing breathing room. Other tabs keep their spacing. */
+#tab-today .card { padding: 18px; margin: 14px 0; }

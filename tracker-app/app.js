@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v035";
+const APP_VERSION = "v036";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1232,34 +1232,7 @@ function viewedDateStr() {
   return todayStr(viewOffset);
 }
 
-/* Progress rings (v164): the Today's Goals card shows a gold ring
-   instead of a linear bar. r=52 in a 120 viewBox, so the circumference
-   is 326.73. */
-const RING_C = 326.73;
-function setRingFill(fillId, value, goal) {
-  const el = document.getElementById(fillId);
-  if (!el) return;
-  const frac = goal > 0 ? Math.min(1, value / goal) : 0;
-  el.style.strokeDashoffset = (RING_C * (1 - frac)).toFixed(2);
-}
-function setRing(key, value, goal) {
-  const ids = {
-    water: ["water-ring", "water-ring-fill", "ounces"],
-    exercise: ["exercise-ring", "exercise-ring-fill", "minutes"]
-  }[key];
-  const ring = document.getElementById(ids[0]);
-  if (ring) {
-    // Gold glow when the day's goal is met (v165).
-    ring.classList.toggle("goal-reached", goal > 0 && value >= goal);
-  }
-  // v169: the number inside the ring is a button that opens the type-in
-  // sheet, so its label carries the current total too.
-  const numBtn = document.getElementById(key === "water" ? "water-num-btn" : "exercise-num-btn");
-  if (numBtn) {
-    numBtn.setAttribute("aria-label", (key === "water" ? "Water" : "Movement") + ", " + value + " of " + goal + " " + ids[2] + ". Tap to type an amount to add.");
-  }
-  setRingFill(ids[1], value, goal);
-}
+
 
 /* ---------- Compact Today (v034) ---------- */
 /* Meal groups for Today's food: Breakfast, Lunch, Dinner, Snacks.
@@ -1353,20 +1326,18 @@ function renderToday() {
   document.getElementById("day-prev").style.visibility = "";
   document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
 
-  // Rings and add buttons log to the day being viewed, so they stay
+  // Sliders and add buttons log to the day being viewed, so they stay
   // usable on past days (F13/F16). Nothing here is disabled by day.
 
   const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
-  document.getElementById("water-today").textContent = waterOz;
-  setRing("water", waterOz, waterGoal);
+  syncGoalSlider("water-slider", "water-progress-fill", "water-today", "water-num-btn", "Water", "ounces", waterOz, waterGoal);
 
   const exMin = sumForDate(store.exercise, t, "minutes");
-  document.getElementById("exercise-today").textContent = exMin;
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
-  setRing("exercise", exMin, moveGoal);
+  syncGoalSlider("exercise-slider", "exercise-progress-fill", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
   // v004: the quick-add buttons show the amount they add, from Settings.
   const wAdd = document.getElementById("goals-water-add");
   if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
@@ -1445,10 +1416,10 @@ document.getElementById("goals-exercise-add").addEventListener("click", () => {
   renderToday();
 });
 
-/* Fine-control nudge buttons (v166): one tap changes a ring total by
-   exactly 1 (1 oz, 1 g, 1 min), for fine control after sliding. Same
-   add/trim helpers as the ring drag and the add buttons, so the store,
-   snapshots, and the backup cap behave exactly the same. */
+/* nudgeGoal (v166): change a day's total by an exact amount, used by
+   the type-in sheet. Same add/trim helpers as the slider and the add
+   buttons, so the store, snapshots, and the backup cap behave exactly
+   the same. */
 function nudgeGoal(key, field, extra, delta) {
   if (delta > 0) {
     store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: delta }));
@@ -1458,17 +1429,10 @@ function nudgeGoal(key, field, extra, delta) {
   saveStore();
   renderToday();
 }
-function bindNudge(id, key, field, extra, delta) {
-  const btn = document.getElementById(id);
-  if (btn) btn.addEventListener("click", () => nudgeGoal(key, field, extra, delta));
-}
-bindNudge("water-minus-1", "water", "oz", {}, -1);
-bindNudge("water-plus-1", "water", "oz", {}, 1);
-bindNudge("exercise-minus-1", "exercise", "minutes", { label: "Movement" }, -1);
-bindNudge("exercise-plus-1", "exercise", "minutes", { label: "Movement" }, 1);
+
 
 /* Trim a day's entries from the most recent backwards (F15): used by
-   the ring drag when a total is lowered, so totals can never go below
+   the slider and the type-in sheet when a total is lowered, so totals can never go below
    zero. Trims whole entries first, then shrinks the last one. */
 function trimDayEntries(key, field, date, amount) {
   let remaining = amount;
@@ -1482,87 +1446,68 @@ function trimDayEntries(key, field, date, amount) {
   }
 }
 
-/* ---------- Interactive rings (v164, horizontal since v165) ---------- */
-/* Slide a finger left or right on a ring to change the day's total: right
-   raises it, left lowers it. Vertical sliding was hard to control and
-   jumped (her feedback, Nov 6, 2026), and it fought with page scrolling.
-   The ring updates live while dragging; the store is written once, on
+
+
+/* ---------- Compact slider rows (v036) ---------- */
+/* Water and movement as one row with the big amount and the goal, a
+   horizontal slider below it, and a slim progress bar. The number and
+   the bar paint live while dragging; the store is written once, on
    release, by pushing one entry for a rise or trimming entries for a
-   fall, so entries, snapshots, and the backup cap behave exactly as for
-   an add-button tap. 8px of drag is 1 unit, so small movements change
-   the number slowly and precisely. Totals never go below zero. */
-function bindRing(ringId, key, field, extra) {
-  const ring = document.getElementById(ringId);
-  if (!ring) return;
-  const fillId = { water: "water-ring-fill", exercise: "exercise-ring-fill" }[key];
-  const numId = { water: "water-today", exercise: "exercise-today" }[key];
-  const unitWord = { water: "ounces", exercise: "minutes" }[key];
-  const goalFor = () => key === "water" ? (Number(store.settings.waterGoal) || 92)
-    : (Number(store.settings.movementGoal) || 30);
-  let dragging = false;
-  let startX = 0;
-  let startTotal = 0;
-  let liveTotal = 0;
-  function paintLive() {
-    const goal = goalFor();
-    const num = document.getElementById(numId);
-    if (num) num.textContent = liveTotal;
-    setRingFill(fillId, liveTotal, goal);
-    ring.classList.toggle("goal-reached", goal > 0 && liveTotal >= goal);
-  }
-  ring.addEventListener("pointerdown", (e) => {
-    // v169: a press that starts on the number button is a tap to open
-    // the type-in sheet, not a drag. Let the button have it.
-    if (e.target.closest(".ring-num-btn")) return;
-    dragging = true;
-    startX = e.clientX;
-    startTotal = sumForDate(store[key], viewedDateStr(), field);
-    liveTotal = startTotal;
-    try { ring.setPointerCapture(e.pointerId); } catch {}
-    ring.classList.add("ring-dragging");
-    e.preventDefault();
-  });
-  ring.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    liveTotal = Math.max(0, startTotal + Math.round((e.clientX - startX) / 8));
-    paintLive();
-  });
-  function endDrag() {
-    if (!dragging) return;
-    dragging = false;
-    ring.classList.remove("ring-dragging");
-    const delta = liveTotal - startTotal;
-    if (delta > 0) {
-      store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: delta }));
-      saveStore();
-    } else if (delta < 0) {
-      trimDayEntries(key, field, viewedDateStr(), -delta);
-      saveStore();
-    }
-    renderToday();
-  }
-  ring.addEventListener("pointerup", endDrag);
-  ring.addEventListener("pointercancel", () => {
-    dragging = false;
-    ring.classList.remove("ring-dragging");
-    renderToday();
-  });
-  ring.addEventListener("keydown", (e) => {
-    // v169: arrow keys on the number button must not nudge the ring.
-    if (e.target.closest(".ring-num-btn")) return;
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-    e.preventDefault();
-    if (e.key === "ArrowRight") {
-      store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: 1 }));
-    } else {
-      trimDayEntries(key, field, viewedDateStr(), 1);
-    }
+   fall, so entries, snapshots, and the backup cap behave exactly as
+   for an add-button tap. Totals never go below zero. The slider's
+   maximum is twice the goal (or the current total, whichever is
+   higher), so going past the goal still works. */
+function setDayTotal(key, field, extra, target) {
+  target = Math.max(0, Math.round(Number(target) || 0));
+  const current = sumForDate(store[key], viewedDateStr(), field);
+  const delta = target - current;
+  if (delta > 0) {
+    store[key].push(Object.assign({ id: uid(), date: viewedDateStr() }, extra, { [field]: delta }));
     saveStore();
-    renderToday();
+  } else if (delta < 0) {
+    trimDayEntries(key, field, viewedDateStr(), -delta);
+    saveStore();
+  }
+  renderToday();
+}
+function syncGoalSlider(sliderId, fillId, numId, btnId, label, unitWord, value, goal) {
+  const num = document.getElementById(numId);
+  if (num) num.textContent = value;
+  const slider = document.getElementById(sliderId);
+  if (slider) {
+    slider.max = Math.max(goal * 2, value);
+    slider.value = value;
+    slider.setAttribute("aria-valuetext", value + " of " + goal + " " + unitWord);
+  }
+  const fill = document.getElementById(fillId);
+  if (fill) {
+    fill.style.width = (goal > 0 ? Math.min(100, (value / goal) * 100) : 0) + "%";
+    fill.parentElement.classList.toggle("goal-reached", goal > 0 && value >= goal);
+  }
+  const btn = document.getElementById(btnId);
+  if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + unitWord + ". Tap to type an amount to add.");
+}
+function bindGoalSlider(sliderId, fillId, numId, key, field, extra, goalFor) {
+  const slider = document.getElementById(sliderId);
+  if (!slider) return;
+  const paintLive = () => {
+    const v = Number(slider.value) || 0;
+    const num = document.getElementById(numId);
+    if (num) num.textContent = v;
+    const goal = goalFor();
+    const fill = document.getElementById(fillId);
+    if (fill) {
+      fill.style.width = (goal > 0 ? Math.min(100, (v / goal) * 100) : 0) + "%";
+      fill.parentElement.classList.toggle("goal-reached", goal > 0 && v >= goal);
+    }
+  };
+  slider.addEventListener("input", paintLive);
+  slider.addEventListener("change", () => {
+    setDayTotal(key, field, extra, Number(slider.value) || 0);
   });
 }
-bindRing("water-ring", "water", "oz", {});
-bindRing("exercise-ring", "exercise", "minutes", { label: "Movement" });
+bindGoalSlider("water-slider", "water-progress-fill", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
+bindGoalSlider("exercise-slider", "exercise-progress-fill", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
 
 /* ---------- Type an amount to add (v169) ---------- */
 /* The big number inside each ring is a button. Tapping it opens a small
@@ -2833,7 +2778,7 @@ document.getElementById("plate-log-btn").addEventListener("click", () => {
 
 /* ---------- Today's Movement (v168) ---------- */
 /* A short daily routine on the front page. Finishing every move logs
-   5 minutes to the Movement ring; unticking a move takes it back. */
+   5 minutes to the Movement total; unticking a move takes it back. */
 const DEFAULT_MOVES = [
   { name: "Sit-to-stands", detail: "10 reps" },
   { name: "Wall push-ups", detail: "10 reps" },
@@ -2956,7 +2901,7 @@ function renderMovement() {
   const count = document.getElementById("move-count");
   if (count) count.textContent = done.length + " of " + plan.length + " moves done";
   const logged = document.getElementById("move-logged");
-  if (logged) { logged.textContent = "All done. " + routineMinutes() + " minutes added to your Movement ring."; logged.classList.toggle("show", done.length === plan.length && plan.length > 0); }
+  if (logged) { logged.textContent = "All done. " + routineMinutes() + " minutes added to your Movement total."; logged.classList.toggle("show", done.length === plan.length && plan.length > 0); }
   // Shared total: the routine and the ring are one movement total, so
   // minutes logged anywhere show here too.
   const totalEl = document.getElementById("movement-total");

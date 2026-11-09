@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=034">
+<link rel="stylesheet" href="styles.css?v=035">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -124,41 +124,23 @@
 
     <div class="card" id="water-card" aria-label="Water">
       <h2 class="card-title">Water</h2>
-      <p class="muted goals-hint">Slide left or right on the ring to change it. Tap the number to type an amount.</p>
-      <div class="goals-rings" style="justify-content:center">
-        <div class="goal-ring">
-          <div class="ring-box" id="water-ring">
-            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-            <div class="ring-value"><button type="button" class="ring-num-btn" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="ring-num" id="water-today">0</span><span class="ring-unit">oz</span></button></div>
-          </div>
-          <p class="goal-name">Water</p>
-          <p class="goal-label">Goal <span id="water-goal-display">92</span> oz</p>
-          <button class="btn btn-small goals-add" id="goals-water-add" aria-label="Add 8 ounces of water">+ 8 oz</button>
-          <div class="ring-nudge" role="group" aria-label="Adjust water by one ounce">
-            <button type="button" class="ring-nudge-btn" id="water-minus-1" aria-label="Remove 1 ounce of water">−</button>
-            <button type="button" class="ring-nudge-btn" id="water-plus-1" aria-label="Add 1 ounce of water">+</button>
-          </div>
-        </div>
+      <div class="slider-row">
+        <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
+        <button class="btn btn-small goals-add" id="goals-water-add" aria-label="Add 8 ounces of water">+ 8 oz</button>
       </div>
+      <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
+      <div class="slider-progress" aria-hidden="true"><i id="water-progress-fill"></i></div>
+      <p class="slider-hint">Tap the amount to type it in.</p>
     </div>
 
     <div class="card" id="movement-card" aria-label="Movement">
       <h2 class="card-title">Movement</h2>
-      <div class="goals-rings" style="justify-content:center">
-        <div class="goal-ring">
-          <div class="ring-box" id="exercise-ring">
-            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
-            <div class="ring-value"><button type="button" class="ring-num-btn" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="ring-num" id="exercise-today">0</span><span class="ring-unit">min</span></button></div>
-          </div>
-          <p class="goal-name">Movement</p>
-          <p class="goal-label">Goal <span id="exercise-goal-display">30</span> min</p>
-          <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
-          <div class="ring-nudge" role="group" aria-label="Adjust movement by one minute">
-            <button type="button" class="ring-nudge-btn" id="exercise-minus-1" aria-label="Remove 1 minute of movement">−</button>
-            <button type="button" class="ring-nudge-btn" id="exercise-plus-1" aria-label="Add 1 minute of movement">+</button>
-          </div>
-        </div>
+      <div class="slider-row">
+        <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
+        <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
       </div>
+      <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
+      <div class="slider-progress" aria-hidden="true"><i id="exercise-progress-fill"></i></div>
       <div id="movement-routine" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
           <h3 class="card-title" style="margin-bottom:0">Today's Movement</h3>
@@ -170,7 +152,7 @@
         <div class="move-progress">
           <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
           <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
-          <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement ring.</p>
+          <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement total.</p>
         </div>
         <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
       </div>
@@ -341,7 +323,7 @@
       <div class="modal-card">
         <button type="button" class="modal-x" id="movement-plan-x" aria-label="Close">×</button>
         <h2 style="margin-top:0">Your movement plan</h2>
-        <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs the minutes below to your Movement ring.</p>
+        <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs the minutes below to your Movement total.</p>
         <label style="display:block;margin-bottom:12px">Minutes for completing the routine
           <input type="number" id="movement-plan-minutes" min="1" step="1" value="5" style="width:80px">
         </label>
@@ -1224,7 +1206,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=034"></script>
+<script src="demo-seed.js?v=035"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1249,7 +1231,7 @@
     </div>
   </div>
 
-<script src="app.js?v=034"></script>
+<script src="app.js?v=035"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
