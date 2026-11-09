@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=033">
+<link rel="stylesheet" href="styles.css?v=034">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -110,6 +110,17 @@
         <button class="btn btn-primary btn-small" id="goto-shots-btn">Log it in Shots</button>
       </div>
     </div>
+
+    <div class="card" id="glp1-actions-card" aria-label="GLP-1 quick actions">
+      <h2 class="card-title">GLP-1 Quick Actions</h2>
+      <div class="quick-actions">
+        <button type="button" class="btn btn-primary btn-small" id="qa-log-dose">Log dose</button>
+        <button type="button" class="btn btn-small" id="qa-reminders">Reminders</button>
+        <button type="button" class="btn btn-small" id="qa-log-effect">Log side effect</button>
+      </div>
+    </div>
+
+
 
     <div class="card" id="water-card" aria-label="Water">
       <h2 class="card-title">Water</h2>
@@ -1213,7 +1224,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=033"></script>
+<script src="demo-seed.js?v=034"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1238,7 +1249,7 @@
     </div>
   </div>
 
-<script src="app.js?v=033"></script>
+<script src="app.js?v=034"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

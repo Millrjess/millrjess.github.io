@@ -3182,6 +3182,25 @@ document.getElementById("goto-shots-btn").addEventListener("click", () => {
   showTab("shots");
 });
 
+/* GLP-1 quick actions (v035): three links on Today to the flows
+   that already exist. Log dose opens the Shots tab with the log form
+   open. Reminders runs the existing calendar shot reminder download.
+   Log side effect opens the Side Effects tab with the log form open.
+   No new data, no new screens. */
+document.getElementById("qa-log-dose").addEventListener("click", () => {
+  showTab("shots");
+  document.getElementById("show-injection-form").click();
+});
+document.getElementById("qa-reminders").addEventListener("click", () => {
+  document.getElementById("add-shot-reminder").click();
+});
+document.getElementById("qa-log-effect").addEventListener("click", () => {
+  showTab("side-effects");
+  document.getElementById("show-sideeffect-form").click();
+});
+
+
+
 /* Daily mood */
 
 function renderMood() {
