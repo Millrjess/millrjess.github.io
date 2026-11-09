@@ -252,6 +252,10 @@
           <span class="muted" id="macro-food-search-status" style="font-size:.85em"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
+        <div style="margin-top:8px">
+          <button type="button" class="btn btn-small" id="macro-food-library-btn">Your foods</button>
+        </div>
+        <div id="macro-food-library" class="hidden" style="margin-top:8px"></div>
         <div class="measure-grid" style="grid-template-columns:1fr 1fr 1fr">
           <label>Protein (g)<input type="number" id="macro-food-protein" min="0" step="1" placeholder="0"></label>
           <label>Carbs (g)<input type="number" id="macro-food-carbs" min="0" step="1" placeholder="0"></label>
@@ -1075,14 +1079,17 @@
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan barcode</h2>
       <p class="muted">Point your camera at a food barcode. Free lookup from Open Food Facts. If camera scanning is not available, type the barcode number below.</p>
-      <video id="scan-video" playsinline muted style="width:100%;border-radius:12px;background:#000"></video>
-      <div id="scan-reader" style="width:100%"></div>
+      <div id="scan-view" style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000">
+        <video id="scan-video" playsinline muted style="width:100%;display:block;border-radius:12px;background:#000"></video>
+        <div id="scan-reader" style="width:100%;display:none"></div>
+        <div id="scan-frame" aria-hidden="true" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(300px,86%);height:180px;border:3px solid #E8B54A;border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.35)"></div>
+        <p aria-hidden="true" style="position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#fff;font-size:.9em;margin:0;pointer-events:none">Hold the barcode inside the frame</p>
+      </div>
       <p id="scan-status" class="muted" role="status"></p>
       <label>Barcode number
         <input type="text" id="scan-barcode-input" inputmode="numeric" placeholder="e.g. 3017620422003" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:1rem">
       </label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-        <button type="button" class="btn btn-primary" id="scan-start-btn">Start camera</button>
         <button type="button" class="btn btn-primary" id="scan-capture-btn">Capture barcode</button>
         <button type="button" class="btn btn-small" id="scan-lookup-btn">Look up barcode</button>
         <button type="button" class="btn btn-small" id="scan-close-btn">Close</button>

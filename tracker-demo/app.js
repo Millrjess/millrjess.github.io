@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v026";
+const APP_VERSION = "v027";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -88,7 +88,8 @@ const DEFAULTS = {
   movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
   medicines: [],    // { id, name, dose, time, date } daily medicines besides the GLP-1 shot
   medicineTaken: {}, // { "YYYY-MM-DD": [medicine ids taken that day] }
-  recipes: []       // { id, title, body, date } saved recipes
+  recipes: [],       // { id, title, body, date } saved recipes
+  foodLibrary: {}    // v028: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } } foods already scanned, saved on this device only
 };
 
 /* v000: the Companion's chosen name and avatar. The variants are
@@ -279,6 +280,30 @@ function validateStore(parsed, strict) {
     }
     out.medicineTaken = cleanTaken;
   }
+  // v028: the food library. Keyed by barcode; each entry keeps the food
+  // name and macros. A bad shape is dropped whole, and a bad entry is
+  // dropped, so a bad value can never crash the app.
+  if (parsed.foodLibrary !== undefined && (typeof parsed.foodLibrary !== "object" || Array.isArray(parsed.foodLibrary))) {
+    lastValidateDropped.push("foodLibrary");
+  } else if (parsed.foodLibrary && typeof parsed.foodLibrary === "object" && !Array.isArray(parsed.foodLibrary)) {
+    const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+    const cleanLib = {};
+    for (const [code, f] of Object.entries(parsed.foodLibrary)) {
+      const c = String(code || "").trim().replace(/[^0-9]/g, "");
+      if (!c || !f || typeof f !== "object" || typeof f.name !== "string" || f.name.trim() === "") continue;
+      cleanLib[c] = {
+        barcode: c,
+        name: f.name.trim().slice(0, 120),
+        brand: typeof f.brand === "string" ? f.brand.trim().slice(0, 80) : "",
+        protein: num(f.protein),
+        carbs: num(f.carbs),
+        fat: num(f.fat),
+        calories: num(f.calories),
+        savedAt: Number.isFinite(Number(f.savedAt)) ? Number(f.savedAt) : 0
+      };
+    }
+    out.foodLibrary = cleanLib;
+  }
   return out;
 }
 
@@ -397,6 +422,9 @@ function mergeStores(persisted, local) {
   // v168: routine done-state merges the same way: a day done in either
   // copy stays done.
   out.movementDone = Object.assign({}, local.movementDone || {}, persisted.movementDone || {});
+  // v028: the food library merges by barcode; the persisted copy wins
+  // when both hold the same barcode.
+  out.foodLibrary = Object.assign({}, local.foodLibrary || {}, persisted.foodLibrary || {});
   return out;
 }
 
@@ -1665,6 +1693,106 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   sr2.innerHTML = "";
 });
 
+/* ---------- Food library (v028) ---------- */
+/* Foods already scanned, saved on this device only and reused instantly.
+   Keyed by barcode. A lookup that succeeds saves the food here on its
+   own, so there is no extra save step. A scan checks here first. The
+   demo has no barcode scanner, so the library is filled only by foods
+   already saved here; the search below still checks it first. */
+const FOOD_LIBRARY_MAX = 200;
+function foodLibrary() {
+  if (!store.foodLibrary || typeof store.foodLibrary !== "object" || Array.isArray(store.foodLibrary)) store.foodLibrary = {};
+  return store.foodLibrary;
+}
+function saveFoodToLibrary(barcode, food) {
+  const lib = foodLibrary();
+  const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
+  if (!code || !food || typeof food.name !== "string" || food.name.trim() === "") return;
+  const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+  lib[code] = {
+    barcode: code,
+    name: food.name.trim().slice(0, 120),
+    brand: typeof food.brand === "string" ? food.brand.trim().slice(0, 80) : "",
+    protein: num(food.protein),
+    carbs: num(food.carbs),
+    fat: num(food.fat),
+    calories: num(food.calories),
+    savedAt: Date.now()
+  };
+  // Keep the library slim: drop the oldest entries past the cap.
+  const keys = Object.keys(lib);
+  if (keys.length > FOOD_LIBRARY_MAX) {
+    keys.sort((a, b) => (lib[a].savedAt || 0) - (lib[b].savedAt || 0));
+    keys.slice(0, keys.length - FOOD_LIBRARY_MAX).forEach((k) => delete lib[k]);
+  }
+  saveStore();
+}
+function getFoodFromLibrary(barcode) {
+  const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
+  if (!code) return null;
+  const f = foodLibrary()[code];
+  return f && typeof f === "object" ? f : null;
+}
+function libraryFoodsMatching(query) {
+  const q = String(query || "").trim().toLowerCase();
+  if (q.length < 2) return [];
+  return Object.values(foodLibrary())
+    .filter((f) => f && typeof f.name === "string" && (f.name.toLowerCase().includes(q) || (f.brand || "").toLowerCase().includes(q)))
+    .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))
+    .slice(0, 5);
+}
+function libraryFoodLabel(f) {
+  const cals = Math.round((f.protein || 0) * 4 + (f.carbs || 0) * 4 + (f.fat || 0) * 9);
+  return f.name + (cals > 0 ? "  ·  " + cals + " cal" : "") + "  ·  P " + (f.protein || 0) + "g  C " + (f.carbs || 0) + "g  F " + (f.fat || 0) + "g";
+}
+function fillFoodForm(name, protein, carbs, fat, note) {
+  document.getElementById("macro-food-name").value = String(name || "").slice(0, 120);
+  document.getElementById("macro-food-protein").value = protein || "";
+  document.getElementById("macro-food-carbs").value = carbs || "";
+  document.getElementById("macro-food-fat").value = fat || "";
+  const status = document.getElementById("macro-food-search-status");
+  if (status && note) status.textContent = note;
+}
+/* The "Your foods" list: every food already scanned, newest first.
+   Tap a row to fill the form and log it again. The small x removes
+   that one entry. Hidden when the library is empty. */
+function renderFoodLibrary() {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  const foods = Object.values(foodLibrary()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  if (!foods.length) {
+    list.innerHTML = "<p class=\"muted\" style=\"font-size:.9em;margin:0\">No foods saved yet. Scan a barcode and it saves here on its own.</p>";
+    return;
+  }
+  list.innerHTML = "";
+  foods.forEach((f) => {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:6px";
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-small";
+    b.style.cssText = "flex:1;text-align:left;white-space:normal";
+    b.textContent = libraryFoodLabel(f);
+    b.addEventListener("click", () => {
+      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+      list.classList.add("hidden");
+    });
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "btn btn-small";
+    x.setAttribute("aria-label", "Remove " + f.name + " from your foods");
+    x.textContent = "×";
+    x.addEventListener("click", () => {
+      delete foodLibrary()[f.barcode];
+      saveStore();
+      renderFoodLibrary();
+    });
+    row.appendChild(b);
+    row.appendChild(x);
+    list.appendChild(row);
+  });
+}
+
 /* ---------- Food search by name ---------- */
 /* Type a food name, search Open Food Facts (free, no key), and tap a
    result to fill the name and macros from the label. Values are per
@@ -1679,12 +1807,40 @@ async function searchFoodByName() {
   status.textContent = "Searching foods...";
   results.classList.add("hidden");
   results.innerHTML = "";
+  // Your foods first: a food already scanned can be tapped and logged
+  // again in one tap, with no network wait.
+  const mine = libraryFoodsMatching(query);
+  if (mine.length) {
+    const head = document.createElement("p");
+    head.className = "muted";
+    head.style.cssText = "margin:0 0 6px;font-size:.85em;font-weight:700";
+    head.textContent = "Your foods";
+    results.appendChild(head);
+    mine.forEach((f) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small";
+      b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
+      b.textContent = libraryFoodLabel(f);
+      b.addEventListener("click", () => {
+        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+        results.classList.add("hidden");
+        results.innerHTML = "";
+      });
+      results.appendChild(b);
+    });
+    results.classList.remove("hidden");
+    status.textContent = "Tap a food to fill the macros.";
+  }
   try {
     const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     const data = await res.json();
     const products = (data && data.products) || [];
-    if (!products.length) { status.textContent = "No foods found. Try different words, or enter the grams by hand."; return; }
-    status.textContent = "Tap a food to fill the macros.";
+    if (!products.length) {
+      status.textContent = mine.length ? "Tap a food above, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
+      return;
+    }
+    if (!mine.length) status.textContent = "Tap a food to fill the macros.";
     products.forEach((p) => {
       const n = p.nutriments || {};
       const pick = (servingKey, hundredKey) => {
@@ -1719,6 +1875,12 @@ async function searchFoodByName() {
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
+document.getElementById("macro-food-library-btn").addEventListener("click", () => {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  if (list.classList.contains("hidden")) { renderFoodLibrary(); list.classList.remove("hidden"); }
+  else list.classList.add("hidden");
+});
 
 /* ---------- Plate recognition ---------- */
 /* Take a photo of your plate and the app identifies the food and fills

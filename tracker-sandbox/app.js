@@ -88,7 +88,8 @@ const DEFAULTS = {
   movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
   medicines: [],    // sandbox: { id, name, dose, time, date } daily medicines besides the GLP-1 shot
   medicineTaken: {}, // sandbox: { "YYYY-MM-DD": [medicine ids taken that day] }
-  recipes: []       // sandbox: { id, title, body, date } saved recipes
+  recipes: [],      // sandbox: { id, title, body, date } saved recipes
+  foodLibrary: {}    // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
 };
 
 /* v000: the Companion's chosen name and avatar. The variants are
@@ -308,6 +309,31 @@ function validateStore(parsed, strict) {
     }
     out.medicineTaken = cleanTaken;
   }
+  // v028: food library, keyed by barcode. Keep only entries with a
+  // barcode and a name; sanitize the macros to non-negative numbers.
+  // A bad value drops the whole library, not a crash.
+  if (parsed.foodLibrary !== undefined && (typeof parsed.foodLibrary !== "object" || Array.isArray(parsed.foodLibrary))) {
+    lastValidateDropped.push("foodLibrary");
+  } else if (parsed.foodLibrary && typeof parsed.foodLibrary === "object" && !Array.isArray(parsed.foodLibrary)) {
+    const cleanLib = {};
+    for (const [code, f] of Object.entries(parsed.foodLibrary)) {
+      if (!f || typeof f !== "object" || Array.isArray(f)) continue;
+      const barcode = typeof f.barcode === "string" && f.barcode.trim() !== "" ? f.barcode.trim().slice(0, 40) : String(code).trim().slice(0, 40);
+      if (!barcode || typeof f.name !== "string" || f.name.trim() === "") continue;
+      const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+      cleanLib[barcode] = {
+        barcode,
+        name: f.name.trim().slice(0, 120),
+        brand: typeof f.brand === "string" ? f.brand.trim().slice(0, 80) : "",
+        protein: num(f.protein),
+        carbs: num(f.carbs),
+        fat: num(f.fat),
+        calories: num(f.calories),
+        savedAt: Number.isFinite(Number(f.savedAt)) ? Number(f.savedAt) : 0
+      };
+    }
+    out.foodLibrary = cleanLib;
+  }
   return out;
 }
 
@@ -427,6 +453,9 @@ function mergeStores(persisted, local) {
   // v168: routine done-state merges the same way: a day done in either
   // copy stays done.
   out.movementDone = Object.assign({}, local.movementDone || {}, persisted.movementDone || {});
+  // v028: food library merges by barcode; a food saved in either copy
+  // is kept, and the persisted copy wins when both have the same barcode.
+  out.foodLibrary = Object.assign({}, local.foodLibrary || {}, persisted.foodLibrary || {});
   return out;
 }
 
@@ -1711,6 +1740,104 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   clearFoodPhoto();
 });
 
+/* ---------- Food library (v028) ---------- */
+/* Foods already scanned, saved on this device only and reused instantly.
+   Keyed by barcode. A lookup that succeeds saves the food here on its
+   own, so there is no extra save step. A scan checks here first. */
+const FOOD_LIBRARY_MAX = 200;
+function foodLibrary() {
+  if (!store.foodLibrary || typeof store.foodLibrary !== "object" || Array.isArray(store.foodLibrary)) store.foodLibrary = {};
+  return store.foodLibrary;
+}
+function saveFoodToLibrary(barcode, food) {
+  const lib = foodLibrary();
+  const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
+  if (!code || !food || typeof food.name !== "string" || food.name.trim() === "") return;
+  const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+  lib[code] = {
+    barcode: code,
+    name: food.name.trim().slice(0, 120),
+    brand: typeof food.brand === "string" ? food.brand.trim().slice(0, 80) : "",
+    protein: num(food.protein),
+    carbs: num(food.carbs),
+    fat: num(food.fat),
+    calories: num(food.calories),
+    savedAt: Date.now()
+  };
+  // Keep the library slim: drop the oldest entries past the cap.
+  const keys = Object.keys(lib);
+  if (keys.length > FOOD_LIBRARY_MAX) {
+    keys.sort((a, b) => (lib[a].savedAt || 0) - (lib[b].savedAt || 0));
+    keys.slice(0, keys.length - FOOD_LIBRARY_MAX).forEach((k) => delete lib[k]);
+  }
+  saveStore();
+}
+function getFoodFromLibrary(barcode) {
+  const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
+  if (!code) return null;
+  const f = foodLibrary()[code];
+  return f && typeof f === "object" ? f : null;
+}
+function libraryFoodsMatching(query) {
+  const q = String(query || "").trim().toLowerCase();
+  if (q.length < 2) return [];
+  return Object.values(foodLibrary())
+    .filter((f) => f && typeof f.name === "string" && (f.name.toLowerCase().includes(q) || (f.brand || "").toLowerCase().includes(q)))
+    .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))
+    .slice(0, 5);
+}
+function libraryFoodLabel(f) {
+  const cals = Math.round((f.protein || 0) * 4 + (f.carbs || 0) * 4 + (f.fat || 0) * 9);
+  return f.name + (cals > 0 ? "  ·  " + cals + " cal" : "") + "  ·  P " + (f.protein || 0) + "g  C " + (f.carbs || 0) + "g  F " + (f.fat || 0) + "g";
+}
+function fillFoodForm(name, protein, carbs, fat, note) {
+  document.getElementById("macro-food-name").value = String(name || "").slice(0, 120);
+  document.getElementById("macro-food-protein").value = protein || "";
+  document.getElementById("macro-food-carbs").value = carbs || "";
+  document.getElementById("macro-food-fat").value = fat || "";
+  const status = document.getElementById("macro-food-search-status");
+  if (status && note) status.textContent = note;
+}
+/* The "Your foods" list: every food already scanned, newest first.
+   Tap a row to fill the form and log it again. The small x removes
+   that one entry. Hidden when the library is empty. */
+function renderFoodLibrary() {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  const foods = Object.values(foodLibrary()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  if (!foods.length) {
+    list.innerHTML = "<p class=\"muted\" style=\"font-size:.9em;margin:0\">No foods saved yet. Scan a barcode and it saves here on its own.</p>";
+    return;
+  }
+  list.innerHTML = "";
+  foods.forEach((f) => {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:6px";
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-small";
+    b.style.cssText = "flex:1;text-align:left;white-space:normal";
+    b.textContent = libraryFoodLabel(f);
+    b.addEventListener("click", () => {
+      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+      list.classList.add("hidden");
+    });
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "btn btn-small";
+    x.setAttribute("aria-label", "Remove " + f.name + " from your foods");
+    x.textContent = "×";
+    x.addEventListener("click", () => {
+      delete foodLibrary()[f.barcode];
+      saveStore();
+      renderFoodLibrary();
+    });
+    row.appendChild(b);
+    row.appendChild(x);
+    list.appendChild(row);
+  });
+}
+
 /* ---------- Food search by name (sandbox feature) ---------- */
 /* Type a food name, search Open Food Facts (free, no key), and tap a
    result to fill the name and macros from the label. Values are per
@@ -1725,12 +1852,40 @@ async function searchFoodByName() {
   status.textContent = "Searching foods...";
   results.classList.add("hidden");
   results.innerHTML = "";
+  // Your foods first: a food already scanned can be tapped and logged
+  // again in one tap, with no network wait.
+  const mine = libraryFoodsMatching(query);
+  if (mine.length) {
+    const head = document.createElement("p");
+    head.className = "muted";
+    head.style.cssText = "margin:0 0 6px;font-size:.85em;font-weight:700";
+    head.textContent = "Your foods";
+    results.appendChild(head);
+    mine.forEach((f) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small";
+      b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
+      b.textContent = libraryFoodLabel(f);
+      b.addEventListener("click", () => {
+        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+        results.classList.add("hidden");
+        results.innerHTML = "";
+      });
+      results.appendChild(b);
+    });
+    results.classList.remove("hidden");
+    status.textContent = "Tap a food to fill the macros.";
+  }
   try {
     const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     const data = await res.json();
     const products = (data && data.products) || [];
-    if (!products.length) { status.textContent = "No foods found. Try different words, or enter the grams by hand."; return; }
-    status.textContent = "Tap a food to fill the macros.";
+    if (!products.length) {
+      status.textContent = mine.length ? "Tap a food above, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
+      return;
+    }
+    if (!mine.length) status.textContent = "Tap a food to fill the macros.";
     products.forEach((p) => {
       const n = p.nutriments || {};
       const pick = (servingKey, hundredKey) => {
@@ -1765,6 +1920,12 @@ async function searchFoodByName() {
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
+document.getElementById("macro-food-library-btn").addEventListener("click", () => {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  if (list.classList.contains("hidden")) { renderFoodLibrary(); list.classList.remove("hidden"); }
+  else list.classList.add("hidden");
+});
 
 /* ---------- Voice food logging (sandbox feature) ---------- */
 /* Speak a food name with the phone's built-in speech recognition; the
@@ -1940,6 +2101,16 @@ async function stopScanCamera() {
   try { if (scanZxingReader) scanZxingReader.reset(); } catch {}
   if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
 }
+/* One camera view only: the native and ZXing readers use #scan-video,
+   html5-qrcode renders its own view inside #scan-reader. Only one is
+   ever visible, so there is never a black empty box on top of the live
+   camera. The gold frame guide sits over whichever view is showing. */
+function setScanView(which) {
+  const video = document.getElementById("scan-video");
+  const reader = document.getElementById("scan-reader");
+  if (video) video.style.display = which === "video" ? "block" : "none";
+  if (reader) reader.style.display = which === "reader" ? "block" : "none";
+}
 function openScanModal() {
   const m = document.getElementById("scan-modal");
   if (!m) return;
@@ -1957,6 +2128,21 @@ async function lookupBarcode(code) {
   const status = document.getElementById("scan-status");
   code = (code || "").trim().replace(/[^0-9]/g, "");
   if (!code) { status.textContent = "Enter a barcode number first."; return; }
+  // Your foods first: a barcode already scanned fills in instantly,
+  // with no network wait.
+  const saved = getFoodFromLibrary(code);
+  if (saved) {
+    const name = saved.brand ? saved.name + " - " + saved.brand : saved.name;
+    document.getElementById("scan-product-name").textContent = name;
+    document.getElementById("scan-product-serving").textContent = "From your foods. Check the label and edit the grams before logging.";
+    document.getElementById("scan-food").value = name;
+    document.getElementById("scan-protein").value = saved.protein || "";
+    document.getElementById("scan-carbs").value = saved.carbs || "";
+    document.getElementById("scan-fat").value = saved.fat || "";
+    document.getElementById("scan-result").classList.remove("hidden");
+    status.textContent = "Found in your foods.";
+    return;
+  }
   status.textContent = "Looking up barcode, free from Open Food Facts...";
   try {
     const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_size,quantity`);
@@ -1973,6 +2159,9 @@ async function lookupBarcode(code) {
     const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
     const fat = pick("fat_serving", "fat_100g");
     const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Scanned food";
+    const scanCals = Math.round(protein * 4 + carbs * 4 + fat * 9);
+    // Saved to your foods on its own, so the next scan is instant.
+    saveFoodToLibrary(code, { name: p.product_name || "Scanned food", brand: p.brands || "", protein, carbs, fat, calories: scanCals });
     document.getElementById("scan-product-name").textContent = name;
     const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
     document.getElementById("scan-product-serving").textContent = hasServing
@@ -1996,7 +2185,8 @@ async function startScanCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     scanStream = stream; video.srcObject = stream; await video.play();
-    status.textContent = "Camera on. Hold the barcode steady in view.";
+    setScanView("video");
+    status.textContent = "Camera on. Hold the barcode inside the frame.";
     if ("BarcodeDetector" in window) {
       try {
         const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
@@ -2016,7 +2206,7 @@ async function startScanCamera() {
     }
     try {
       if (!window.Html5Qrcode) {
-        status.textContent = "Loading the iPhone camera reader...";
+        status.textContent = "Loading the camera reader...";
         await new Promise((resolve, reject) => {
           const s = document.createElement("script");
           s.src = "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
@@ -2025,11 +2215,17 @@ async function startScanCamera() {
       }
       if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
       video.srcObject = null;
+      setScanView("reader");
       scanHtml5 = new Html5Qrcode("scan-reader");
-      status.textContent = "Camera reader loaded. Hold the barcode steady in view, about 6 to 12 inches away. If nothing happens in a few seconds, type the number below instead.";
+      status.textContent = "Camera reader loaded. Hold the barcode inside the frame, about 6 to 12 inches away. If nothing happens in a few seconds, tap Capture below or type the number.";
+      // The scan area matches the gold frame on screen: most of the
+      // camera width, 180 px tall, so a barcode inside the frame reads.
+      const viewEl = document.getElementById("scan-view");
+      const viewW = viewEl ? viewEl.clientWidth : 320;
+      const boxW = Math.max(200, Math.min(300, Math.floor(viewW * 0.86)));
       await scanHtml5.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
+        { fps: 10, qrbox: { width: boxW, height: 180 } },
         (decodedText) => {
           document.getElementById("scan-barcode-input").value = decodedText;
           stopScanCamera(); lookupBarcode(decodedText);
@@ -2038,7 +2234,7 @@ async function startScanCamera() {
       );
       return;
     } catch (e) {
-      status.textContent = "Camera reader did not start. Trying the backup reader, or type the number below.";
+      status.textContent = "Camera reader did not load. Trying the backup reader, or type the number below.";
       try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
     }
     if (!scanStream) {
@@ -2047,6 +2243,7 @@ async function startScanCamera() {
         video.srcObject = scanStream; await video.play();
       } catch {}
     }
+    setScanView("video");
     if (!window.ZXingBrowser) {
       await new Promise((resolve, reject) => {
         const s = document.createElement("script");
@@ -2056,7 +2253,7 @@ async function startScanCamera() {
     }
     const ZX = window.ZXingBrowser;
     scanZxingReader = new ZX.BrowserMultiFormatReader();
-    status.textContent = "Backup camera reader loaded. Hold the barcode steady. If nothing happens, type the number below instead.";
+    status.textContent = "Backup camera reader loaded. Hold the barcode inside the frame. If nothing happens, tap Capture below or type the number.";
     const onResult = (result) => {
       if (result) {
         const code = result.getText();
@@ -2121,12 +2318,14 @@ async function captureBarcodeFrame() {
       document.getElementById("scan-barcode-input").value = code;
       stopScanCamera(); lookupBarcode(code); return;
     }
-  } catch {}
+  } catch (e) {
+    status.textContent = "Camera reader did not load. Type the number below, or try again.";
+    return;
+  }
   status.textContent = "No barcode found in this photo. Hold it steady and try again, or type the number below.";
 }
 document.getElementById("macro-scan-food").addEventListener("click", openScanModal);
 document.getElementById("scan-close-btn").addEventListener("click", closeScanModal);
-document.getElementById("scan-start-btn").addEventListener("click", startScanCamera);
 document.getElementById("scan-capture-btn").addEventListener("click", captureBarcodeFrame);
 document.getElementById("scan-lookup-btn").addEventListener("click", () => lookupBarcode(document.getElementById("scan-barcode-input").value));
 document.getElementById("scan-log-btn").addEventListener("click", () => {
