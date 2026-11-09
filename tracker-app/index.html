@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=022">
+<link rel="stylesheet" href="styles.css?v=023">
 </head>
 <body>
 
@@ -692,6 +692,24 @@
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
+    <h3 style="margin-top:18px">Your saved recipes</h3>
+    <form id="recipe-form" aria-label="Save a recipe" novalidate>
+      <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
+      <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
+      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
+      <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
+      <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
+        <button type="button" class="btn btn-small" id="recipe-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small" id="recipe-upload-btn">Upload photo</button>
+        <button type="button" class="btn btn-small hidden" id="recipe-remove-photo-btn">Remove photo</button>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save recipe</button>
+      </div>
+      <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
+    </form>
+    <div id="recipe-list" class="entry-list"></div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <button type="button" class="kitchen-chip active" data-filter="all">All</button>
       <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
@@ -713,24 +731,6 @@
     <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.85em">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.85em">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
-    <h3 style="margin-top:18px">Your saved recipes</h3>
-    <form id="recipe-form" aria-label="Save a recipe" novalidate>
-      <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
-      <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
-      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
-      <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
-      <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
-        <button type="button" class="btn btn-small" id="recipe-take-btn">Take photo</button>
-        <button type="button" class="btn btn-small" id="recipe-upload-btn">Upload photo</button>
-        <button type="button" class="btn btn-small hidden" id="recipe-remove-photo-btn">Remove photo</button>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save recipe</button>
-      </div>
-      <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
-    </form>
-    <div id="recipe-list" class="entry-list"></div>
   </section>
 
   <!-- AI WELLNESS COMPANION TAB -->
@@ -1269,7 +1269,7 @@
     </div>
   </div>
 
-<script src="app.js?v=022"></script>
+<script src="app.js?v=023"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

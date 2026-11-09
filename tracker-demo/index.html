@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=021">
+<link rel="stylesheet" href="styles.css?v=022">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -669,6 +669,24 @@
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
+    <h3 style="margin-top:18px">Your saved recipes</h3>
+    <form id="recipe-form" aria-label="Save a recipe" novalidate>
+      <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
+      <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
+      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
+      <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
+      <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
+        <button type="button" class="btn btn-small" id="recipe-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small" id="recipe-upload-btn">Upload photo</button>
+        <button type="button" class="btn btn-small hidden" id="recipe-remove-photo-btn">Remove photo</button>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save recipe</button>
+      </div>
+      <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
+    </form>
+    <div id="recipe-list" class="entry-list"></div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <button type="button" class="kitchen-chip active" data-filter="all">All</button>
       <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
@@ -690,24 +708,6 @@
     <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.85em">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.85em">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
-    <h3 style="margin-top:18px">Your saved recipes</h3>
-    <form id="recipe-form" aria-label="Save a recipe" novalidate>
-      <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
-      <label>Ingredients and steps<textarea id="recipe-body" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
-      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
-      <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
-      <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
-        <button type="button" class="btn btn-small" id="recipe-take-btn">Take photo</button>
-        <button type="button" class="btn btn-small" id="recipe-upload-btn">Upload photo</button>
-        <button type="button" class="btn btn-small hidden" id="recipe-remove-photo-btn">Remove photo</button>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save recipe</button>
-      </div>
-      <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
-    </form>
-    <div id="recipe-list" class="entry-list"></div>
   </section>
 
   <!-- AI WELLNESS COMPANION TAB -->
@@ -1114,7 +1114,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=021"></script>
+<script src="demo-seed.js?v=022"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1139,7 +1139,7 @@
     </div>
   </div>
 
-<script src="app.js?v=021"></script>
+<script src="app.js?v=022"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
