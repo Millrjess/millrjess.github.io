@@ -117,10 +117,10 @@
     </div>
 
     <div class="card" style="margin-top:12px">
-      <h2 class="card-title">Next Injection</h2>
+      <h2 class="card-title">Next shot</h2>
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-small" id="goto-shots-btn">Log it in Shots</button>
+        <button class="btn btn-primary btn-small" id="goto-shots-btn">Log shot</button>
       </div>
     </div>
 
@@ -129,7 +129,7 @@
       <div class="quick-actions">
         <button type="button" class="btn btn-primary btn-small" id="qa-log-dose">Log dose</button>
         <button type="button" class="btn btn-small" id="qa-reminders">Reminders</button>
-        <button type="button" class="btn btn-small" id="qa-log-effect">Log side effect</button>
+        <button type="button" class="btn btn-small" id="qa-log-effect">Side effect</button>
       </div>
     </div>
 
@@ -157,7 +157,6 @@
         </div>
         <div class="slider-row">
           <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
-          <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
         </div>
         <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
         <p class="slider-hint" id="exercise-slider-hint">Tap the amount to type it in.</p>
@@ -312,7 +311,7 @@
     </div>
 
     <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
-      <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
+      <summary style="cursor:pointer;font-weight:600">Your Companion noticed something</summary>
       <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
       <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
     </details>

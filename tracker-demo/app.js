@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v039";
+const APP_VERSION = "v040";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -729,6 +729,17 @@ function formatDate(iso) {
   const d = new Date(parts[0], parts[1] - 1, parts[2]);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
+function formatDateShort(iso) {
+  // Same as formatDate, without the year: "Nov 11". Used where space is
+  // tight, for example the Next shot line on Today.
+  if (!iso || typeof iso !== "string") return "";
+  const parts = iso.split("-");
+  if (parts.length !== 3) return "";
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 
 function escapeHtml(s) {
   return String(s == null ? "" : s)
@@ -1293,7 +1304,7 @@ function renderToday() {
   document.getElementById("day-prev").style.visibility = "";
   document.getElementById("day-next").style.visibility = viewOffset >= 0 ? "hidden" : "";
 
-  // Sliders and add buttons log to the day being viewed, so they stay
+  // Sliders log to the day being viewed, so they stay
   // usable on past days (F13/F16). Nothing here is disabled by day.
 
   const waterGoal = Number(store.settings.waterGoal) || 92;
@@ -1305,9 +1316,6 @@ function renderToday() {
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   syncGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
-  // The movement quick-add is a fixed + 5 min.
-  const eAdd = document.getElementById("goals-exercise-add");
-  if (eAdd) eAdd.textContent = "+ 5 min";
 
   renderMacros();
   renderMovement();
@@ -1365,14 +1373,6 @@ function renderGreeting() {
   el.textContent = name ? part + ", " + name + "." : part + ".";
 }
 
-/* Today's Goals add buttons (v165): one quick entry per tap, logged to
-   the day being viewed. Movement 5 min, protein 10 g (Quick add). Same
-   store shape as before; entries are still plain entries. */
-document.getElementById("goals-exercise-add").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
-  saveStore();
-  renderToday();
-});
 
 /* nudgeGoal (v166): change a day's total by an exact amount, used by
    the type-in sheet. Same add/trim helpers as the slider and the add
@@ -1439,7 +1439,7 @@ function syncGoalSlider(sliderId, hintId, numId, btnId, label, unitWord, value, 
     slider.setAttribute("aria-valuetext", value + " of " + goal + " " + unitWord);
   }
   const hint = document.getElementById(hintId);
-  if (hint) hint.textContent = "Tap " + value + " to type your own amount.";
+  if (hint) hint.textContent = "Tap " + value + " to type it in.";
   const btn = document.getElementById(btnId);
   if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + unitWord + ". Tap to type an amount to add.");
 }
@@ -1451,7 +1451,7 @@ function bindGoalSlider(sliderId, hintId, numId, key, field, extra, goalFor) {
     const num = document.getElementById(numId);
     if (num) num.textContent = v;
     const hint = document.getElementById(hintId);
-    if (hint) hint.textContent = "Tap " + v + " to type your own amount.";
+    if (hint) hint.textContent = "Tap " + v + " to type it in.";
   };
   slider.addEventListener("input", paintLive);
   slider.addEventListener("change", () => {
@@ -1462,12 +1462,11 @@ bindGoalSlider("water-slider", "water-slider-hint", "water-today", "water", "oz"
 bindGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
 
 /* ---------- Type an amount to add (v169) ---------- */
-/* The big number inside each ring is a button. Tapping it opens a small
-   sheet where the person types a number (a 16 oz bottle is 16, not two
-   taps of +8 oz). The amount goes through nudgeGoal, the same helper
-   the +8 oz / +5 min buttons, the nudge buttons and the ring drag use,
-   so the store, snapshots, and the 3-per-day backup cap behave exactly
-   as before. Whole numbers only; Add stays disabled until one is typed. */
+/* The big number is a button. Tapping it opens a small sheet where the
+   person types a number (a 16 oz bottle is 16). The amount goes through
+   nudgeGoal, the same helper the sliders and the type-in sheet use, so
+   the store, snapshots, and the 3-per-day backup cap behave exactly as
+   before. Whole numbers only; Add stays disabled until one is typed. */
 const ADD_AMOUNT_CFG = {
   water: { field: "oz", extra: {}, unit: "oz", unitWord: "ounces", title: "Add water", btnId: "water-num-btn" },
   exercise: { field: "minutes", extra: { label: "Movement" }, unit: "min", unitWord: "minutes", title: "Add movement", btnId: "exercise-num-btn" }
@@ -2879,7 +2878,7 @@ function renderNextInjection() {
   const shotDay = store.settings.shotDay;
   const gotoBtn = document.getElementById("goto-shots-btn");
   // Done state first: it applies even before a shot day is set, so a
-  // visitor who logged a shot never sees "Log it in Shots" again today
+  // visitor who logged a shot never sees "Log shot" again today
   // and cannot double-log. (The old code returned early above when no
   // shot day was set, so the button stayed visible with no done state.)
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
@@ -2899,17 +2898,17 @@ function renderNextInjection() {
   const med = store.settings.medication || "your medication";
   const dose = store.settings.dose ? store.settings.dose + " mg" : "";
   const last = lastInjection();
-  const lastSite = last ? " Last site: " + last.site + "." : "";
+  const lastSite = last ? " Site: " + last.site + "." : "";
   const due = nextShotDue();
   let when;
   if (due && due.overdueDays > 0) {
-    when = "Your shot was due " + formatDate(due.dateStr) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
+    when = "Your shot was due " + formatDateShort(due.dateStr) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
   } else if (due && due.daysUntil === 0) {
     when = "Today is your shot day.";
   } else if (due && due.daysUntil === 1) {
-    when = "Your next shot is tomorrow (" + formatDate(due.dateStr) + ").";
+    when = "Your next shot is tomorrow (" + formatDateShort(due.dateStr) + ").";
   } else if (due) {
-    when = "Your next shot is in " + due.daysUntil + " days (" + formatDate(due.dateStr) + ").";
+    when = "Your next shot is in " + due.daysUntil + " days (" + formatDateShort(due.dateStr) + ").";
   } else {
     when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
   }
@@ -2917,7 +2916,7 @@ function renderNextInjection() {
 
   // The Today card never logs a shot. It only takes you to the Shots
   // tab, where the shot is logged deliberately with the site and dose.
-  gotoBtn.textContent = "Log it in Shots";
+  gotoBtn.textContent = "Log shot";
 }
 
 // The Today card never logs a shot. It takes you to the Shots tab,

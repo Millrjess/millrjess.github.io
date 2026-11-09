@@ -172,19 +172,6 @@ main {
   gap: 10px;
 }
 
-.card h3::before, .card h2.card-title::before {
-  content: "";
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--sage-soft);
-  flex-shrink: 0;
-  background-image: var(--card-icon, none);
-  background-size: 20px 20px;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
 .card p {
   margin: 8px 0;
 }
@@ -1031,10 +1018,10 @@ body {
   border: 1px solid var(--border);
   border-radius: 24px;
   box-shadow: 0 4px 24px rgba(78, 92, 70, 0.10);
-  padding: 24px 22px;
-  margin: 20px 0;
+  padding: 20px 18px;
+  margin: 16px 0;
   transition: box-shadow 0.2s ease;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* Tab bar labels, sized so the longest labels clear their neighbors */
@@ -1595,7 +1582,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 
 /* GLP-1 quick actions (v035): three links in one row on Today. */
 .quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
-.quick-actions .btn { flex:1; }
+.quick-actions .btn { flex:1; white-space:nowrap; padding-left:10px; padding-right:10px; }
 
 /* Compact slider rows (v036): water and movement as one row with the
    big amount and the goal, a horizontal slider, and a slim progress
