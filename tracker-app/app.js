@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v039";
+const APP_VERSION = "v040";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -5235,6 +5235,272 @@ const KITCHEN_RECIPES = [
       "Toast the bread.",
       "Plate the egg, toast, cottage cheese, and cucumber.",
       "Season lightly and eat."
+    ]
+  },
+  {
+    id: "herb-chicken-white-bean-skillet",
+    image: "",
+    credit: "",
+    name: "Herb Chicken and White Bean Skillet",
+    category: "High Protein",
+    time: 25, difficulty: "Easy", servings: 2,
+    protein: 41, carbs: 10, fat: 9, calories: 285,
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    ingredients: [
+      "2 chicken breasts (about 300 g total)",
+      "100 g canned white beans, drained",
+      "60 g fresh spinach (about 2 cups)",
+      "2 garlic cloves, minced",
+      "1 lemon, juiced",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    steps: [
+      "Season the chicken with garlic, lemon juice, salt, and pepper.",
+      "Cook in a pan with 1 teaspoon of olive oil until the center reaches 165°F.",
+      "Add the beans and spinach and warm through.",
+      "Serve the chicken over the beans and spinach."
+    ]
+  },
+  {
+    id: "tuna-white-bean-salad",
+    image: "",
+    credit: "",
+    name: "Tuna and White Bean Salad",
+    category: "High Protein",
+    time: 10, difficulty: "Easy", servings: 2,
+    protein: 37, carbs: 19, fat: 6, calories: 278,
+    tags: ["high-protein", "lunch", "easy-prep", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "2 cans tuna in water, drained (about 240 g total)",
+      "160 g canned white beans, drained",
+      "100 g cucumber, sliced",
+      "160 g cherry tomatoes, halved",
+      "2 teaspoons olive oil",
+      "1 lemon, juiced"
+    ],
+    steps: [
+      "Drain the tuna and beans.",
+      "Toss with cucumber, tomatoes, olive oil, and lemon juice.",
+      "Season lightly and serve."
+    ]
+  },
+  {
+    id: "shrimp-zucchini-quinoa-bowl",
+    image: "",
+    credit: "",
+    name: "Shrimp, Zucchini and Quinoa Bowl",
+    category: "High Protein",
+    time: 20, difficulty: "Easy", servings: 2,
+    protein: 36, carbs: 31, fat: 8, calories: 340,
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "low-sodium"],
+    ingredients: [
+      "240 g raw shrimp, peeled",
+      "200 g cooked quinoa (about 1 cup)",
+      "300 g zucchini, sliced",
+      "1 bell pepper, sliced",
+      "2 garlic cloves, minced",
+      "2 teaspoons olive oil",
+      "1 lemon, juiced"
+    ],
+    steps: [
+      "Cook the shrimp in a pan with 1 teaspoon of olive oil until pink.",
+      "Add the zucchini, pepper, and garlic and cook until just tender.",
+      "Serve over the quinoa with lemon juice on top."
+    ]
+  },
+  {
+    id: "cottage-cheese-berry-bowl",
+    image: "",
+    credit: "",
+    name: "Cottage Cheese and Berry Bowl",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 21, carbs: 27, fat: 4, calories: 228,
+    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "170 g low-fat cottage cheese (about 3/4 cup)",
+      "75 g blueberries (about 1/2 cup)",
+      "15 g rolled oats (about 1 tablespoon)"
+    ],
+    steps: [
+      "Spoon the cottage cheese into a bowl.",
+      "Top with blueberries and oats.",
+      "Eat right away."
+    ]
+  },
+  {
+    id: "greek-yogurt-almond-parfait",
+    image: "",
+    credit: "",
+    name: "Greek Yogurt Parfait with Almonds",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 21, carbs: 17, fat: 8, calories: 224,
+    tags: ["breakfast", "easy-prep", "small-portions", "low-sodium"],
+    ingredients: [
+      "170 g plain nonfat Greek yogurt (about 3/4 cup)",
+      "50 g blueberries (about 1/3 cup)",
+      "15 g sliced almonds (about 1 tablespoon)"
+    ],
+    steps: [
+      "Spoon half the yogurt into a glass or bowl.",
+      "Add the blueberries and almonds.",
+      "Top with the rest of the yogurt and eat."
+    ]
+  },
+  {
+    id: "ham-egg-cheese-mug",
+    image: "",
+    credit: "",
+    name: "Ham, Egg and Cheese Mug",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 23, carbs: 3, fat: 15, calories: 239,
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions"],
+    ingredients: [
+      "2 eggs",
+      "30 g diced ham",
+      "20 g shredded mozzarella",
+      "30 g fresh spinach (about 1 cup)"
+    ],
+    steps: [
+      "Whisk the eggs in a microwave-safe mug.",
+      "Stir in the ham, mozzarella, and spinach.",
+      "Microwave for 90 seconds, stir, then microwave 30 seconds more.",
+      "Let it sit a moment, then eat from the mug."
+    ]
+  },
+  {
+    id: "chicken-black-bean-tacos",
+    image: "",
+    credit: "",
+    name: "Chicken and Black Bean Tacos",
+    category: "Balanced Dinners",
+    time: 20, difficulty: "Easy", servings: 2,
+    protein: 35, carbs: 46, fat: 4, calories: 360,
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly"],
+    ingredients: [
+      "1 chicken breast (about 200 g)",
+      "160 g canned black beans, drained",
+      "4 small corn tortillas",
+      "80 g salsa (about 1/3 cup)",
+      "80 g shredded cabbage",
+      "1 lime, cut into wedges"
+    ],
+    steps: [
+      "Cook the chicken in a pan until the center reaches 165°F, then slice it.",
+      "Warm the beans and the tortillas.",
+      "Fill each tortilla with chicken, beans, salsa, and cabbage.",
+      "Squeeze lime over the top and serve."
+    ]
+  },
+  {
+    id: "pork-tenderloin-sweet-potato",
+    image: "",
+    credit: "",
+    name: "Pork Tenderloin with Sweet Potato",
+    category: "Balanced Dinners",
+    time: 25, difficulty: "Easy", servings: 2,
+    protein: 35, carbs: 28, fat: 9, calories: 333,
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    ingredients: [
+      "300 g pork tenderloin",
+      "200 g cooked sweet potato, cubed (about 1 cup)",
+      "200 g green beans",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    steps: [
+      "Season the pork with salt and pepper.",
+      "Roast or pan cook until the center reaches 145°F, then rest and slice.",
+      "Steam the green beans until tender.",
+      "Serve the pork with sweet potato and green beans."
+    ]
+  },
+  {
+    id: "cod-quinoa-green-beans",
+    image: "",
+    credit: "",
+    name: "Cod with Quinoa and Green Beans",
+    category: "Balanced Dinners",
+    time: 20, difficulty: "Easy", servings: 2,
+    protein: 36, carbs: 29, fat: 8, calories: 332,
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    ingredients: [
+      "2 cod fillets (about 300 g total)",
+      "200 g cooked quinoa (about 1 cup)",
+      "200 g green beans",
+      "2 teaspoons olive oil",
+      "1 lemon, cut into wedges"
+    ],
+    steps: [
+      "Season the cod with a little salt and pepper.",
+      "Cook in a pan with 1 teaspoon of olive oil until it flakes.",
+      "Steam the green beans until tender.",
+      "Serve the cod over the quinoa with green beans and lemon on the side."
+    ]
+  },
+  {
+    id: "edamame-cottage-cheese-cup",
+    image: "",
+    credit: "",
+    name: "Edamame and Cottage Cheese Cup",
+    category: "Small Appetite",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 17, carbs: 10, fat: 6, calories: 162,
+    tags: ["snacks-smoothies", "small-portions", "easy-prep", "low-sodium"],
+    ingredients: [
+      "100 g shelled edamame (about 2/3 cup)",
+      "50 g low-fat cottage cheese (about 3 tablespoons)",
+      "A squeeze of lemon and a pinch of sea salt"
+    ],
+    steps: [
+      "Warm the edamame if you like it warm, or use it cold.",
+      "Spoon the cottage cheese on top.",
+      "Add lemon and salt and eat."
+    ]
+  },
+  {
+    id: "hummus-egg-veggie-cup",
+    image: "",
+    credit: "",
+    name: "Hummus, Egg and Veggie Cup",
+    category: "Small Appetite",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 12, carbs: 16, fat: 11, calories: 211,
+    tags: ["snacks-smoothies", "small-portions", "easy-prep", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "60 g hummus (about 1/4 cup)",
+      "1 boiled egg, halved",
+      "50 g cucumber, sliced",
+      "50 g carrots, cut into sticks"
+    ],
+    steps: [
+      "Spoon the hummus into a small bowl or cup.",
+      "Add the egg, cucumber, and carrots.",
+      "Eat with a fork, or dip the vegetables in the hummus."
+    ]
+  },
+  {
+    id: "tuna-feta-cucumber-bites",
+    image: "",
+    credit: "",
+    name: "Tuna and Feta Cucumber Bites",
+    category: "Small Appetite",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 20, carbs: 4, fat: 7, calories: 159,
+    tags: ["high-protein", "low-carb", "snacks-smoothies", "small-portions", "easy-prep"],
+    ingredients: [
+      "60 g canned tuna in water, drained",
+      "80 g cucumber, sliced into thick rounds",
+      "30 g crumbled feta",
+      "Lemon juice and dill to taste"
+    ],
+    steps: [
+      "Lay the cucumber rounds on a plate.",
+      "Top each round with a little tuna and feta.",
+      "Squeeze lemon over the top, add dill, and eat."
     ]
   }
 ];
