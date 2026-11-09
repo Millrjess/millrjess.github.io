@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=037">
+<link rel="stylesheet" href="styles.css?v=038">
 </head>
 <body>
 
@@ -267,6 +267,7 @@
       </div>
       <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings, under Your goals.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
+      <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
       <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate</button>
 
@@ -413,6 +414,40 @@
       </div>
       <div id="digest-body" style="margin-top:12px"></div>
     </details>
+  </section>
+
+  <!-- PROGRESS TAB (v038) -->
+  <section id="tab-progress" class="tab-panel" role="tabpanel" aria-label="Your week">
+    <div class="card">
+      <h2 class="card-title">Your week</h2>
+      <p class="muted" style="margin:0" id="progress-range">Last 7 days</p>
+      <p style="margin:8px 0 0" id="progress-note"></p>
+    </div>
+    <div class="card" id="progress-protein-card">
+      <h3 class="card-title">Protein</h3>
+      <p style="margin:0"><span class="progress-big" id="progress-protein-big">0</span> <span class="progress-small">grams a day on average</span></p>
+      <div class="week-bars" id="progress-bars-protein" role="img" aria-label="Protein by day"></div>
+      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-protein-note"></p>
+    </div>
+    <div class="card" id="progress-carbs-card">
+      <h3 class="card-title">Carbs</h3>
+      <p style="margin:0"><span class="progress-big" id="progress-carbs-big">0</span> <span class="progress-small">grams a day on average</span></p>
+      <div class="week-bars" id="progress-bars-carbs" role="img" aria-label="Carbs by day"></div>
+      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-carbs-note"></p>
+    </div>
+    <div class="card" id="progress-fat-card">
+      <h3 class="card-title">Fat</h3>
+      <p style="margin:0"><span class="progress-big" id="progress-fat-big">0</span> <span class="progress-small">grams a day on average</span></p>
+      <div class="week-bars" id="progress-bars-fat" role="img" aria-label="Fat by day"></div>
+      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-fat-note"></p>
+    </div>
+    <div class="card" id="progress-weight-card">
+      <h3 class="card-title">Weight</h3>
+      <p style="margin:0"><span class="progress-big" id="progress-weight-big">—</span> <span class="progress-small">lbs, latest</span></p>
+      <div class="week-bars" id="progress-bars-weight" role="img" aria-label="Weight by day"></div>
+      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-weight-note"></p>
+    </div>
+    <button class="btn btn-primary" id="progress-back" style="width:100%">Back to Today</button>
   </section>
 
   <!-- INJECTIONS TAB -->
@@ -1079,13 +1114,6 @@
       </div>
 
           <div style="margin-bottom:16px">
-        <label>Movement quick-add (min)
-          <input type="number" id="set-movement-step" min="1" step="1" placeholder="5">
-        </label>
-        <p class="muted">How much the quick-add button on Today adds each tap. Change it to 8, 10, or any amount you like.</p>
-      </div>
-
-          <div style="margin-bottom:16px">
         <label>Goal weight (lbs)
           <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
         </label>
@@ -1369,7 +1397,7 @@
     </div>
   </div>
 
-<script src="app.js?v=037"></script>
+<script src="app.js?v=038"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

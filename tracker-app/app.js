@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v037";
+const APP_VERSION = "v038";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -56,7 +56,6 @@ const DEFAULTS = {
     proteinGoal: "", // v005: no preset; the user sets their own target in Settings
     movementGoal: 30,
     waterStep: 8, // v004: ounces the "+ 8 oz" quick-add button adds
-    movementStep: 5, // v004: minutes the "+ 5 min" quick-add button adds
     carbGoal: "", // v005: no preset; the user sets their own target in Settings
     fatGoal: "", // v005: no preset; the user sets their own target in Settings
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
@@ -199,7 +198,7 @@ function validateStore(parsed, strict) {
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     if (typeof out.settings.shotDay !== "string" || (out.settings.shotDay !== "" && !dayNames.includes(out.settings.shotDay))) out.settings.shotDay = "";
     if (typeof out.settings.refillDate !== "string" || (out.settings.refillDate !== "" && !isValidDateStr(out.settings.refillDate))) out.settings.refillDate = "";
-    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes", "waterStep", "movementStep"]) {
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes", "waterStep"]) {
       const n = Number(out.settings[g]);
       out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
     }
@@ -962,6 +961,8 @@ document.addEventListener("keydown", (e) => {
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
     const addAmountModal = document.getElementById("add-amount-modal");
     if (addAmountModal && !addAmountModal.classList.contains("hidden")) { e.preventDefault(); closeAddAmount(); return; }
+    const progressPanel = document.getElementById("tab-progress");
+    if (progressPanel && progressPanel.classList.contains("active")) { e.preventDefault(); showTab("today"); return; }
   }
 });
 
@@ -1218,6 +1219,147 @@ document.getElementById("digest-next").addEventListener("click", () => {
   renderWeeklyDigest();
 });
 
+/* ---------- Progress view (v038) ---------- */
+/* One dedicated screen with 7-day bars for protein, carbs, fat, and
+   weight. Computed on the device from the local store; nothing leaves
+   the phone. The last 7 days run from 6 days ago through today. Days
+   with nothing logged stay blank, never invented. No judgment language. */
+const PROGRESS_DAYS = 7;
+function progressDates() {
+  const days = [];
+  for (let i = PROGRESS_DAYS - 1; i >= 0; i--) days.push(todayStr(-i));
+  return days;
+}
+function progressDayLetter(dateStr) {
+  const parts = String(dateStr || "").split("-");
+  if (parts.length !== 3) return "";
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return ["S", "M", "T", "W", "T", "F", "S"][d.getDay()];
+}
+function progressFmtDate(dateStr) {
+  const parts = String(dateStr || "").split("-");
+  if (parts.length !== 3) return "";
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function progressWeightFor(dateStr) {
+  const day = (store.weight || []).filter((e) => e.date === dateStr);
+  if (!day.length) return null;
+  const v = Number(day[day.length - 1].value);
+  return v > 0 ? v : null;
+}
+function progressBarCol(value, heightPct, color, letter, label) {
+  const val = value === null ? "" : label;
+  const bar = value === null
+    ? "<div class=\"week-bar week-bar-empty\" style=\"height:6px\"></div>"
+    : "<div class=\"week-bar\" style=\"height:" + heightPct + "%;background:" + color + "\"></div>";
+  return "<div class=\"week-bar-col\"><span class=\"week-bar-val\">" + val + "</span><div class=\"week-bar-track\">" + bar + "</div><span class=\"week-bar-day\">" + letter + "</span></div>";
+}
+function renderProgress() {
+  const probe = document.getElementById("progress-bars-protein");
+  if (!probe) return;
+  const dates = progressDates();
+  const rangeEl = document.getElementById("progress-range");
+  if (rangeEl) rangeEl.textContent = progressFmtDate(dates[0]) + " to " + progressFmtDate(dates[dates.length - 1]);
+
+  const loggedDays = new Set();
+  (store.protein || []).forEach((e) => { if (dates.includes(e.date)) loggedDays.add(e.date); });
+  (store.weight || []).forEach((e) => { if (dates.includes(e.date)) loggedDays.add(e.date); });
+
+  const targets = macroTargets();
+  const defs = [
+    { key: "protein", label: "Protein", color: "#E8B54A", goal: targets.protein },
+    { key: "carbs", label: "Carbs", color: "#5A6B52", goal: targets.carbs },
+    { key: "fat", label: "Fat", color: "#DCC9A3", goal: targets.fat }
+  ];
+  defs.forEach((def) => {
+    const values = dates.map((d) => {
+      const total = macroTotals(d)[def.key];
+      return total > 0 ? total : null;
+    });
+    const total = values.reduce((t, v) => t + (v || 0), 0);
+    const avg = Math.round(total / PROGRESS_DAYS);
+    const big = document.getElementById("progress-" + def.key + "-big");
+    if (big) big.textContent = String(avg);
+    const daysWith = values.filter((v) => v !== null).length;
+    const note = document.getElementById("progress-" + def.key + "-note");
+    if (note) {
+      note.textContent = daysWith === 0
+        ? "Nothing logged this week yet."
+        : "Logged " + daysWith + " of 7 days." + (def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "");
+    }
+    const boxEl = document.getElementById("progress-bars-" + def.key);
+    if (boxEl) {
+      const scaleMax = Math.max(def.goal > 0 ? def.goal : 0, ...values.map((v) => v || 0));
+      boxEl.innerHTML = values.map((v, i) => {
+        const pct = v === null || scaleMax <= 0 ? 0 : Math.max(6, Math.round(100 * v / scaleMax));
+        return progressBarCol(v, pct, def.color, progressDayLetter(dates[i]), v === null ? "" : String(v));
+      }).join("");
+      boxEl.setAttribute("aria-label", def.label + " by day: " + values.map((v, i) => progressDayLetter(dates[i]) + " " + (v === null ? "nothing logged" : v + " grams")).join(", "));
+    }
+  });
+
+  const wValues = dates.map((d) => progressWeightFor(d));
+  const wSeen = wValues.filter((v) => v !== null);
+  const bigW = document.getElementById("progress-weight-big");
+  if (bigW) bigW.textContent = wSeen.length ? wSeen[wSeen.length - 1].toFixed(1) : "\u2014";
+  const noteW = document.getElementById("progress-weight-note");
+  if (noteW) {
+    if (wSeen.length >= 2) {
+      const first = wSeen[0], last = wSeen[wSeen.length - 1];
+      const change = first - last;
+      noteW.textContent = change > 0
+        ? "Down " + change.toFixed(1) + " lbs this week."
+        : change < 0
+          ? "Up " + Math.abs(change).toFixed(1) + " lbs this week."
+          : "Held steady this week.";
+    } else if (wSeen.length === 1) {
+      noteW.textContent = "One weigh-in this week.";
+    } else {
+      noteW.textContent = "No weigh-ins this week. Log your weight to see the line.";
+    }
+  }
+  const boxW = document.getElementById("progress-bars-weight");
+  if (boxW) {
+    const max = wSeen.length ? Math.max(...wSeen) : 0;
+    const min = wSeen.length ? Math.min(...wSeen) : 0;
+    boxW.innerHTML = wValues.map((v, i) => {
+      let pct = 0;
+      if (v !== null) {
+        pct = max === min ? 50 : Math.round(8 + 92 * (v - (min - 1)) / (max - (min - 1)));
+      }
+      return progressBarCol(v, pct, "#44503E", progressDayLetter(dates[i]), v === null ? "" : v.toFixed(1));
+    }).join("");
+    boxW.setAttribute("aria-label", "Weight by day: " + wValues.map((v, i) => progressDayLetter(dates[i]) + " " + (v === null ? "no weigh-in" : v.toFixed(1) + " lbs")).join(", "));
+  }
+
+  const noteEl = document.getElementById("progress-note");
+  if (noteEl) {
+    noteEl.textContent = loggedDays.size === 0
+      ? "Nothing logged this week yet. Log a food or your weight and the bars fill in."
+      : loggedDays.size < PROGRESS_DAYS
+        ? "Logged " + loggedDays.size + " of 7 days. Empty days stay blank."
+        : "Seven days logged this week.";
+  }
+}
+function openProgress() {
+  document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+  const panel = document.getElementById("tab-progress");
+  if (panel) panel.classList.add("active");
+  document.querySelectorAll(".tab-btn").forEach((b) => {
+    const active = b.dataset.tab === "today";
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  closeMoreSheet();
+  window.scrollTo(0, 0);
+  renderProgress();
+}
+const openProgressBtn = document.getElementById("open-progress");
+if (openProgressBtn) openProgressBtn.addEventListener("click", openProgress);
+const progressBackBtn = document.getElementById("progress-back");
+if (progressBackBtn) progressBackBtn.addEventListener("click", () => showTab("today"));
+
 /* ---------- Today tab ---------- */
 
 function sumForDate(list, dateStr, field) {
@@ -1342,7 +1484,7 @@ function renderToday() {
   const wAdd = document.getElementById("goals-water-add");
   if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
   const eAdd = document.getElementById("goals-exercise-add");
-  if (eAdd) eAdd.textContent = "+ " + (Number(store.settings.movementStep) || 5) + " min";
+  if (eAdd) eAdd.textContent = "+ 5 min";
 
   renderMacros();
   renderMovement();
@@ -1411,7 +1553,7 @@ document.getElementById("goals-water-add").addEventListener("click", () => {
   renderToday();
 });
 document.getElementById("goals-exercise-add").addEventListener("click", () => {
-  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: Number(store.settings.movementStep) || 5, label: "Movement" });
+  store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
   saveStore();
   renderToday();
 });
@@ -5482,7 +5624,6 @@ function renderSettings() {
   document.getElementById("set-water-step").value = s.waterStep || 8;
   document.getElementById("set-protein-goal").value = s.proteinGoal || "";
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
-  document.getElementById("set-movement-step").value = s.movementStep || 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || "";
@@ -5664,8 +5805,6 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, "");
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
-  const ms = Number(document.getElementById("set-movement-step").value);
-  store.settings.movementStep = ms > 0 ? Math.round(ms) : 5;
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)

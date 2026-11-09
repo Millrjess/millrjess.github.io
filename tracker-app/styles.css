@@ -1588,3 +1588,14 @@ canvas { max-width: 100%; height: auto; display: block; }
 /* Compact Today (v036): tighter cards on Today only, so the tab reads
    shorter without losing breathing room. Other tabs keep their spacing. */
 #tab-today .card { padding: 18px; margin: 14px 0; }
+
+/* ---------- Progress view (v038) ---------- */
+.progress-big { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; color: var(--sage-deep); }
+.progress-small { color: var(--sage-dark); }
+.week-bars { display: flex; gap: 6px; margin-top: 12px; }
+.week-bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.week-bar-val { font-size: .75rem; line-height: 1.2; min-height: 1.2em; color: var(--sage-deep); }
+.week-bar-track { width: 100%; height: 110px; display: flex; align-items: flex-end; justify-content: center; }
+.week-bar { width: 100%; max-width: 30px; border-radius: 6px 6px 0 0; }
+.week-bar-empty { background: #EDEBE3; }
+.week-bar-day { font-size: .8rem; color: var(--sage); margin-top: 6px; }
