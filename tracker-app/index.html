@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=042">
+<link rel="stylesheet" href="styles.css?v=043">
 </head>
 <body>
 
@@ -477,7 +477,7 @@
           <option>Delayed</option>
         </select>
       </label>
-      <p class="muted hidden" id="inj-status-note" style="font-size:.85em">If a dose was missed or delayed, always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
+      <p class="muted hidden" id="inj-status-note" style="font-size:.85em">If a dose was missed or delayed, ask your healthcare provider what to do. Never change your dose based on this app.</p>
       <div class="field-group">
         <span id="inj-site-label">Injection site</span>
         <div class="site-map-wrap">
@@ -553,7 +553,7 @@
       <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-per-week" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-goal-date" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
+      <p class="muted" id="weight-chart-empty">Log two weigh-ins to see your chart.</p>
     </div>
 
     <div class="card" id="bmi-chart-card">
@@ -738,7 +738,7 @@
   <!-- MEDICINES TAB -->
   <section id="tab-medicines" class="tab-panel" role="tabpanel" aria-label="Medicines">
     <h2>Medicines</h2>
-    <p class="muted" style="font-size:.85em">Daily medicines besides your GLP-1 shot. Tap the circle when you take one.</p>
+    <p class="muted" style="font-size:.85em">Daily medicines besides your GLP-1 shot.</p>
     <form id="medicine-form" aria-label="Add a medicine" novalidate>
       <div class="measure-grid" style="grid-template-columns:2fr 1fr 1fr">
         <label>Medicine<input type="text" id="med-name" maxlength="80" placeholder="e.g. Vitamin D"></label>
@@ -760,7 +760,7 @@
     <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
     <p class="muted" style="font-size:.85em">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
     <h3 style="margin-top:18px">Paste a Recipe</h3>
-    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere, and save it below.</p>
+    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
     <form id="paste-recipe-form" class="hidden" aria-label="Paste a recipe" novalidate>
       <label>Paste a recipe<textarea id="paste-recipe-text" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
@@ -797,7 +797,7 @@
     </form>
     <div id="recipe-list" class="entry-list"></div>
     <h3 style="margin-top:18px">Search recipes online</h3>
-    <p class="muted" style="font-size:.85em">Search the recipe database for a dish, and pull it in with its photo and nutrition.</p>
+    <p class="muted" style="font-size:.85em">Search the recipe database for a dish.</p>
     <form id="recipe-search-form" aria-label="Search recipes online" novalidate>
       <div style="display:flex;gap:8px">
         <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken" aria-label="Search recipes" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
@@ -953,11 +953,10 @@
 
       <div class="card">
         <h3>Your Companion</h3>
-        <p class="muted">Give your AI Wellness Companion a name and a look. This stays on this device.</p>
+        <p class="muted">Give your AI Wellness Companion a name and a look.</p>
         <label>Companion name
           <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
         </label>
-        <p class="muted">Leave it blank to keep "AI Wellness Companion".</p>
         <fieldset class="picker-fieldset" id="companion-avatar-picker">
           <legend>Companion avatar</legend>
           <label class="picker-option"><input type="radio" name="companion-avatar" value="gold" checked><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>Gold lotus</label>
@@ -975,7 +974,7 @@
         </select>
         <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
         <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
-        <p class="muted">Uses your phone's voice. When on, new Companion replies and the morning check-in question are read aloud. Pick a voice above, or add more voices in your phone's Settings, Accessibility, Spoken Content, Voices.</p>
+        <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
       </div>
 
       <div class="card">
@@ -1003,7 +1002,7 @@
             <label>Your name
               <input type="text" id="set-your-name" maxlength="60" placeholder="Your first name">
             </label>
-            <p class="muted">Your greeting on Today will use this name, for example "Good morning, Jessica." It stays on this device.</p>
+            <p class="muted">Your greeting on Today uses this name.</p>
           </div>
 
           <div style="margin-bottom:16px">
@@ -1029,7 +1028,7 @@
             <option>Sunday</option>
           </select>
         </label>
-        <p class="muted">Your Today tab will show how many days until your next scheduled shot.</p>
+        <p class="muted">Today counts down to your next shot.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1051,26 +1050,24 @@
         <label>Daily carbs goal (grams)
           <input type="number" id="set-carbs-goal" min="0" step="1" placeholder="Set your target">
         </label>
-        <p class="muted">Your own carbs target for the Macros card on Today.</p>
       </div>
 
           <div style="margin-bottom:16px">
         <label>Daily fat goal (grams)
           <input type="number" id="set-fat-goal" min="0" step="1" placeholder="Set your target">
         </label>
-        <p class="muted">Your own fat target for the Macros card on Today.</p>
       </div>
 
           <div style="margin-bottom:16px">
         <label>Daily calorie target (calories)
           <input type="number" id="set-calorie-target" min="0" step="1">
         </label>
-        <p class="muted">Your own calorie target for the Macros card on Today. Leave it blank if you do not want one. It stays on this device.</p>
+        <p class="muted">Leave it blank for no target.</p>
       </div>
 
           <div style="margin-bottom:16px">
         <h4 style="margin:0 0 8px">Or set by percentage</h4>
-        <p class="muted">Enter your calorie target above, then the share of calories for each macro. The app works out the grams and fills them in above.</p>
+        <p class="muted">Enter your calorie target above, then each macro's share. The app fills in the grams.</p>
         <div style="display:flex;gap:10px">
           <label style="flex:1">Protein %
             <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
@@ -1098,7 +1095,7 @@
             <input type="number" id="set-height-in" min="0" max="11" step="1" placeholder="6">
           </label>
         </div>
-        <p class="muted">Your height is used only to work out your BMI on the Weight tab. It stays on this device.</p>
+        <p class="muted">Height is only for your BMI on the Weight tab.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1111,14 +1108,14 @@
         <label>Goal weight (lbs)
           <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
         </label>
-        <p class="muted">Your weight chart will show a goal line and track your milestones toward it. Set this with your clinician's guidance.</p>
+        <p class="muted">Your chart shows a goal line. Set it with your clinician.</p>
       </div>
 
           <div style="margin-bottom:16px">
         <label>Starting weight (lbs)
           <input type="number" id="set-starting-weight" min="0" step="0.1" placeholder="e.g. 200">
         </label>
-        <p class="muted">The weight your total lost is measured from. It stays fixed unless you change it here. Leave it blank to use your earliest weigh-in.</p>
+        <p class="muted">Total lost is measured from this weight. Leave it blank to use your earliest weigh-in.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1141,14 +1138,14 @@
       <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
       <div style="margin-top:12px">
     <div class="card">
-      <p class="muted">Download everything you have tracked as a tab-delimited file. It opens in Excel, Google Sheets, or Numbers.</p>
+      <p class="muted">Download everything you tracked. It opens in Excel, Google Sheets, or Numbers.</p>
       <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
     </div>
 
     <div class="card">
       <h3>Backup &amp; restore</h3>
-      <p class="muted">Download backup saves a file to this phone, in Files under Downloads, and also keeps a copy inside the app below. Restore from file opens a picker: choose On My iPhone or Downloads. A backup is not in Google Drive unless you moved a copy there yourself.</p>
-      <p class="muted">Your entries live only in this app on this phone. Always open the tracker from its home-screen app icon. Opening it in Safari or from a link shows a separate, empty copy.</p>
+      <p class="muted">Download backup saves a file to this phone, and keeps a copy inside the app. Restore opens a picker: choose On My iPhone or Downloads.</p>
+      <p class="muted">Your entries live only in this app on this phone. Always open it from its home-screen icon. Safari or a link shows a separate, empty copy.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
         <label class="btn" style="cursor:pointer">Restore backup
@@ -1156,7 +1153,7 @@
         </label>
         <button type="button" class="btn" id="export-diary-csv">Download diary (CSV)</button>
       </div>
-      <p class="muted" style="margin:8px 0 0;font-size:.85em">Download diary (CSV) saves a spreadsheet of your diary, one row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em">One row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
       <p class="code-msg" id="csv-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <p class="muted" id="backup-version-line" style="margin-top:6px"></p>
@@ -1168,13 +1165,13 @@
     <div class="card">
       <h3>Help</h3>
       <h4 style="margin:12px 0 4px">Your code</h4>
-      <p class="muted" style="margin:0 0 10px">After you subscribe, get your Companion code from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> with your purchase email. Enter the 6-digit code in Settings under AI Wellness Companion access. A code works for one hour.</p>
+      <p class="muted" style="margin:0 0 10px">Get your code from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> with your purchase email. Enter it in Settings under AI Wellness Companion access. A code works for one hour.</p>
       <h4 style="margin:12px 0 4px">Back up</h4>
-      <p class="muted" style="margin:0 0 10px">Tap Download backup above to save a backup file to this phone, in Files under Downloads. The app also keeps a copy inside it, and it makes automatic copies.</p>
+      <p class="muted" style="margin:0 0 10px">Tap Download backup above. The app also keeps a copy inside it, and makes automatic copies.</p>
       <h4 style="margin:12px 0 4px">Restore</h4>
-      <p class="muted" style="margin:0 0 10px">Tap Restore backup above to choose a backup file. Pick On My iPhone or Downloads to find the file. You can also restore from a copy kept inside the app, in the list above.</p>
+      <p class="muted" style="margin:0 0 10px">Tap Restore backup above, then pick On My iPhone or Downloads. Or restore from a copy inside the app.</p>
       <h4 style="margin:12px 0 4px">Archive</h4>
-      <p class="muted" style="margin:0">In Your foods, tap Archive on a food to move it out of the list and keep it in your archive, so the list stays short. Tap Archived foods to see them, Restore to bring one back, or the x to remove one from the archive. Archiving never deletes a food.</p>
+      <p class="muted" style="margin:0">In Your foods, tap Archive to move a food out of the list. Tap Archived foods to see them, Restore to bring one back, or the x to remove one. Archiving never deletes a food.</p>
     </div>
 
       </div>
@@ -1190,7 +1187,7 @@
       <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
       <p><strong>Who it is for:</strong> For adults navigating GLP-1 treatment.</p>
       <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
-      <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while supporting your bones, heart, brain, skin, digestive health, and overall nutritional status. Think whole-body nutrition, not just weight loss. The tracker supports these areas through the habits it tracks, protein, water, and movement, plus injections, weight, and side effects.</p>
+      <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while staying strong.</p>
       <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
       <p>Track medication, injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
@@ -1203,7 +1200,7 @@
         <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
       </div>
-      <p><strong>Sent to Google:</strong> anonymous usage statistics are collected through Google Analytics, such as which screens are viewed. This helps improve the app. Your tracked entries, photos, and journal content are not included in these statistics.</p>
+      <p><strong>Sent to Google:</strong> anonymous usage statistics, such as which screens are viewed. Your entries, photos, and journal content are not included.</p>
       <p class="muted" id="app-version-line"></p>
     </div>
       </div>
@@ -1278,7 +1275,7 @@
     <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 4</p>
 
     <div class="setup-step" data-step="1">
-      <p style="margin:0 0 12px">What should I call you? Your greeting on Today will use this name.</p>
+      <p style="margin:0 0 12px">What should I call you?</p>
       <label>Your first name
         <input type="text" id="setup-name" maxlength="60" placeholder="Your first name" autocomplete="off">
       </label>
@@ -1295,7 +1292,7 @@
     </div>
 
     <div class="setup-step hidden" data-step="3">
-      <p style="margin:0 0 12px">Which day of the week is your shot day? Today will count down to your next shot.</p>
+      <p style="margin:0 0 12px">Which day is your shot day?</p>
       <label>Shot day
         <select id="setup-shot-day">
           <option value="">Choose a day</option>
@@ -1311,7 +1308,7 @@
     </div>
 
     <div class="setup-step hidden" data-step="4">
-      <p style="margin:0 0 12px">Your height is used only to work out your BMI on the Weight tab. Your goal weight adds a goal line to your weight chart. Both stay on this device.</p>
+      <p style="margin:0 0 12px">Height is for your BMI. Goal weight adds a line to your chart.</p>
       <div style="display:flex;gap:10px">
         <label style="flex:1">Height, feet
           <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="5">
@@ -1337,7 +1334,7 @@
   <div id="scan-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Barcode scanner" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan barcode</h2>
-      <p class="muted">Point your camera at a food barcode. Free lookup from Open Food Facts. If camera scanning is not available, type the barcode number below.</p>
+      <p class="muted">Point your camera at a food barcode, or type the number below.</p>
       <div id="scan-view" style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000">
         <video id="scan-video" playsinline muted style="width:100%;display:block;border-radius:12px;background:#000"></video>
         <div id="scan-reader" style="width:100%;display:none"></div>
@@ -1361,7 +1358,7 @@
         <label>Protein (g) <input type="number" id="scan-protein" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <label>Carbs (g) <input type="number" id="scan-carbs" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <label>Fat (g) <input type="number" id="scan-fat" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
-        <p class="muted">Check the label and edit these grams before logging. Calories are calculated from these macros, and your daily total updates as soon as you log.</p>
+        <p class="muted">Check the label and edit these grams before logging.</p>
         <button type="button" class="btn btn-primary btn-block" id="scan-log-btn">Log scanned food</button>
       </div>
     </div>
@@ -1385,13 +1382,13 @@
         <label>Protein (g) <input type="number" id="plate-protein" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <label>Carbs (g) <input type="number" id="plate-carbs" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <label>Fat (g) <input type="number" id="plate-fat" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
-        <p class="muted">Check the label and edit these grams before logging. Calories are calculated from these macros, and your daily total updates as soon as you log.</p>
+        <p class="muted">Check the label and edit these grams before logging.</p>
         <button type="button" class="btn btn-primary btn-block" id="plate-log-btn">Log this food</button>
       </div>
     </div>
   </div>
 
-<script src="app.js?v=042"></script>
+<script src="app.js?v=043"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

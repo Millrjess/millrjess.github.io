@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v042";
+const APP_VERSION = "v043";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -889,7 +889,7 @@ function showTab(name) {
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   window.scrollTo(0, 0);
   if (name === "weight") { drawWeightChart(); drawBMIChart(); }
-  if (name === "shots") renderInjectionCalendar();
+  if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
   if (name === "medicines") renderMedicines();
@@ -1329,7 +1329,7 @@ function renderProgress() {
     } else if (wSeen.length === 1) {
       noteW.textContent = "One weigh-in this week.";
     } else {
-      noteW.textContent = "No weigh-ins this week. Log your weight to see the line.";
+      noteW.textContent = "No weigh-ins this week.";
     }
   }
   const boxW = document.getElementById("progress-bars-weight");
@@ -1349,9 +1349,9 @@ function renderProgress() {
   const noteEl = document.getElementById("progress-note");
   if (noteEl) {
     noteEl.textContent = loggedDays.size === 0
-      ? "Nothing logged this week yet. Log a food or your weight and the bars fill in."
+      ? "Nothing logged this week yet."
       : loggedDays.size < PROGRESS_DAYS
-        ? "Logged " + loggedDays.size + " of 7 days. Empty days stay blank."
+        ? "Logged " + loggedDays.size + " of 7 days."
         : "Seven days logged this week.";
   }
 }
@@ -2271,7 +2271,7 @@ function fillFoodForm(name, protein, carbs, fat, note, calories) {
 }
 /* The "Your foods" list: every food already logged, newest first.
    Tap a row to fill the form and log it again. Archive moves a food
-   to the archive (never deleted). The small x archives it too. The
+   to the archive (never deleted). The
    only permanent delete is the x in the Archived foods view. */
 function renderFoodLibrary() {
   const list = document.getElementById("macro-food-library");
@@ -2310,7 +2310,7 @@ function renderFoodLibrary() {
     const empty = document.createElement("p");
     empty.className = "muted";
     empty.style.cssText = "font-size:.9em;margin:0";
-    empty.textContent = "No foods saved yet. Log a food and it saves here.";
+    empty.textContent = "No foods saved yet.";
     list.appendChild(empty);
   } else {
     foods.forEach((f) => {
@@ -2334,18 +2334,8 @@ function renderFoodLibrary() {
         if (archiveFood(f.barcode)) libraryNote = "Moved to your archive. You can bring it back anytime.";
         renderFoodLibrary();
       });
-      const x = document.createElement("button");
-      x.type = "button";
-      x.className = "btn btn-small";
-      x.setAttribute("aria-label", "Archive " + f.name);
-      x.textContent = "×";
-      x.addEventListener("click", () => {
-        if (archiveFood(f.barcode)) libraryNote = "Moved to your archive. You can bring it back anytime.";
-        renderFoodLibrary();
-      });
       row.appendChild(b);
       row.appendChild(arc);
-      row.appendChild(x);
       list.appendChild(row);
     });
   }
@@ -2481,17 +2471,17 @@ async function searchFoodByName() {
       results.appendChild(b);
     });
     results.classList.remove("hidden");
-    status.textContent = "Tap a food to fill the macros.";
+    status.textContent = "Pick a food.";
   }
   try {
     const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; return; }
     const products = (data && data.products) || [];
     if (!products.length) {
-      status.textContent = mine.length ? "Tap a food above, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
+      status.textContent = mine.length ? "Pick a food, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
       return;
     }
-    if (!mine.length) status.textContent = "Tap a food to fill the macros.";
+    if (!mine.length) status.textContent = "Pick a food.";
     products.forEach((p) => {
       const n = p.nutriments || {};
       const pick = (servingKey, hundredKey) => {
@@ -2669,7 +2659,7 @@ async function startScanCamera() {
       video.srcObject = null;
       setScanView("reader");
       scanHtml5 = new Html5Qrcode("scan-reader");
-      status.textContent = "Camera reader loaded. Hold the barcode inside the frame, about 6 to 12 inches away. If nothing happens in a few seconds, tap Capture below or type the number.";
+      status.textContent = "Hold the barcode inside the frame. Tap Capture or type the number.";
       // The scan area matches the gold frame on screen: most of the
       // camera width, 180 px tall, so a barcode inside the frame reads.
       const viewEl = document.getElementById("scan-view");
@@ -2789,7 +2779,7 @@ document.getElementById("scan-log-btn").addEventListener("click", () => {
     document.getElementById("scan-status").textContent = "Add at least one macro above zero first.";
     return;
   }
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
   // Save the logged values to Your foods, so an edit made here wins
   // over the lookup values saved earlier. Uses the barcode when there
   // is one, otherwise saves by name.
@@ -2801,6 +2791,21 @@ document.getElementById("scan-log-btn").addEventListener("click", () => {
   document.getElementById("scan-barcode-input").value = "";
 });
 
+/* Scan form: the calories line follows the macros (4/4/9) as they
+   are edited, so it always matches what is about to be logged. */
+function syncScanCalories() {
+  const el = document.getElementById("scan-product-calories");
+  if (!el) return;
+  const p = Math.max(0, Math.round(Number(document.getElementById("scan-protein").value) || 0));
+  const c = Math.max(0, Math.round(Number(document.getElementById("scan-carbs").value) || 0));
+  const f = Math.max(0, Math.round(Number(document.getElementById("scan-fat").value) || 0));
+  const cals = Math.round(p * 4 + c * 4 + f * 9);
+  el.textContent = cals > 0 ? "This adds about " + cals + " calories to your day." : "";
+}
+["scan-protein", "scan-carbs", "scan-fat"].forEach((id) => {
+  const input = document.getElementById(id);
+  if (input) input.addEventListener("input", syncScanCalories);
+});
 /* ---------- Plate recognition ---------- */
 /* Take a photo of your plate and the app identifies the food and fills
    in the macros. Recognition runs through the Cloudflare Worker with a
@@ -2865,7 +2870,7 @@ document.getElementById("plate-log-btn").addEventListener("click", () => {
     document.getElementById("plate-status").textContent = "Add at least one macro above zero first.";
     return;
   }
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
   // Auto-save to Your foods by name, so this plate can be picked again.
   saveFoodToLibrary("", { name: food, brand: "", protein: grams, carbs, fat, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
   saveStore();
@@ -4003,7 +4008,7 @@ function renderWeight() {
       + (remainingWeight > 0
         ? `<button class="btn" id="more-weight" style="width:100%;margin-top:8px">Show older (${remainingWeight} more)</button>`
         : "")
-    : '<p class="empty-state">No weigh-ins yet. Tap "Log weigh-in" to add your first.</p>';
+    : '<p class="empty-state">No weigh-ins yet.</p>';
 
   list.querySelectorAll("[data-edit-w]").forEach((b) => b.addEventListener("click", () => {
     const w = store.weight.find((x) => x.id === b.dataset.editW);
@@ -4626,7 +4631,7 @@ function renderMeasurements() {
   const list = document.getElementById("measurement-list");
   const sorted = [...store.measurements].sort(byDateDesc);
   if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No measurements yet. Tap "+ Log measurements" to add your first.</p>';
+    list.innerHTML = '<p class="empty-state">No measurements yet.</p>';
     return;
   }
   const visibleMeas = sorted.slice(0, measLimit);
@@ -4722,7 +4727,7 @@ function renderPhotos() {
   // Snapshots keep photo dates only, not the pictures; skip those here.
   const sorted = [...store.photos].filter((p) => p.dataUrl).sort(byDateDesc);
   if (!sorted.length) {
-    grid.innerHTML = '<p class="empty-state">No progress photos yet. Tap "+ Add photo" to add your first.</p>';
+    grid.innerHTML = '<p class="empty-state">No progress photos yet.</p>';
     return;
   }
   grid.innerHTML = sorted.map((p) => `
@@ -4797,7 +4802,7 @@ function renderJournal() {
   const list = document.getElementById("journal-list");
   const sorted = [...store.journal].sort(byDateDesc);
   if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No journal entries yet. Tap "New entry" to write your first.</p>';
+    list.innerHTML = '<p class="empty-state">No journal entries yet.</p>';
     return;
   }
   const visible = sorted.slice(0, journalLimit);
@@ -4995,7 +5000,7 @@ function renderMedicines() {
   const date = viewedDateStr();
   const taken = (store.medicineTaken && store.medicineTaken[date]) || [];
   if (!store.medicines.length) {
-    list.innerHTML = '<p class="empty-state">No medicines added yet. Add one above.</p>';
+    list.innerHTML = '<p class="empty-state">No medicines yet.</p>';
     return;
   }
   list.innerHTML = store.medicines.map((m) => {
@@ -5696,11 +5701,11 @@ function renderKitchen() {
   if (featured) {
     featured.innerHTML = shown.length
       ? shown.slice(0, 6).map((r) => kitchenPhotoCardHtml(r)).join("")
-      : '<p class="empty-state">No recipes match this filter yet.</p>';
+      : '<p class="empty-state">No recipes match this filter.</p>';
     bindKitchenCards(featured);
   }
   if (!shown.length) {
-    list.innerHTML = '<p class="empty-state">No recipes match this filter yet.</p>';
+    list.innerHTML = '<p class="empty-state">No recipes match this filter.</p>';
     return;
   }
   list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
@@ -5875,7 +5880,7 @@ function savedRecipeCalories(r) {
 function addSavedRecipeToToday(id) {
   const r = store.recipes.find((x) => x.id === id);
   if (!r) return;
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title, calories: Math.round(Number(r.calories) || 0) });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title, calories: savedRecipeCalories(r) });
   saveStore();
   renderToday();
   recipeAddedAt[r.id] = Date.now();
@@ -5887,7 +5892,7 @@ function renderRecipes() {
   const list = document.getElementById("recipe-list");
   if (!list) return;
   if (!store.recipes.length) {
-    list.innerHTML = '<p class="empty-state">No recipes saved yet. Save one above.</p>';
+    list.innerHTML = '<p class="empty-state">No recipes saved yet.</p>';
     return;
   }
   const sorted = [...store.recipes].sort(byDateDesc);
@@ -5997,6 +6002,21 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   }
   renderRecipes();
 });
+/* Recipe form: the Calories field follows the macros (4/4/9) as they
+   are typed, the same as the Log food form. Typing a calories value
+   sticks until a macro changes, when it recomputes. */
+function syncRecipeCalories() {
+  const el = document.getElementById("recipe-calories");
+  if (!el) return;
+  const p = Math.max(0, Math.round((Number(document.getElementById("recipe-protein").value) || 0) * 10) / 10);
+  const c = Math.max(0, Math.round((Number(document.getElementById("recipe-carbs").value) || 0) * 10) / 10);
+  const f = Math.max(0, Math.round((Number(document.getElementById("recipe-fat").value) || 0) * 10) / 10);
+  el.value = (p || c || f) ? Math.round(p * 4 + c * 4 + f * 9) : "";
+}
+["recipe-protein", "recipe-carbs", "recipe-fat"].forEach((id) => {
+  const input = document.getElementById(id);
+  if (input) input.addEventListener("input", syncRecipeCalories);
+});
 /* Paste a Recipe and the saved-recipe form (v039): both collapse
    behind one button each, so the Kitchen opens short. The AI step that
    reads a pasted recipe and fills in the name, servings, and nutrition
@@ -6069,7 +6089,7 @@ function renderSideEffects() {
   renderSeTrends();
   const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No side effects logged yet. Tap "Log effect" above to record how you are feeling today.</p>';
+    list.innerHTML = '<p class="empty-state">No side effects logged yet.</p>';
     renderJournalSe();
     return;
   }
@@ -7494,8 +7514,8 @@ if (!localStorage.getItem("nct-setup-done") && setupOverlayEl) {
 }
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
-  if (!confirm("Delete ALL your data? Your entries will be gone. A safety copy will stay in Backup & restore in Settings, in case this was a mistake. Consider downloading a backup first.")) return;
-  if (!confirm("Are you sure? This deletes your tracked entries, chat history, and custom activities. Your companion access stays connected.")) return;
+  if (!confirm("Delete all your data? Your entries will be gone. A safety copy stays in Backup & restore.")) return;
+  if (!confirm("This deletes your entries, chat history, and custom activities. Your companion access stays connected.")) return;
   // Safety copy first, kept on its own: the startup safety net never
   // restores a "Before delete" copy, so deleting stays final (S14).
   let preDeleteSnap = null;
