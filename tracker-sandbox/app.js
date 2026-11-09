@@ -55,7 +55,6 @@ const DEFAULTS = {
     waterGoal: 92,
     proteinGoal: 90,
     movementGoal: 30,
-    waterStep: 8, // v004: ounces the "+ 8 oz" quick-add button adds
     carbGoal: 150, // v168: own carbs target for the Your Macros card
     fatGoal: 60, // v168: own fat target for the Your Macros card
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
@@ -197,7 +196,7 @@ function validateStore(parsed, strict) {
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     if (typeof out.settings.shotDay !== "string" || (out.settings.shotDay !== "" && !dayNames.includes(out.settings.shotDay))) out.settings.shotDay = "";
     if (typeof out.settings.refillDate !== "string" || (out.settings.refillDate !== "" && !isValidDateStr(out.settings.refillDate))) out.settings.refillDate = "";
-    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes", "waterStep"]) {
+    for (const g of ["waterGoal", "proteinGoal", "movementGoal", "carbGoal", "fatGoal", "routineMinutes"]) {
       const n = Number(out.settings[g]);
       out.settings[g] = Number.isFinite(n) && n > 0 ? n : DEFAULTS.settings[g];
     }
@@ -964,6 +963,8 @@ document.addEventListener("keydown", (e) => {
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
     const addAmountModal = document.getElementById("add-amount-modal");
     if (addAmountModal && !addAmountModal.classList.contains("hidden")) { e.preventDefault(); closeAddAmount(); return; }
+    const recipeModalEsc = document.getElementById("recipe-modal");
+    if (recipeModalEsc && !recipeModalEsc.classList.contains("hidden")) { e.preventDefault(); closeRecipeModal(); return; }
     const progressPanel = document.getElementById("tab-progress");
     if (progressPanel && progressPanel.classList.contains("active")) { e.preventDefault(); showTab("today"); return; }
   }
@@ -1378,9 +1379,7 @@ function renderToday() {
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
   syncGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
-  // v004: the quick-add buttons show the amount they add, from Settings.
-  const wAdd = document.getElementById("goals-water-add");
-  if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
+  // The movement quick-add is a fixed + 5 min.
   const eAdd = document.getElementById("goals-exercise-add");
   if (eAdd) eAdd.textContent = "+ 5 min";
 
@@ -1443,13 +1442,8 @@ function renderGreeting() {
 }
 
 /* Today's Goals add buttons (v165): one quick entry per tap, logged to
-   the day being viewed. Water 8 oz, protein 10 g (Quick add), movement
-   5 min. Same store shape as before; entries are still plain entries. */
-document.getElementById("goals-water-add").addEventListener("click", () => {
-  store.water.push({ id: uid(), date: viewedDateStr(), oz: Number(store.settings.waterStep) || 8 });
-  saveStore();
-  renderToday();
-});
+   the day being viewed. Movement 5 min, protein 10 g (Quick add). Same
+   store shape as before; entries are still plain entries. */
 document.getElementById("goals-exercise-add").addEventListener("click", () => {
   store.exercise.push({ id: uid(), date: viewedDateStr(), minutes: 5, label: "Movement" });
   saveStore();
@@ -1669,7 +1663,7 @@ function renderCalories(totals) {
   if (note) {
     if (total <= 0) note.textContent = "No macros logged yet today.";
     else if (target > 0) note.textContent = "Calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).";
-    else note.textContent = "Calories from macros today. Set a daily calorie target in Settings, under Your goals, to track against it.";
+    else note.textContent = "Set a calorie target in Settings to track against it.";
   }
 }
 
@@ -1763,8 +1757,6 @@ let editingFoodId = null;
 
 document.querySelectorAll(".macro-row").forEach((row) => {
   row.addEventListener("click", (e) => {
-    // The log steppers inside the row must not select the macro.
-    if (e.target.closest(".macro-log-btn")) return;
     // A slide on the bar must not also select the macro on release.
     if (suppressMacroRowClick) { suppressMacroRowClick = false; return; }
     selectMacro(row.dataset.macro);
@@ -1773,19 +1765,12 @@ document.querySelectorAll(".macro-row").forEach((row) => {
 document.querySelectorAll(".donut-seg").forEach((seg) => {
   seg.addEventListener("click", () => selectMacro(seg.dataset.macro));
 });
-document.querySelectorAll(".macro-log-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    adjustMacro(btn.dataset.macroLog, Number(btn.dataset.dir));
-  });
-});
 
-/* Log steppers on each macro row: change the day's logged grams by
-   exactly 1, like the ring nudge buttons. Carbs and fat attach to the
-   day's most recent food entry, or a fresh Quick add entry when the day
-   has none yet, so one tap never spams the log with tiny entries.
-   adjustMacroBy is the same helper with a magnitude, used by the v169
-   row slide: a drag of N grams is one entry of N, or one trim of N. */
+/* adjustMacroBy: change the day's logged grams by a magnitude, used
+   by the v169 row slide: a drag of N grams is one entry of N, or one
+   trim of N. Carbs and fat attach to the day's most recent food entry,
+   or a fresh Quick add entry when the day has none yet, so one slide
+   never spams the log with tiny entries. */
 function adjustMacroBy(key, delta) {
   if (!delta) return;
   const date = viewedDateStr();
@@ -1810,9 +1795,6 @@ function adjustMacroBy(key, delta) {
   }
   saveStore();
   renderToday();
-}
-function adjustMacro(key, delta) {
-  adjustMacroBy(key, delta);
 }
 
 /* Slide a macro row (v169): horizontal slide on the row's progress bar
@@ -2995,7 +2977,50 @@ function renderMovement() {
     const goal = Number(store.settings.movementGoal) || 30;
     totalEl.textContent = mins + " of " + goal + " minutes logged today, from the routine and anything else.";
   }
+  renderMovementSummary();
 }
+
+/* Movement section (v039): one collapsible section on Today, with
+   Cardio and Strength training inside. Collapsed by default, the header
+   shows just the totals. The slider, tap-to-type, routine toggles,
+   Customize, strength form and list, and doctor summary data are all
+   unchanged. */
+let movementSectionOpen = false;
+let strengthFormOpen = false;
+function renderMovementSummary() {
+  const el = document.getElementById("movement-summary");
+  if (!el) return;
+  const date = viewedDateStr();
+  const mins = sumForDate(store.exercise, date, "minutes");
+  const goal = Number(store.settings.movementGoal) || 30;
+  const count = (store.strength || []).filter((e) => e.date === date).length;
+  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength yet");
+}
+function setMovementSectionOpen(open) {
+  movementSectionOpen = open;
+  const body = document.getElementById("movement-body");
+  if (body) body.hidden = !open;
+  const toggle = document.getElementById("movement-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    const chev = toggle.querySelector(".section-toggle-chevron");
+    if (chev) chev.textContent = open ? "▾" : "▸";
+  }
+}
+function setStrengthFormOpen(open) {
+  strengthFormOpen = open;
+  const form = document.getElementById("strength-form");
+  if (form) form.classList.toggle("hidden", !open);
+  const toggle = document.getElementById("strength-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Hide form" : "Add exercise";
+  }
+}
+const movementToggleBtn = document.getElementById("movement-toggle");
+if (movementToggleBtn) movementToggleBtn.addEventListener("click", () => setMovementSectionOpen(!movementSectionOpen));
+const strengthToggleBtn = document.getElementById("strength-toggle");
+if (strengthToggleBtn) strengthToggleBtn.addEventListener("click", () => setStrengthFormOpen(!strengthFormOpen));
 
 /* ---------- Strength log (v033) ---------- */
 /* One form: exercise name, sets, reps, weight in pounds (optional).
@@ -3021,6 +3046,7 @@ function renderStrength() {
     saveStore();
     renderStrength();
   }));
+  renderMovementSummary();
 }
 document.getElementById("strength-form").addEventListener("submit", (ev) => {
   ev.preventDefault();
@@ -3039,6 +3065,7 @@ document.getElementById("strength-form").addEventListener("submit", (ev) => {
   document.getElementById("strength-form").reset();
   setFormStatus(msg, "Strength exercise saved.");
   renderStrength();
+  setStrengthFormOpen(false);
 });
 
 function toggleMove(name) {
@@ -5268,7 +5295,7 @@ function addKitchenToToday(id, servings) {
   setTimeout(() => { delete kitchenAddedAt[id]; renderKitchen(); }, 2500);
 }
 
-/* Meal ideas for the rest of today (v037): Kitchen recipes whose
+/* Meal ideas for today (v037): Kitchen recipes whose
    per-serving macros fit inside what is left of today's goals, so a
    suggestion never pushes a goal over. Ranked by protein, most first,
    top three, one serving each, with the same Add to Today action as
@@ -5282,7 +5309,7 @@ function renderMealIdeas() {
   const t = viewedDateStr();
   let html;
   if (!pGoal || !cGoal || !fGoal) {
-    html = "<h3>Meal ideas for the rest of today</h3>"
+    html = "<h3>Meal ideas for today</h3>"
       + "<p class=\"muted\" style=\"font-size:.9em\">Set your protein, carb, and fat goals in Settings to see meal ideas matched to what is left today.</p>"
       + "<button type=\"button\" class=\"btn btn-small\" data-goto=\"settings\">Set goals in Settings</button>";
   } else {
@@ -5290,16 +5317,16 @@ function renderMealIdeas() {
     const cLeft = cGoal - sumForDate(store.protein, t, "carbs");
     const fLeft = fGoal - sumForDate(store.protein, t, "fat");
     if (pLeft <= 0 && cLeft <= 0 && fLeft <= 0) {
-      html = "<h3>Meal ideas for the rest of today</h3>"
+      html = "<h3>Meal ideas for today</h3>"
         + "<p class=\"muted\" style=\"font-size:.9em\">You have met your macro goals for today. Nice work.</p>";
     } else {
       const fits = KITCHEN_RECIPES.filter((r) => r.protein <= pLeft && r.carbs <= cLeft && r.fat <= fLeft)
         .sort((a, b) => b.protein - a.protein).slice(0, 3);
       if (!fits.length) {
-        html = "<h3>Meal ideas for the rest of today</h3>"
+        html = "<h3>Meal ideas for today</h3>"
           + "<p class=\"muted\" style=\"font-size:.9em\">Nothing in the Kitchen fits what is left today. A small snack from Your foods may fit better.</p>";
       } else {
-        html = "<h3>Meal ideas for the rest of today</h3>"
+        html = "<h3>Meal ideas for today</h3>"
           + "<p class=\"muted\" style=\"font-size:.9em\">These fit what is left of your goals today: "
           + Math.max(0, Math.round(pLeft)) + "g protein, "
           + Math.max(0, Math.round(cLeft)) + "g carbs, "
@@ -5322,66 +5349,99 @@ function renderMealIdeas() {
   box.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => addKitchenToToday(btn.dataset.kitchenAdd, 1)));
 }
 
+/* Simple meals row (v039): up to four quick recipes (15 minutes or
+   less, or tagged Easy Prep). Picked once per page load and reshuffled
+   only on Shuffle, so the row does not jump while the user works. */
+let kitchenSimpleIds = null;
+function kitchenQuickPool() {
+  return KITCHEN_RECIPES.filter((r) => r.time <= 15 || r.tags.includes("easy-prep"));
+}
+function shuffleKitchenSimple() {
+  const pool = kitchenQuickPool().map((r) => r.id);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  kitchenSimpleIds = pool.slice(0, 4);
+}
+function kitchenTopMacro(r) {
+  const p = r.protein, c = r.carbs, f = r.fat;
+  if (p >= c && p >= f) return p + "g protein";
+  if (c >= p && c >= f) return c + "g carbs";
+  return f + "g fat";
+}
+function renderKitchenSimple() {
+  const box = document.getElementById("kitchen-simple");
+  if (!box) return;
+  if (!kitchenSimpleIds) shuffleKitchenSimple();
+  box.innerHTML = kitchenSimpleIds.map((id) => {
+    const r = KITCHEN_RECIPES.find((x) => x.id === id);
+    if (!r) return "";
+    return `<article class="simple-card">
+      <p class="simple-macro">${escapeHtml(kitchenTopMacro(r))}</p>
+      <strong>${escapeHtml(r.name)}</strong>
+      <p class="muted">${escapeHtml(r.category)} · Ready in ${r.time} minutes</p>
+      <button type="button" class="btn btn-small" data-simple-open="${r.id}">See the recipe</button>
+    </article>`;
+  }).join("");
+  box.querySelectorAll("[data-simple-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.simpleOpen)));
+}
+
+/* One photo card (v039): photo, category chip, name, and calories, with
+   a bookmark to save it. Shared by the featured row and the full list.
+   Tapping the card opens the recipe; the bookmark saves it. Our own
+   words and layout, in our colors. */
+const BOOKMARK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
+const BOOKMARK_SAVED_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#E8B54A" stroke="#87692B" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
+function kitchenPhotoCardHtml(r) {
+  const saved = kitchenIsSaved(r.id);
+  const photo = r.image
+    ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="" loading="lazy">`
+    : `<span class="recipe-placeholder"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>`;
+  return `<article class="kitchen-photo-card">
+    <button type="button" class="kitchen-photo-open" data-kitchen-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.name)}">
+      <span class="kitchen-photo-wrap">${photo}<span class="kitchen-chip-tag">${escapeHtml(r.category)}</span></span>
+      <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong><span class="muted">${r.calories} cal</span></span>
+    </button>
+    <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
+  </article>`;
+}
+function toggleKitchenSave(id) {
+  const r = KITCHEN_RECIPES.find((x) => x.id === id);
+  if (!r) return;
+  if (kitchenIsSaved(r.id)) {
+    store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
+  } else {
+    store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "", protein: r.protein, carbs: r.carbs, fat: r.fat, calories: r.calories, servings: r.servings });
+  }
+  saveStore();
+  renderRecipes();
+}
+function bindKitchenCards(root) {
+  if (!root) return;
+  root.querySelectorAll("[data-kitchen-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.kitchenOpen)));
+  root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
+}
+
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
   if (!list) return;
   renderMealIdeas();
+  renderKitchenSimple();
   const shown = KITCHEN_RECIPES.filter((r) => kitchenFilter === "all" || r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+  const featured = document.getElementById("kitchen-featured");
+  if (featured) {
+    featured.innerHTML = shown.length
+      ? shown.slice(0, 6).map((r) => kitchenPhotoCardHtml(r)).join("")
+      : '<p class="empty-state">No recipes match this filter yet.</p>';
+    bindKitchenCards(featured);
+  }
   if (!shown.length) {
     list.innerHTML = '<p class="empty-state">No recipes match this filter yet.</p>';
     return;
   }
-  list.innerHTML = shown.map((r) => {
-    const n = kitchenServings[r.id] || 1;
-    const saved = kitchenIsSaved(r.id);
-    const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
-    return `<article class="kitchen-card">
-      ${r.image ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="${escapeHtml(r.name)}" loading="lazy">${r.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(r.credit)}</p>` : ""}` : ""}
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-        <strong>${escapeHtml(r.name)}</strong>
-        <span class="muted" style="font-size:.85em;white-space:nowrap">${escapeHtml(r.category)}</span>
-      </div>
-      <p class="muted" style="font-size:.85em;margin:4px 0 8px">${r.time} minutes · ${escapeHtml(r.difficulty)} · Serves ${r.servings}</p>
-      <div class="kitchen-macros">
-        <div class="kitchen-macro"><b>${r.protein}g</b><span>Protein</span></div>
-        <div class="kitchen-macro"><b>${r.carbs}g</b><span>Carbs</span></div>
-        <div class="kitchen-macro"><b>${r.fat}g</b><span>Fat</span></div>
-        <div class="kitchen-macro"><b>${r.calories}</b><span>Calories</span></div>
-      </div>
-      <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving</p>
-      <details class="kitchen-details"><summary>Ingredients and steps</summary>
-        <ul>${r.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
-        <ol>${r.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
-      </details>
-      <div class="kitchen-actions">
-        <button type="button" class="btn btn-small" data-kitchen-save="${r.id}">${saved ? "Saved ✓" : "Save"}</button>
-        <span class="kitchen-stepper">
-          <button type="button" class="btn btn-small" data-kitchen-serv="${r.id}" data-dir="-1" aria-label="One fewer serving">−</button>
-          <span aria-live="polite">Servings: ${n}</span>
-          <button type="button" class="btn btn-small" data-kitchen-serv="${r.id}" data-dir="1" aria-label="One more serving">+</button>
-        </span>
-        <button type="button" class="btn btn-small btn-primary" data-kitchen-add="${r.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
-      </div>
-      <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${r.protein * n}g protein, ${r.carbs * n}g carbs, ${r.fat * n}g fat.</p>
-    </article>`;
-  }).join("");
-  list.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => {
-    const r = KITCHEN_RECIPES.find((x) => x.id === btn.dataset.kitchenSave);
-    if (!r) return;
-    if (kitchenIsSaved(r.id)) {
-      store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
-    } else {
-      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "", protein: r.protein, carbs: r.carbs, fat: r.fat, calories: r.calories, servings: r.servings });
-    }
-    saveStore();
-    renderRecipes();
-  }));
-  list.querySelectorAll("[data-kitchen-serv]").forEach((btn) => btn.addEventListener("click", () => {
-    const id = btn.dataset.kitchenServ;
-    kitchenServings[id] = Math.max(1, (kitchenServings[id] || 1) + Number(btn.dataset.dir));
-    renderKitchen();
-  }));
-  list.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => addKitchenToToday(btn.dataset.kitchenAdd)));
+  list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
+  bindKitchenCards(list);
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
@@ -5390,6 +5450,124 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
   if (note) note.classList.toggle("hidden", kitchenFilter !== "low-oxalate");
   renderKitchen();
 }));
+
+/* See all scrolls to the full Kitchen list; Shuffle reshuffles only
+   the Simple meals row. */
+const kitchenSeeAllBtn = document.getElementById("kitchen-see-all");
+if (kitchenSeeAllBtn) kitchenSeeAllBtn.addEventListener("click", () => {
+  const list = document.getElementById("kitchen-list");
+  if (list) list.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+const kitchenShuffleBtn = document.getElementById("kitchen-shuffle");
+if (kitchenShuffleBtn) kitchenShuffleBtn.addEventListener("click", () => {
+  shuffleKitchenSimple();
+  renderKitchenSimple();
+});
+
+/* Recipe detail (v039): tap a card to see the full recipe, with the
+   photo, ingredients, steps, nutrition, servings, Save, and Add to
+   Today's Nutrition. Saved recipes open the same way, with their own
+   photo or a lotus placeholder when they have none. */
+/* The recipe the modal is showing now, so a delayed refresh after
+   Add to Today never yanks the modal back to a different recipe. */
+let recipeModalId = null;
+function openRecipeModal(id) {
+  const modal = document.getElementById("recipe-modal");
+  const body = document.getElementById("recipe-modal-body");
+  if (!modal || !body) return;
+  recipeModalId = id;
+  const wasHidden = modal.classList.contains("hidden");
+  const kr = KITCHEN_RECIPES.find((x) => x.id === id);
+  if (kr) {
+    const n = kitchenServings[kr.id] || 1;
+    const saved = kitchenIsSaved(kr.id);
+    const added = kitchenAddedAt[kr.id] && Date.now() - kitchenAddedAt[kr.id] < 2500;
+    body.innerHTML = `
+      ${kr.image ? `<img class="kitchen-photo" src="${escapeHtml(kr.image)}" alt="${escapeHtml(kr.name)}" style="height:200px">` : ""}
+      <h2 id="recipe-modal-title" style="margin:12px 0 4px">${escapeHtml(kr.name)}</h2>
+      <p class="muted" style="font-size:.9em;margin:0 0 8px">${escapeHtml(kr.category)} · ${kr.time} minutes · ${escapeHtml(kr.difficulty)} · Serves ${kr.servings}</p>
+      <div class="kitchen-macros">
+        <div class="kitchen-macro"><b>${kr.protein}g</b><span>Protein</span></div>
+        <div class="kitchen-macro"><b>${kr.carbs}g</b><span>Carbs</span></div>
+        <div class="kitchen-macro"><b>${kr.fat}g</b><span>Fat</span></div>
+        <div class="kitchen-macro"><b>${kr.calories}</b><span>Calories</span></div>
+      </div>
+      <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving</p>
+      <h3 style="margin:14px 0 4px">Ingredients</h3>
+      <ul style="margin:0 0 0 18px;padding:0">${kr.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
+      <h3 style="margin:14px 0 4px">Steps</h3>
+      <ol style="margin:0 0 0 18px;padding:0">${kr.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
+      <div class="kitchen-actions">
+        <button type="button" class="btn btn-small" data-modal-kitchen-save="${kr.id}">${saved ? "Saved ✓" : "Save"}</button>
+        <span class="kitchen-stepper">
+          <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="-1" aria-label="One fewer serving">−</button>
+          <span aria-live="polite">Servings: ${n}</span>
+          <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="1" aria-label="One more serving">+</button>
+        </span>
+        <button type="button" class="btn btn-small btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
+      </div>
+      <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat.</p>
+      ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}`;
+  } else {
+    const r = (store.recipes || []).find((x) => x.id === id);
+    if (!r) return;
+    body.innerHTML = `
+      ${recipePhotoHtml(r) || `<div class="recipe-placeholder" aria-hidden="true"><img src="icons/lotus-gold-only-transparent.png" alt=""></div>`}
+      <h2 id="recipe-modal-title" style="margin:12px 0 4px">${escapeHtml(r.title)}</h2>
+      <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
+      ${recipeMacrosHtml(r)}`;
+  }
+  bindRecipeModalButtons();
+  modal.classList.remove("hidden");
+  if (wasHidden) {
+    const x = document.getElementById("recipe-modal-x");
+    if (x) x.focus();
+  }
+}
+function bindRecipeModalButtons() {
+  const body = document.getElementById("recipe-modal-body");
+  if (!body) return;
+  body.querySelectorAll("[data-modal-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.modalKitchenSave;
+    toggleKitchenSave(id);
+    openRecipeModal(id);
+  }));
+  body.querySelectorAll("[data-modal-kitchen-serv]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.modalKitchenServ;
+    kitchenServings[id] = Math.max(1, (kitchenServings[id] || 1) + Number(btn.dataset.dir));
+    openRecipeModal(id);
+  }));
+  body.querySelectorAll("[data-modal-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.modalKitchenAdd;
+    addKitchenToToday(id);
+    openRecipeModal(id);
+    setTimeout(() => {
+      const modal = document.getElementById("recipe-modal");
+      if (modal && !modal.classList.contains("hidden") && recipeModalId === id) openRecipeModal(id);
+    }, 2600);
+  }));
+  body.querySelectorAll("[data-recipe-add]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.recipeAdd;
+    addSavedRecipeToToday(id);
+    openRecipeModal(id);
+    setTimeout(() => {
+      const modal = document.getElementById("recipe-modal");
+      if (modal && !modal.classList.contains("hidden") && recipeModalId === id) openRecipeModal(id);
+    }, 2600);
+  }));
+}
+function closeRecipeModal() {
+  recipeModalId = null;
+  const modal = document.getElementById("recipe-modal");
+  if (modal) modal.classList.add("hidden");
+}
+const recipeModalX = document.getElementById("recipe-modal-x");
+if (recipeModalX) recipeModalX.addEventListener("click", closeRecipeModal);
+const recipeModal = document.getElementById("recipe-modal");
+if (recipeModal) recipeModal.addEventListener("click", (e) => {
+  if (e.target.id === "recipe-modal") closeRecipeModal();
+});
+
 
 /* The photo on a saved recipe card: the user's own photo when they
    added one, otherwise the Kitchen photo (and credit) when the recipe
@@ -5421,6 +5599,26 @@ function recipeMacrosHtml(r) {
   <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving${r.servings ? " · Serves " + r.servings : ""}</p>
   <div style="margin-top:8px"><button type="button" class="btn btn-small btn-primary" data-recipe-add="${r.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button></div>`;
 }
+/* Calories for a saved recipe card: the entered calories, or the 4/4/9
+   calculation when they were not entered. Zero when it has no macros. */
+function savedRecipeCalories(r) {
+  const protein = Number(r.protein) || 0, carbs = Number(r.carbs) || 0, fat = Number(r.fat) || 0;
+  if (!protein && !carbs && !fat) return 0;
+  return Number(r.calories) || Math.round(protein * 4 + carbs * 4 + fat * 9);
+}
+/* Add a saved recipe to today (v039): one macro entry for the day,
+   the same path as the Kitchen Add to Today. Shared by the saved
+   recipe list and the recipe modal. */
+function addSavedRecipeToToday(id) {
+  const r = store.recipes.find((x) => x.id === id);
+  if (!r) return;
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title });
+  saveStore();
+  renderToday();
+  recipeAddedAt[r.id] = Date.now();
+  renderRecipes();
+  setTimeout(() => { delete recipeAddedAt[r.id]; renderRecipes(); }, 2500);
+}
 function renderRecipes() {
   renderKitchen();
   const list = document.getElementById("recipe-list");
@@ -5430,32 +5628,24 @@ function renderRecipes() {
     return;
   }
   const sorted = [...store.recipes].sort(byDateDesc);
-  list.innerHTML = sorted.map((r) => `<div class="entry-row">
-    ${recipePhotoHtml(r)}
-    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-      <strong>${escapeHtml(r.title)}</strong>
-      <button type="button" class="btn btn-small" data-recipe-del="${r.id}">Delete</button>
-    </div>
-    <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
-    ${recipeMacrosHtml(r)}
-  </div>`).join("");
+  list.innerHTML = sorted.map((r) => {
+    const calories = savedRecipeCalories(r);
+    const photo = (r.photo || r.image)
+      ? `<img class="kitchen-photo" src="${escapeHtml(r.photo || r.image)}" alt="" loading="lazy">`
+      : `<span class="recipe-placeholder"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>`;
+    return `<article class="kitchen-photo-card">
+      <button type="button" class="kitchen-photo-open" data-recipe-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.title)}">
+        <span class="kitchen-photo-wrap">${photo}</span>
+        <span class="kitchen-photo-body"><strong>${escapeHtml(r.title)}</strong>${calories ? `<span class="muted">${calories} cal</span>` : ""}</span>
+      </button>
+      <button type="button" class="btn btn-small btn-danger kitchen-card-del" data-recipe-del="${r.id}" aria-label="Delete ${escapeHtml(r.title)}">Delete</button>
+    </article>`;
+  }).join("");
+  list.querySelectorAll("[data-recipe-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.recipeOpen)));
   list.querySelectorAll("[data-recipe-del]").forEach((btn) => btn.addEventListener("click", () => {
     store.recipes = store.recipes.filter((r) => r.id !== btn.dataset.recipeDel);
     saveStore();
     renderRecipes();
-  }));
-  list.querySelectorAll("[data-recipe-add]").forEach((btn) => btn.addEventListener("click", () => {
-    const r = store.recipes.find((x) => x.id === btn.dataset.recipeAdd);
-    if (!r) return;
-    /* Same path as the Kitchen Add to Today: one macro entry for the day,
-       then saveStore + renderToday, so entries, snapshots, and the backup
-       cap behave exactly as for logging food. */
-    store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title });
-    saveStore();
-    renderToday();
-    recipeAddedAt[r.id] = Date.now();
-    renderRecipes();
-    setTimeout(() => { delete recipeAddedAt[r.id]; renderRecipes(); }, 2500);
   }));
 }
 /* A photo for a saved recipe. The photo is shrunk to at most 800px wide
@@ -5536,15 +5726,53 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   saveStore();
   document.getElementById("recipe-form").reset();
   setRecipePhoto("");
-  setFormStatus(msg, "Recipe saved.", false);
+  setRecipeFormOpen(false);
+  const recipeToggle = document.getElementById("recipe-form-toggle");
+  if (recipeToggle) {
+    recipeToggle.textContent = "Recipe saved \u2713";
+    setTimeout(() => { if (recipeToggle.textContent === "Recipe saved \u2713") recipeToggle.textContent = "Add your own recipe"; }, 2500);
+  }
   renderRecipes();
 });
-/* Paste a Recipe. The AI step that reads a pasted recipe and fills in
-   the name, servings, and nutrition arrives after November 30, when the
-   Worker can parse it. Until then the box shows what is coming, the same
-   pattern as Scan my plate and the recipe search box: the pasted text
-   goes into the recipe form below, and the name, servings, and nutrition
-   stay blank for the user to fill in. Nothing is guessed or invented. */
+/* Paste a Recipe and the saved-recipe form (v039): both collapse
+   behind one button each, so the Kitchen opens short. The AI step that
+   reads a pasted recipe and fills in the name, servings, and nutrition
+   arrives after November 30, when the Worker can parse it. Until then
+   the pasted text goes into the recipe form below, and the name,
+   servings, and nutrition stay blank for the user to fill in. Nothing
+   is guessed or invented. */
+function setPasteRecipeOpen(open) {
+  const form = document.getElementById("paste-recipe-form");
+  if (form) form.classList.toggle("hidden", !open);
+  const toggle = document.getElementById("paste-recipe-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Hide the paste box" : "Paste a recipe";
+  }
+  if (open) {
+    const box = document.getElementById("paste-recipe-text");
+    if (box) box.focus();
+  }
+}
+function setRecipeFormOpen(open) {
+  const form = document.getElementById("recipe-form");
+  if (form) form.classList.toggle("hidden", !open);
+  const toggle = document.getElementById("recipe-form-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Hide form" : "Add your own recipe";
+  }
+}
+const pasteRecipeToggleBtn = document.getElementById("paste-recipe-toggle");
+if (pasteRecipeToggleBtn) pasteRecipeToggleBtn.addEventListener("click", () => {
+  const form = document.getElementById("paste-recipe-form");
+  setPasteRecipeOpen(form ? form.classList.contains("hidden") : true);
+});
+const recipeFormToggleBtn = document.getElementById("recipe-form-toggle");
+if (recipeFormToggleBtn) recipeFormToggleBtn.addEventListener("click", () => {
+  const form = document.getElementById("recipe-form");
+  setRecipeFormOpen(form ? form.classList.contains("hidden") : true);
+});
 document.getElementById("paste-recipe-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const msg = document.getElementById("paste-recipe-msg");
@@ -5552,7 +5780,9 @@ document.getElementById("paste-recipe-form").addEventListener("submit", (e) => {
   if (!text) { setFormStatus(msg, "Paste a recipe first.", true); return; }
   document.getElementById("recipe-body").value = text;
   document.getElementById("paste-recipe-text").value = "";
-  setFormStatus(msg, "Recipe AI is coming soon. For now, your pasted recipe is in the form below. Edit the name, servings, and nutrition, then save it to your Kitchen.", false);
+  setPasteRecipeOpen(false);
+  setRecipeFormOpen(true);
+  setFormStatus(document.getElementById("recipe-msg"), "Recipe AI is coming soon. For now, your pasted recipe is in the form below. Edit the name, servings, and nutrition, then save it to your Kitchen.", false);
   document.getElementById("recipe-form").scrollIntoView({ behavior: "smooth", block: "start" });
   document.getElementById("recipe-title").focus();
 });
@@ -5647,7 +5877,6 @@ function renderSettings() {
   document.getElementById("set-dose").value = s.dose || "";
   document.getElementById("set-shot-day").value = s.shotDay || "";
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
-  document.getElementById("set-water-step").value = s.waterStep || 8;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   // v168: carbs and fat targets for the Your Macros card, and height
@@ -5815,8 +6044,6 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
   store.settings.waterGoal = wg > 0 ? wg : 92;
-  const ws = Number(document.getElementById("set-water-step").value);
-  store.settings.waterStep = ws > 0 ? Math.round(ws) : 8;
   // v169: a blank or invalid macro target keeps the existing target.
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
@@ -7388,7 +7615,7 @@ function renderChat() {
   renderMorningCheckin();
   // v000: the chat header shows the Companion's chosen name and avatar.
   const title = document.getElementById("chat-title");
-  if (title) title.textContent = "Your " + companionDisplayName();
+  if (title) title.textContent = companionDisplayName() === COMPANION_DEFAULT_NAME ? "Companion" : companionDisplayName();
   const headerAvatar = document.getElementById("chat-header-avatar");
   if (headerAvatar) {
     const fresh = companionAvatarImg("chat-header-avatar");

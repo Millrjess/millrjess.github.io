@@ -1623,3 +1623,66 @@ canvas { max-width: 100%; height: auto; display: block; }
 .week-bar { width: 100%; max-width: 30px; border-radius: 6px 6px 0 0; }
 .week-bar-empty { background: #EDEBE3; }
 .week-bar-day { font-size: .8rem; color: var(--sage); margin-top: 6px; }
+
+/* v039: compact pass. Even text, collapsible Movement section, compact
+   macro rows, Kitchen photo cards, compact Companion header. */
+#tab-today, #tab-recipes { line-height: 1.5; }
+#tab-today .muted, #tab-recipes .muted, #tab-today .move-reps, #tab-recipes .kitchen-credit { line-height: 1.4; }
+#tab-today h2, #tab-today h3, #tab-recipes h2, #tab-recipes h3 { line-height: 1.3; }
+
+/* Collapsible section header: one button, title left, summary and
+   chevron right. No circle icon, so the title stays on one line. */
+.section-toggle {
+  display: flex; align-items: baseline; gap: 10px; width: 100%;
+  background: none; border: none; padding: 0; margin: 0 0 4px;
+  font: inherit; color: inherit; cursor: pointer; text-align: left;
+}
+.section-toggle-title { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
+.section-toggle-summary { flex: 1; font-size: .85rem; color: var(--muted); text-align: right; line-height: 1.4; }
+.section-toggle-chevron { color: #87692B; font-size: 1rem; line-height: 1; flex: none; }
+.section-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.movement-subhead { font-size: 1rem; font-weight: 700; margin: 14px 0 8px; line-height: 1.3; }
+
+/* Compact macro rows: name and numbers on one line, a thin bar below,
+   and the detail (why line and percent) only on the selected row. */
+.macro-detail { grid-column: 1 / -1; display: none; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 0.2rem; }
+.macro-row.selected .macro-detail { display: flex; }
+.macro-detail .macro-why { font-size: .85em; }
+.macro-detail .macro-pct { font-size: .82rem; color: var(--muted); }
+
+/* Kitchen photo cards: horizontal featured row, two-column full list. */
+.kitchen-featured { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; scroll-snap-type: x mandatory; }
+.kitchen-featured .kitchen-photo-card { flex: 0 0 200px; scroll-snap-align: start; }
+.kitchen-featured .kitchen-photo { height: 120px; }
+.kitchen-featured .recipe-placeholder { height: 120px; }
+#kitchen-list.kitchen-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kitchen-photo-card { position: relative; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); box-shadow: var(--shadow); overflow: hidden; }
+.kitchen-photo-open { display: block; width: 100%; background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.kitchen-photo-open:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kitchen-photo-wrap { display: block; position: relative; }
+.kitchen-photo-wrap .kitchen-photo { border-radius: 0; }
+.kitchen-chip-tag { position: absolute; left: 8px; bottom: 8px; background: rgba(43, 43, 40, 0.85); color: #FDFBF7; font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
+.kitchen-photo-body { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 12px 12px; }
+.kitchen-photo-body strong { font-size: .95rem; line-height: 1.3; }
+.kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
+.kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kitchen-card-del { position: absolute; top: 8px; right: 8px; }
+.recipe-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 180px; background: var(--sage); border-radius: var(--radius-sm); }
+.recipe-placeholder img { width: 72px; height: 55px; object-fit: contain; }
+
+/* Simple meals row: horizontal cards with a macro highlight. */
+.kitchen-simple { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; scroll-snap-type: x mandatory; }
+.simple-card { flex: 0 0 200px; scroll-snap-align: start; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); box-shadow: var(--shadow); padding: 12px; }
+.simple-macro { margin: 0 0 6px; font-size: 1.05rem; font-weight: 700; color: var(--sage-dark); line-height: 1.3; }
+.simple-card strong { display: block; line-height: 1.3; }
+.simple-card .muted { margin: 4px 0 10px; font-size: .85rem; line-height: 1.4; }
+
+/* Compact Companion header: smaller avatar and heading, and the
+   privacy note as one line with the full text behind a tap. */
+.chat-header-compact { gap: 8px; }
+.chat-header-compact .chat-header-avatar { width: 26px; height: 20px; }
+.chat-header-compact h2 { font-size: 1.25rem; line-height: 1.3; }
+.chat-privacy { margin: 8px 0 12px; }
+.chat-privacy summary { font-size: .85rem; color: var(--muted); cursor: pointer; line-height: 1.4; }
+.chat-privacy summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
