@@ -1460,7 +1460,7 @@ function paintDonut(totals) {
     const len = Math.max(0, frac * DONUT_C - DONUT_GAP);
     seg.setAttribute("stroke-dasharray", len.toFixed(1) + " " + DONUT_C.toFixed(1));
     seg.setAttribute("stroke-dashoffset", (-offset).toFixed(1));
-    seg.setAttribute("transform", "rotate(-90 130 130)");
+    seg.setAttribute("transform", "rotate(-90 150 150)");
     seg.style.opacity = selectedMacro === key ? "1" : "0.45";
     // v004: the macro's share of today's grams, as a label on its segment.
     // Hidden for tiny slices, so the text never crowds the ring.
@@ -1468,8 +1468,8 @@ function paintDonut(totals) {
     if (label) {
       const midFrac = total > 0 ? (offset + frac * DONUT_C / 2) / DONUT_C : 0;
       const angle = midFrac * Math.PI * 2;
-      label.setAttribute("x", (130 + 112 * Math.sin(angle)).toFixed(1));
-      label.setAttribute("y", (130 - 112 * Math.cos(angle)).toFixed(1));
+      label.setAttribute("x", (150 + 124 * Math.sin(angle)).toFixed(1));
+      label.setAttribute("y", (150 - 124 * Math.cos(angle)).toFixed(1));
       const pct = total > 0 ? Math.round(100 * totals[key] / total) : 0;
       label.textContent = pct >= 8 && totals[key] > 0 ? pct + "%" : "";
     }
