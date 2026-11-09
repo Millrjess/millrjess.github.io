@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=018">
+<link rel="stylesheet" href="styles.css?v=019">
 </head>
 <body>
 
@@ -953,13 +953,13 @@
         <p class="muted">Enter your calorie target above, then the share of calories for each macro. The app works out the grams and fills them in above.</p>
         <div style="display:flex;gap:10px">
           <label style="flex:1">Protein %
-            <input type="number" id="set-protein-pct" min="0" max="100" step="1" placeholder="32">
+            <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
           </label>
           <label style="flex:1">Carbs %
-            <input type="number" id="set-carbs-pct" min="0" max="100" step="1" placeholder="35">
+            <input type="number" id="set-carbs-pct" min="0" max="100" step="1" value="35">
           </label>
           <label style="flex:1">Fat %
-            <input type="number" id="set-fat-pct" min="0" max="100" step="1" placeholder="33">
+            <input type="number" id="set-fat-pct" min="0" max="100" step="1" value="33">
           </label>
         </div>
         <div style="margin-top:10px">
@@ -1260,7 +1260,7 @@
     </div>
   </div>
 
-<script src="app.js?v=018"></script>
+<script src="app.js?v=019"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

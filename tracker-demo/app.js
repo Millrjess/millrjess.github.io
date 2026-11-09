@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v017";
+const APP_VERSION = "v018";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -4157,6 +4157,26 @@ function renderSettings() {
   document.getElementById("set-fat-goal").value = s.fatGoal || 60;
   // v169: the calorie target is optional; blank stays blank.
   document.getElementById("set-calorie-target").value = s.calorieTarget === "" || s.calorieTarget === undefined ? "" : s.calorieTarget;
+  // The percentage fields show real values, not placeholders. Fill them
+  // from the saved gram goals and calorie target so the "Set goals from
+  // percentages" button reads what the user sees. Protein and carbs round
+  // to the nearest percent; fat takes the remainder so the three always
+  // add up to 100. When no goals are saved yet, the fields keep the
+  // decided split from the HTML (32/35/33).
+  const calNum = Number(s.calorieTarget);
+  const pGrams = Number(s.proteinGoal);
+  const cGrams = Number(s.carbGoal);
+  const fGrams = Number(s.fatGoal);
+  if (calNum > 0 && pGrams > 0 && cGrams > 0 && fGrams > 0) {
+    const ppct = Math.round(pGrams * 4 / calNum * 100);
+    const cpct = Math.round(cGrams * 4 / calNum * 100);
+    const fpct = 100 - ppct - cpct;
+    if (ppct >= 0 && ppct <= 100 && cpct >= 0 && cpct <= 100 && fpct >= 0 && fpct <= 100) {
+      document.getElementById("set-protein-pct").value = ppct;
+      document.getElementById("set-carbs-pct").value = cpct;
+      document.getElementById("set-fat-pct").value = fpct;
+    }
+  }
   document.getElementById("set-height-ft").value = s.heightFt === "" || s.heightFt === undefined ? "" : s.heightFt;
   document.getElementById("set-height-in").value = s.heightIn === "" || s.heightIn === undefined ? "" : s.heightIn;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
