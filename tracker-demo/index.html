@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=007">
+<link rel="stylesheet" href="styles.css?v=008">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -72,13 +72,13 @@
       <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <button id="day-prev" class="btn" aria-label="Previous day" style="padding:8px 14px">←</button>
+      <button id="day-prev" class="btn btn-small" aria-label="Previous day">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
         <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
-      <button id="day-cal" class="btn" aria-label="Open calendar to pick a date" style="padding:8px 14px">📅</button>
-      <button id="day-next" class="btn" aria-label="Next day" style="padding:8px 14px">→</button>
+      <button id="day-cal" class="btn btn-small" aria-label="Open calendar to pick a date">📅</button>
+      <button id="day-next" class="btn btn-small" aria-label="Next day">→</button>
     </div>
 
     <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Pick a date">
@@ -89,7 +89,7 @@
           <button class="btn btn-small" id="day-cal-next" aria-label="Next month">→</button>
         </div>
         <div id="day-cal-grid" class="mini-calendar" style="font-size:1.1rem;padding:0 4px;box-sizing:border-box"></div>
-        <button class="btn btn-secondary" id="day-cal-close" style="width:100%;margin-top:12px;padding:12px">Close</button>
+        <button class="btn btn-secondary" id="day-cal-close" style="width:100%;margin-top:12px">Close</button>
       </div>
     </div>
 
@@ -112,7 +112,7 @@
     <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
       <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
       <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
-      <button class="btn btn-link btn-small" data-goto="chat" style="padding:6px 0 0">Chat about it</button>
+      <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
     </details>
 
     <div class="card goals-card" id="goals-card">
@@ -772,7 +772,7 @@
           <label>Access code
             <input type="text" id="set-access-code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit code" autocomplete="off" spellcheck="false" aria-describedby="code-msg" style="letter-spacing:.3em;text-align:center;font-size:1.3rem">
           </label>
-          <button type="button" id="redeem-code-btn" class="btn-primary" style="margin-top:12px;width:100%;padding:16px;font-size:1.1rem">Connect my companion</button>
+          <button type="button" id="redeem-code-btn" class="btn btn-primary btn-block">Connect my companion</button>
           <p class="code-msg" id="code-msg" role="alert" style="min-height:1.2em"></p>
           <p class="muted">Get your code from the welcome page with your purchase email. It expires after 1 hour.</p>
         </div>
@@ -986,7 +986,7 @@
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
-      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data" style="padding:0;font-size:inherit">Delete all my data</button></p>
+      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
     </div>
 
       </div>
@@ -1085,7 +1085,7 @@
 </div>
 
 <script src="demo-seed.js"></script>
-<script src="app.js?v=007"></script>
+<script src="app.js?v=008"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

@@ -322,7 +322,7 @@ input[aria-invalid="true"]:focus-visible {
   border: 1.5px solid var(--gold);
   background: #fff;
   color: var(--ink);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   padding: 8px 14px;
   font-weight: 600;
   margin-top: 10px;
@@ -474,6 +474,13 @@ input[aria-invalid="true"]:focus-visible {
   min-height: 44px;
 }
 
+/* Secondary button: same white/border look as .btn, named explicitly. */
+.btn-secondary {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
 /* AA contrast: lighter gold end stop, dark button text 4.90:1 (was 3.59:1 on gold-dark) */
 .btn-primary {
   background: linear-gradient(135deg, var(--gold) 0%, #87692B 100%);
@@ -513,7 +520,8 @@ input[aria-invalid="true"]:focus-visible {
   border-color: var(--danger);
   color: var(--danger);
   font-size: 0.88rem;
-  padding: 6px 12px;
+  padding: 10px 16px;
+  min-height: 44px;
 }
 
 
@@ -592,7 +600,7 @@ label textarea {
   font-size: 0.9rem;
   border: 2px solid var(--border);
   background: #fff;
-  border-radius: 20px;
+  border-radius: var(--radius-sm);
   padding: 6px 12px;
   cursor: pointer;
   flex: 1;
@@ -1649,7 +1657,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   font: inherit;
   font-size: .85em;
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: #fff;
   color: var(--ink);
