@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v028";
+const APP_VERSION = "v029";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1983,6 +1983,21 @@ function renderFoodLibrary() {
   });
 }
 
+/* Fetch JSON from the food database, with one retry. Open Food Facts
+   sometimes answers with an error page instead of JSON, so check
+   res.ok before parsing. Returns the parsed JSON, or null when the
+   database is down or unreachable after one retry. */
+async function fetchFoodJson(url) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
+    } catch {}
+    if (attempt === 0) await new Promise((r) => setTimeout(r, 1000));
+  }
+  return null;
+}
+
 /* ---------- Food search by name ---------- */
 /* Type a food name, search Open Food Facts (free, no key), and tap a
    result to fill the name and macros from the label. Values are per
@@ -2023,8 +2038,8 @@ async function searchFoodByName() {
     status.textContent = "Tap a food to fill the macros.";
   }
   try {
-    const res = await fetch("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
-    const data = await res.json();
+    const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
+    if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; return; }
     const products = (data && data.products) || [];
     if (!products.length) {
       status.textContent = mine.length ? "Tap a food above, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
@@ -2062,7 +2077,7 @@ async function searchFoodByName() {
     });
     results.classList.remove("hidden");
   } catch (e) {
-    status.textContent = "Search failed. Check your connection, or enter the grams by hand.";
+    status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand.";
   }
 }
 document.getElementById("macro-food-search-btn").addEventListener("click", searchFoodByName);
@@ -2132,9 +2147,9 @@ async function lookupBarcode(code) {
   }
   status.textContent = "Looking up barcode, free from Open Food Facts...";
   try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_size,quantity`);
-    const data = await res.json();
-    if (!data || data.status !== 1 || !data.product) { status.textContent = "Barcode not found in Open Food Facts. Check the number, or enter the grams by hand."; return; }
+    const data = await fetchFoodJson(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_size,quantity`);
+    if (!data) { status.textContent = "The food database is temporarily unavailable. Try again, or enter the grams by hand."; return; }
+    if (data.status !== 1 || !data.product) { status.textContent = "Barcode not found in Open Food Facts. Check the number, or enter the grams by hand."; return; }
     const p = data.product;
     const n = p.nutriments || {};
     const pick = (servingKey, hundredKey) => {
@@ -2166,7 +2181,7 @@ async function lookupBarcode(code) {
       ? "Found. Check the label and edit the grams before logging."
       : "Found, but only per 100 g values were available. Scale them to your portion before logging.";
   } catch (e) {
-    status.textContent = "Lookup failed. Check your connection, or enter the grams by hand.";
+    status.textContent = "The food database is temporarily unavailable. Try again, or enter the grams by hand.";
   }
 }
 async function startScanCamera() {
