@@ -45,9 +45,9 @@
           { id: id("w7"), date: iso(-5), oz: 24 }
         ],
         protein: [
-          { id: id("p1"), date: iso(0), grams: 20, carbs: 25, fat: 2, food: "Greek yogurt with berries" },
-          { id: id("p2"), date: iso(0), grams: 35, carbs: 15, fat: 10, food: "Grilled chicken and vegetables" },
-          { id: id("p3"), date: iso(0), grams: 32, carbs: 28, fat: 21, food: "Salmon, quinoa, and broccoli" },
+          { id: id("p1"), date: iso(0), grams: 20, carbs: 25, fat: 2, food: "Greek yogurt with berries", meal: "Breakfast" },
+          { id: id("p2"), date: iso(0), grams: 35, carbs: 15, fat: 10, food: "Grilled chicken and vegetables", meal: "Lunch" },
+          { id: id("p3"), date: iso(0), grams: 32, carbs: 28, fat: 21, food: "Salmon, quinoa, and broccoli", meal: "Dinner" },
           { id: id("p4"), date: iso(-1), grams: 30, food: "Protein shake" },
           { id: id("p5"), date: iso(-2), grams: 28, food: "Eggs with toast" },
           { id: id("p6"), date: iso(-4), grams: 20, food: "Greek yogurt" },

@@ -94,6 +94,8 @@
       <button id="day-next" class="btn btn-small" aria-label="Next day">→</button>
     </div>
 
+    <div class="week-strip" id="week-strip" role="group" aria-label="Pick a day this week"></div>
+
     <div id="day-cal-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Pick a date">
       <div class="modal-card" style="max-width:340px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -122,16 +124,10 @@
       </div>
     </div>
 
-    <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
-      <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
-      <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
-      <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
-    </details>
-
-    <div class="card goals-card" id="goals-card">
-      <h2 class="card-title">Today's Goals</h2>
-      <p class="muted goals-hint">Slide left or right on a ring to change it. Tap the number to type an amount.</p>
-      <div class="goals-rings">
+    <div class="card" id="water-card" aria-label="Water">
+      <h2 class="card-title">Water</h2>
+      <p class="muted goals-hint">Slide left or right on the ring to change it. Tap the number to type an amount.</p>
+      <div class="goals-rings" style="justify-content:center">
         <div class="goal-ring">
           <div class="ring-box" id="water-ring">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="water-ring-fill" cx="60" cy="60" r="52"></circle></svg>
@@ -145,6 +141,12 @@
             <button type="button" class="ring-nudge-btn" id="water-plus-1" aria-label="Add 1 ounce of water">+</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="card" id="movement-card" aria-label="Movement">
+      <h2 class="card-title">Movement</h2>
+      <div class="goals-rings" style="justify-content:center">
         <div class="goal-ring">
           <div class="ring-box" id="exercise-ring">
             <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="52"></circle><circle class="ring-fill" id="exercise-ring-fill" cx="60" cy="60" r="52"></circle></svg>
@@ -200,6 +202,13 @@
       </form>
       <p class="code-msg" id="strength-saved-msg" role="status" style="min-height:1.2em"></p>
       <div id="strength-list"></div>
+    </div>
+
+    <div class="card" id="weight-today-card" aria-label="Weight">
+      <h2 class="card-title">Weight</h2>
+      <p style="margin:0"><span class="big-number" id="today-weight-value">-</span> <span style="font-size:1rem;color:var(--muted)"> lbs</span></p>
+      <p class="muted" id="today-weight-change" style="margin:6px 0 0;font-size:.9em"></p>
+      <button class="btn btn-primary btn-small" data-goto="weight" style="margin-top:12px">Log weight</button>
     </div>
 
     <div class="card" id="macros-card" aria-label="Your Macros">
@@ -268,9 +277,23 @@
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
       <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate</button>
 
+    </div>
+
+    <div class="card" id="foods-card" aria-label="Today's food">
+      <h2 class="card-title">Today's Food</h2>
+      <p class="muted" style="margin:0 0 12px">Log by meal, or log without a meal and it shows under Other foods.</p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
           <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
+        </label>
+        <label>Meal
+          <select id="macro-food-meal">
+            <option value="">No meal</option>
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Snacks</option>
+          </select>
         </label>
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
@@ -301,11 +324,14 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
-      <div id="food-log-wrap" style="margin-top:12px">
-        <h3 style="margin:0 0 6px;font-size:1rem">Logged today</h3>
-        <div id="food-log-list"></div>
-      </div>
+      <div id="food-log-list"></div>
     </div>
+
+    <details class="card hidden" id="coach-insight-card" style="border-left:4px solid #5A6B52">
+      <summary style="cursor:pointer;font-weight:600">Your AI Wellness Companion noticed something</summary>
+      <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
+      <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
+    </details>
 
     <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
       <div class="modal-card">

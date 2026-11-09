@@ -1159,6 +1159,84 @@ function setRing(key, value, goal) {
   setRingFill(ids[1], value, goal);
 }
 
+/* ---------- Compact Today (v034) ---------- */
+/* Meal groups for Today's food: Breakfast, Lunch, Dinner, Snacks.
+   A food entry carries an optional meal tag; entries without one show
+   under Other foods. Nothing about the entry shape changed except the
+   new optional meal field. */
+const MEALS = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+function mealOf(entry) {
+  return MEALS.includes(entry && entry.meal) ? entry.meal : "";
+}
+
+/* 7-day strip above Today: the week holding the day being viewed.
+   Tapping a day shows that day. Days after today are disabled. */
+function renderWeekStrip() {
+  const strip = document.getElementById("week-strip");
+  if (!strip) return;
+  const viewDate = new Date();
+  viewDate.setDate(viewDate.getDate() + viewOffset);
+  const sunday = new Date(viewDate);
+  sunday.setDate(viewDate.getDate() - viewDate.getDay());
+  const letters = ["S", "M", "T", "W", "T", "F", "S"];
+  const todayS = todayStr(0);
+  const viewed = viewedDateStr();
+  let html = "";
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
+    const iso = localDateStr(d);
+    const isViewed = iso === viewed;
+    const isToday = iso === todayS;
+    const isFuture = iso > todayS;
+    html += '<button type="button" class="week-day' + (isViewed ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-day="' + iso + '"' + (isFuture ? " disabled" : "") + ' aria-label="' + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + '"' + (isViewed ? ' aria-current="date"' : "") + '><span class="week-letter">' + letters[i] + '</span><span class="week-num">' + d.getDate() + "</span></button>";
+  }
+  strip.innerHTML = html;
+  strip.querySelectorAll("[data-week-day]").forEach((b) => b.addEventListener("click", () => {
+    viewOffset = daysBetween(todayStr(), b.dataset.weekDay);
+    renderToday();
+  }));
+}
+
+/* Weight card on Today: the latest weigh-in and the change since the
+   one before it. Log weight goes to the Weight tab, where the weight
+   is logged with the date. */
+function renderTodayWeight() {
+  const valEl = document.getElementById("today-weight-value");
+  if (!valEl) return;
+  const sorted = [...(store.weight || [])].sort(byDate);
+  const changeEl = document.getElementById("today-weight-change");
+  if (!sorted.length) {
+    valEl.textContent = "-";
+    if (changeEl) changeEl.textContent = "No weigh-ins yet. Log your first weight below.";
+    return;
+  }
+  const latest = sorted[sorted.length - 1];
+  valEl.textContent = Number(latest.value);
+  if (!changeEl) return;
+  if (sorted.length < 2) {
+    changeEl.textContent = "Logged " + formatDate(latest.date) + ".";
+    return;
+  }
+  const prev = sorted[sorted.length - 2];
+  const diff = Math.round((Number(latest.value) - Number(prev.value)) * 10) / 10;
+  changeEl.textContent = (diff > 0 ? "+" : "") + diff + " lbs since " + formatDate(prev.date) + " (" + Number(prev.value) + " lbs).";
+}
+
+/* Open the Log food form for one meal: the meal is preselected, the
+   form opens, and the page scrolls to it. */
+function openFoodFormForMeal(meal) {
+  editingFoodId = null;
+  const sel = document.getElementById("macro-food-meal");
+  if (sel) sel.value = MEALS.includes(meal) ? meal : "";
+  const form = document.getElementById("macro-food-form");
+  if (!form) return;
+  form.classList.remove("hidden");
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+  const nameInput = document.getElementById("macro-food-name");
+  if (nameInput) nameInput.focus();
+}
+
 function renderToday() {
   const t = todayStr(viewOffset);
   const dateEl = document.getElementById("today-date");
@@ -1197,6 +1275,8 @@ function renderToday() {
   renderMovement();
   renderStrength();
   renderFoodLog();
+  renderWeekStrip();
+  renderTodayWeight();
 
   renderGreeting();
   renderStreak();
@@ -1733,6 +1813,9 @@ document.getElementById("macro-log-food").addEventListener("click", () => {
   form.classList.toggle("hidden");
   if (wasHidden) {
     editingFoodId = null;
+    const mealSel = document.getElementById("macro-food-meal");
+    if (mealSel) mealSel.value = "";
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
     document.getElementById("macro-food-name").focus();
   }
 });
@@ -1756,16 +1839,18 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
     return;
   }
   const food = document.getElementById("macro-food-name").value.trim().slice(0, 120) || "Logged food";
+  const mealSel = document.getElementById("macro-food-meal");
+  const meal = mealSel && MEALS.includes(mealSel.value) ? mealSel.value : "";
   if (editingFoodId) {
     const i = (store.protein || []).findIndex((x) => x.id === editingFoodId);
     if (i !== -1) {
-      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food };
+      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food, meal };
       if (pendingFoodPhoto) updated.photo = pendingFoodPhoto;
       store.protein[i] = updated;
     }
     editingFoodId = null;
   } else {
-    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food };
+    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food, meal };
     if (pendingFoodPhoto) entry.photo = pendingFoodPhoto;
     store.protein.push(entry);
   }
@@ -2285,17 +2370,36 @@ function renderFoodLog() {
   if (!list) return;
   const t = viewedDateStr();
   const entries = store.protein.filter((e) => e.date === t);
-  if (!entries.length) {
-    list.innerHTML = '<p class="muted" style="margin:0">Nothing logged yet today.</p>';
-    return;
-  }
-  list.innerHTML = entries.map((e) => `
+  const itemHtml = (e) => `
     <div class="today-entry" style="display:flex;align-items:center;gap:10px;margin:6px 0">
       ${e.photo ? `<button type="button" class="food-photo-thumb" data-photo="${e.id}" aria-label="View photo for ${escapeHtml(e.food || "Logged food")}" style="padding:0;border:1px solid var(--sage-border);border-radius:10px;overflow:hidden;flex:none;background:none;cursor:pointer"><img src="${e.photo}" alt="" style="width:48px;height:48px;object-fit:cover;display:block"></button>` : ""}
       <span style="flex:1">${escapeHtml(e.food || "Logged food")} &middot; ${escapeHtml(e.grams)} g protein${(Number(e.carbs) || 0) || (Number(e.fat) || 0) ? ` &middot; ${Number(e.carbs) || 0}g carbs &middot; ${Number(e.fat) || 0}g fat` : ""}</span>
       <button type="button" class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged food")}">Edit</button>
       <button type="button" class="btn btn-small btn-danger" data-del-food="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged food")}">Remove</button>
-    </div>`).join("");
+    </div>`;
+  const rowHtml = (meal, items) => {
+    const kcal = items.reduce((s, e) => s + Math.round((Number(e.grams) || 0) * 4 + (Number(e.carbs) || 0) * 4 + (Number(e.fat) || 0) * 9), 0);
+    const total = items.length
+      ? items.length + (items.length === 1 ? " food · " : " foods · ") + kcal + " cal"
+      : "Nothing logged yet";
+    return "<div class=\"meal-row\">"
+      + "<div class=\"meal-head\"><span class=\"meal-name\">" + meal + "</span>"
+      + "<span class=\"muted meal-total\">" + total + "</span>"
+      + "<button type=\"button\" class=\"btn btn-small\" data-meal-log=\"" + meal + "\" aria-label=\"Log food for " + meal + "\">Log</button></div>"
+      + items.map(itemHtml).join("")
+      + "</div>";
+  };
+  let html = MEALS.map((meal) => rowHtml(meal, entries.filter((e) => mealOf(e) === meal))).join("");
+  const untagged = entries.filter((e) => mealOf(e) === "");
+  if (untagged.length) {
+    html += "<div class=\"meal-row\">"
+      + "<div class=\"meal-head\"><span class=\"meal-name\">Other foods</span>"
+      + "<span class=\"muted meal-total\">" + untagged.length + (untagged.length === 1 ? " food" : " foods") + " · not grouped by meal</span></div>"
+      + untagged.map(itemHtml).join("")
+      + "</div>";
+  }
+  list.innerHTML = html;
+  list.querySelectorAll("[data-meal-log]").forEach((b) => b.addEventListener("click", () => openFoodFormForMeal(b.dataset.mealLog)));
   list.querySelectorAll("[data-edit-food]").forEach((b) => b.addEventListener("click", () => {
     const entry = store.protein.find((x) => x.id === b.dataset.editFood);
     if (!entry) return;
@@ -2304,7 +2408,10 @@ function renderFoodLog() {
     document.getElementById("macro-food-protein").value = Number(entry.grams) || "";
     document.getElementById("macro-food-carbs").value = Number(entry.carbs) || "";
     document.getElementById("macro-food-fat").value = Number(entry.fat) || "";
+    const mealSel = document.getElementById("macro-food-meal");
+    if (mealSel) mealSel.value = mealOf(entry);
     document.getElementById("macro-food-form").classList.remove("hidden");
+    document.getElementById("macro-food-form").scrollIntoView({ behavior: "smooth", block: "start" });
     document.getElementById("macro-food-name").focus();
   }));
   list.querySelectorAll("[data-del-food]").forEach((b) => b.addEventListener("click", () => {
@@ -2320,6 +2427,7 @@ function renderFoodLog() {
     document.getElementById("food-photo-modal").classList.remove("hidden");
   }));
 }
+
 document.getElementById("food-photo-close").addEventListener("click", () => {
   document.getElementById("food-photo-modal").classList.add("hidden");
   const img = document.getElementById("food-photo-large");
