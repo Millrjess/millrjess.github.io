@@ -61,6 +61,10 @@
           { id: id("e5"), date: iso(-4), minutes: 20, label: "Pilates" },
           { id: id("e6"), date: iso(-5), minutes: 15, label: "Walking" }
         ],
+        strength: [
+          { id: id("st1"), date: iso(0), name: "Wall push-ups", sets: 3, reps: 10, weight: "" },
+          { id: id("st2"), date: iso(-2), name: "Squats", sets: 3, reps: 12, weight: "" }
+        ],
         injections: [
           { id: id("i1"), date: iso(-21), medication: "Zepbound", dose: "5", site: "Left Upper Arm", notes: "On time." },
           { id: id("i2"), date: iso(-14), medication: "Zepbound", dose: "5", site: "Right Upper Arm", notes: "On time." },

@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=032">
+<link rel="stylesheet" href="styles.css?v=033">
 </head>
 <body>
 
@@ -174,6 +174,32 @@
         </div>
         <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
       </div>
+    </div>
+
+    <div class="card" id="strength-card" aria-label="Strength">
+      <h2 class="card-title">Strength</h2>
+      <p class="muted" style="margin:0 0 12px">Log a strength exercise. It saves to today, and shows in your doctor summary.</p>
+      <form id="strength-form" aria-label="Log strength exercise" novalidate>
+        <label>Exercise
+          <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
+        </label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label style="flex:1;min-width:70px">Sets
+            <input type="number" id="strength-sets" min="1" step="1" placeholder="3" required>
+          </label>
+          <label style="flex:1;min-width:70px">Reps
+            <input type="number" id="strength-reps" min="1" step="1" placeholder="10" required>
+          </label>
+          <label style="flex:1;min-width:90px">Weight (lbs, optional)
+            <input type="number" id="strength-weight" min="0" step="0.5" placeholder="0">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+      <p class="code-msg" id="strength-saved-msg" role="status" style="min-height:1.2em"></p>
+      <div id="strength-list"></div>
     </div>
 
     <div class="card" id="macros-card" aria-label="Your Macros">
@@ -491,6 +517,8 @@
       <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
       <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-per-week" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-goal-date" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
     </div>
 
@@ -1081,7 +1109,10 @@
         <label class="btn" style="cursor:pointer">Restore backup
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
+        <button type="button" class="btn" id="export-diary-csv">Download diary (CSV)</button>
       </div>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em">Download diary (CSV) saves a spreadsheet of your diary, one row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
+      <p class="code-msg" id="csv-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <p class="muted" id="backup-version-line" style="margin-top:6px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
@@ -1315,7 +1346,7 @@
     </div>
   </div>
 
-<script src="app.js?v=032"></script>
+<script src="app.js?v=033"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

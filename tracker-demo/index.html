@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=031">
+<link rel="stylesheet" href="styles.css?v=032">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -161,6 +161,32 @@
         </div>
         <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
       </div>
+    </div>
+
+    <div class="card" id="strength-card" aria-label="Strength">
+      <h2 class="card-title">Strength</h2>
+      <p class="muted" style="margin:0 0 12px">Log a strength exercise. It saves to today, and shows in your doctor summary.</p>
+      <form id="strength-form" aria-label="Log strength exercise" novalidate>
+        <label>Exercise
+          <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
+        </label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label style="flex:1;min-width:70px">Sets
+            <input type="number" id="strength-sets" min="1" step="1" placeholder="3" required>
+          </label>
+          <label style="flex:1;min-width:70px">Reps
+            <input type="number" id="strength-reps" min="1" step="1" placeholder="10" required>
+          </label>
+          <label style="flex:1;min-width:90px">Weight (lbs, optional)
+            <input type="number" id="strength-weight" min="0" step="0.5" placeholder="0">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+      <p class="code-msg" id="strength-saved-msg" role="status" style="min-height:1.2em"></p>
+      <div id="strength-list"></div>
     </div>
 
     <div class="card" id="macros-card" aria-label="Your Macros">
@@ -467,6 +493,8 @@
       <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
       <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-per-week" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-goal-date" style="font-size:.9em;margin:8px 0 0"></p>
       <p class="muted" id="weight-chart-empty">Log at least two weigh ins to see your chart.</p>
     </div>
 
@@ -1043,7 +1071,10 @@
         <label class="btn" style="cursor:pointer">Restore backup
           <input type="file" id="restore-input" accept=".json,application/json" hidden>
         </label>
+        <button type="button" class="btn" id="export-diary-csv">Download diary (CSV)</button>
       </div>
+      <p class="muted" style="margin:8px 0 0;font-size:.85em">Download diary (CSV) saves a spreadsheet of your diary, one row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
+      <p class="code-msg" id="csv-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
@@ -1157,7 +1188,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=031"></script>
+<script src="demo-seed.js?v=032"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1182,7 +1213,7 @@
     </div>
   </div>
 
-<script src="app.js?v=031"></script>
+<script src="app.js?v=032"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

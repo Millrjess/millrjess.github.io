@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v031";
+const APP_VERSION = "v032";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -78,6 +78,7 @@ const DEFAULTS = {
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
   protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
   exercise: [],     // { id, date, minutes, label }
+  strength: [],     // v033: { id, date, name, sets, reps, weight } strength exercises
   injections: [],   // { id, date, medication, dose, site, notes, status: "On time" | "Missed" | "Delayed" }
   weight: [],       // { id, date, value }
   measurements: [], // { id, date, waist, hips, chest, arm, thigh, neck }
@@ -126,7 +127,7 @@ function companionAvatarImg(className) {
 
 /* Collections that must be arrays, and the settings keys with their defaults.
    Used to validate anything loaded from storage or from a file. */
-const COLLECTION_KEYS = ["water", "protein", "exercise", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "medicines", "recipes"];
+const COLLECTION_KEYS = ["water", "protein", "exercise", "strength", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "medicines", "recipes"];
 
 /* Validate a parsed store shape: arrays must be arrays (bad entries dropped),
    settings must be an object merged key-by-key over the defaults so a bad or
@@ -162,6 +163,23 @@ function validateStore(parsed, strict) {
     }
     if (kept.length !== parsed[k].length) lastValidateDropped.push(k);
     out[k] = kept;
+    // v033: strength entries keep a name and counts only; sets and
+    // reps are whole numbers of at least 1, weight is pounds or blank,
+    // so a bad value can never break the strength list.
+    if (k === "strength") {
+      const before = out[k].length;
+      out[k] = out[k].filter((e) => {
+        if (!e || !isValidDateStr(e.date)) return false;
+        if (typeof e.name !== "string" || !e.name.trim()) return false;
+        e.name = e.name.trim().slice(0, 80);
+        e.sets = Number.isFinite(Number(e.sets)) ? Math.max(1, Math.round(Number(e.sets))) : 1;
+        e.reps = Number.isFinite(Number(e.reps)) ? Math.max(1, Math.round(Number(e.reps))) : 1;
+        const wgt = Number(e.weight);
+        e.weight = (e.weight === "" || e.weight === undefined || e.weight === null) ? "" : (Number.isFinite(wgt) && wgt >= 0 ? wgt : "");
+        return true;
+      });
+      if (out[k].length !== before) lastValidateDropped.push(k);
+    }
   });
   if (parsed.settings !== undefined && (typeof parsed.settings !== "object" || Array.isArray(parsed.settings))) {
     lastValidateDropped.push("settings");
@@ -1102,6 +1120,7 @@ function renderToday() {
 
   renderMacros();
   renderMovement();
+  renderStrength();
 
   renderGreeting();
   renderStreak();
@@ -1122,7 +1141,7 @@ function renderToday() {
    the first log. */
 function loggedDates() {
   const days = new Set();
-  ["water", "protein", "exercise", "injections", "weight", "measurements", "journal", "sideEffects", "photos"].forEach((k) => {
+  ["water", "protein", "exercise", "strength", "injections", "weight", "measurements", "journal", "sideEffects", "photos"].forEach((k) => {
     (store[k] || []).forEach((e) => { if (e && typeof e.date === "string") days.add(e.date); });
   });
   Object.keys(store.moods || {}).forEach((d) => days.add(d));
@@ -2383,6 +2402,50 @@ function renderMovement() {
   }
 }
 
+/* ---------- Strength log (v033) ---------- */
+/* One form: exercise name, sets, reps, weight in pounds (optional).
+   Entries save to the day being viewed and show in today's list, with
+   a remove button each. No chart, no planner. */
+function renderStrength() {
+  const list = document.getElementById("strength-list");
+  if (!list) return;
+  const t = todayStr(viewOffset);
+  const today = (store.strength || []).filter((e) => e.date === t).sort(byDate);
+  list.innerHTML = today.length
+    ? today.map((e) => `
+      <div class="entry">
+        <p class="entry-title">${escapeHtml(e.name)}, ${escapeHtml(String(e.sets))} sets of ${escapeHtml(String(e.reps))}${e.weight !== "" && e.weight !== undefined && e.weight !== null ? " at " + escapeHtml(String(e.weight)) + " lbs" : ""}</p>
+        <p class="entry-sub">${escapeHtml(formatDate(e.date))}</p>
+        <div class="entry-actions">
+          <button class="btn btn-small btn-danger" data-del-strength="${e.id}" aria-label="Remove strength entry: ${escapeHtml(e.name)}">Remove</button>
+        </div>
+      </div>`).join("")
+    : '<p class="empty-state">No strength exercises logged for this day yet.</p>';
+  list.querySelectorAll("[data-del-strength]").forEach((b) => b.addEventListener("click", () => {
+    store.strength = (store.strength || []).filter((x) => x.id !== b.dataset.delStrength);
+    saveStore();
+    renderStrength();
+  }));
+}
+document.getElementById("strength-form").addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  const name = document.getElementById("strength-name").value.trim();
+  const sets = Math.round(Number(document.getElementById("strength-sets").value));
+  const reps = Math.round(Number(document.getElementById("strength-reps").value));
+  const weightRaw = document.getElementById("strength-weight").value;
+  const weight = weightRaw === "" ? "" : Number(weightRaw);
+  const msg = document.getElementById("strength-saved-msg");
+  if (!name) { setFormStatus(msg, "Enter an exercise name.", true); return; }
+  if (!Number.isFinite(sets) || sets < 1) { setFormStatus(msg, "Sets must be at least 1.", true); return; }
+  if (!Number.isFinite(reps) || reps < 1) { setFormStatus(msg, "Reps must be at least 1.", true); return; }
+  if (weight !== "" && (!Number.isFinite(weight) || weight < 0)) { setFormStatus(msg, "Weight must be 0 or more, or left blank.", true); return; }
+  store.strength.push({ id: uid(), date: viewedDateStr(), name: name.slice(0, 80), sets, reps, weight });
+  saveStore();
+  document.getElementById("strength-form").reset();
+  setFormStatus(msg, "Strength exercise saved.");
+  renderStrength();
+});
+
 function toggleMove(name) {
   const date = viewedDateStr();
   const plan = getMovementPlan();
@@ -3280,6 +3343,7 @@ function renderWeight() {
   });
 
   renderWeightMilestone();
+  renderWeightVisuals();
   drawWeightChart();
   drawBMIChart();
 }
@@ -3414,6 +3478,13 @@ function buildDoctorSummary() {
   } else {
     lines.push("No movement logged in the last 30 days.");
   }
+  // v033: strength sessions in the last 30 days, in the same Exercise section.
+  const recentSt = (store.strength || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  if (recentSt.length) {
+    const stDays = new Set(recentSt.map((e) => e.date)).size;
+    const stSets = recentSt.reduce((t, e) => t + (Number(e.sets) || 0), 0);
+    lines.push("Strength: " + recentSt.length + " exercise" + (recentSt.length === 1 ? "" : "s") + " logged across " + stDays + " day" + (stDays === 1 ? "" : "s") + ", " + stSets + " sets in total.");
+  }
   lines.push("");
   lines.push("This summary is from your own log. It is not medical advice.");
   return lines.join("\n");
@@ -3505,6 +3576,47 @@ function renderWeightMilestone() {
       : "You're on your way. Every day counts.";
     subEl.textContent = pctRound + "% of the way from " + startW + " to your goal of " + goalW
       + " lbs (" + Math.abs(curW - goalW).toFixed(1) + " lbs to go).";
+  }
+}
+
+/* ---------- Weight pace (v033) ---------- */
+/* Pounds per week from the first and last weigh-ins, and a projected
+   goal date at that pace. Plain numbers only, no judgment language.
+   Needs at least two weigh-ins a week apart; the goal date shows only
+   when the pace is a loss and the current weight is above the goal. */
+function renderWeightVisuals() {
+  const perWeekEl = document.getElementById("weight-per-week");
+  const goalDateEl = document.getElementById("weight-goal-date");
+  if (!perWeekEl || !goalDateEl) return;
+  const sorted = [...(store.weight || [])].sort(byDate);
+  perWeekEl.textContent = "";
+  goalDateEl.textContent = "";
+  if (sorted.length < 2) {
+    perWeekEl.textContent = "Log two weigh-ins a week apart to see your pounds per week.";
+    return;
+  }
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  const days = (new Date(last.date + "T12:00:00") - new Date(first.date + "T12:00:00")) / 86400000;
+  if (!(days >= 7)) {
+    perWeekEl.textContent = "Log two weigh-ins a week apart to see your pounds per week.";
+    return;
+  }
+  const change = Number(first.value) - Number(last.value); // positive means lost
+  const perWeek = change / days * 7;
+  const absWeek = Math.abs(perWeek).toFixed(1);
+  perWeekEl.textContent = perWeek > 0.05
+    ? "Losing about " + absWeek + " lbs per week."
+    : perWeek < -0.05
+    ? "Gaining about " + absWeek + " lbs per week."
+    : "Holding steady, about 0 lbs per week.";
+  const goalW = Number(store.settings.goalWeight) || 0;
+  const current = Number(last.value);
+  if (perWeek > 0.05 && goalW > 0 && current > goalW) {
+    const weeksToGo = (current - goalW) / perWeek;
+    const d = new Date();
+    d.setDate(d.getDate() + Math.round(weeksToGo * 7));
+    goalDateEl.textContent = "At this pace, about " + formatDate(localDateStr(d)) + " to reach " + goalW + " lbs.";
   }
 }
 
@@ -5505,6 +5617,70 @@ document.getElementById("export-data").addEventListener("click", () => {
   // reset the backup reminder.
   renderBackupNudge();
 });
+/* ---------- Diary CSV export (v033) ---------- */
+/* One row per food entry per day, with that day's water, movement,
+   weight, mood, and journal notes on the row. A day with no food
+   entries but with water, movement, weight, mood, or a journal note
+   gets one row with the food fields blank. Pure function of the
+   store, so it can be tested without the page. */
+function csvCell(v) {
+  const text = String(v == null ? "" : v);
+  if (/[",\r\n]/.test(text)) return '"' + text.replace(/"/g, '""') + '"';
+  return text;
+}
+function buildDiaryCSV(s) {
+  const headers = ["Date", "Food", "Protein (g)", "Carbs (g)", "Fat (g)", "Calories", "Water (oz)", "Movement (min)", "Weight (lbs)", "Mood", "Journal note"];
+  const byDay = {};
+  const addDay = (d) => { if (!byDay[d]) byDay[d] = { foods: [], water: 0, movement: 0, weight: "", mood: "", notes: [] }; return byDay[d]; };
+  (s.water || []).forEach((e) => { if (e && e.date) addDay(e.date).water += Number(e.oz) || 0; });
+  (s.exercise || []).forEach((e) => { if (e && e.date) addDay(e.date).movement += Number(e.minutes) || 0; });
+  (s.weight || []).forEach((e) => { if (e && e.date) addDay(e.date).weight = Number(e.value); });
+  (s.protein || []).forEach((e) => { if (e && e.date) addDay(e.date).foods.push(e); });
+  (s.journal || []).forEach((e) => {
+    if (!e || !e.date) return;
+    const day = addDay(e.date);
+    if (e.mood && !day.mood) day.mood = e.mood;
+    if (e.notes) day.notes.push(e.notes);
+  });
+  Object.entries(s.moods || {}).forEach(([d, m]) => { if (typeof m === "string" && m) { const day = addDay(d); if (!day.mood) day.mood = m; } });
+  const rows = [headers.map(csvCell).join(",")];
+  Object.keys(byDay).sort().forEach((d) => {
+    const day = byDay[d];
+    const mood = day.mood || "";
+    const note = day.notes.join(" ");
+    const water = day.water || "";
+    const movement = day.movement || "";
+    const weight = day.weight === "" ? "" : day.weight;
+    if (!day.foods.length) {
+      rows.push([d, "", "", "", "", "", water, movement, weight, mood, note].map(csvCell).join(","));
+      return;
+    }
+    day.foods.forEach((f) => {
+      const p = Number(f.grams) || 0, c = Number(f.carbs) || 0, fa = Number(f.fat) || 0;
+      const cal = Math.round(p * 4 + c * 4 + fa * 9);
+      rows.push([d, f.food || "", p, c, fa, cal, water, movement, weight, mood, note].map(csvCell).join(","));
+    });
+  });
+  return rows.join("\n");
+}
+document.getElementById("export-diary-csv").addEventListener("click", () => {
+  const csv = buildDiaryCSV(store);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "new-chapter-diary-" + todayStr() + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const msg = document.getElementById("csv-msg");
+  if (msg) setFormStatus(msg, "Diary downloaded as a CSV file. It opens in Google Sheets.");
+  // An export is not a backup: it cannot be restored, so it must not
+  // reset the backup reminder.
+  renderBackupNudge();
+});
+
 
 
 
