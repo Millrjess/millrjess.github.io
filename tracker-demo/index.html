@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=043">
+<link rel="stylesheet" href="styles.css?v=044">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -348,15 +348,16 @@
 
     <div class="card">
       <h2 class="card-title">Daily Mood</h2>
-      <div class="mood-row" id="mood-row">
-        <button class="mood-btn" data-mood="Great">Great</button>
-        <button class="mood-btn" data-mood="Good">Good</button>
-        <button class="mood-btn" data-mood="Okay">Okay</button>
-        <button class="mood-btn" data-mood="Low">Low</button>
-        <button class="mood-btn" data-mood="Calm">Calm</button>
-        <button class="mood-btn" data-mood="Bad">Bad</button>
-        <button class="mood-btn" data-mood="Terrible">Terrible</button>
-      </div>
+      <select id="mood-select" aria-label="Daily mood">
+        <option value="">Choose a mood</option>
+        <option>Great</option>
+        <option>Good</option>
+        <option>Okay</option>
+        <option>Low</option>
+        <option>Calm</option>
+        <option>Bad</option>
+        <option>Terrible</option>
+      </select>
       <p class="muted" id="mood-today-label" hidden></p>
     </div>
 
@@ -366,7 +367,7 @@
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
 
-    <details class="card">
+    <details class="card" id="review-details">
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
@@ -669,6 +670,7 @@
       <label>Notes
         <textarea id="journal-notes" rows="4" maxlength="2000" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
       </label>
+      <button type="button" class="btn btn-small hidden" id="journal-voice-btn" aria-label="Speak your journal notes">🎤 Speak</button>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn" id="cancel-journal">Cancel</button>
@@ -1241,7 +1243,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=043"></script>
+<script src="demo-seed.js?v=044"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1266,7 +1268,7 @@
     </div>
   </div>
 
-<script src="app.js?v=043"></script>
+<script src="app.js?v=044"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

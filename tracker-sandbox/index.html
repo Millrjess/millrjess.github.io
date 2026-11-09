@@ -370,15 +370,16 @@
 
     <div class="card">
       <h2 class="card-title">Daily Mood</h2>
-      <div class="mood-row" id="mood-row">
-        <button class="mood-btn" data-mood="Great">Great</button>
-        <button class="mood-btn" data-mood="Good">Good</button>
-        <button class="mood-btn" data-mood="Okay">Okay</button>
-        <button class="mood-btn" data-mood="Low">Low</button>
-        <button class="mood-btn" data-mood="Calm">Calm</button>
-        <button class="mood-btn" data-mood="Bad">Bad</button>
-        <button class="mood-btn" data-mood="Terrible">Terrible</button>
-      </div>
+      <select id="mood-select" aria-label="Daily mood">
+        <option value="">Choose a mood</option>
+        <option>Great</option>
+        <option>Good</option>
+        <option>Okay</option>
+        <option>Low</option>
+        <option>Calm</option>
+        <option>Bad</option>
+        <option>Terrible</option>
+      </select>
       <p class="muted" id="mood-today-label" hidden></p>
     </div>
 
@@ -388,7 +389,7 @@
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
 
-    <details class="card">
+    <details class="card" id="review-details">
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
@@ -691,6 +692,7 @@
       <label>Notes
         <textarea id="journal-notes" rows="4" maxlength="2000" placeholder="How did today feel? Energy, appetite, mood, wins, challenges..."></textarea>
       </label>
+      <button type="button" class="btn btn-small hidden" id="journal-voice-btn" aria-label="Speak your journal notes">🎤 Speak</button>
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn" id="cancel-journal">Cancel</button>

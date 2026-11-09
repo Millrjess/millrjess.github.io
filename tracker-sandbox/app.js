@@ -1135,7 +1135,7 @@ function renderMonthlyReview() {
       ? "The month isn't over yet. Keep writing."
       : "That's a chapter worth keeping.";
 
-  body.innerHTML = lines.map((l) => `<p style="margin:0 0 8px">${l}</p>`).join("") +
+  body.innerHTML = (lines.length ? `<ul style="margin:0 0 4px;padding-left:20px">${lines.map((l) => `<li style="margin:0 0 8px">${l}</li>`).join("")}</ul>` : "") +
     `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
 
   document.getElementById("review-next").style.visibility = isCurrent ? "hidden" : "";
@@ -1150,6 +1150,15 @@ document.getElementById("review-next").addEventListener("click", () => {
   reviewMonth++;
   if (reviewMonth > 11) { reviewMonth = 0; reviewYear++; }
   renderMonthlyReview();
+});
+
+/* Long Today sections start collapsed on load, like Movement. The
+   details elements carry no open attribute, and this closes them
+   explicitly so they always start collapsed on first view. Tapping a
+   summary still slides the section open. */
+["review-details", "digest-details"].forEach((id) => {
+  const el = document.getElementById(id);
+  if (el) el.open = false;
 });
 
 /* ---------- Progress view (v038) ---------- */
@@ -2187,6 +2196,28 @@ function openFoodLibrary() {
   if (list.classList.contains("hidden")) { renderFoodLibrary(); list.classList.remove("hidden"); }
 }
 
+/* Food search ranking: Open Food Facts returns branded products above
+   plain foods, so a "potato" search shows chips before a potato. Re-sort
+   before display: plain foods first (name equals or starts with the
+   search term, no brand), then names containing the term, then the rest
+   in the order the database returned. Branded results stay, only the
+   order changes. */
+function rankFoodSearchResults(products, query) {
+  const q = (query || "").trim().toLowerCase();
+  if (!q) return products.slice();
+  const rankOf = (p) => {
+    const name = ((p && p.product_name) || "").trim().toLowerCase();
+    const brand = ((p && p.brands) || "").trim();
+    if (name && !brand && (name === q || name.indexOf(q) === 0)) return 0;
+    if (name && name.indexOf(q) !== -1) return 1;
+    return 2;
+  };
+  return products
+    .map((p, i) => ({ p, i, rank: rankOf(p) }))
+    .sort((a, b) => (a.rank - b.rank) || (a.i - b.i))
+    .map((x) => x.p);
+}
+
 async function searchFoodByName() {
   const nameInput = document.getElementById("macro-food-name");
   const status = document.getElementById("macro-food-search-status");
@@ -2224,7 +2255,7 @@ async function searchFoodByName() {
   try {
     const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; openFoodLibrary(); return; }
-    const products = (data && data.products) || [];
+    const products = rankFoodSearchResults((data && data.products) || [], query);
     if (!products.length) {
       status.textContent = mine.length ? "Pick a food, or try different words." : "No foods found. Try different words, or enter the grams by hand.";
       return;
@@ -2242,6 +2273,7 @@ async function searchFoodByName() {
       const fat = pick("fat_serving", "fat_100g");
       const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
       const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
+      const cals = Math.round(protein * 4 + carbs * 4 + fat * 9);
       const b = document.createElement("button");
       b.type = "button";
       b.className = "btn btn-small";
@@ -3266,10 +3298,8 @@ document.getElementById("qa-log-effect").addEventListener("click", () => {
 function renderMood() {
   const t = viewedDateStr();
   const current = store.moods[t];
-  document.querySelectorAll(".mood-btn").forEach((b) => {
-    b.classList.toggle("selected", b.dataset.mood === current);
-    b.setAttribute("aria-pressed", b.dataset.mood === current ? "true" : "false");
-  });
+  const moodSelect = document.getElementById("mood-select");
+  if (moodSelect) moodSelect.value = current || "";
   const moodLabel = document.getElementById("mood-today-label");
   if (moodLabel) {
     moodLabel.textContent = current
@@ -3279,13 +3309,15 @@ function renderMood() {
   }
 }
 
-document.querySelectorAll(".mood-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    store.moods[viewedDateStr()] = btn.dataset.mood;
+const moodSelectEl = document.getElementById("mood-select");
+if (moodSelectEl) {
+  moodSelectEl.addEventListener("change", () => {
+    if (moodSelectEl.value) store.moods[viewedDateStr()] = moodSelectEl.value;
+    else delete store.moods[viewedDateStr()];
     saveStore();
     renderMood();
   });
-});
+}
 
 /* ---------- Form status helper ---------- */
 function setFormStatus(el, text, isError) {
@@ -4721,6 +4753,55 @@ function renderPhotos() {
 }
 
 /* ---------- Journal ---------- */
+
+/* Speak journal notes with the phone's built-in speech recognition; the
+   words fill the notes field as you speak, and stay there to review
+   before saving. Nothing auto-saves, and no audio is recorded, saved,
+   or sent anywhere. The button stays hidden when recognition is not
+   available. */
+(function setupJournalVoice() {
+  const btn = document.getElementById("journal-voice-btn");
+  const notes = document.getElementById("journal-notes");
+  const status = document.getElementById("journal-saved-msg");
+  if (!btn || !notes) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return; // not available: the button stays hidden
+  btn.classList.remove("hidden");
+  let rec = null;
+  let listening = false;
+  let finalText = "";
+  function setListening(on) {
+    listening = on;
+    btn.textContent = on ? "⏹ Stop" : "🎤 Speak";
+    btn.setAttribute("aria-label", on ? "Stop listening" : "Speak your journal notes");
+    if (status) status.textContent = on ? "Listening... Tap Stop when you are done." : "";
+  }
+  btn.addEventListener("click", () => {
+    if (listening) { try { rec.stop(); } catch {} return; }
+    try { rec = new SR(); } catch { return; }
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = navigator.language || "en-US";
+    finalText = notes.value ? notes.value.trim() + " " : "";
+    rec.onresult = (ev) => {
+      let interim = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      notes.value = (finalText + interim).trimStart().slice(0, 2000);
+    };
+    rec.onend = () => { setListening(false); };
+    rec.onerror = (ev) => {
+      setListening(false);
+      if (status) status.textContent = ev && ev.error === "not-allowed"
+        ? "Microphone access was blocked. You can still type."
+        : "I could not hear you. You can still type.";
+    };
+    try { rec.start(); setListening(true); } catch { setListening(false); }
+  });
+})();
 
 const journalForm = document.getElementById("journal-form");
 let editingJournalId = null;
