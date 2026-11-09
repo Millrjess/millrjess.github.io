@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v020";
+const APP_VERSION = "v021";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -4232,6 +4232,8 @@ document.getElementById("medicine-form").addEventListener("submit", (e) => {
 const KITCHEN_RECIPES = [
   {
     id: "lemon-garlic-chicken",
+    image: "kitchen/lemon-garlic-chicken.jpg",
+    credit: "Unsplash",
     name: "Lemon Garlic Chicken with Zucchini",
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 2,
@@ -4254,6 +4256,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "greek-yogurt-egg-bowl",
+    image: "kitchen/greek-yogurt-egg-bowl.jpg",
+    credit: "Paul Keller, Flickr, CC BY",
     name: "Greek Yogurt Egg Power Bowl",
     category: "High Protein",
     time: 10, difficulty: "Easy", servings: 1,
@@ -4274,6 +4278,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "berry-yogurt-bowl",
+    image: "kitchen/berry-yogurt-bowl.jpg",
+    credit: "grongar, Flickr, CC BY",
     name: "Berry Greek Yogurt Bowl",
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
@@ -4292,6 +4298,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "spinach-scrambled-eggs",
+    image: "kitchen/spinach-eggs-toast.jpg",
+    credit: "ultrakml, Flickr, CC BY",
     name: "Spinach Scrambled Eggs with Toast",
     category: "Easy Breakfasts",
     time: 10, difficulty: "Easy", servings: 1,
@@ -4312,6 +4320,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "salmon-quinoa-broccoli",
+    image: "kitchen/salmon-quinoa-broccoli.jpg",
+    credit: "Ella Olsson, Wikimedia Commons, CC BY",
     name: "Salmon, Quinoa and Broccoli",
     category: "Balanced Dinners",
     time: 25, difficulty: "Easy", servings: 2,
@@ -4333,6 +4343,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "turkey-vegetable-skillet",
+    image: "kitchen/turkey-skillet.jpg",
+    credit: "rovingI, Flickr, CC BY",
     name: "Turkey and Vegetable Skillet",
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 2,
@@ -4354,6 +4366,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "berry-protein-smoothie",
+    image: "kitchen/berry-smoothie.jpg",
+    credit: "my little red suitcase, Flickr, CC BY",
     name: "Berry Protein Smoothie",
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
@@ -4373,6 +4387,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "egg-toast-plate",
+    image: "kitchen/egg-toast-plate.jpg",
+    credit: "ultrakml, Flickr, CC BY",
     name: "Egg and Toast Plate",
     category: "Small Appetite",
     time: 10, difficulty: "Easy", servings: 1,
@@ -4417,6 +4433,7 @@ function renderKitchen() {
     const saved = kitchenIsSaved(r.id);
     const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
     return `<article class="kitchen-card">
+      ${r.image ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="${escapeHtml(r.name)}" loading="lazy">${r.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(r.credit)}</p>` : ""}` : ""}
       <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
         <strong>${escapeHtml(r.name)}</strong>
         <span class="muted" style="font-size:.85em;white-space:nowrap">${escapeHtml(r.category)}</span>
