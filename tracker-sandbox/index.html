@@ -908,6 +908,26 @@
       </div>
 
           <div style="margin-bottom:16px">
+        <h4 style="margin:0 0 8px">Or set by percentage</h4>
+        <p class="muted">Enter your calorie target above, then the share of calories for each macro. The app works out the grams and fills them in above.</p>
+        <div style="display:flex;gap:10px">
+          <label style="flex:1">Protein %
+            <input type="number" id="set-protein-pct" min="0" max="100" step="1" placeholder="32">
+          </label>
+          <label style="flex:1">Carbs %
+            <input type="number" id="set-carbs-pct" min="0" max="100" step="1" placeholder="35">
+          </label>
+          <label style="flex:1">Fat %
+            <input type="number" id="set-fat-pct" min="0" max="100" step="1" placeholder="33">
+          </label>
+        </div>
+        <div style="margin-top:10px">
+          <button type="button" class="btn btn-primary" id="set-macro-pct-btn">Set goals from percentages</button>
+        </div>
+        <p class="code-msg" id="set-macro-pct-msg" style="min-height:1.2em"></p>
+      </div>
+
+          <div style="margin-bottom:16px">
         <h4 style="margin:0 0 8px">Your height</h4>
         <div style="display:flex;gap:10px">
           <label style="flex:1">Feet

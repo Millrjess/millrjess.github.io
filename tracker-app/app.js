@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v014";
+const APP_VERSION = "v015";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -4703,6 +4703,28 @@ function keepMacroTarget(raw, current, fallback) {
   const c = Number(current);
   return Number.isFinite(c) && c > 0 ? c : fallback;
 }
+
+/* Set macro gram goals from calories and percentages. Protein and
+   carbs are 4 calories a gram, fat is 9. The percentages must add
+   up to 100. Fills the gram fields above; Save Settings keeps them. */
+document.getElementById("set-macro-pct-btn").addEventListener("click", () => {
+  const msg = document.getElementById("set-macro-pct-msg");
+  const cal = Number(document.getElementById("set-calorie-target").value);
+  const pp = Number(document.getElementById("set-protein-pct").value);
+  const cp = Number(document.getElementById("set-carbs-pct").value);
+  const fp = Number(document.getElementById("set-fat-pct").value);
+  if (!(cal > 0)) { msg.textContent = "Enter your daily calorie target above first."; return; }
+  if (![pp, cp, fp].every((n) => Number.isFinite(n) && n >= 0)) { msg.textContent = "Enter a percentage for protein, carbs, and fat."; return; }
+  const sum = pp + cp + fp;
+  if (sum !== 100) { msg.textContent = "Percentages must add up to 100. Yours add up to " + sum + "."; return; }
+  const pg = Math.round(cal * pp / 100 / 4);
+  const cg = Math.round(cal * cp / 100 / 4);
+  const fg = Math.round(cal * fp / 100 / 9);
+  document.getElementById("set-protein-goal").value = pg;
+  document.getElementById("set-carbs-goal").value = cg;
+  document.getElementById("set-fat-goal").value = fg;
+  msg.textContent = "Set to " + pg + "g protein, " + cg + "g carbs, " + fg + "g fat. Tap Save below to keep them.";
+});
 
 document.getElementById("settings-form").addEventListener("submit", (e) => {
   e.preventDefault();
