@@ -4457,10 +4457,11 @@ const kitchenAddedAt = {}; // recipe id -> timestamp of last Add to Today
 function kitchenIsSaved(id) {
   return store.recipes.some((r) => r.kitchenId === id);
 }
+/* The macros are stored as fields on the saved entry and shown as chips
+   on the saved recipe card, so the body is Ingredients and Steps only. */
 function kitchenBodyText(r) {
   return "Ingredients\n" + r.ingredients.map((i) => "- " + i).join("\n")
-    + "\n\nSteps\n" + r.steps.map((s, i) => (i + 1) + ". " + s).join("\n")
-    + "\n\nPer serving: " + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat, " + r.calories + " calories.";
+    + "\n\nSteps\n" + r.steps.map((s, i) => (i + 1) + ". " + s).join("\n");
 }
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
@@ -4510,7 +4511,7 @@ function renderKitchen() {
     if (kitchenIsSaved(r.id)) {
       store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
     } else {
-      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "" });
+      store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "", protein: r.protein, carbs: r.carbs, fat: r.fat, calories: r.calories, servings: r.servings });
     }
     saveStore();
     renderRecipes();
@@ -4552,6 +4553,28 @@ function recipePhotoHtml(r) {
   if (!src) return "";
   return `<img class="kitchen-photo" src="${escapeHtml(src)}" alt="${escapeHtml(r.title)}" loading="lazy">` + (r.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(r.credit)}</p>` : "");
 }
+/* The nutrition on a saved recipe card: the same macro chips as a
+   Kitchen card, plus an Add to Today's Nutrition button that logs one
+   serving. Shown only when the recipe has macros (entered on the form
+   or carried over from a Kitchen save). Calories fall back to the 4/4/9
+   calculation when they were not entered. */
+const recipeAddedAt = {}; // recipe id -> timestamp of last Add to Today
+function recipeMacrosHtml(r) {
+  const protein = Number(r.protein) || 0;
+  const carbs = Number(r.carbs) || 0;
+  const fat = Number(r.fat) || 0;
+  if (!protein && !carbs && !fat) return "";
+  const calories = Number(r.calories) || Math.round(protein * 4 + carbs * 4 + fat * 9);
+  const added = recipeAddedAt[r.id] && Date.now() - recipeAddedAt[r.id] < 2500;
+  return `<div class="kitchen-macros">
+    <div class="kitchen-macro"><b>${protein}g</b><span>Protein</span></div>
+    <div class="kitchen-macro"><b>${carbs}g</b><span>Carbs</span></div>
+    <div class="kitchen-macro"><b>${fat}g</b><span>Fat</span></div>
+    <div class="kitchen-macro"><b>${calories}</b><span>Calories</span></div>
+  </div>
+  <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving${r.servings ? " · Serves " + r.servings : ""}</p>
+  <div style="margin-top:8px"><button type="button" class="btn btn-small btn-primary" data-recipe-add="${r.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button></div>`;
+}
 function renderRecipes() {
   renderKitchen();
   const list = document.getElementById("recipe-list");
@@ -4568,11 +4591,25 @@ function renderRecipes() {
       <button type="button" class="btn btn-small" data-recipe-del="${r.id}">Delete</button>
     </div>
     <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
+    ${recipeMacrosHtml(r)}
   </div>`).join("");
   list.querySelectorAll("[data-recipe-del]").forEach((btn) => btn.addEventListener("click", () => {
     store.recipes = store.recipes.filter((r) => r.id !== btn.dataset.recipeDel);
     saveStore();
     renderRecipes();
+  }));
+  list.querySelectorAll("[data-recipe-add]").forEach((btn) => btn.addEventListener("click", () => {
+    const r = store.recipes.find((x) => x.id === btn.dataset.recipeAdd);
+    if (!r) return;
+    /* Same path as the Kitchen Add to Today: one macro entry for the day,
+       then saveStore + renderToday, so entries, snapshots, and the backup
+       cap behave exactly as for logging food. */
+    store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title });
+    saveStore();
+    renderToday();
+    recipeAddedAt[r.id] = Date.now();
+    renderRecipes();
+    setTimeout(() => { delete recipeAddedAt[r.id]; renderRecipes(); }, 2500);
   }));
 }
 /* A photo for a saved recipe. The photo is shrunk to at most 800px wide
@@ -4635,7 +4672,21 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   const body = document.getElementById("recipe-body").value.trim().slice(0, 4000);
   if (!title) { setFormStatus(msg, "Type a title first.", true); return; }
   if (!body) { setFormStatus(msg, "Paste the recipe first.", true); return; }
-  store.recipes.push({ id: uid(), title, body, date: viewedDateStr(), ...(recipePhotoDataUrl ? { photo: recipePhotoDataUrl } : {}) });
+  const entry = { id: uid(), title, body, date: viewedDateStr() };
+  if (recipePhotoDataUrl) entry.photo = recipePhotoDataUrl;
+  const protein = Math.max(0, Math.round((Number(document.getElementById("recipe-protein").value) || 0) * 10) / 10);
+  const carbs = Math.max(0, Math.round((Number(document.getElementById("recipe-carbs").value) || 0) * 10) / 10);
+  const fat = Math.max(0, Math.round((Number(document.getElementById("recipe-fat").value) || 0) * 10) / 10);
+  if (protein || carbs || fat) {
+    entry.protein = protein;
+    entry.carbs = carbs;
+    entry.fat = fat;
+    const calories = Math.max(0, Math.round(Number(document.getElementById("recipe-calories").value) || 0));
+    entry.calories = calories || Math.round(protein * 4 + carbs * 4 + fat * 9);
+  }
+  const servings = Math.max(0, Math.round(Number(document.getElementById("recipe-servings").value) || 0));
+  if (servings > 0) entry.servings = servings;
+  store.recipes.push(entry);
   saveStore();
   document.getElementById("recipe-form").reset();
   setRecipePhoto("");
