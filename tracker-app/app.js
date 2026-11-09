@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v036";
+const APP_VERSION = "v037";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -991,7 +991,7 @@ function pickCoachInsight() {
     }
   }
   const pStreak = streakFor("protein", "grams", "proteinGoal");
-  if (pStreak >= 3) return "You've hit your protein goal " + pStreak + " days in a row. That's how strength is built after 50.";
+  if (pStreak >= 3) return "You've hit your protein goal " + pStreak + " days in a row. That's how strength is built.";
   const wStreak = streakFor("water", "oz", "waterGoal");
   if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
   const mStreak = streakFor("exercise", "minutes", "movementGoal");
@@ -1332,12 +1332,12 @@ function renderToday() {
   const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
-  syncGoalSlider("water-slider", "water-progress-fill", "water-today", "water-num-btn", "Water", "ounces", waterOz, waterGoal);
+  syncGoalSlider("water-slider", "water-slider-hint", "water-today", "water-num-btn", "Water", "ounces", waterOz, waterGoal);
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
-  syncGoalSlider("exercise-slider", "exercise-progress-fill", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
+  syncGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
   // v004: the quick-add buttons show the amount they add, from Settings.
   const wAdd = document.getElementById("goals-water-add");
   if (wAdd) wAdd.textContent = "+ " + (Number(store.settings.waterStep) || 8) + " oz";
@@ -1450,8 +1450,9 @@ function trimDayEntries(key, field, date, amount) {
 
 /* ---------- Compact slider rows (v036) ---------- */
 /* Water and movement as one row with the big amount and the goal, a
-   horizontal slider below it, and a slim progress bar. The number and
-   the bar paint live while dragging; the store is written once, on
+   horizontal slider below it. The slider's own fill shows progress, so
+   there is no second bar. The number paints live while dragging; the
+   store is written once, on
    release, by pushing one entry for a rise or trimming entries for a
    fall, so entries, snapshots, and the backup cap behave exactly as
    for an add-button tap. Totals never go below zero. The slider's
@@ -1470,7 +1471,7 @@ function setDayTotal(key, field, extra, target) {
   }
   renderToday();
 }
-function syncGoalSlider(sliderId, fillId, numId, btnId, label, unitWord, value, goal) {
+function syncGoalSlider(sliderId, hintId, numId, btnId, label, unitWord, value, goal) {
   const num = document.getElementById(numId);
   if (num) num.textContent = value;
   const slider = document.getElementById(sliderId);
@@ -1479,35 +1480,28 @@ function syncGoalSlider(sliderId, fillId, numId, btnId, label, unitWord, value, 
     slider.value = value;
     slider.setAttribute("aria-valuetext", value + " of " + goal + " " + unitWord);
   }
-  const fill = document.getElementById(fillId);
-  if (fill) {
-    fill.style.width = (goal > 0 ? Math.min(100, (value / goal) * 100) : 0) + "%";
-    fill.parentElement.classList.toggle("goal-reached", goal > 0 && value >= goal);
-  }
+  const hint = document.getElementById(hintId);
+  if (hint) hint.textContent = "Tap " + value + " to type your own amount.";
   const btn = document.getElementById(btnId);
   if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + unitWord + ". Tap to type an amount to add.");
 }
-function bindGoalSlider(sliderId, fillId, numId, key, field, extra, goalFor) {
+function bindGoalSlider(sliderId, hintId, numId, key, field, extra, goalFor) {
   const slider = document.getElementById(sliderId);
   if (!slider) return;
   const paintLive = () => {
     const v = Number(slider.value) || 0;
     const num = document.getElementById(numId);
     if (num) num.textContent = v;
-    const goal = goalFor();
-    const fill = document.getElementById(fillId);
-    if (fill) {
-      fill.style.width = (goal > 0 ? Math.min(100, (v / goal) * 100) : 0) + "%";
-      fill.parentElement.classList.toggle("goal-reached", goal > 0 && v >= goal);
-    }
+    const hint = document.getElementById(hintId);
+    if (hint) hint.textContent = "Tap " + v + " to type your own amount.";
   };
   slider.addEventListener("input", paintLive);
   slider.addEventListener("change", () => {
     setDayTotal(key, field, extra, Number(slider.value) || 0);
   });
 }
-bindGoalSlider("water-slider", "water-progress-fill", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
-bindGoalSlider("exercise-slider", "exercise-progress-fill", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
+bindGoalSlider("water-slider", "water-slider-hint", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
+bindGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
 
 /* ---------- Type an amount to add (v169) ---------- */
 /* The big number inside each ring is a button. Tapping it opens a small
@@ -5088,9 +5082,81 @@ function kitchenBodyText(r) {
   return "Ingredients\n" + r.ingredients.map((i) => "- " + i).join("\n")
     + "\n\nSteps\n" + r.steps.map((s, i) => (i + 1) + ". " + s).join("\n");
 }
+/* Add a Kitchen recipe to today (v037): one macro entry for the day,
+   the same path as the Log food form, so entries, snapshots, and the
+   backup cap behave exactly as for logging food. Calories come from
+   the macros via the existing 4/4/9 calculation. Shared by the Kitchen
+   cards and the meal ideas, so both add the same way. */
+function addKitchenToToday(id, servings) {
+  const r = KITCHEN_RECIPES.find((x) => x.id === id);
+  if (!r) return;
+  const n = servings || kitchenServings[id] || 1;
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: r.protein * n, carbs: r.carbs * n, fat: r.fat * n, food: r.name });
+  saveStore();
+  renderToday();
+  kitchenAddedAt[id] = Date.now();
+  renderKitchen();
+  setTimeout(() => { delete kitchenAddedAt[id]; renderKitchen(); }, 2500);
+}
+
+/* Meal ideas for the rest of today (v037): Kitchen recipes whose
+   per-serving macros fit inside what is left of today's goals, so a
+   suggestion never pushes a goal over. Ranked by protein, most first,
+   top three, one serving each, with the same Add to Today action as
+   the Kitchen cards. Local only, no new data leaves the device. */
+function renderMealIdeas() {
+  const box = document.getElementById("meal-ideas");
+  if (!box) return;
+  const pGoal = Number(store.settings.proteinGoal) || 0;
+  const cGoal = Number(store.settings.carbGoal) || 0;
+  const fGoal = Number(store.settings.fatGoal) || 0;
+  const t = viewedDateStr();
+  let html;
+  if (!pGoal || !cGoal || !fGoal) {
+    html = "<h3>Meal ideas for the rest of today</h3>"
+      + "<p class=\"muted\" style=\"font-size:.9em\">Set your protein, carb, and fat goals in Settings to see meal ideas matched to what is left today.</p>"
+      + "<button type=\"button\" class=\"btn btn-small\" data-goto=\"settings\">Set goals in Settings</button>";
+  } else {
+    const pLeft = pGoal - sumForDate(store.protein, t, "grams");
+    const cLeft = cGoal - sumForDate(store.protein, t, "carbs");
+    const fLeft = fGoal - sumForDate(store.protein, t, "fat");
+    if (pLeft <= 0 && cLeft <= 0 && fLeft <= 0) {
+      html = "<h3>Meal ideas for the rest of today</h3>"
+        + "<p class=\"muted\" style=\"font-size:.9em\">You have met your macro goals for today. Nice work.</p>";
+    } else {
+      const fits = KITCHEN_RECIPES.filter((r) => r.protein <= pLeft && r.carbs <= cLeft && r.fat <= fLeft)
+        .sort((a, b) => b.protein - a.protein).slice(0, 3);
+      if (!fits.length) {
+        html = "<h3>Meal ideas for the rest of today</h3>"
+          + "<p class=\"muted\" style=\"font-size:.9em\">Nothing in the Kitchen fits what is left today. A small snack from Your foods may fit better.</p>";
+      } else {
+        html = "<h3>Meal ideas for the rest of today</h3>"
+          + "<p class=\"muted\" style=\"font-size:.9em\">These fit what is left of your goals today: "
+          + Math.max(0, Math.round(pLeft)) + "g protein, "
+          + Math.max(0, Math.round(cLeft)) + "g carbs, "
+          + Math.max(0, Math.round(fLeft)) + "g fat left.</p>"
+          + fits.map((r) => {
+            const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
+            return "<div class=\"entry-row\" data-meal-idea=\"" + r.id + "\">"
+              + "<div style=\"flex:1\"><strong>" + escapeHtml(r.name) + "</strong>"
+              + " <span class=\"muted\" style=\"font-size:.85em\">" + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat</span></div>"
+              + "<button type=\"button\" class=\"btn btn-small btn-primary\" data-kitchen-add=\"" + r.id + "\">" + (added ? "Added to today \u2713" : "Add to Today's Nutrition") + "</button>"
+              + "</div>";
+          }).join("")
+          + "<p class=\"muted\" style=\"font-size:.85em\">Per serving. Nutrition is estimated from USDA values.</p>";
+      }
+    }
+  }
+  box.innerHTML = html;
+  const goBtn = box.querySelector("[data-goto]");
+  if (goBtn) goBtn.addEventListener("click", () => showTab("settings"));
+  box.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => addKitchenToToday(btn.dataset.kitchenAdd, 1)));
+}
+
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
   if (!list) return;
+  renderMealIdeas();
   const shown = KITCHEN_RECIPES.filter((r) => kitchenFilter === "all" || r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
   if (!shown.length) {
     list.innerHTML = '<p class="empty-state">No recipes match this filter yet.</p>';
@@ -5146,21 +5212,7 @@ function renderKitchen() {
     kitchenServings[id] = Math.max(1, (kitchenServings[id] || 1) + Number(btn.dataset.dir));
     renderKitchen();
   }));
-  list.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => {
-    const r = KITCHEN_RECIPES.find((x) => x.id === btn.dataset.kitchenAdd);
-    if (!r) return;
-    const n = kitchenServings[r.id] || 1;
-    /* Same path as the Log food form: one macro entry for the day,
-       then saveStore + renderToday, so entries, snapshots, and the
-       backup cap behave exactly as for logging food. Calories come
-       from the macros via the existing 4/4/9 calculation. */
-    store.protein.push({ id: uid(), date: viewedDateStr(), grams: r.protein * n, carbs: r.carbs * n, fat: r.fat * n, food: r.name });
-    saveStore();
-    renderToday();
-    kitchenAddedAt[r.id] = Date.now();
-    renderKitchen();
-    setTimeout(() => { delete kitchenAddedAt[r.id]; renderKitchen(); }, 2500);
-  }));
+  list.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => addKitchenToToday(btn.dataset.kitchenAdd)));
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
@@ -7055,6 +7107,13 @@ document.getElementById("memory-save").addEventListener("click", async () => {
   }
 });
 
+/* Companion memory (v037): when the section is opened, bring it into
+   view so the whole detail shows inside the visible area instead of
+   running under the keyboard. */
+document.getElementById("memory-optin-card").addEventListener("toggle", (e) => {
+  if (e.target.open) e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
 document.getElementById("forget-me").addEventListener("click", async () => {
   if (!confirm("Delete everything your AI Wellness Companion remembers about you? This cannot be undone.")) return;
   let ok = false;
@@ -7340,6 +7399,7 @@ function renderChatGate() {
   if (input) input.disabled = !connected;
   if (sendBtn) sendBtn.disabled = !connected;
   if (micBtn) micBtn.disabled = !connected;
+  document.querySelectorAll("#chat-chips .chat-chip").forEach((c) => { c.disabled = !connected; });
 }
 
 function renderChat() {
@@ -7356,6 +7416,7 @@ function renderChat() {
   }
   const input = document.getElementById("chat-input");
   if (input) input.placeholder = "Ask " + companionDisplayName() + "...";
+  growChatInput();
   const box = document.getElementById("chat-messages");
   if (!box) return;
   box.innerHTML = "";
@@ -7453,6 +7514,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   }
   setFormStatus(document.getElementById("chat-msg"), "", false);
   input.value = "";
+  growChatInput();
 
   // Add user message
   chatHistory.push({ role: "user", content: text });
@@ -7552,6 +7614,48 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   sendBtn.disabled = false;
 });
 
+/* ---------- Quick prompt chips and a growing chat input (v037) ---------- */
+/* The chips send a common question through the existing chat path: the
+   chip text goes into the input and the form is submitted, so the
+   not-connected message, the Play block, and the daily cap all behave
+   exactly as for a typed message. The input is a textarea that grows
+   as you type, up to five lines, and Enter sends (Shift+Enter adds a
+   line). Nothing here is a new data path; no new data leaves the
+   device. */
+function growChatInput() {
+  const input = document.getElementById("chat-input");
+  if (!input) return;
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 132) + "px";
+}
+function submitChatForm() {
+  const form = document.getElementById("chat-form");
+  if (!form) return;
+  if (form.requestSubmit) form.requestSubmit();
+  else form.dispatchEvent(new Event("submit", { cancelable: true }));
+}
+document.querySelectorAll("#chat-chips .chat-chip").forEach((chip) => {
+  chip.addEventListener("click", () => {
+    const input = document.getElementById("chat-input");
+    if (!input || input.disabled) return;
+    input.value = chip.dataset.chip || chip.textContent.trim();
+    growChatInput();
+    submitChatForm();
+  });
+});
+(function setupGrowingChatInput() {
+  const input = document.getElementById("chat-input");
+  if (!input) return;
+  input.addEventListener("input", growChatInput);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submitChatForm();
+    }
+  });
+  growChatInput();
+})();
+
 /* v000: two-way voice. The mic button starts the phone's built-in
    speech recognition (webkitSpeechRecognition / SpeechRecognition),
    on-device and free; no server, no cost. Recognized words fill the
@@ -7597,6 +7701,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
         else interim += r[0].transcript;
       }
       input.value = (finalText + interim).trimStart();
+      growChatInput();
     };
     rec.onend = () => { setListening(false); };
     rec.onerror = (ev) => {

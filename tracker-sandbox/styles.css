@@ -882,14 +882,25 @@ label textarea {
 .chat-form {
   display: flex;
   gap: 8px;
+  align-items: flex-end;
 }
-.chat-form input {
+.chat-form textarea {
   flex: 1;
   padding: 12px;
   border: 1px solid var(--border, #ddd);
   border-radius: 12px;
   font-size: 1rem;
+  font-family: inherit;
+  line-height: 1.4;
+  resize: none;
+  max-height: 132px;
+  overflow-y: auto;
 }
+
+/* Quick prompt chips (v037): one tap sends a common question through
+   the existing chat path. Pills, wrapping to a second row if needed. */
+.chat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+.chat-chip { border-radius: 999px; }
 
 /* Companion chat markdown lists */
 .chat-msg ul {
@@ -1388,7 +1399,7 @@ html[data-theme="dark"] label select,
 html[data-theme="dark"] label textarea,
 html[data-theme="dark"] .modal-card label input,
 html[data-theme="dark"] .modal-card label select,
-html[data-theme="dark"] .chat-form input { background: #2B332A; }
+html[data-theme="dark"] .chat-form textarea { background: #2B332A; }
 html[data-theme="dark"] .btn-link { color: #9DB894; }
 html[data-theme="dark"] .streak-line { color: #9DB894; }
 html[data-theme="dark"] .se-timeline-item::before { border-color: #2B332A; }
@@ -1590,10 +1601,8 @@ canvas { max-width: 100%; height: auto; display: block; }
 .slider-amount:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .slider-goal { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
 .goal-slider { width: 100%; margin: 10px 0 8px; accent-color: var(--sage); height: 28px; display: block; }
-.slider-progress { height: 6px; border-radius: 999px; background: #F0EBDD; overflow: hidden; }
-.slider-progress i { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 999px; transition: width 0.2s ease; }
-.slider-progress.goal-reached i { background: var(--sage); }
 .slider-hint { color: var(--muted); margin: 6px 0 0; font-size: 0.9rem; }
+.slider-amount .big-number { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px; }
 
 /* Compact Today (v036): tighter cards on Today only, so the tab reads
    shorter without losing breathing room. Other tabs keep their spacing. */

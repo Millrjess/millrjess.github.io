@@ -142,8 +142,7 @@
         <button class="btn btn-small goals-add" id="goals-water-add" aria-label="Add 8 ounces of water">+ 8 oz</button>
       </div>
       <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
-      <div class="slider-progress" aria-hidden="true"><i id="water-progress-fill"></i></div>
-      <p class="slider-hint">Tap the amount to type it in.</p>
+      <p class="slider-hint" id="water-slider-hint">Tap the amount to type it in.</p>
     </div>
 
     <div class="card" id="movement-card" aria-label="Movement">
@@ -153,7 +152,7 @@
         <button class="btn btn-small goals-add" id="goals-exercise-add" aria-label="Add 5 minutes of movement">+ 5 min</button>
       </div>
       <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
-      <div class="slider-progress" aria-hidden="true"><i id="exercise-progress-fill"></i></div>
+      <p class="slider-hint" id="exercise-slider-hint">Tap the amount to type it in.</p>
       <div id="movement-routine" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
           <h3 class="card-title" style="margin-bottom:0">Today's Movement</h3>
@@ -785,6 +784,7 @@
       <p class="code-msg" id="recipe-search-msg" style="min-height:1.2em"></p>
     </form>
     <div id="recipe-search-results" class="entry-list"></div>
+    <div id="meal-ideas" class="card" style="margin-top:16px"></div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <button type="button" class="kitchen-chip active" data-filter="all">All</button>
       <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
@@ -821,8 +821,13 @@
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
     </div>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+    <div id="chat-chips" class="chat-chips" role="group" aria-label="Try asking">
+      <button type="button" class="btn btn-small chat-chip" data-chip="How is my protein today?">How is my protein today?</button>
+      <button type="button" class="btn btn-small chat-chip" data-chip="What can I eat for dinner?">What can I eat for dinner?</button>
+      <button type="button" class="btn btn-small chat-chip" data-chip="How am I doing this week?">How am I doing this week?</button>
+    </div>
     <form id="chat-form" class="chat-form">
-      <input type="text" id="chat-input" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500">
+      <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
@@ -831,7 +836,7 @@
     <details class="card" style="margin-top:16px" id="memory-optin-card" open>
       <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
       <div style="margin-top:12px">
-      <p class="muted" style="font-size:.9em">Want your companion to remember you? Turn this on and it will remember your name, goals, and preferences to personalize its replies. It's off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <p class="muted" style="font-size:.9em">Turn this on and your companion will remember your name, goals, and preferences to personalize its replies. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
         <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
         Remember me
