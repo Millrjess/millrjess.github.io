@@ -37,7 +37,7 @@
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
 <style>html{background:#EBEDEA}</style>
-<link rel="stylesheet" href="styles.css?v=031">
+<link rel="stylesheet" href="styles.css?v=032">
 </head>
 <body>
 
@@ -696,6 +696,15 @@
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
+    <h3 style="margin-top:18px">Paste a Recipe</h3>
+    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere. The app fills in the name, servings, ingredients, and nutrition per serving. Nutrition is an estimate. You can edit it before saving.</p>
+    <form id="paste-recipe-form" aria-label="Paste a recipe" novalidate>
+      <label>Paste a recipe<textarea id="paste-recipe-text" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create recipe</button>
+      </div>
+      <p class="code-msg" id="paste-recipe-msg" style="min-height:1.2em"></p>
+    </form>
     <h3 style="margin-top:18px">Your saved recipes</h3>
     <form id="recipe-form" aria-label="Save a recipe" novalidate>
       <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
@@ -1306,7 +1315,7 @@
     </div>
   </div>
 
-<script src="app.js?v=031"></script>
+<script src="app.js?v=032"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

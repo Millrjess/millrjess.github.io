@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v031";
+const APP_VERSION = "v032";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -5129,6 +5129,23 @@ document.getElementById("recipe-form").addEventListener("submit", (e) => {
   setRecipePhoto("");
   setFormStatus(msg, "Recipe saved.", false);
   renderRecipes();
+});
+/* Paste a Recipe. The AI step that reads a pasted recipe and fills in
+   the name, servings, and nutrition arrives after November 30, when the
+   Worker can parse it. Until then the box shows what is coming, the same
+   pattern as Scan my plate and the recipe search box: the pasted text
+   goes into the recipe form below, and the name, servings, and nutrition
+   stay blank for the user to fill in. Nothing is guessed or invented. */
+document.getElementById("paste-recipe-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("paste-recipe-msg");
+  const text = document.getElementById("paste-recipe-text").value.trim().slice(0, 4000);
+  if (!text) { setFormStatus(msg, "Paste a recipe first.", true); return; }
+  document.getElementById("recipe-body").value = text;
+  document.getElementById("paste-recipe-text").value = "";
+  setFormStatus(msg, "Recipe AI is coming soon. For now, your pasted recipe is in the form below. Edit the name, servings, and nutrition, then save it to your Kitchen.", false);
+  document.getElementById("recipe-form").scrollIntoView({ behavior: "smooth", block: "start" });
+  document.getElementById("recipe-title").focus();
 });
 /* Recipe search (online database). The live lookup arrives after
    November 30, when the Worker can call the FatSecret recipe database.
