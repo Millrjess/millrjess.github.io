@@ -141,7 +141,6 @@
         <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
       </div>
       <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
-      <p class="slider-hint" id="water-slider-hint">Tap the amount to type it in.</p>
     </div>
 
     <div class="card" id="movement-card" aria-label="Movement">
@@ -153,26 +152,64 @@
       <div id="movement-body" hidden>
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
           <h3 class="movement-subhead" style="margin-top:0">Cardio</h3>
-          <button class="btn btn-small" id="movement-customize" style="flex:none">Customize</button>
+          <button class="btn btn-small" id="movement-customize" style="flex:none" aria-expanded="false" aria-controls="movement-plan-editor">Customize</button>
         </div>
         <div class="slider-row">
           <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
         </div>
         <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
-        <p class="slider-hint" id="exercise-slider-hint">Tap the amount to type it in.</p>
         <div id="movement-routine" style="margin-top:8px">
-          <p class="movement-sub" id="movement-sub">5 minutes. No equipment.</p>
-          <p class="movement-desc">A short daily routine. Tap the gold circle as you finish each move.</p>
+          <p class="movement-sub" id="movement-sub">Choose your moves to start.</p>
+          <p class="movement-desc">Tap the gold circle as you finish each move.</p>
           <ul class="moves" id="moves-list"></ul>
           <div class="move-progress">
             <div class="move-track" aria-hidden="true"><i id="move-fill"></i></div>
             <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
-            <p class="move-logged" id="move-logged">All done. 5 minutes added to your Movement total.</p>
+            <p class="move-logged" id="move-logged">All done. 5 minutes added to Movement.</p>
           </div>
           <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
         </div>
+        <div id="movement-plan-editor" class="hidden">
+          <h3 class="movement-subhead">Your movement plan</h3>
+          <p class="muted">Pick your moves. Finishing them all logs the minutes below.</p>
+          <label style="display:block;margin-bottom:12px">Minutes when all done
+            <input type="number" id="movement-plan-minutes" min="1" step="1" value="5" style="width:80px">
+          </label>
+          <div id="movement-plan-list"></div>
+          <div id="movement-plan-add">
+            <h3>Add exercise</h3>
+            <label>Name
+              <input type="text" id="custom-ex-name" maxlength="80" placeholder="e.g. Step-ups">
+            </label>
+            <div style="display:flex;gap:10px">
+              <label style="flex:1">Pattern
+                <select id="custom-ex-pattern">
+                  <option>Squat</option>
+                  <option>Hinge</option>
+                  <option>Push</option>
+                  <option>Pull</option>
+                  <option>Carry</option>
+                  <option>Core</option>
+                  <option selected>Other</option>
+                </select>
+              </label>
+              <label style="flex:1">Reps/time
+                <input type="text" id="custom-ex-detail" maxlength="40" placeholder="e.g. 10 reps">
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary" id="custom-ex-add">Add exercise</button>
+            </div>
+            <p class="code-msg" id="custom-ex-msg" style="min-height:1.2em"></p>
+          </div>
+          <p class="code-msg" id="movement-plan-msg" style="min-height:1.2em"></p>
+          <div class="form-actions" style="flex-wrap:wrap">
+            <button type="button" class="btn btn-primary" id="movement-plan-save">Save plan</button>
+            <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
+          </div>
+        </div>
         <h3 class="movement-subhead">Strength training</h3>
-        <p class="muted" style="margin:0 0 12px">Log a strength exercise. It saves to today, and shows in your doctor summary.</p>
+        <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
         <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
         <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
           <label>Exercise
@@ -207,7 +244,7 @@
 
     <div class="card" id="macros-card" aria-label="Your Macros">
       <h2 class="card-title">Macros</h2>
-      <p class="muted" style="margin:0">Protein, carbohydrates, and healthy fats, against your own targets.</p>
+      <p class="muted" style="margin:0">Protein, carbohydrates, and healthy fats, tracked to your own targets.</p>
 
       <div class="donut-wrap">
         <svg width="300" height="300" viewBox="0 0 300 300" role="img" aria-label="Donut chart of today's macros">
@@ -224,7 +261,7 @@
           <span class="cap" id="macro-center-label">protein logged today</span>
         </div>
       </div>
-      <p class="donut-note">Each segment is that macro's share of today. Tap a line to expand it. Slide a line to change it.</p>
+      <p class="donut-note">Each segment is one macro's share. Tap to expand, slide to change.</p>
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
 
       <div class="macro-rows">
@@ -232,19 +269,19 @@
           <button type="button" class="macro-name" aria-label="Show protein in the center of the chart"><span class="dot protein"></span>Protein</button>
           <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">grams</span></span>
           <span class="macro-bar" id="macro-bar-protein"><i id="bar-protein" style="background:#E8B54A"></i></span>
-          <span class="macro-detail"><span class="macro-why muted">Supports muscle maintenance</span><span class="macro-pct" id="pct-protein">0% of your target</span></span>
+          <span class="macro-detail"><span class="macro-why muted">Protects muscle</span><span class="macro-pct" id="pct-protein">0% of your target</span></span>
         </div>
         <div class="macro-row" data-macro="carbs">
           <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart"><span class="dot carbs"></span>Carbs</button>
           <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">grams</span></span>
           <span class="macro-bar" id="macro-bar-carbs"><i id="bar-carbs" style="background:#5A6B52"></i></span>
-          <span class="macro-detail"><span class="macro-why muted">Supports energy and daily activity</span><span class="macro-pct" id="pct-carbs">0% of your target</span></span>
+          <span class="macro-detail"><span class="macro-why muted">Energy for the day</span><span class="macro-pct" id="pct-carbs">0% of your target</span></span>
         </div>
         <div class="macro-row" data-macro="fat">
           <button type="button" class="macro-name" aria-label="Show fat in the center of the chart"><span class="dot fat"></span>Fat</button>
           <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">grams</span></span>
           <span class="macro-bar" id="macro-bar-fat"><i id="bar-fat" style="background:#DCC9A3"></i></span>
-          <span class="macro-detail"><span class="macro-why muted">Supports essential body functions</span><span class="macro-pct" id="pct-fat">0% of your target</span></span>
+          <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat">0% of your target</span></span>
         </div>
       </div>
 
@@ -252,9 +289,8 @@
         <p style="margin:0;font-weight:600">Calories today: <span id="calories-today">0</span><span id="calories-target-part"></span></p>
         <div style="height:10px;border-radius:99px;background:#EDEBE3;overflow:hidden;margin-top:8px"><i id="calories-fill" style="display:block;height:100%;width:0%;background:#E8B54A;border-radius:99px"></i></div>
         <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.85em"></p>
-        <p class="muted" style="margin:6px 0 0;font-size:.85em">Calculated from your macros.</p>
-      </div>
-      <p class="muted" style="margin:6px 0 0;font-size:.85em">Your targets are private. Change them in Settings.</p>
+        </div>
+      <p class="muted" style="margin:6px 0 0;font-size:.85em">Targets are private. Change them in Settings.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
@@ -264,7 +300,7 @@
 
     <div class="card" id="foods-card" aria-label="Today's food">
       <h2 class="card-title">Food</h2>
-      <p class="muted" style="margin:0 0 12px">Log by meal, or log without a meal and it shows under Other foods.</p>
+      <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
           <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
@@ -288,10 +324,11 @@
           <button type="button" class="btn btn-small" id="macro-food-library-btn">Your foods</button>
         </div>
         <div id="macro-food-library" class="hidden" style="margin-top:8px"></div>
-        <div class="measure-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="measure-grid">
           <label>Protein (g)<input type="number" id="macro-food-protein" min="0" step="1" placeholder="0"></label>
           <label>Carbs (g)<input type="number" id="macro-food-carbs" min="0" step="1" placeholder="0"></label>
           <label>Fat (g)<input type="number" id="macro-food-fat" min="0" step="1" placeholder="0"></label>
+          <label>Calories<input type="number" id="macro-food-calories" min="0" step="1" placeholder="0"></label>
         </div>
         <div style="margin-top:10px">
           <button type="button" class="btn btn-small" id="macro-food-photo-btn">Take a photo</button>
@@ -331,50 +368,6 @@
       </div>
     </div>
 
-    <div id="movement-plan-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Customize your movement plan">
-      <div class="modal-card">
-        <button type="button" class="modal-x" id="movement-plan-x" aria-label="Close">×</button>
-        <h2 style="margin-top:0">Your movement plan</h2>
-        <p class="muted">Pick the moves for your daily routine, and set the reps or time for each. Finishing every move logs the minutes below to your Movement total.</p>
-        <label style="display:block;margin-bottom:12px">Minutes for completing the routine
-          <input type="number" id="movement-plan-minutes" min="1" step="1" value="5" style="width:80px">
-        </label>
-        <div id="movement-plan-list"></div>
-        <div id="movement-plan-add">
-          <h3>Add your own exercise</h3>
-          <label>Exercise name
-            <input type="text" id="custom-ex-name" maxlength="80" placeholder="e.g. Step-ups">
-          </label>
-          <div style="display:flex;gap:10px">
-            <label style="flex:1">Pattern
-              <select id="custom-ex-pattern">
-                <option>Squat</option>
-                <option>Hinge</option>
-                <option>Push</option>
-                <option>Pull</option>
-                <option>Carry</option>
-                <option>Core</option>
-                <option selected>Other</option>
-              </select>
-            </label>
-            <label style="flex:1">Reps or time
-              <input type="text" id="custom-ex-detail" maxlength="40" placeholder="e.g. 10 reps">
-            </label>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn btn-primary" id="custom-ex-add">Add exercise</button>
-          </div>
-          <p class="code-msg" id="custom-ex-msg" style="min-height:1.2em"></p>
-        </div>
-        <p class="code-msg" id="movement-plan-msg" style="min-height:1.2em"></p>
-        <div class="form-actions" style="flex-wrap:wrap">
-          <button type="button" class="btn btn-primary" id="movement-plan-save">Save plan</button>
-          <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
-          <button type="button" class="btn btn-link" id="movement-plan-reset">Use the 5-minute default</button>
-        </div>
-      </div>
-    </div>
-
     <div class="card">
       <h2 class="card-title">Daily Mood</h2>
       <div class="mood-row" id="mood-row">
@@ -383,12 +376,12 @@
         <button class="mood-btn" data-mood="Okay">Okay</button>
         <button class="mood-btn" data-mood="Low">Low</button>
       </div>
-      <p class="muted" id="mood-today-label">No mood logged today yet.</p>
+      <p class="muted" id="mood-today-label" hidden></p>
     </div>
 
     <div class="card">
       <h2 class="card-title">Evening Reflection</h2>
-      <p>Taking a few minutes to reflect on your day supports your wellness journey.</p>
+      <p>A few minutes to reflect.</p>
       <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
     </div>
 
@@ -548,7 +541,6 @@
         <p id="bmi-healthy-range"></p>
         <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obesity Class I 30–34.9 · Class II 35–39.9 · Class III 40+</p>
       </div>
-      <p class="muted" id="bmi-disclaimer" style="font-size:.85em;margin:8px 0 0">BMI is a screening measurement, not a diagnosis. It does not distinguish muscle from fat or describe body composition.</p>
     </div>
 
     <div class="card" id="weight-chart-card">
@@ -764,8 +756,9 @@
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
+    <p class="muted" style="font-size:.85em">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
     <h3 style="margin-top:18px">Paste a Recipe</h3>
-    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere, and the app puts it in the form below to save.</p>
+    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere, and save it below.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
     <form id="paste-recipe-form" class="hidden" aria-label="Paste a recipe" novalidate>
       <label>Paste a recipe<textarea id="paste-recipe-text" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
@@ -868,11 +861,6 @@
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
     </div>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
-    <div id="chat-chips" class="chat-chips" role="group" aria-label="Try asking">
-      <button type="button" class="btn btn-small chat-chip" data-chip="How is my protein today?">How is my protein today?</button>
-      <button type="button" class="btn btn-small chat-chip" data-chip="What can I eat for dinner?">What can I eat for dinner?</button>
-      <button type="button" class="btn btn-small chat-chip" data-chip="How am I doing this week?">How am I doing this week?</button>
-    </div>
     <form id="chat-form" class="chat-form">
       <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
@@ -883,7 +871,7 @@
     <details class="card" style="margin-top:16px" id="memory-optin-card" open>
       <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
       <div style="margin-top:12px">
-      <p class="muted" style="font-size:.9em">Turn this on and your companion will remember your name, goals, and preferences to personalize its replies. Off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <p class="muted" style="font-size:.9em">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
         <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
         Remember me
@@ -1231,7 +1219,7 @@
 </main>
 
 <footer class="app-footer" role="contentinfo" aria-label="App footer">
-  <p>How can we make this app better? <a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
+  <p><a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
 

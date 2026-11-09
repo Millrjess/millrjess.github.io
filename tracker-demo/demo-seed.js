@@ -33,7 +33,14 @@
           heightFt: 5,
           heightIn: 5,
           refillDate: "",
-          goalWeight: "160"
+          goalWeight: "160",
+          movementPlan: [
+            { name: "Sit-to-stands", detail: "10 reps" },
+            { name: "Wall push-ups", detail: "10 reps" },
+            { name: "Standing march in place", detail: "1 minute" },
+            { name: "Heel raises", detail: "12 reps" },
+            { name: "Gentle full-body stretch", detail: "1 minute" }
+          ]
         },
         water: [
           { id: id("w1"), date: iso(0), oz: 16 },

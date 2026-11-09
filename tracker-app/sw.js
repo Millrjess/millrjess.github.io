@@ -31,7 +31,7 @@
  *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v041";
+const CACHE_NAME = "new-chapter-tracker-v042";
 const ASSETS = [
   "./",
   "./index.html",

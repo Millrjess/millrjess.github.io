@@ -60,7 +60,7 @@ const DEFAULTS = {
     calorieTarget: "", // v169: optional daily calorie target for the macros card; blank means none, no default
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
-    movementPlan: null, // v168: null means the 5-minute default routine; otherwise [{ name, detail }]
+    movementPlan: null, // v042: null or empty means no routine yet; the user picks their own moves; otherwise [{ name, detail }]
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
@@ -74,7 +74,7 @@ const DEFAULTS = {
     yourName: "" // v004: your own first name, for the greeting on Today; blank means just "Good morning."
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
-  protein: [],      // { id, date, grams, food, carbs, fat } (carbs/fat added v168; grams is protein)
+  protein: [],      // { id, date, grams, food, carbs, fat, calories } (carbs/fat added v168, calories v042; grams is protein)
   exercise: [],     // { id, date, minutes, label }
   strength: [],     // v033: { id, date, name, sets, reps, weight } strength exercises
   injections: [],   // { id, date, medication, dose, site, notes, status: "On time" | "Missed" | "Delayed" }
@@ -168,6 +168,7 @@ function validateStore(parsed, strict) {
       if (k === "protein") {
         e.carbs = Number.isFinite(Number(e.carbs)) && Number(e.carbs) >= 0 ? Number(e.carbs) : 0;
         e.fat = Number.isFinite(Number(e.fat)) && Number(e.fat) >= 0 ? Number(e.fat) : 0;
+        e.calories = Number.isFinite(Number(e.calories)) && Number(e.calories) >= 0 ? Number(e.calories) : 0;
       }
       // v033: strength entries keep a name and counts only; sets and
       // reps are whole numbers of at least 1, weight is pounds or
@@ -826,36 +827,36 @@ function escapeHtml(s) {
 /* Daily encouragement: rotate through supportive messages by day of year */
 
 const ENCOURAGEMENTS = [
-  "Strong is the goal now, not small. Protein first, every day.",
-  "Muscle is your longevity. Every gram of protein protects it.",
-  "You showed up today. That matters more than any number.",
-  "Consistency beats perfection, at every age.",
+  "Strong, not small. Protein first, every day.",
+  "Muscle is longevity. Every gram of protein protects it.",
+  "You showed up today. That matters most.",
+  "Consistency beats perfection.",
   "Energy is the real goal. The rest follows.",
   "This is your chapter. Write it strong.",
-  "Be patient with your body. It has carried you this far.",
-  "Small habits, repeated daily, create lasting change.",
-  "Progress is not always visible, but it is always happening.",
-  "You have earned every bit of wisdom in this chapter. Your body is catching up.",
-  "Protein at every meal is a small choice that protects a lot.",
-  "Water first, then the rest of the day feels easier.",
-  "Movement does not have to be big to count. A short walk counts.",
-  "Staying on your routine is what keeps the progress steady.",
-  "Strength grows quietly, day by day, while you keep showing up.",
+  "Be patient with your body. It has carried you far.",
+  "Small habits, repeated daily, last.",
+  "Progress is not always visible, but it is happening.",
+  "You earned the wisdom. Your body is catching up.",
+  "Protein at every meal protects a lot.",
+  "Water first. The rest of the day feels easier.",
+  "Movement counts, even a short walk.",
+  "Your routine keeps the progress steady.",
+  "Strength grows quietly, day by day.",
   "Rest is part of training, not a break from it.",
   "You are not starting over. You are continuing.",
-  "A slow day still counts if you showed up for one good habit.",
-  "Celebrate what your body can do today, not only what the scale says.",
-  "One good meal, one good walk, one good night of sleep. That is enough for today.",
-  "Muscle protects your independence. That is worth the effort.",
-  "Keep your routine simple enough to repeat tomorrow.",
-  "Progress does not require perfection, only persistence.",
-  "Drink your water, eat your protein, move your body, and let the rest follow.",
+  "A slow day still counts. One good habit is enough.",
+  "Celebrate what your body can do, not what the scale says.",
+  "One good meal, one good walk, one good sleep. Enough for today.",
+  "Muscle protects your independence. Worth the effort.",
+  "Keep your routine simple enough to repeat.",
+  "Progress needs persistence, not perfection.",
+  "Water, protein, movement. Let the rest follow.",
   "Today is a new chapter, not a test.",
   "Good days are built, one choice at a time.",
   "Your strength is not measured by one weigh-in.",
   "Take care of the body that carries your life.",
-  "You are doing this for the life you want to live, not for a number.",
-  "Strong today, stronger tomorrow, one habit at a time."
+  "You are doing this for your life, not for a number.",
+  "Strong today, stronger tomorrow."
 ];
 
 function renderEncouragement() {
@@ -968,8 +969,8 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     const sheet = document.getElementById("more-sheet");
     if (sheet && !sheet.classList.contains("hidden")) { e.preventDefault(); closeMoreSheet(); return; }
-    const planModal = document.getElementById("movement-plan-modal");
-    if (planModal && !planModal.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
+    const planEditor = document.getElementById("movement-plan-editor");
+    if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
     const doctorModal = document.getElementById("doctor-modal");
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
     const addAmountModal = document.getElementById("add-amount-modal");
@@ -1001,15 +1002,15 @@ function pickCoachInsight() {
   if (shotDay) {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const diff = (days.indexOf(shotDay) - new Date().getDay() + 7) % 7;
-    if (diff === 1) return "Your shot day is tomorrow. Everything is ready.";
+    if (diff === 1) return "Shot day tomorrow. Everything is ready.";
     if (diff === 0 && !store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed")) {
       return null; // the one-tap button covers today
     }
   }
   const pStreak = streakFor("protein", "grams", "proteinGoal");
-  if (pStreak >= 3) return "You've hit your protein goal " + pStreak + " days in a row. That's how strength is built.";
+  if (pStreak >= 3) return "Protein goal " + pStreak + " days in a row. That's how strength is built.";
   const wStreak = streakFor("water", "oz", "waterGoal");
-  if (wStreak >= 3) return wStreak + " days of hitting your water goal. Your body feels the difference.";
+  if (wStreak >= 3) return wStreak + " days on your water goal. Your body feels it.";
   const mStreak = streakFor("exercise", "minutes", "movementGoal");
   if (mStreak >= 3) return mStreak + " active days in a row. Movement is medicine.";
   const goalW = Number(store.settings.goalWeight) || 0;
@@ -1021,7 +1022,7 @@ function pickCoachInsight() {
   if (sorted.length) {
     const lastW = sorted[sorted.length - 1].date;
     const daysSince = daysBetween(lastW, todayStr());
-    if (daysSince >= 7) return "It's been " + daysSince + " days since you weighed in. No pressure, just whenever you're ready.";
+    if (daysSince >= 7) return daysSince + " days since you weighed in. No pressure, whenever you're ready.";
   }
   if (store.journal.length) {
     const lastJ = [...store.journal].sort(byDateDesc)[0].date;
@@ -1359,6 +1360,7 @@ function openFoodFormForMeal(meal) {
   const form = document.getElementById("macro-food-form");
   if (!form) return;
   form.classList.remove("hidden");
+  syncFormCalories();
   form.scrollIntoView({ behavior: "smooth", block: "start" });
   const nameInput = document.getElementById("macro-food-name");
   if (nameInput) nameInput.focus();
@@ -1384,12 +1386,12 @@ function renderToday() {
   const waterGoal = Number(store.settings.waterGoal) || 92;
   document.getElementById("water-goal-display").textContent = waterGoal;
   const waterOz = sumForDate(store.water, t, "oz");
-  syncGoalSlider("water-slider", "water-slider-hint", "water-today", "water-num-btn", "Water", "ounces", waterOz, waterGoal);
+  syncGoalSlider("water-slider", "water-today", "water-num-btn", "Water", "ounces", waterOz, waterGoal);
 
   const exMin = sumForDate(store.exercise, t, "minutes");
   const moveGoal = Number(store.settings.movementGoal) || 30;
   document.getElementById("exercise-goal-display").textContent = moveGoal;
-  syncGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
+  syncGoalSlider("exercise-slider", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
 
   renderMacros();
   renderMovement();
@@ -1476,7 +1478,10 @@ function trimDayEntries(key, field, date, amount) {
     const val = Number(e[field]) || 0;
     if (val <= 0) continue;
     if (val <= remaining) { remaining -= val; store[key].splice(i, 1); }
-    else { e[field] = val - remaining; remaining = 0; }
+    else {
+      e[field] = val - remaining; remaining = 0;
+      if (key === "protein" && Number(e.calories) > 0) e.calories = entryCalories(e);
+    }
   }
 }
 
@@ -1505,7 +1510,7 @@ function setDayTotal(key, field, extra, target) {
   }
   renderToday();
 }
-function syncGoalSlider(sliderId, hintId, numId, btnId, label, unitWord, value, goal) {
+function syncGoalSlider(sliderId, numId, btnId, label, unitWord, value, goal) {
   const num = document.getElementById(numId);
   if (num) num.textContent = value;
   const slider = document.getElementById(sliderId);
@@ -1514,28 +1519,24 @@ function syncGoalSlider(sliderId, hintId, numId, btnId, label, unitWord, value, 
     slider.value = value;
     slider.setAttribute("aria-valuetext", value + " of " + goal + " " + unitWord);
   }
-  const hint = document.getElementById(hintId);
-  if (hint) hint.textContent = "Tap " + value + " to type it in.";
   const btn = document.getElementById(btnId);
   if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + unitWord + ". Tap to type an amount to add.");
 }
-function bindGoalSlider(sliderId, hintId, numId, key, field, extra, goalFor) {
+function bindGoalSlider(sliderId, numId, key, field, extra, goalFor) {
   const slider = document.getElementById(sliderId);
   if (!slider) return;
   const paintLive = () => {
     const v = Number(slider.value) || 0;
     const num = document.getElementById(numId);
     if (num) num.textContent = v;
-    const hint = document.getElementById(hintId);
-    if (hint) hint.textContent = "Tap " + v + " to type it in.";
   };
   slider.addEventListener("input", paintLive);
   slider.addEventListener("change", () => {
     setDayTotal(key, field, extra, Number(slider.value) || 0);
   });
 }
-bindGoalSlider("water-slider", "water-slider-hint", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
-bindGoalSlider("exercise-slider", "exercise-slider-hint", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
+bindGoalSlider("water-slider", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
+bindGoalSlider("exercise-slider", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
 
 /* ---------- Type an amount to add (v169) ---------- */
 /* The big number is a button. Tapping it opens a small sheet where the
@@ -1640,18 +1641,29 @@ function macroTargets() {
     fat: Number(store.settings.fatGoal) || 60
   };
 }
-function macroCalories(t) {
-  return Math.round(t.protein * 4 + t.carbs * 4 + t.fat * 9);
+/* Calories for one logged food entry: the calories stored on the entry
+   when present, otherwise 4/4/9 from the entry's own macros. */
+function entryCalories(e) {
+  const stored = Number(e.calories);
+  if (Number.isFinite(stored) && stored > 0) return Math.round(stored);
+  const p = Number(e.grams) || 0, c = Number(e.carbs) || 0, f = Number(e.fat) || 0;
+  return Math.round(p * 4 + c * 4 + f * 9);
 }
 
-/* Calories section: a clear "Calories today" total from macros (protein
-   and carbs 4 cal/g, fat 9 cal/g), a progress bar toward the daily
-   calorie target from Settings, and a note. With no target set, the
-   note points to Settings. */
+/* Calories section: "Calories today" is the sum of the calories stored
+   on the foods logged for the viewed day, so the total and the food
+   list agree. An entry without stored calories falls back to 4/4/9
+   from its own macros. The "Your balance" split still uses 4/4/9 on
+   the targets, since that is about the targets, not the day. While a
+   macro row slides, the passed totals are the live preview, so the
+   calories preview follows the slide by the same 4/4/9 delta. */
 function renderCalories(totals) {
-  const cals = macroCalories(totals);
+  const t = viewedDateStr();
+  const entries = (store.protein || []).filter((e) => e.date === t);
+  let cals = entries.reduce((s, e) => s + entryCalories(e), 0);
+  const dayTotals = macroTotals(t);
+  cals += Math.round(4 * ((totals.protein || 0) - dayTotals.protein) + 4 * ((totals.carbs || 0) - dayTotals.carbs) + 9 * ((totals.fat || 0) - dayTotals.fat));
   const target = Number(store.settings.calorieTarget) || 0;
-  const total = totals.protein + totals.carbs + totals.fat;
   const todayEl = document.getElementById("calories-today");
   if (todayEl) todayEl.textContent = cals.toLocaleString("en-US");
   const targetEl = document.getElementById("calories-target-part");
@@ -1660,9 +1672,9 @@ function renderCalories(totals) {
   if (fill) fill.style.width = target > 0 ? Math.min(100, Math.round(100 * cals / target)) + "%" : "0%";
   const note = document.getElementById("calories-note");
   if (note) {
-    if (total <= 0) note.textContent = "No macros logged yet today.";
-    else if (target > 0) note.textContent = "Calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).";
-    else note.textContent = "Set a calorie target in Settings to track against it.";
+    if (!entries.length) note.textContent = "No food logged yet today.";
+    else if (target > 0) note.textContent = "From the food you logged today.";
+    else note.textContent = "Set a calorie target in Settings to track it.";
   }
 }
 
@@ -1784,6 +1796,7 @@ function adjustMacroBy(key, delta) {
     if (todays.length) {
       const last = todays[todays.length - 1];
       last[key] = (Number(last[key]) || 0) + delta;
+      if (Number(last.calories) > 0) last.calories = entryCalories(last);
     } else {
       const entry = { id: uid(), date, grams: 0, food: "Quick add" };
       entry[key] = delta;
@@ -1877,6 +1890,7 @@ document.getElementById("macro-log-food").addEventListener("click", () => {
     editingFoodId = null;
     const mealSel = document.getElementById("macro-food-meal");
     if (mealSel) mealSel.value = "";
+    syncFormCalories();
     form.scrollIntoView({ behavior: "smooth", block: "start" });
     document.getElementById("macro-food-name").focus();
   }
@@ -1890,12 +1904,29 @@ document.getElementById("macro-food-cancel").addEventListener("click", () => {
   sr.classList.add("hidden");
   sr.innerHTML = "";
 });
+/* Log food form: the Calories field follows the macros (4/4/9) as they
+   are typed. A food filled from search, Your foods, or the archive
+   shows its own calories; typing a calories value sticks until a macro
+   changes, when it recomputes. */
+function syncFormCalories() {
+  const el = document.getElementById("macro-food-calories");
+  if (!el) return;
+  const p = Math.max(0, Math.round(Number(document.getElementById("macro-food-protein").value) || 0));
+  const c = Math.max(0, Math.round(Number(document.getElementById("macro-food-carbs").value) || 0));
+  const f = Math.max(0, Math.round(Number(document.getElementById("macro-food-fat").value) || 0));
+  el.value = (p || c || f) ? Math.round(p * 4 + c * 4 + f * 9) : "";
+}
+["macro-food-protein", "macro-food-carbs", "macro-food-fat"].forEach((id) => {
+  const input = document.getElementById(id);
+  if (input) input.addEventListener("input", syncFormCalories);
+});
 document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const msg = document.getElementById("macro-food-msg");
   const grams = Math.max(0, Math.round(Number(document.getElementById("macro-food-protein").value) || 0));
   const carbs = Math.max(0, Math.round(Number(document.getElementById("macro-food-carbs").value) || 0));
   const fat = Math.max(0, Math.round(Number(document.getElementById("macro-food-fat").value) || 0));
+  const calories = Math.max(0, Math.round(Number(document.getElementById("macro-food-calories").value) || 0));
   if (grams <= 0 && carbs <= 0 && fat <= 0) {
     setFormStatus(msg, "Add at least one macro above zero first.", true);
     return;
@@ -1906,13 +1937,13 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   if (editingFoodId) {
     const i = (store.protein || []).findIndex((x) => x.id === editingFoodId);
     if (i !== -1) {
-      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food, meal };
+      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food, meal, calories };
       if (pendingFoodPhoto) updated.photo = pendingFoodPhoto;
       store.protein[i] = updated;
     }
     editingFoodId = null;
   } else {
-    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food, meal };
+    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food, meal, calories };
     if (pendingFoodPhoto) entry.photo = pendingFoodPhoto;
     store.protein.push(entry);
   }
@@ -2048,11 +2079,17 @@ function libraryFoodLabel(f) {
   const cals = Math.round((f.protein || 0) * 4 + (f.carbs || 0) * 4 + (f.fat || 0) * 9);
   return f.name + (cals > 0 ? "  ·  " + cals + " cal" : "") + "  ·  P " + (f.protein || 0) + "g  C " + (f.carbs || 0) + "g  F " + (f.fat || 0) + "g";
 }
-function fillFoodForm(name, protein, carbs, fat, note) {
+function fillFoodForm(name, protein, carbs, fat, note, calories) {
   document.getElementById("macro-food-name").value = String(name || "").slice(0, 120);
   document.getElementById("macro-food-protein").value = protein || "";
   document.getElementById("macro-food-carbs").value = carbs || "";
   document.getElementById("macro-food-fat").value = fat || "";
+  const calEl = document.getElementById("macro-food-calories");
+  if (calEl) {
+    const own = Number(calories);
+    calEl.value = Number.isFinite(own) && own > 0 ? Math.round(own)
+      : ((protein || carbs || fat) ? Math.round((Number(protein) || 0) * 4 + (Number(carbs) || 0) * 4 + (Number(fat) || 0) * 9) : "");
+  }
   const status = document.getElementById("macro-food-search-status");
   if (status && note) status.textContent = note;
 }
@@ -2097,7 +2134,7 @@ function renderFoodLibrary() {
     const empty = document.createElement("p");
     empty.className = "muted";
     empty.style.cssText = "font-size:.9em;margin:0";
-    empty.textContent = "No foods saved yet. Log a food and it saves here on its own.";
+    empty.textContent = "No foods saved yet. Log a food and it saves here.";
     list.appendChild(empty);
   } else {
     foods.forEach((f) => {
@@ -2109,7 +2146,7 @@ function renderFoodLibrary() {
       b.style.cssText = "flex:1;text-align:left;white-space:normal";
       b.textContent = libraryFoodLabel(f);
       b.addEventListener("click", () => {
-        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.", f.calories);
         list.classList.add("hidden");
       });
       const arc = document.createElement("button");
@@ -2183,7 +2220,7 @@ function renderFoodArchive() {
     b.style.cssText = "flex:1;text-align:left;white-space:normal";
     b.textContent = libraryFoodLabel(f);
     b.addEventListener("click", () => {
-      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your archive. Check and edit before saving.");
+      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your archive. Check and edit before saving.", f.calories);
       list.classList.add("hidden");
     });
     const rs = document.createElement("button");
@@ -2261,7 +2298,7 @@ async function searchFoodByName() {
       b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
       b.textContent = libraryFoodLabel(f);
       b.addEventListener("click", () => {
-        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.", f.calories);
         results.classList.add("hidden");
         results.innerHTML = "";
       });
@@ -2301,6 +2338,7 @@ async function searchFoodByName() {
         document.getElementById("macro-food-protein").value = protein || "";
         document.getElementById("macro-food-carbs").value = carbs || "";
         document.getElementById("macro-food-fat").value = fat || "";
+        document.getElementById("macro-food-calories").value = cals > 0 ? cals : "";
         status.textContent = hasServing ? "Filled from the label. Check and edit before saving." : "Filled per 100 g. Scale to your portion before saving.";
         results.classList.add("hidden");
         results.innerHTML = "";
@@ -2440,10 +2478,10 @@ function renderFoodLog() {
       <button type="button" class="btn btn-small btn-danger" data-del-food="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged food")}">Remove</button>
     </div>`;
   const rowHtml = (meal, items) => {
-    const kcal = items.reduce((s, e) => s + Math.round((Number(e.grams) || 0) * 4 + (Number(e.carbs) || 0) * 4 + (Number(e.fat) || 0) * 9), 0);
+    const kcal = items.reduce((s, e) => s + entryCalories(e), 0);
     const total = items.length
       ? items.length + (items.length === 1 ? " food · " : " foods · ") + kcal + " cal"
-      : "Nothing logged yet";
+      : "";
     return "<div class=\"meal-row\">"
       + "<div class=\"meal-head\"><span class=\"meal-name\">" + meal + "</span>"
       + "<span class=\"muted meal-total\">" + total + "</span>"
@@ -2470,6 +2508,7 @@ function renderFoodLog() {
     document.getElementById("macro-food-protein").value = Number(entry.grams) || "";
     document.getElementById("macro-food-carbs").value = Number(entry.carbs) || "";
     document.getElementById("macro-food-fat").value = Number(entry.fat) || "";
+    document.getElementById("macro-food-calories").value = entryCalories(entry) || "";
     const mealSel = document.getElementById("macro-food-meal");
     if (mealSel) mealSel.value = mealOf(entry);
     document.getElementById("macro-food-form").classList.remove("hidden");
@@ -2845,13 +2884,6 @@ document.getElementById("plate-log-btn").addEventListener("click", () => {
 /* ---------- Today's Movement (v168) ---------- */
 /* A short daily routine on the front page. Finishing every move logs
    5 minutes to the Movement total; unticking a move takes it back. */
-const DEFAULT_MOVES = [
-  { name: "Sit-to-stands", detail: "10 reps" },
-  { name: "Wall push-ups", detail: "10 reps" },
-  { name: "Standing march in place", detail: "1 minute" },
-  { name: "Heel raises", detail: "12 reps" },
-  { name: "Gentle full-body stretch", detail: "1 minute" }
-];
 /* The picker list: bodyweight, popular weights, and resistance bands,
    across the six movement patterns (squat, hinge, push, pull, carry,
    core). Research-backed picks for adults over 50; defaults first. */
@@ -2913,11 +2945,7 @@ function routineMinutes() {
 function getMovementPlan() {
   const plan = store.settings && store.settings.movementPlan;
   if (Array.isArray(plan) && plan.length) return plan;
-  return DEFAULT_MOVES;
-}
-function isDefaultPlan() {
-  const plan = store.settings && store.settings.movementPlan;
-  return !Array.isArray(plan) || !plan.length;
+  return [];
 }
 function movementDayState(date) {
   const state = (store.movementDone || {})[date];
@@ -2951,7 +2979,11 @@ function renderMovement() {
   // Done names that are no longer in the plan (plan changed) do not count.
   const done = state.done.filter((n) => plan.some((m) => m.name === n));
   const sub = document.getElementById("movement-sub");
-  if (sub) sub.textContent = isDefaultPlan() ? routineMinutes() + " minutes. No equipment." : "Your plan · " + plan.length + " moves.";
+  if (sub) sub.textContent = plan.length ? "Your plan · " + plan.length + " moves." : "Choose your moves to start.";
+  const desc = card.querySelector(".movement-desc");
+  if (desc) desc.hidden = plan.length === 0;
+  const prog = card.querySelector(".move-progress");
+  if (prog) prog.hidden = plan.length === 0;
   const list = document.getElementById("moves-list");
   list.innerHTML = plan.map((m) => {
     const isDone = done.includes(m.name);
@@ -3039,7 +3071,7 @@ function renderStrength() {
           <button class="btn btn-small btn-danger" data-del-strength="${e.id}" aria-label="Remove strength entry: ${escapeHtml(e.name)}">Remove</button>
         </div>
       </div>`).join("")
-    : '<p class="empty-state">No strength exercises logged for this day yet.</p>';
+    : '<p class="empty-state">No strength yet.</p>';
   list.querySelectorAll("[data-del-strength]").forEach((b) => b.addEventListener("click", () => {
     store.strength = (store.strength || []).filter((x) => x.id !== b.dataset.delStrength);
     saveStore();
@@ -3103,13 +3135,13 @@ function movementPlanRowHtml(item, checked, detail, isCustom) {
   return `<label class="plan-row"${isCustom ? ` data-custom="true" data-pattern="${escapeHtml(item.pattern || "Other")}"` : ""}>
       <input type="checkbox" data-plan-name="${escapeHtml(item.name)}"${checked ? " checked" : ""}>
       <span class="plan-name">${escapeHtml(item.name)}<span class="plan-pattern">${escapeHtml(item.pattern || "")}</span></span>
-      <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(item.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps or time for ${escapeHtml(item.name)}">
+      <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(item.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps/time for ${escapeHtml(item.name)}">
       ${isCustom ? `<button type="button" class="plan-remove" data-remove-custom="${escapeHtml(item.name)}" aria-label="Remove ${escapeHtml(item.name)} from your exercises">×</button>` : ""}
     </label>`;
 }
 
 function openMovementPlanEditor() {
-  const modal = document.getElementById("movement-plan-modal");
+  const editor = document.getElementById("movement-plan-editor");
   const list = document.getElementById("movement-plan-list");
   const plan = getMovementPlan();
   const inPlan = {};
@@ -3133,24 +3165,22 @@ function openMovementPlanEditor() {
   if (detailInput) detailInput.value = "";
   const minInput = document.getElementById("movement-plan-minutes");
   if (minInput) minInput.value = routineMinutes();
-  modal.classList.remove("hidden");
-  const first = modal.querySelector("input[type='checkbox']");
-  if (first) first.focus();
+  editor.classList.remove("hidden");
+  const btn = document.getElementById("movement-customize");
+  if (btn) btn.setAttribute("aria-expanded", "true");
 }
 function closeMovementPlanEditor() {
-  document.getElementById("movement-plan-modal").classList.add("hidden");
+  const editor = document.getElementById("movement-plan-editor");
+  if (editor) editor.classList.add("hidden");
   const btn = document.getElementById("movement-customize");
-  if (btn) btn.focus();
+  if (btn) { btn.setAttribute("aria-expanded", "false"); btn.focus(); }
 }
-document.getElementById("movement-customize").addEventListener("click", openMovementPlanEditor);
-document.getElementById("movement-plan-cancel").addEventListener("click", closeMovementPlanEditor);
-// v169: the X closes the modal exactly like Cancel, Escape, and
-// backdrop tap do: it discards unsaved changes, and focus returns to
-// the Customize button.
-document.getElementById("movement-plan-x").addEventListener("click", closeMovementPlanEditor);
-document.getElementById("movement-plan-modal").addEventListener("click", (e) => {
-  if (e.target.id === "movement-plan-modal") closeMovementPlanEditor();
+document.getElementById("movement-customize").addEventListener("click", () => {
+  const editor = document.getElementById("movement-plan-editor");
+  if (editor && editor.classList.contains("hidden")) openMovementPlanEditor();
+  else closeMovementPlanEditor();
 });
+document.getElementById("movement-plan-cancel").addEventListener("click", closeMovementPlanEditor);
 // v169: removing a custom exercise from the picker. Staged like every
 // other change in this editor: Save rebuilds the saved list from the
 // rows still present, so Cancel brings a removed exercise back.
@@ -3187,13 +3217,6 @@ document.getElementById("custom-ex-add").addEventListener("click", () => {
   detailInput.value = "";
   if (msg) { msg.textContent = ""; msg.classList.remove("error"); }
   nameInput.focus();
-});
-document.getElementById("movement-plan-reset").addEventListener("click", () => {
-  store.settings.movementPlan = null;
-  store.settings.routineMinutes = 5;
-  saveStore();
-  closeMovementPlanEditor();
-  renderToday();
 });
 document.getElementById("movement-plan-save").addEventListener("click", () => {
   const msg = document.getElementById("movement-plan-msg");
@@ -3262,15 +3285,15 @@ function renderNextInjection() {
   const due = nextShotDue();
   let when;
   if (due && due.overdueDays > 0) {
-    when = "Your shot was due " + formatDateShort(due.dateStr) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
+    when = "Shot was due " + formatDateShort(due.dateStr) + ". " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
   } else if (due && due.daysUntil === 0) {
     when = "Today is your shot day.";
   } else if (due && due.daysUntil === 1) {
-    when = "Your next shot is tomorrow (" + formatDateShort(due.dateStr) + ").";
+    when = "Next shot: tomorrow (" + formatDateShort(due.dateStr) + ").";
   } else if (due) {
-    when = "Your next shot is in " + due.daysUntil + " days (" + formatDateShort(due.dateStr) + ").";
+    when = "Next shot: " + formatDateShort(due.dateStr) + " (in " + due.daysUntil + " days).";
   } else {
-    when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Your next shot is tomorrow." : "Your next shot is in " + diff + " days (" + shotDay + ").";
+    when = diff === 0 ? "Today is your shot day." : diff === 1 ? "Next shot: tomorrow." : "Next shot: " + shotDay + " (in " + diff + " days).";
   }
   el.textContent = when + " " + med + (dose ? " " + dose + "." : ".") + lastSite;
 
@@ -3317,9 +3340,13 @@ function renderMood() {
     b.classList.toggle("selected", b.dataset.mood === current);
     b.setAttribute("aria-pressed", b.dataset.mood === current ? "true" : "false");
   });
-  document.getElementById("mood-today-label").textContent = current
-    ? (viewOffset === 0 ? "Today you are feeling: " : "On " + formatDate(t) + " you felt: ") + current + "."
-    : (viewOffset === 0 ? "No mood logged today yet." : "No mood logged for this day yet.");
+  const moodLabel = document.getElementById("mood-today-label");
+  if (moodLabel) {
+    moodLabel.textContent = current
+      ? (viewOffset === 0 ? "Today you are feeling: " : "On " + formatDate(t) + " you felt: ") + current + "."
+      : "";
+    moodLabel.hidden = !current;
+  }
 }
 
 document.querySelectorAll(".mood-btn").forEach((btn) => {
@@ -3687,7 +3714,7 @@ function renderRotationGuide() {
   const due = nextShotDue();
   if (due) {
     if (due.overdueDays > 0) {
-      el.innerHTML += " Next shot was due " + escapeHtml(formatDate(due.dateStr)) + " \u2014 " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
+      el.innerHTML += " Shot was due " + escapeHtml(formatDate(due.dateStr)) + ". " + due.overdueDays + (due.overdueDays === 1 ? " day overdue." : " days overdue.");
     } else if (due.daysUntil === 0) {
       el.innerHTML += " Next shot is due today.";
     } else if (due.daysUntil === 1) {
@@ -5159,19 +5186,20 @@ const KITCHEN_RECIPES = [
     name: "Spinach Scrambled Eggs with Toast",
     category: "Easy Breakfasts",
     time: 10, difficulty: "Easy", servings: 1,
-    protein: 17, carbs: 14, fat: 16, calories: 268,
+    protein: 24, carbs: 16, fat: 15, calories: 295,
     tags: ["breakfast", "easy-prep", "low-carb", "budget-friendly", "low-sodium"],
     ingredients: [
       "2 eggs",
       "30 g fresh spinach (about 1 cup)",
-      "1 teaspoon olive oil",
-      "1 slice whole wheat bread, toasted"
+      "1/2 teaspoon olive oil",
+      "1 slice whole wheat bread, toasted",
+      "60 g low-fat cottage cheese (about 1/4 cup)"
     ],
     steps: [
       "Whisk the eggs in a bowl.",
       "Warm the oil in a pan and wilt the spinach.",
       "Pour in the eggs and stir gently until just set.",
-      "Serve with the toast."
+      "Spread the cottage cheese on the toast and serve with the eggs."
     ]
   },
   {
@@ -5181,17 +5209,17 @@ const KITCHEN_RECIPES = [
     name: "Salmon, Quinoa and Broccoli",
     category: "Balanced Dinners",
     time: 25, difficulty: "Easy", servings: 2,
-    protein: 32, carbs: 28, fat: 21, calories: 429,
+    protein: 32, carbs: 28, fat: 16, calories: 384,
     tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
     ingredients: [
       "2 salmon fillets (about 225 g total)",
       "200 g cooked quinoa (about 1 cup)",
       "200 g broccoli florets",
-      "2 teaspoons olive oil",
+      "1 teaspoon olive oil",
       "A pinch of salt (optional) and lemon to taste"
     ],
     steps: [
-      "Cook the salmon in a pan with 1 teaspoon of olive oil until it flakes.",
+      "Cook the salmon in a pan with 1/2 teaspoon of olive oil until it flakes.",
       "Steam or roast the broccoli until tender.",
       "Toss the quinoa with the remaining oil.",
       "Serve the salmon over the quinoa with broccoli on the side."
@@ -5227,16 +5255,16 @@ const KITCHEN_RECIPES = [
     name: "Berry Protein Smoothie",
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
-    protein: 15, carbs: 30, fat: 5, calories: 225,
+    protein: 18, carbs: 14, fat: 2, calories: 146,
     tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "low-oxalate"],
     ingredients: [
-      "100 g plain nonfat Greek yogurt",
-      "120 ml whole milk (about 1/2 cup)",
-      "1/2 banana",
-      "50 g blueberries (about 1/3 cup)"
+      "170 g plain nonfat Greek yogurt (about 3/4 cup)",
+      "50 g blueberries (about 1/3 cup)",
+      "120 ml unsweetened almond milk (about 1/2 cup)",
+      "Ice cubes"
     ],
     steps: [
-      "Put everything in a blender.",
+      "Put the yogurt, blueberries, and almond milk in a blender with a few ice cubes.",
       "Blend until smooth.",
       "Pour into a glass and drink right away."
     ]
@@ -5376,23 +5404,23 @@ const KITCHEN_RECIPES = [
     ]
   },
   {
-    id: "ham-egg-cheese-mug",
+    id: "chicken-egg-cheese-mug",
     image: "",
     credit: "",
-    name: "Ham, Egg and Cheese Mug",
+    name: "Chicken, Egg and Cheese Mug",
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
-    protein: 23, carbs: 3, fat: 15, calories: 239,
+    protein: 27, carbs: 3, fat: 14, calories: 246,
     tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions"],
     ingredients: [
       "2 eggs",
-      "30 g diced ham",
+      "30 g diced cooked chicken breast",
       "20 g shredded mozzarella",
       "30 g fresh spinach (about 1 cup)"
     ],
     steps: [
       "Whisk the eggs in a microwave-safe mug.",
-      "Stir in the ham, mozzarella, and spinach.",
+      "Stir in the chicken, mozzarella, and spinach.",
       "Microwave for 90 seconds, stir, then microwave 30 seconds more.",
       "Let it sit a moment, then eat from the mug."
     ]
@@ -5404,12 +5432,12 @@ const KITCHEN_RECIPES = [
     name: "Chicken and Black Bean Tacos",
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 2,
-    protein: 35, carbs: 46, fat: 4, calories: 360,
+    protein: 34, carbs: 35, fat: 4, calories: 312,
     tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly"],
     ingredients: [
       "1 chicken breast (about 200 g)",
       "160 g canned black beans, drained",
-      "4 small corn tortillas",
+      "2 small corn tortillas",
       "80 g salsa (about 1/3 cup)",
       "80 g shredded cabbage",
       "1 lime, cut into wedges"
@@ -5417,7 +5445,7 @@ const KITCHEN_RECIPES = [
     steps: [
       "Cook the chicken in a pan until the center reaches 165°F, then slice it.",
       "Warm the beans and the tortillas.",
-      "Fill each tortilla with chicken, beans, salsa, and cabbage.",
+      "Fill the tortilla with chicken, salsa, and cabbage, and serve the beans on the side.",
       "Squeeze lime over the top and serve."
     ]
   },
@@ -5552,7 +5580,7 @@ function addKitchenToToday(id, servings) {
   const r = KITCHEN_RECIPES.find((x) => x.id === id);
   if (!r) return;
   const n = servings || kitchenServings[id] || 1;
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams: r.protein * n, carbs: r.carbs * n, fat: r.fat * n, food: r.name });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: r.protein * n, carbs: r.carbs * n, fat: r.fat * n, food: r.name, calories: r.calories * n });
   saveStore();
   renderToday();
   kitchenAddedAt[id] = Date.now();
@@ -5575,7 +5603,7 @@ function renderMealIdeas() {
   let html;
   if (!pGoal || !cGoal || !fGoal) {
     html = "<h3>Meal ideas for today</h3>"
-      + "<p class=\"muted\" style=\"font-size:.9em\">Set your protein, carb, and fat goals in Settings to see meal ideas matched to what is left today.</p>"
+      + "<p class=\"muted\" style=\"font-size:.9em\">Set macro goals in Settings to see ideas for what is left.</p>"
       + "<button type=\"button\" class=\"btn btn-small\" data-goto=\"settings\">Set goals in Settings</button>";
   } else {
     const pLeft = pGoal - sumForDate(store.protein, t, "grams");
@@ -5583,19 +5611,19 @@ function renderMealIdeas() {
     const fLeft = fGoal - sumForDate(store.protein, t, "fat");
     if (pLeft <= 0 && cLeft <= 0 && fLeft <= 0) {
       html = "<h3>Meal ideas for today</h3>"
-        + "<p class=\"muted\" style=\"font-size:.9em\">You have met your macro goals for today. Nice work.</p>";
+        + "<p class=\"muted\" style=\"font-size:.9em\">Goals met for today. Nice work.</p>";
     } else {
       const fits = KITCHEN_RECIPES.filter((r) => r.protein <= pLeft && r.carbs <= cLeft && r.fat <= fLeft)
         .sort((a, b) => b.protein - a.protein).slice(0, 3);
       if (!fits.length) {
         html = "<h3>Meal ideas for today</h3>"
-          + "<p class=\"muted\" style=\"font-size:.9em\">Nothing in the Kitchen fits what is left today. A small snack from Your foods may fit better.</p>";
+          + "<p class=\"muted\" style=\"font-size:.9em\">Nothing fits what is left. Try a snack from Your foods.</p>";
       } else {
         html = "<h3>Meal ideas for today</h3>"
-          + "<p class=\"muted\" style=\"font-size:.9em\">These fit what is left of your goals today: "
+          + "<p class=\"muted\" style=\"font-size:.9em\">Fits what is left: "
           + Math.max(0, Math.round(pLeft)) + "g protein, "
           + Math.max(0, Math.round(cLeft)) + "g carbs, "
-          + Math.max(0, Math.round(fLeft)) + "g fat left.</p>"
+          + Math.max(0, Math.round(fLeft)) + "g fat.</p>"
           + fits.map((r) => {
             const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
             return "<div class=\"entry-row\" data-meal-idea=\"" + r.id + "\">"
@@ -5877,7 +5905,7 @@ function savedRecipeCalories(r) {
 function addSavedRecipeToToday(id) {
   const r = store.recipes.find((x) => x.id === id);
   if (!r) return;
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams: Number(r.protein) || 0, carbs: Number(r.carbs) || 0, fat: Number(r.fat) || 0, food: r.title, calories: Math.round(Number(r.calories) || 0) });
   saveStore();
   renderToday();
   recipeAddedAt[r.id] = Date.now();
@@ -6047,7 +6075,7 @@ document.getElementById("paste-recipe-form").addEventListener("submit", (e) => {
   document.getElementById("paste-recipe-text").value = "";
   setPasteRecipeOpen(false);
   setRecipeFormOpen(true);
-  setFormStatus(document.getElementById("recipe-msg"), "Recipe AI is coming soon. For now, your pasted recipe is in the form below. Edit the name, servings, and nutrition, then save it to your Kitchen.", false);
+  setFormStatus(document.getElementById("recipe-msg"), "Recipe AI is coming soon. Your pasted recipe is in the form below. Edit it, then save it to your Kitchen.", false);
   document.getElementById("recipe-form").scrollIntoView({ behavior: "smooth", block: "start" });
   document.getElementById("recipe-title").focus();
 });
@@ -6062,7 +6090,7 @@ document.getElementById("recipe-search-form").addEventListener("submit", (e) => 
   const q = document.getElementById("recipe-search-input").value.trim();
   if (!q) { setFormStatus(msg, "Type a dish first.", true); results.innerHTML = ""; return; }
   setFormStatus(msg, "", false);
-  results.innerHTML = `<p class="muted">Online recipe search is coming soon. After November 30, searching for "${escapeHtml(q)}" here will pull the recipe with its photo and nutrition, and you can add it to today's macros or save it to your Kitchen. For now, try the Kitchen recipes below, or save your own recipe above.</p>`;
+  results.innerHTML = `<p class="muted">Recipe search is coming soon. After November 30, a search for "${escapeHtml(q)}" here will find the recipe, photo, and nutrition. For now, try the Kitchen recipes below, or save your own above.</p>`;
 });
 
 function renderSideEffects() {
@@ -8071,19 +8099,15 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   sendBtn.disabled = false;
 });
 
-/* ---------- Quick prompt chips and a growing chat input (v037) ---------- */
-/* The chips send a common question through the existing chat path: the
-   chip text goes into the input and the form is submitted, so the
-   not-connected message, the Play block, and the daily cap all behave
-   exactly as for a typed message. The input is a textarea that grows
-   as you type, up to five lines, and Enter sends (Shift+Enter adds a
-   line). Nothing here is a new data path; no new data leaves the
-   device. */
+/* ---------- A growing chat input (v037) ---------- */
+/* The input is a textarea that grows as you type, up to eight lines,
+   and Enter sends (Shift+Enter adds a line). Nothing here is a new
+   data path; no new data leaves the device. */
 function growChatInput() {
   const input = document.getElementById("chat-input");
   if (!input) return;
   input.style.height = "auto";
-  input.style.height = Math.min(input.scrollHeight, 132) + "px";
+  input.style.height = Math.min(input.scrollHeight, 204) + "px";
 }
 function submitChatForm() {
   const form = document.getElementById("chat-form");
@@ -8091,15 +8115,6 @@ function submitChatForm() {
   if (form.requestSubmit) form.requestSubmit();
   else form.dispatchEvent(new Event("submit", { cancelable: true }));
 }
-document.querySelectorAll("#chat-chips .chat-chip").forEach((chip) => {
-  chip.addEventListener("click", () => {
-    const input = document.getElementById("chat-input");
-    if (!input || input.disabled) return;
-    input.value = chip.dataset.chip || chip.textContent.trim();
-    growChatInput();
-    submitChatForm();
-  });
-});
 (function setupGrowingChatInput() {
   const input = document.getElementById("chat-input");
   if (!input) return;

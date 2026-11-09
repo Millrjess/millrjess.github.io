@@ -880,14 +880,10 @@ label textarea {
   font-family: inherit;
   line-height: 1.4;
   resize: none;
-  max-height: 132px;
+  max-height: 204px;
   overflow-y: auto;
 }
 
-/* Quick prompt chips (v037): one tap sends a common question through
-   the existing chat path. Pills, wrapping to a second row if needed. */
-.chat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
-.chat-chip { border-radius: 999px; }
 
 /* Companion chat markdown lists */
 .chat-msg ul {
@@ -1261,13 +1257,14 @@ li.done-move .move-name { color: #5C6656; }
   padding: 10px 0; border-top: 1px solid #EFE9D6;
 }
 /* Compact picker (v169): the exercise list scrolls inside a fixed box
-   showing about four rows, so the modal stays short. The add-your-own
+   showing about four rows, so the editor stays short. The add-your-own
    section and the Save/Cancel buttons sit below it, always visible. */
 #movement-plan-list {
   max-height: 264px; overflow-y: auto;
   border: 1px solid #EFE9D6; border-radius: 12px; padding: 2px 12px;
   margin: 12px 0;
 }
+#movement-plan-editor { margin-top: 12px; border-top: 1px solid #EFE9D6; padding-top: 4px; }
 #movement-plan-add { border-top: 1px solid #EFE9D6; margin-top: 12px; padding-top: 12px; }
 #movement-plan-add h3 { margin: 0 0 4px; font-size: 1rem; }
 #movement-plan-add .form-actions { margin-top: 10px; }
@@ -1542,10 +1539,10 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 canvas { max-width: 100%; height: auto; display: block; }
 
 /* Compact Today cards (v034): 7-day strip, meal rows, weight card. */
-.week-strip { display:flex; gap:6px; margin:12px 0 4px; }
-.week-day { flex:1; border:1px solid var(--border); background:#fff; border-radius:10px; padding:6px 0 5px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; font:inherit; }
-.week-day .week-letter { font-size:.8rem; color:var(--muted); }
-.week-day .week-num { font-size:1rem; font-weight:700; }
+.week-strip { display:flex; gap:4px; margin:8px 0 4px; }
+.week-day { flex:1; border:1px solid var(--border); background:#fff; border-radius:8px; padding:4px 0 3px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:0; font:inherit; }
+.week-day .week-letter { font-size:.7rem; color:var(--muted); }
+.week-day .week-num { font-size:.85rem; font-weight:700; }
 .week-day.today .week-num { color:#5A6B52; }
 .week-day.viewed { background:#5A6B52; border-color:#5A6B52; }
 .week-day.viewed .week-letter, .week-day.viewed .week-num { color:#FDFBF7; }
