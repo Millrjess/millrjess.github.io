@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v030";
+const APP_VERSION = "v031";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -90,7 +90,8 @@ const DEFAULTS = {
   medicines: [],    // { id, name, dose, time, date } daily medicines besides the GLP-1 shot
   medicineTaken: {}, // { "YYYY-MM-DD": [medicine ids taken that day] }
   recipes: [],       // { id, title, body, date } saved recipes
-  foodLibrary: {}    // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
+  foodLibrary: {},   // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
+  foodArchive: {}    // v031: archived foods, same entry shape as foodLibrary. Archiving never deletes a food.
 };
 
 /* v000: the Companion's chosen name and avatar. The variants are
@@ -336,6 +337,30 @@ function validateStore(parsed, strict) {
     }
     out.foodLibrary = cleanLib;
   }
+  // v031: food archive, same entry shape as the library. A bad value
+  // drops the whole archive, not a crash.
+  if (parsed.foodArchive !== undefined && (typeof parsed.foodArchive !== "object" || Array.isArray(parsed.foodArchive))) {
+    lastValidateDropped.push("foodArchive");
+  } else if (parsed.foodArchive && typeof parsed.foodArchive === "object" && !Array.isArray(parsed.foodArchive)) {
+    const cleanArch = {};
+    for (const [code, f] of Object.entries(parsed.foodArchive)) {
+      if (!f || typeof f !== "object" || Array.isArray(f)) continue;
+      const barcode = typeof f.barcode === "string" && f.barcode.trim() !== "" ? f.barcode.trim().slice(0, 40) : String(code).trim().slice(0, 40);
+      if (!barcode || typeof f.name !== "string" || f.name.trim() === "") continue;
+      const num = (v) => Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : 0;
+      cleanArch[barcode] = {
+        barcode,
+        name: f.name.trim().slice(0, 120),
+        brand: typeof f.brand === "string" ? f.brand.trim().slice(0, 80) : "",
+        protein: num(f.protein),
+        carbs: num(f.carbs),
+        fat: num(f.fat),
+        calories: num(f.calories),
+        savedAt: Number.isFinite(Number(f.savedAt)) ? Number(f.savedAt) : 0
+      };
+    }
+    out.foodArchive = cleanArch;
+  }
   return out;
 }
 
@@ -458,6 +483,8 @@ function mergeStores(persisted, local) {
   // v028: food library merges by barcode; a food saved in either copy
   // is kept, and the persisted copy wins when both have the same barcode.
   out.foodLibrary = Object.assign({}, local.foodLibrary || {}, persisted.foodLibrary || {});
+  // v031: food archive merges the same way as the library.
+  out.foodArchive = Object.assign({}, local.foodArchive || {}, persisted.foodArchive || {});
   return out;
 }
 
@@ -1894,9 +1921,61 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
    hand. A lookup or a log that succeeds saves the food here on its own,
    so there is no extra save step. A scan checks here first. */
 const FOOD_LIBRARY_MAX = 200;
+const FOOD_LIBRARY_SUGGEST_DAYS = 60;
+let libraryNote = "";
 function foodLibrary() {
   if (!store.foodLibrary || typeof store.foodLibrary !== "object" || Array.isArray(store.foodLibrary)) store.foodLibrary = {};
   return store.foodLibrary;
+}
+/* ---------- Food archive (v031) ---------- */
+/* Archived foods live on this device only, same entry shape as the
+   library. Archiving moves a food out of the active list but never
+   deletes it. Restoring brings it back. Removing from the archive is
+   the only permanent delete, and only from the archive, never from
+   the active list. */
+function foodArchive() {
+  if (!store.foodArchive || typeof store.foodArchive !== "object" || Array.isArray(store.foodArchive)) store.foodArchive = {};
+  return store.foodArchive;
+}
+function archiveFood(key) {
+  const lib = foodLibrary();
+  const f = lib[key];
+  if (!f) return false;
+  foodArchive()[key] = f;
+  delete lib[key];
+  saveStore();
+  return true;
+}
+function restoreArchivedFood(key) {
+  const arch = foodArchive();
+  const f = arch[key];
+  if (!f) return false;
+  foodLibrary()[key] = f;
+  delete arch[key];
+  saveStore();
+  return true;
+}
+function removeArchivedFood(key) {
+  const arch = foodArchive();
+  if (!arch[key]) return false;
+  delete arch[key];
+  saveStore();
+  return true;
+}
+/* Archive the foods not used in the last 60 days. savedAt is the last
+   used time; a missing savedAt counts as old. Returns how many moved. */
+function archiveOldFoods() {
+  const lib = foodLibrary();
+  const cutoff = Date.now() - FOOD_LIBRARY_SUGGEST_DAYS * 24 * 60 * 60 * 1000;
+  const arch = foodArchive();
+  let moved = 0;
+  Object.keys(lib).forEach((k) => {
+    const f = lib[k];
+    const when = f && Number.isFinite(Number(f.savedAt)) ? Number(f.savedAt) : 0;
+    if (when < cutoff) { arch[k] = f; delete lib[k]; moved++; }
+  });
+  if (moved) saveStore();
+  return moved;
 }
 function saveFoodToLibrary(barcode, food) {
   const lib = foodLibrary();
@@ -1923,13 +2002,18 @@ function saveFoodToLibrary(barcode, food) {
     calories: num(food.calories),
     savedAt: Date.now()
   };
-  // Keep the library slim: drop the oldest entries past the cap.
+  // Keep the library slim: move the oldest entries past the cap to the
+  // archive instead of deleting them. Nothing is ever silently deleted.
   const keys = Object.keys(lib);
+  let archived = 0;
   if (keys.length > FOOD_LIBRARY_MAX) {
     keys.sort((a, b) => (lib[a].savedAt || 0) - (lib[b].savedAt || 0));
-    keys.slice(0, keys.length - FOOD_LIBRARY_MAX).forEach((k) => delete lib[k]);
+    const arch = foodArchive();
+    keys.slice(0, keys.length - FOOD_LIBRARY_MAX).forEach((k) => { arch[k] = lib[k]; delete lib[k]; archived++; });
+    if (archived) libraryNote = "The oldest foods moved to your archive.";
   }
   saveStore();
+  return archived;
 }
 function getFoodFromLibrary(barcode) {
   const code = String(barcode || "").trim().replace(/[^0-9]/g, "");
@@ -1958,17 +2042,123 @@ function fillFoodForm(name, protein, carbs, fat, note) {
   if (status && note) status.textContent = note;
 }
 /* The "Your foods" list: every food already logged, newest first.
-   Tap a row to fill the form and log it again. The small x removes
-   that one entry. Hidden when the library is empty. */
+   Tap a row to fill the form and log it again. Archive moves a food
+   to the archive (never deleted). The small x archives it too. The
+   only permanent delete is the x in the Archived foods view. */
 function renderFoodLibrary() {
   const list = document.getElementById("macro-food-library");
   if (!list) return;
   const foods = Object.values(foodLibrary()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  list.innerHTML = "";
+  if (libraryNote) {
+    const note = document.createElement("p");
+    note.className = "muted";
+    note.style.cssText = "font-size:.9em;margin:0 0 8px";
+    note.textContent = libraryNote;
+    list.appendChild(note);
+    libraryNote = "";
+  }
+  if (foods.length >= 150) {
+    const sug = document.createElement("p");
+    sug.className = "muted";
+    sug.style.cssText = "font-size:.9em;margin:0 0 6px";
+    sug.textContent = "Your foods is getting long. Archive the ones you no longer use to keep it quick.";
+    list.appendChild(sug);
+    const ab = document.createElement("button");
+    ab.type = "button";
+    ab.className = "btn btn-small";
+    ab.style.cssText = "margin-bottom:10px";
+    ab.textContent = "Archive old foods";
+    ab.addEventListener("click", () => {
+      const moved = archiveOldFoods();
+      libraryNote = moved > 0
+        ? "Archived " + moved + (moved === 1 ? " food." : " foods.") + " You can bring one back anytime."
+        : "No foods are old enough to archive yet.";
+      renderFoodLibrary();
+    });
+    list.appendChild(ab);
+  }
   if (!foods.length) {
-    list.innerHTML = "<p class=\"muted\" style=\"font-size:.9em;margin:0\">No foods saved yet. Log a food and it saves here on its own.</p>";
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.style.cssText = "font-size:.9em;margin:0";
+    empty.textContent = "No foods saved yet. Log a food and it saves here on its own.";
+    list.appendChild(empty);
+  } else {
+    foods.forEach((f) => {
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:6px";
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small";
+      b.style.cssText = "flex:1;text-align:left;white-space:normal";
+      b.textContent = libraryFoodLabel(f);
+      b.addEventListener("click", () => {
+        fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+        list.classList.add("hidden");
+      });
+      const arc = document.createElement("button");
+      arc.type = "button";
+      arc.className = "btn btn-small";
+      arc.setAttribute("aria-label", "Archive " + f.name);
+      arc.textContent = "Archive";
+      arc.addEventListener("click", () => {
+        if (archiveFood(f.barcode)) libraryNote = "Moved to your archive. You can bring it back anytime.";
+        renderFoodLibrary();
+      });
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "btn btn-small";
+      x.setAttribute("aria-label", "Archive " + f.name);
+      x.textContent = "×";
+      x.addEventListener("click", () => {
+        if (archiveFood(f.barcode)) libraryNote = "Moved to your archive. You can bring it back anytime.";
+        renderFoodLibrary();
+      });
+      row.appendChild(b);
+      row.appendChild(arc);
+      row.appendChild(x);
+      list.appendChild(row);
+    });
+  }
+  const archivedCount = Object.keys(foodArchive()).length;
+  const av = document.createElement("button");
+  av.type = "button";
+  av.className = "btn btn-small";
+  av.style.cssText = "margin-top:6px";
+  av.textContent = "Archived foods" + (archivedCount ? " (" + archivedCount + ")" : "");
+  av.addEventListener("click", () => renderFoodArchive());
+  list.appendChild(av);
+}
+
+/* The archived foods view: foods moved out of Your foods, newest first.
+   Restore brings one back to Your foods. The small x removes it from
+   the archive for good. Shown inside the same Your foods area. */
+function renderFoodArchive() {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  const foods = Object.values(foodArchive()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+  list.innerHTML = "";
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "btn btn-small";
+  back.style.cssText = "margin-bottom:10px";
+  back.textContent = "Back to Your foods";
+  back.addEventListener("click", () => renderFoodLibrary());
+  list.appendChild(back);
+  const head = document.createElement("p");
+  head.className = "muted";
+  head.style.cssText = "font-size:.9em;margin:0 0 8px";
+  head.textContent = "Archived foods. Archiving never deletes a food. Restore brings one back to Your foods.";
+  list.appendChild(head);
+  if (!foods.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.style.cssText = "font-size:.9em;margin:0";
+    empty.textContent = "Nothing archived yet.";
+    list.appendChild(empty);
     return;
   }
-  list.innerHTML = "";
   foods.forEach((f) => {
     const row = document.createElement("div");
     row.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:6px";
@@ -1978,20 +2168,34 @@ function renderFoodLibrary() {
     b.style.cssText = "flex:1;text-align:left;white-space:normal";
     b.textContent = libraryFoodLabel(f);
     b.addEventListener("click", () => {
-      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your foods. Check and edit before saving.");
+      fillFoodForm(f.name, f.protein, f.carbs, f.fat, "From your archive. Check and edit before saving.");
       list.classList.add("hidden");
+    });
+    const rs = document.createElement("button");
+    rs.type = "button";
+    rs.className = "btn btn-small";
+    rs.setAttribute("aria-label", "Restore " + f.name + " to your foods");
+    rs.textContent = "Restore";
+    rs.addEventListener("click", () => {
+      if (foodLibrary()[f.barcode]) {
+        removeArchivedFood(f.barcode);
+        libraryNote = "Already in Your foods.";
+      } else if (restoreArchivedFood(f.barcode)) {
+        libraryNote = "Restored to Your foods.";
+      }
+      renderFoodLibrary();
     });
     const x = document.createElement("button");
     x.type = "button";
     x.className = "btn btn-small";
-    x.setAttribute("aria-label", "Remove " + f.name + " from your foods");
+    x.setAttribute("aria-label", "Remove " + f.name + " from the archive");
     x.textContent = "×";
     x.addEventListener("click", () => {
-      delete foodLibrary()[f.barcode];
-      saveStore();
-      renderFoodLibrary();
+      removeArchivedFood(f.barcode);
+      renderFoodArchive();
     });
     row.appendChild(b);
+    row.appendChild(rs);
     row.appendChild(x);
     list.appendChild(row);
   });
