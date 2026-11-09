@@ -4192,6 +4192,7 @@ function renderMedicines() {
     return `<div class="entry-row" style="display:flex;align-items:center;gap:10px">
       <button type="button" class="move-check${isTaken ? " done" : ""}" data-med="${m.id}" aria-pressed="${isTaken ? "true" : "false"}" aria-label="Mark ${escapeHtml(m.name)} taken today"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
       <span style="flex:1"><strong>${escapeHtml(m.name)}</strong>${m.dose ? " · " + escapeHtml(m.dose) : ""}${m.time ? " · " + escapeHtml(m.time) : ""}</span>
+      <button type="button" class="btn btn-small" data-med-edit="${m.id}" aria-label="Edit ${escapeHtml(m.name)}">Edit</button>
       <button type="button" class="btn btn-small" data-med-del="${m.id}">Delete</button>
     </div>`;
   }).join("");
@@ -4210,16 +4211,51 @@ function renderMedicines() {
     saveStore();
     renderMedicines();
   }));
+  list.querySelectorAll("[data-med-edit]").forEach((btn) => btn.addEventListener("click", () => {
+    const m = (store.medicines || []).find((x) => x.id === btn.dataset.medEdit);
+    if (!m) return;
+    editingMedId = m.id;
+    document.getElementById("med-name").value = m.name || "";
+    document.getElementById("med-dose").value = m.dose || "";
+    document.getElementById("med-time").value = m.time || "";
+    document.getElementById("med-submit-btn").textContent = "Save changes";
+    document.getElementById("med-cancel-btn").classList.remove("hidden");
+    document.getElementById("med-name").focus();
+  }));
 }
+/* Editing a medicine keeps its id, so the taken history for that
+   medicine is kept. Deleting and re-adding would lose it. */
+let editingMedId = null;
+function resetMedForm() {
+  document.getElementById("medicine-form").reset();
+  document.getElementById("med-submit-btn").textContent = "Add medicine";
+  document.getElementById("med-cancel-btn").classList.add("hidden");
+}
+document.getElementById("med-cancel-btn").addEventListener("click", () => {
+  editingMedId = null;
+  resetMedForm();
+  document.getElementById("med-msg").textContent = "";
+});
 document.getElementById("medicine-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const msg = document.getElementById("med-msg");
   const name = document.getElementById("med-name").value.trim().slice(0, 80);
   if (!name) { setFormStatus(msg, "Type the medicine name first.", true); return; }
-  store.medicines.push({ id: uid(), name, dose: document.getElementById("med-dose").value.trim().slice(0, 40), time: document.getElementById("med-time").value.trim().slice(0, 20), date: viewedDateStr() });
+  const dose = document.getElementById("med-dose").value.trim().slice(0, 40);
+  const time = document.getElementById("med-time").value.trim().slice(0, 20);
+  if (editingMedId) {
+    const i = (store.medicines || []).findIndex((x) => x.id === editingMedId);
+    if (i !== -1) {
+      store.medicines[i] = { ...store.medicines[i], name, dose, time };
+      setFormStatus(msg, "Medicine updated.", false);
+    }
+    editingMedId = null;
+  } else {
+    store.medicines.push({ id: uid(), name, dose, time, date: viewedDateStr() });
+    setFormStatus(msg, "Medicine added.", false);
+  }
   saveStore();
-  document.getElementById("medicine-form").reset();
-  setFormStatus(msg, "Medicine added.", false);
+  resetMedForm();
   renderMedicines();
 });
 

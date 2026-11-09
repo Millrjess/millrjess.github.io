@@ -25,7 +25,7 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=018">
+<link rel="stylesheet" href="styles.css?v=019">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -657,7 +657,8 @@
         <label>Time<input type="text" id="med-time" maxlength="20" placeholder="e.g. Morning"></label>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Add medicine</button>
+        <button type="submit" class="btn btn-primary" id="med-submit-btn">Add medicine</button>
+        <button type="button" class="btn hidden" id="med-cancel-btn">Cancel</button>
       </div>
       <p class="code-msg" id="med-msg" style="min-height:1.2em"></p>
     </form>
@@ -1105,7 +1106,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=018"></script>
+<script src="demo-seed.js?v=019"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1130,7 +1131,7 @@
     </div>
   </div>
 
-<script src="app.js?v=018"></script>
+<script src="app.js?v=019"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
