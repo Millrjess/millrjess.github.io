@@ -109,7 +109,7 @@ h1, h2, h3 {
 
 .app-header h1 {
   color: #fff;
-  font-size: clamp(1.75rem, 5vw, 2.1rem);
+  font-size: clamp(1.5rem, 5vw, 1.75rem);
   margin: 0 0 8px;
   letter-spacing: 0.01em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
@@ -160,7 +160,7 @@ main {
 .tab-panel.tab-fading .card { opacity: 0; transition: none; }
 
 .tab-panel h2 {
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   margin-bottom: 4px;
   letter-spacing: -0.01em;
 }
@@ -172,7 +172,7 @@ main {
 }
 
 .card h3, .card h2.card-title {
-  font-size: 1.2rem;
+  font-size: 1.125rem;
   margin-bottom: 10px;
   letter-spacing: 0.01em;
   display: flex;
@@ -212,7 +212,7 @@ input[aria-invalid="true"]:focus-visible {
 }
 
 .big-number {
-  font-size: 1.85rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -257,7 +257,7 @@ input[aria-invalid="true"]:focus-visible {
 /* Personal greeting (v165): serif, sage-deep, under the date nav. */
 .greeting-line {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   color: var(--sage-deep);
   margin: 14px 0 0;
   text-align: center;
@@ -655,7 +655,7 @@ label textarea {
 }
 
 .stat-value {
-  font-size: 1.85rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
 }
@@ -1006,7 +1006,7 @@ label textarea {
   overflow: hidden;
 }
 
-/* 50+ readability and calm: larger base type, roomier tap targets */
+/* v054: base type 16px, MyFitnessPal-like scale; tap targets stay 44px */
 body {
   margin: 0;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -1014,7 +1014,7 @@ body {
   color: var(--ink);
   padding-bottom: 144px;
   scroll-padding-bottom: 156px;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.55;
 }
 
@@ -1025,7 +1025,7 @@ body {
   /* WCAG 1.4.12: allow wrapping instead of nowrap with ellipsis, so numbers are not truncated at larger text spacing */
   white-space: normal;
   overflow: visible;
-  font-size: 1.85rem;
+  font-size: 1.5rem;
 }
 .pc-goal {
   white-space: normal;
@@ -1109,7 +1109,7 @@ details.card[open] summary::before {
   transform: rotate(90deg);
 }
 details.card summary h3 {
-  font-size: 1.2rem;
+  font-size: 1.125rem;
 }
 
 /* Injection site map */
@@ -1201,7 +1201,7 @@ textarea {
   align-items: center; justify-content: center; text-align: center; pointer-events: none;
 }
 .donut-center .big {
-  font-family: Georgia, "Times New Roman", serif; font-size: 3rem; font-weight: 600; line-height: 1; color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif; font-size: 2.25rem; font-weight: 600; line-height: 1; color: var(--ink);
 }
 .donut-center .big small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }
 .donut-center .cap { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
@@ -1240,7 +1240,7 @@ button.macro-vals:focus-visible { outline: 3px solid var(--focus); outline-offse
 .photo-compare-row figcaption { font-size: .9rem; color: var(--muted); margin-top: 4px; text-align: center; }
 /* Settings groups (v049, R-13): three plain headings that group the
    cards, so the long page reads as plan, companion, data. */
-.settings-group { font-size: 1.2rem; margin: 20px 0 8px; }
+.settings-group { font-size: 1.125rem; margin: 20px 0 8px; }
 
 
 
@@ -1335,7 +1335,7 @@ li.done-move .move-name { color: #5C6656; }
 }
 #movement-plan-editor { margin-top: 12px; border-top: 1px solid #EFE9D6; padding-top: 4px; }
 #movement-plan-add { border-top: 1px solid #EFE9D6; margin-top: 12px; padding-top: 12px; }
-#movement-plan-add h3 { margin: 0 0 4px; font-size: 1.2rem; }
+#movement-plan-add h3 { margin: 0 0 4px; font-size: 1.125rem; }
 #movement-plan-add .form-actions { margin-top: 10px; }
 /* Remove button on a custom exercise row (v169). */
 .plan-remove {
@@ -1398,7 +1398,7 @@ li.done-move .move-name { color: #5C6656; }
 .weight-hero-label { color: var(--muted); margin: 0; font-size: 0.9rem; }
 .weight-hero-num {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 3rem; font-weight: 600; margin: 0; line-height: 1.1; color: var(--ink);
+  font-size: 2.25rem; font-weight: 600; margin: 0; line-height: 1.1; color: var(--ink);
 }
 .weight-hero-num .unit { font-size: 1.2rem; color: var(--muted); font-weight: 400; }
 .weight-hero-date { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.9rem; }
@@ -1653,7 +1653,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 #tab-today .card { padding: 18px; margin: 14px 0; }
 
 /* ---------- Progress view (v038) ---------- */
-.progress-big { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; color: var(--sage-deep); }
+.progress-big { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; color: var(--sage-deep); }
 .progress-small { color: var(--sage-dark); }
 .week-bars { display: flex; gap: 6px; margin-top: 12px; }
 .week-bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
