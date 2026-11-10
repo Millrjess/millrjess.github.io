@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=057">
+<link rel="stylesheet" href="styles.css?v=058">
 </head>
 <body>
 
@@ -121,6 +121,8 @@
     </div>
 
     <div class="card welcome-card" id="welcome-card">
+      <div class="bloom-wrap" aria-hidden="true"><img class="bloom-lotus" src="icons/lotus-gold-only-transparent.png" alt=""></div>
+      <p class="bloom-caption">Your lotus opens a little more each day you log.</p>
       <p class="greeting-line" id="greeting-line" aria-live="off"></p>
       <p class="streak-line" id="streak-line" aria-live="off"></p>
       <p class="focus-line" id="today-focus-line" aria-live="off"></p>
@@ -155,10 +157,14 @@
       <div class="slider-row">
         <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
       </div>
-      <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
-      <div class="hidden" id="water-inline-add">
+      <div class="slider-stepper-row">
+        <button type="button" class="stepper-btn" id="water-minus-btn" aria-label="Remove 1 ounce of water">−</button>
+        <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
+        <button type="button" class="stepper-btn" id="water-plus-btn" aria-label="Add 1 ounce of water">+</button>
+      </div>
+      <div class="inline-add hidden" id="water-inline-add">
         <div class="inline-add-row">
-          <input type="text" id="water-inline-input" inputmode="numeric" autocomplete="off" placeholder="16" aria-label="Ounces of water to add">
+          <input type="text" id="water-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="16" aria-label="Ounces of water to add">
           <button type="button" class="btn btn-primary btn-small" id="water-inline-add-btn" disabled>Add</button>
           <button type="button" class="btn btn-small" id="water-inline-cancel-btn">Cancel</button>
         </div>
@@ -180,10 +186,14 @@
         <div class="slider-row">
           <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
         </div>
-        <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
-        <div class="hidden" id="exercise-inline-add">
+        <div class="slider-stepper-row">
+          <button type="button" class="stepper-btn" id="exercise-minus-btn" aria-label="Remove 1 minute of movement">−</button>
+          <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
+          <button type="button" class="stepper-btn" id="exercise-plus-btn" aria-label="Add 1 minute of movement">+</button>
+        </div>
+        <div class="inline-add hidden" id="exercise-inline-add">
           <div class="inline-add-row">
-            <input type="text" id="exercise-inline-input" inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Minutes of movement to add">
+            <input type="text" id="exercise-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Minutes of movement to add">
             <button type="button" class="btn btn-primary btn-small" id="exercise-inline-add-btn" disabled>Add</button>
             <button type="button" class="btn btn-small" id="exercise-inline-cancel-btn">Cancel</button>
           </div>
@@ -302,11 +312,15 @@
         <div class="macro-row selected" data-macro="protein">
           <button type="button" class="macro-name" aria-label="Show protein in the center of the chart">Protein</button>
           <button type="button" class="macro-vals" id="logged-protein-btn" aria-label="Protein logged today. Tap to add more."><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></button>
-          <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <div class="macro-stepper-row">
+            <button type="button" class="stepper-btn stepper-protein" id="protein-minus-btn" aria-label="Remove 1 gram of protein">−</button>
+            <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
+            <button type="button" class="stepper-btn stepper-protein" id="protein-plus-btn" aria-label="Add 1 gram of protein">+</button>
+          </div>
           <span class="macro-detail"><span class="macro-why muted">Protects muscle</span><span class="macro-pct" id="pct-protein"></span></span>
-          <div class="macro-inline-add hidden" id="protein-inline-add">
+          <div class="macro-inline-add inline-add hidden" id="protein-inline-add">
             <div class="inline-add-row">
-              <input type="text" id="protein-inline-input" inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Grams of protein to add">
+              <input type="text" id="protein-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Grams of protein to add">
               <button type="button" class="btn btn-primary btn-small" id="protein-inline-add-btn" disabled>Add</button>
               <button type="button" class="btn btn-small" id="protein-inline-cancel-btn">Cancel</button>
             </div>
@@ -316,11 +330,15 @@
         <div class="macro-row" data-macro="carbs">
           <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart">Carbs</button>
           <button type="button" class="macro-vals" id="logged-carbs-btn" aria-label="Carbs logged today. Tap to add more."><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></button>
-          <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <div class="macro-stepper-row">
+            <button type="button" class="stepper-btn stepper-carbs" id="carbs-minus-btn" aria-label="Remove 1 gram of carbs">−</button>
+            <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+            <button type="button" class="stepper-btn stepper-carbs" id="carbs-plus-btn" aria-label="Add 1 gram of carbs">+</button>
+          </div>
           <span class="macro-detail"><span class="macro-why muted">Energy for the day</span><span class="macro-pct" id="pct-carbs"></span></span>
-          <div class="macro-inline-add hidden" id="carbs-inline-add">
+          <div class="macro-inline-add inline-add hidden" id="carbs-inline-add">
             <div class="inline-add-row">
-              <input type="text" id="carbs-inline-input" inputmode="numeric" autocomplete="off" placeholder="20" aria-label="Grams of carbs to add">
+              <input type="text" id="carbs-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="20" aria-label="Grams of carbs to add">
               <button type="button" class="btn btn-primary btn-small" id="carbs-inline-add-btn" disabled>Add</button>
               <button type="button" class="btn btn-small" id="carbs-inline-cancel-btn">Cancel</button>
             </div>
@@ -330,11 +348,15 @@
         <div class="macro-row" data-macro="fat">
           <button type="button" class="macro-name" aria-label="Show fat in the center of the chart">Fat</button>
           <button type="button" class="macro-vals" id="logged-fat-btn" aria-label="Fat logged today. Tap to add more."><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></button>
-          <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <div class="macro-stepper-row">
+            <button type="button" class="stepper-btn stepper-fat" id="fat-minus-btn" aria-label="Remove 1 gram of fat">−</button>
+            <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+            <button type="button" class="stepper-btn stepper-fat" id="fat-plus-btn" aria-label="Add 1 gram of fat">+</button>
+          </div>
           <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat"></span></span>
-          <div class="macro-inline-add hidden" id="fat-inline-add">
+          <div class="macro-inline-add inline-add hidden" id="fat-inline-add">
             <div class="inline-add-row">
-              <input type="text" id="fat-inline-input" inputmode="numeric" autocomplete="off" placeholder="10" aria-label="Grams of fat to add">
+              <input type="text" id="fat-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="10" aria-label="Grams of fat to add">
               <button type="button" class="btn btn-primary btn-small" id="fat-inline-add-btn" disabled>Add</button>
               <button type="button" class="btn btn-small" id="fat-inline-cancel-btn">Cancel</button>
             </div>
@@ -1475,7 +1497,7 @@
     </div>
   </div>
 
-<script src="app.js?v=057"></script>
+<script src="app.js?v=058"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v057";
+const APP_VERSION = "v058";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1407,6 +1407,7 @@ function renderToday() {
 
   renderGreeting();
   renderStreak();
+  renderBloom();
   renderTodayFocus();
   renderEncouragement();
   renderNextInjection();
@@ -1444,6 +1445,30 @@ function renderStreak() {
   if (!el) return;
   const n = currentStreak();
   el.textContent = n >= 2 ? "Logged " + n + " days in a row." : n === 1 ? "Logged day 1." : "";
+}
+
+/* ---------- v058: the lotus bloom ---------- */
+/* The lotus on the welcome card opens a little more with each logged
+   day and strength session. Quiet and cumulative: it never closes
+   again, there is no count and no streak pressure. Five stages across
+   the first three months of logging, then it stays open. A day with a
+   strength session counts once extra, so strength opens it faster. */
+function bloomStage() {
+  const days = loggedDates().size;
+  const strengthDays = new Set((store.strength || []).map((e) => e.date)).size;
+  const points = days + strengthDays;
+  if (points <= 0) return 0;
+  if (points <= 7) return 1;
+  if (points <= 21) return 2;
+  if (points <= 45) return 3;
+  if (points <= 89) return 4;
+  return 5;
+}
+function renderBloom() {
+  const card = document.getElementById("welcome-card");
+  if (!card) return;
+  const stage = bloomStage();
+  for (let i = 1; i <= 5; i++) card.classList.toggle("bloom-stage-" + i, stage === i);
 }
 
 /* v052: today's focus, in one line in the welcome card. One thing,
@@ -1643,12 +1668,19 @@ function openInlineAdd(key, opener) {
   row.classList.remove("hidden");
   input.value = "";
   refreshInlineAdd();
+  /* v058: the row stays rendered when closed (collapsed, not
+     display:none), so the input is focusable at tap time and iOS
+     summons the keyboard from the tap. Enable it first, then focus
+     in the same gesture. */
+  input.disabled = false;
   input.focus();
 }
 function closeInlineAdd() {
   if (!inlineAddKey) return;
   const row = document.getElementById(inlineAddKey + "-inline-add");
+  const input = document.getElementById(inlineAddKey + "-inline-input");
   if (row) row.classList.add("hidden");
+  if (input) input.disabled = true;
   inlineAddKey = null;
   if (inlineAddOpener && document.contains(inlineAddOpener)) inlineAddOpener.focus();
   inlineAddOpener = null;
@@ -2056,6 +2088,25 @@ function bindMacroSlide(key) {
   });
 }
 MACRO_KEYS.forEach(bindMacroSlide);
+
+/* ---------- v058: subtle plus/minus steppers ---------- */
+/* One step at a time on the Today sliders, for people who find the
+   bar hard to control precisely. Water and movement go through
+   nudgeGoal, macros through adjustMacroBy, the same helpers the
+   sliders and the type-in rows use, so the store, snapshots, and the
+   backup cap behave exactly as before. Minus at zero is a no-op. */
+function bindStepper(btnId, fn) {
+  const b = document.getElementById(btnId);
+  if (b) b.addEventListener("click", fn);
+}
+bindStepper("water-minus-btn", () => nudgeGoal("water", "oz", {}, -1));
+bindStepper("water-plus-btn", () => nudgeGoal("water", "oz", {}, 1));
+bindStepper("exercise-minus-btn", () => nudgeGoal("exercise", "minutes", { label: "Movement" }, -1));
+bindStepper("exercise-plus-btn", () => nudgeGoal("exercise", "minutes", { label: "Movement" }, 1));
+MACRO_KEYS.forEach((key) => {
+  bindStepper(key + "-minus-btn", () => adjustMacroBy(key, -1));
+  bindStepper(key + "-plus-btn", () => adjustMacroBy(key, 1));
+});
 
 /* Your foods first (v049, R-23): when the Log food form opens, the
    saved foods show with it, so logging a repeat takes one tap. Only

@@ -1834,3 +1834,54 @@ canvas { max-width: 100%; height: auto; display: block; }
     height: auto;
   }
 }
+
+/* ---------- v058 ---------- */
+/* Subtle plus/minus steppers beside the Today sliders (water,
+   movement, each macro). Quiet on purpose: a hairline ring, a sage
+   glyph, no fill. 32px hit area, above the 24px WCAG minimum. */
+.slider-stepper-row { display: flex; align-items: center; gap: 8px; }
+.slider-stepper-row .goal-slider { flex: 1; min-width: 0; }
+.macro-stepper-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.macro-stepper-row .macro-bar { flex: 1; min-width: 0; margin: 0; }
+.stepper-btn {
+  flex: none; width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border); background: transparent; color: var(--sage);
+  font-size: 1.15rem; font-weight: 400; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  touch-action: manipulation;
+}
+.stepper-btn:active { background: var(--sage-soft); border-color: var(--sage); }
+.stepper-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* The macro steppers carry their row's color, darker for contrast. */
+.stepper-protein { color: #87692B; }
+.stepper-carbs { color: var(--sage); }
+.stepper-fat { color: #A78235; }
+html[data-theme="dark"] .stepper-btn { color: #9DB894; }
+html[data-theme="dark"] .stepper-protein { color: #E8B54A; }
+html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
+
+/* Tap-to-type rows stay rendered when closed (collapsed, not
+   display:none), so the input is focusable at tap time and iOS
+   summons the keyboard from the tap. .hidden still marks closed, so
+   the open/closed state reads the same as before. */
+.inline-add { overflow: hidden; max-height: 240px; opacity: 1; transition: max-height .25s ease, opacity .2s ease; }
+.inline-add.hidden { display: block; max-height: 0; opacity: 0; pointer-events: none; }
+
+/* The strength empty state sits close under Add exercise. Scoped to
+   the strength list; other empty states are unchanged. */
+#strength-list .empty-state { padding: 8px 12px 10px; }
+#strength-list .empty-state::before { width: 32px; height: 25px; margin: 0 auto 6px; }
+#strength-saved-msg { margin: 6px 0 0; }
+
+/* The lotus bloom. The lotus opens a little more with each logged
+   day and strength session, quiet and cumulative. The PNG is revealed
+   from the base upward as the stage rises, with a gentle scale, so it
+   reads as opening, never bursting. */
+.bloom-wrap { display: flex; justify-content: center; margin: 2px 0 0; }
+.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.8; transform: scale(0.92); transform-origin: 50% 100%; transition: clip-path .6s ease, transform .6s ease, opacity .6s ease; clip-path: inset(58% 0 0 0); }
+.bloom-stage-1 .bloom-lotus { clip-path: inset(46% 0 0 0); opacity: 0.85; transform: scale(0.94); }
+.bloom-stage-2 .bloom-lotus { clip-path: inset(34% 0 0 0); opacity: 0.9; transform: scale(0.96); }
+.bloom-stage-3 .bloom-lotus { clip-path: inset(22% 0 0 0); opacity: 0.95; transform: scale(0.98); }
+.bloom-stage-4 .bloom-lotus { clip-path: inset(10% 0 0 0); opacity: 1; transform: scale(1); }
+.bloom-stage-5 .bloom-lotus { clip-path: inset(0 0 0 0); opacity: 1; transform: scale(1); }
+.welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
