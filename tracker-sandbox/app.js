@@ -4535,7 +4535,7 @@ function downloadDoctorPdf() {
     }
     line("", { size: 11 });
     line("This summary is from your own log. It is not medical advice.", { size: 10 });
-    line("Your tracked data stays on this device. It is never sent, sold, or shared.", { size: 10 });
+    line("Your tracked data stays on this device. Only messages you choose to send to the Companion leave it, to get a reply.", { size: 10 });
     doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
     setFormStatus(msg, "Downloaded as a PDF.", false);
   } catch (e) {

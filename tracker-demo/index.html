@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=055">
+<link rel="stylesheet" href="styles.css?v=056">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -1185,7 +1185,7 @@
     <div class="card">
       <h3>Help</h3>
       <h4 style="margin:12px 0 4px">Your code</h4>
-      <p class="muted" style="margin:0 0 10px">In the full app, your Companion code comes from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> after you subscribe, and you enter the 6-digit code in Settings under AI Wellness Companion access. A code works for one hour. The demo does not connect to the Companion.</p>
+      <p class="muted" style="margin:0 0 10px">In the full app, your Companion code comes from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> after you subscribe, and you enter the 6-digit code in Settings under AI Wellness Companion access. A code works for one hour, on the device that first uses it. The demo does not connect to the Companion.</p>
       <h4 style="margin:12px 0 4px">Back up</h4>
       <p class="muted" style="margin:0 0 10px">Tap Download backup above. The demo also keeps a copy inside it, and makes automatic copies.</p>
       <h4 style="margin:12px 0 4px">Restore</h4>
@@ -1213,9 +1213,9 @@
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h4 style="margin:16px 0 8px">Privacy</h4>
-      <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It is never sent to our servers, sold, or shared.</p>
+      <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It stays on this device. Only messages you choose to send to the Companion leave it, to get a reply.</p>
       <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your messages leave this device and are processed by our service to generate a reply. Messages are not stored on our servers afterward, unless you turn on Companion Memory. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
-      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, and preferences so replies feel personal. You can delete it anytime with the button below.</p>
+      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, preferences, your medication, your dose, and your shot day so replies feel personal. You can delete it anytime with the button below.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
@@ -1286,7 +1286,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=055"></script>
+<script src="demo-seed.js?v=056"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1311,7 +1311,7 @@
     </div>
   </div>
 
-<script src="app.js?v=055"></script>
+<script src="app.js?v=056"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
