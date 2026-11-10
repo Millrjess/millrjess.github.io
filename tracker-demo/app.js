@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v051";
+const APP_VERSION = "v052";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -4913,8 +4913,7 @@ function renderSeTrends() {
    cooked FDC 175168, egg FDC 171727, and standard entries for oats,
    quinoa, vegetables, and grains). Calories are 4/4/9 from the rounded
    macros, the same conversion the app uses everywhere. Tags drive the
-   filter chips. Low-oxalate is tagged only where every ingredient is
-   generally low in oxalate (no spinach, sweet potato, or oats). */
+   filter chips. */
 const KITCHEN_RECIPES = [
   {
     id: "lemon-garlic-chicken",
@@ -4924,7 +4923,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 2,
     protein: 36, carbs: 5, fat: 9, calories: 245,
-    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-oxalate", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "2 chicken breasts (about 225 g total)",
       "2 zucchini, sliced",
@@ -5059,7 +5058,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 18, carbs: 14, fat: 2, calories: 146,
-    tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "low-oxalate", "vegetarian", "gluten-free", "low-sodium", "egg-free"],
+    tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "vegetarian", "gluten-free", "low-sodium", "egg-free"],
     ingredients: [
       "170 g plain nonfat Greek yogurt (about 3/4 cup)",
       "50 g blueberries (about 1/3 cup)",
@@ -5080,7 +5079,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 10, difficulty: "Easy", servings: 1,
     protein: 18, carbs: 16, fat: 7, calories: 199,
-    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-oxalate", "vegetarian", "nut-free"],
+    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "vegetarian", "nut-free"],
     ingredients: [
       "1 egg, boiled or fried",
       "1 slice whole wheat bread, toasted",
@@ -5897,6 +5896,7 @@ const KITCHEN_RECIPES = [
 
 ];
 let kitchenFilter = "all";
+let kitchenSearch = ""; // v053: text typed in the Kitchen search box
 const kitchenServings = {}; // recipe id -> servings to add (default 1)
 const kitchenAddedAt = {}; // recipe id -> timestamp of last Add to Today
 
@@ -6040,11 +6040,19 @@ function bindKitchenCards(root) {
    list, each recipe shown once. Fresh picks is a filter (the first
    six), Quick and easy is a filter (the quick pool). The old Fresh
    picks and Quick and easy sections are gone. */
+/* Dietary search (v053): one filter chip plus the Kitchen search box.
+   The chip picks the pool, the search text narrows it by recipe name,
+   so the two combine. Tags are the verified table from
+   kitchen-dietary-tags-2026-11-09.md, plus the two v051 recipes. */
 function kitchenFiltered() {
-  if (kitchenFilter === "all") return KITCHEN_RECIPES.slice();
-  if (kitchenFilter === "fresh-picks") return KITCHEN_RECIPES.slice(0, 6);
-  if (kitchenFilter === "quick-and-easy") return kitchenQuickPool();
-  return KITCHEN_RECIPES.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+  let pool;
+  if (kitchenFilter === "all") pool = KITCHEN_RECIPES.slice();
+  else if (kitchenFilter === "fresh-picks") pool = KITCHEN_RECIPES.slice(0, 6);
+  else if (kitchenFilter === "quick-and-easy") pool = kitchenQuickPool();
+  else pool = KITCHEN_RECIPES.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+  const q = kitchenSearch.trim().toLowerCase();
+  if (!q) return pool;
+  return pool.filter((r) => r.name.toLowerCase().includes(q));
 }
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
@@ -6052,7 +6060,9 @@ function renderKitchen() {
   renderMealIdeas();
   const shown = kitchenFiltered();
   if (!shown.length) {
-    list.innerHTML = '<p class="empty-state">No recipes match this filter.</p>';
+    const q = kitchenSearch.trim();
+    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : "No recipes match this filter.";
+    list.innerHTML = '<p class="empty-state">' + msg + '</p>';
     return;
   }
   list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
@@ -6061,10 +6071,13 @@ function renderKitchen() {
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
   document.querySelectorAll("#kitchen-filters [data-filter]").forEach((c) => c.classList.toggle("active", c === chip));
-  const note = document.getElementById("kitchen-oxalate-note");
-  if (note) note.classList.toggle("hidden", kitchenFilter !== "low-oxalate");
   renderKitchen();
 }));
+const kitchenSearchInput = document.getElementById("kitchen-search-input");
+if (kitchenSearchInput) kitchenSearchInput.addEventListener("input", () => {
+  kitchenSearch = kitchenSearchInput.value;
+  renderKitchen();
+});
 
 
 /* Recipe detail (v039): tap a card to see the full recipe, with the

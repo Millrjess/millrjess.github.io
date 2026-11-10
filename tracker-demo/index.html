@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=051">
+<link rel="stylesheet" href="styles.css?v=052">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -780,6 +780,9 @@
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.9rem">Nourishment that supports your next chapter.</p>
     <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
+    <div style="margin:0 0 10px">
+      <input type="search" id="kitchen-search-input" placeholder="Search recipes" aria-label="Search recipes in the Kitchen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:16px">
+    </div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <button type="button" class="kitchen-chip active" data-filter="all">All</button>
       <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
@@ -789,14 +792,13 @@
       <button type="button" class="kitchen-chip" data-filter="balanced-dinners">Balanced Dinners</button>
       <button type="button" class="kitchen-chip" data-filter="small-appetite">Small Appetite</button>
       <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
+      <button type="button" class="kitchen-chip" data-filter="vegan">Vegan</button>
       <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
       <button type="button" class="kitchen-chip" data-filter="dairy-free">Dairy-free</button>
       <button type="button" class="kitchen-chip" data-filter="low-sodium">Low-sodium</button>
       <button type="button" class="kitchen-chip" data-filter="nut-free">Nut-free</button>
       <button type="button" class="kitchen-chip" data-filter="egg-free">Egg-free</button>
-      <button type="button" class="kitchen-chip" data-filter="low-oxalate">Low-Oxalate</button>
     </div>
-    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.9rem">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
 <div id="meal-ideas" class="card" style="margin-top:16px"></div>
@@ -1283,7 +1285,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=051"></script>
+<script src="demo-seed.js?v=052"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1308,7 +1310,7 @@
     </div>
   </div>
 
-<script src="app.js?v=051"></script>
+<script src="app.js?v=052"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
