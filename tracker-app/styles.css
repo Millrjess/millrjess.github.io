@@ -1843,21 +1843,29 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
 .inline-add { overflow: hidden; max-height: 240px; opacity: 1; transition: max-height .25s ease, opacity .2s ease; }
 .inline-add.hidden { display: block; max-height: 0; opacity: 0; pointer-events: none; }
 
-/* The strength empty state sits close under Add exercise. Scoped to
-   the strength list; other empty states are unchanged. */
-#strength-list .empty-state { padding: 8px 12px 10px; }
-#strength-list .empty-state::before { width: 32px; height: 25px; margin: 0 auto 6px; }
+/* The strength empty state sits close under Add exercise and ends
+   shortly after "No strength yet." Scoped to the strength list;
+   other empty states are unchanged. v060: the saved-message line
+   takes no space when it is empty (it used to reserve a blank line),
+   and the empty state's own margins are zeroed, so the card ends
+   shortly after the text. */
+#strength-saved-msg:empty { display: none; }
+#strength-list .empty-state { margin: 0; padding: 4px 12px 6px; }
+#strength-list .empty-state::before { width: 32px; height: 25px; margin: 0 auto 4px; }
 #strength-saved-msg { margin: 6px 0 0; }
 
 /* The lotus bloom. The lotus opens a little more with each logged
    day and strength session, quiet and cumulative. The PNG is revealed
    from the base upward as the stage rises, with a gentle scale, so it
-   reads as opening, never bursting. */
+   reads as opening, never bursting. v060: the reveal is a soft
+   gradient mask, not a clip-path. A hard clip sliced the top of the
+   flower; the mask fades the top in instead, so the lotus always
+   looks whole at every stage. */
 .bloom-wrap { display: flex; justify-content: center; margin: 2px 0 0; }
-.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.8; transform: scale(0.92); transform-origin: 50% 100%; transition: clip-path .6s ease, transform .6s ease, opacity .6s ease; clip-path: inset(58% 0 0 0); }
-.bloom-stage-1 .bloom-lotus { clip-path: inset(46% 0 0 0); opacity: 0.85; transform: scale(0.94); }
-.bloom-stage-2 .bloom-lotus { clip-path: inset(34% 0 0 0); opacity: 0.9; transform: scale(0.96); }
-.bloom-stage-3 .bloom-lotus { clip-path: inset(22% 0 0 0); opacity: 0.95; transform: scale(0.98); }
-.bloom-stage-4 .bloom-lotus { clip-path: inset(10% 0 0 0); opacity: 1; transform: scale(1); }
-.bloom-stage-5 .bloom-lotus { clip-path: inset(0 0 0 0); opacity: 1; transform: scale(1); }
+.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.8; transform: scale(0.92); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; -webkit-mask-image: linear-gradient(to bottom, transparent 58%, #000 82%); mask-image: linear-gradient(to bottom, transparent 58%, #000 82%); }
+.bloom-stage-1 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 46%, #000 70%); mask-image: linear-gradient(to bottom, transparent 46%, #000 70%); opacity: 0.85; transform: scale(0.94); }
+.bloom-stage-2 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 34%, #000 58%); mask-image: linear-gradient(to bottom, transparent 34%, #000 58%); opacity: 0.9; transform: scale(0.96); }
+.bloom-stage-3 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 22%, #000 46%); mask-image: linear-gradient(to bottom, transparent 22%, #000 46%); opacity: 0.95; transform: scale(0.98); }
+.bloom-stage-4 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 10%, #000 34%); mask-image: linear-gradient(to bottom, transparent 10%, #000 34%); opacity: 1; transform: scale(1); }
+.bloom-stage-5 .bloom-lotus { -webkit-mask-image: none; mask-image: none; opacity: 1; transform: scale(1); }
 .welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
