@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=058">
+<link rel="stylesheet" href="styles.css?v=059">
 </head>
 <body>
 
@@ -400,6 +400,7 @@
           <span class="muted" id="macro-food-search-status" style="font-size:.9rem"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
+        <p class="muted" style="font-size:.9rem;margin-top:8px">A bigger food database is coming soon.</p>
         <div style="margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-library-btn">Your foods</button>
         </div>
@@ -847,6 +848,12 @@
     </div>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
+    <h3 style="margin-top:18px">Recipes on the web</h3>
+    <p class="muted" style="font-size:.9rem">These recipes open on their own website, in a new window.</p>
+    <ul>
+      <li><a href="http://www.mayoclinic.org/healthy-living/recipes/french-country-chicken/rcp-20049778/" target="_blank" rel="noopener">MayoClinic.org French Country Chicken Information</a></li>
+      <li><a href="https://www.mayoclinic.org/healthy-lifestyle/recipes/lentil-ragout/rcp-20197726" target="_blank" rel="noopener">MayoClinic.org Lentil Ragout Information</a></li>
+    </ul>
 <div id="meal-ideas" class="card" style="margin-top:16px"></div>
 <h3 style="margin-top:18px">Paste a Recipe</h3>
     <p class="muted" style="font-size:.9rem">Paste a recipe from anywhere.</p>
@@ -1189,6 +1196,7 @@
         </select>
         <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
         <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
+        <p class="muted">New voices are coming soon, with a better selection to choose from.</p>
         <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
         </div>
       </details>
@@ -1497,7 +1505,7 @@
     </div>
   </div>
 
-<script src="app.js?v=058"></script>
+<script src="app.js?v=059"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
