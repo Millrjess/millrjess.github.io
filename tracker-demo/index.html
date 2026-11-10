@@ -25,12 +25,15 @@
 <meta name="apple-mobile-web-app-title" content="GLP-1 Tracker">
 <link rel="apple-touch-icon" href="icons/lotus-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/lotus-icon-192.png">
-<link rel="stylesheet" href="styles.css?v=044">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=045">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
       .demo-banner a{color:#FDFBF7;font-weight:700;text-decoration:underline}
-      .demo-sample-note{background:#FDFBF7;border-left:4px solid #E8B54A;color:#2B2B28;padding:10px 12px;margin:0 0 12px;font-size:.95rem;text-align:left}
+      .demo-sample-note{background:#FDFBF7;border-left:4px solid #E8B54A;color:#2B2B28;padding:10px 12px;margin:0 0 12px;font-size:.9rem;text-align:left}
     </style>
 </head>
 <body>
@@ -59,7 +62,7 @@
       <p style="margin:0" id="restore-notice-text"></p>
       <button class="btn btn-small" id="restore-notice-hide" style="margin-top:8px">Got it</button>
     </div>
-    <div class="card hidden" id="corrupt-notice" role="alert" style="border-left:4px solid #B3261E">
+    <div class="card hidden" id="corrupt-notice" role="alert" style="border-left:4px solid #87692B">
       <p style="margin:0" id="corrupt-notice-text"></p>
       <button class="btn btn-small" id="corrupt-notice-hide" style="margin-top:8px">Got it</button>
     </div>
@@ -154,7 +157,7 @@
             <p class="move-count" id="move-count" role="status" aria-live="polite">0 of 5 moves done</p>
             <p class="move-logged" id="move-logged">All done. 5 minutes added to Movement.</p>
           </div>
-          <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.85em"></p>
+          <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.9rem"></p>
         </div>
         <div id="movement-plan-editor" class="hidden">
           <h3 class="movement-subhead">Your movement plan</h3>
@@ -225,7 +228,7 @@
     <div class="card" id="weight-today-card" aria-label="Weight">
       <h2 class="card-title">Weight</h2>
       <p style="margin:0"><span class="big-number" id="today-weight-value">-</span> <span style="font-size:1rem;color:var(--muted)"> lbs</span></p>
-      <p class="muted" id="today-weight-change" style="margin:6px 0 0;font-size:.9em"></p>
+      <p class="muted" id="today-weight-change" style="margin:6px 0 0;font-size:.9rem"></p>
       <button class="btn btn-primary btn-small" data-goto="weight" style="margin-top:12px">Log weight</button>
     </div>
 
@@ -249,7 +252,7 @@
         </div>
       </div>
       <p class="donut-note">Each segment is one macro's share. Tap to expand.</p>
-      <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9em"></p>
+      <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9rem"></p>
 
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein">
@@ -275,9 +278,9 @@
       <div id="calories-section" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
         <p style="margin:0;font-weight:600">Calories today: <span id="calories-today">0</span><span id="calories-target-part"></span></p>
         <div style="height:10px;border-radius:99px;background:#EDEBE3;overflow:hidden;margin-top:8px"><i id="calories-fill" style="display:block;height:100%;width:0%;background:#E8B54A;border-radius:99px"></i></div>
-        <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.85em"></p>
+        <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.9rem"></p>
         </div>
-      <p class="muted" style="margin:6px 0 0;font-size:.85em">Targets are private. Change them in Settings.</p>
+      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Targets are private. Change them in Settings.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate (coming soon)</button>
@@ -303,7 +306,7 @@
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
           <button type="button" class="btn btn-small hidden" id="macro-food-voice-btn" aria-label="Speak the food name">🎤 Speak</button>
-          <span class="muted" id="macro-food-search-status" style="font-size:.85em"></span>
+          <span class="muted" id="macro-food-search-status" style="font-size:.9rem"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
         <div style="margin-top:8px">
@@ -371,7 +374,7 @@
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
-        <h2 class="card-title" style="margin:0;font-size:1rem" id="review-title">This month</h2>
+        <h2 class="card-title" style="margin:0;font-size:1.2rem" id="review-title">This month</h2>
         <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
       </div>
       <div id="review-body" style="margin-top:12px"></div>
@@ -389,25 +392,25 @@
       <h3 class="card-title">Protein</h3>
       <p style="margin:0"><span class="progress-big" id="progress-protein-big">0</span> <span class="progress-small">grams a day on average</span></p>
       <div class="week-bars" id="progress-bars-protein" role="img" aria-label="Protein by day"></div>
-      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-protein-note"></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-protein-note"></p>
     </div>
     <div class="card" id="progress-carbs-card">
       <h3 class="card-title">Carbs</h3>
       <p style="margin:0"><span class="progress-big" id="progress-carbs-big">0</span> <span class="progress-small">grams a day on average</span></p>
       <div class="week-bars" id="progress-bars-carbs" role="img" aria-label="Carbs by day"></div>
-      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-carbs-note"></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-carbs-note"></p>
     </div>
     <div class="card" id="progress-fat-card">
       <h3 class="card-title">Fat</h3>
       <p style="margin:0"><span class="progress-big" id="progress-fat-big">0</span> <span class="progress-small">grams a day on average</span></p>
       <div class="week-bars" id="progress-bars-fat" role="img" aria-label="Fat by day"></div>
-      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-fat-note"></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-fat-note"></p>
     </div>
     <div class="card" id="progress-weight-card">
       <h3 class="card-title">Weight</h3>
       <p style="margin:0"><span class="progress-big" id="progress-weight-big">—</span> <span class="progress-small">lbs, latest</span></p>
       <div class="week-bars" id="progress-bars-weight" role="img" aria-label="Weight by day"></div>
-      <p class="muted" style="margin:8px 0 0;font-size:.9em" id="progress-weight-note"></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-weight-note"></p>
     </div>
     <button class="btn btn-primary" id="progress-back" style="width:100%">Back to Today</button>
   </section>
@@ -417,8 +420,8 @@
     <h2>Shots</h2>
     <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
     <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
-    <p class="muted" style="font-size:.85em;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
-    <p class="muted hidden" id="shot-reminder-note" style="font-size:.85em;margin:6px 0 0"></p>
+    <p class="muted" style="font-size:.9rem;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
+    <p class="muted hidden" id="shot-reminder-note" style="font-size:.9rem;margin:6px 0 0"></p>
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between">
@@ -427,11 +430,11 @@
         <button class="btn btn-small" id="inj-cal-next" aria-label="Next month">→</button>
       </div>
       <div id="inj-calendar" class="mini-calendar" role="grid" aria-label="Injection calendar"></div>
-      <p class="muted" style="font-size:.85em;margin:8px 0 0">
+      <p class="muted" style="font-size:.9rem;margin:8px 0 0">
         <span style="color:#E8B54A">●</span> Shot logged &nbsp;
         <span style="color:#5A6B52">○</span> Next scheduled
       </p>
-      <p style="margin:8px 0 0;font-size:.9em" id="inj-cal-detail" aria-live="polite"></p>
+      <p style="margin:8px 0 0;font-size:.9rem" id="inj-cal-detail" aria-live="polite"></p>
     </div>
 
     <div class="card" id="rotation-guide-card" style="border-left:4px solid #E8B54A">
@@ -457,7 +460,7 @@
           <option>Delayed</option>
         </select>
       </label>
-      <p class="muted hidden" id="inj-status-note" style="font-size:.85em">If a dose was missed or delayed, ask your healthcare provider what to do. Never change your dose based on this app.</p>
+      <p class="muted hidden" id="inj-status-note" style="font-size:.9rem">If a dose was missed or delayed, ask your healthcare provider what to do. Never change your dose based on this app.</p>
       <div class="field-group">
         <span id="inj-site-label">Injection site</span>
         <div class="site-map-wrap">
@@ -529,17 +532,17 @@
     <div class="card" id="weight-chart-card">
       <h3>Progress over time</h3>
       <canvas id="weight-chart" width="600" height="300" aria-label="Weight progress chart" aria-describedby="weight-chart-text"></canvas>
-      <p class="muted" id="weight-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-milestones" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-per-week" style="font-size:.9em;margin:8px 0 0"></p>
-      <p class="muted" id="weight-goal-date" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="weight-chart-text" style="font-size:.9rem;margin:8px 0 0"></p>
+      <p class="muted" id="weight-milestones" style="font-size:.9rem;margin:8px 0 0"></p>
+      <p class="muted" id="weight-per-week" style="font-size:.9rem;margin:8px 0 0"></p>
+      <p class="muted" id="weight-goal-date" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted" id="weight-chart-empty">Log two weigh-ins to see your chart.</p>
     </div>
 
     <div class="card" id="bmi-chart-card">
       <h3>BMI over time</h3>
       <canvas id="bmi-chart" width="600" height="300" aria-label="BMI progress chart" aria-describedby="bmi-chart-text"></canvas>
-      <p class="muted" id="bmi-chart-text" style="font-size:.9em;margin:8px 0 0"></p>
+      <p class="muted" id="bmi-chart-text" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted" id="bmi-chart-empty">Add your height in Settings and log at least two weigh-ins to see your BMI chart.</p>
     </div>
 
@@ -577,7 +580,7 @@
         <p class="stat-value loss"><span id="percent-lost">--</span> <span class="stat-unit">%</span></p>
       </div>
     </div>
-    <p class="muted" id="weight-change-note" style="font-size:.9em"></p>
+    <p class="muted" id="weight-change-note" style="font-size:.9rem"></p>
 
     <div class="card hidden" id="milestone-card">
       <h3>Goal progress</h3>
@@ -585,7 +588,7 @@
       <div style="background:#EDE9DF;border-radius:999px;height:14px;overflow:hidden" role="progressbar" aria-label="Progress toward goal weight" id="milestone-barwrap">
         <div id="milestone-bar" style="height:100%;width:0%;background:#5A6B52;border-radius:999px;transition:width .5s"></div>
       </div>
-      <p class="muted" style="margin:8px 0 0;font-size:.85em" id="milestone-sub"></p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="milestone-sub"></p>
     </div>
 
     <div id="weight-list" class="entry-list"></div>
@@ -633,7 +636,7 @@
       <div class="modal-card">
         <h2 style="margin-top:0">Doctor visit summary</h2>
         <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
-        <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.95rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
+        <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
         <div class="form-actions" style="flex-wrap:wrap">
           <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
           <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
@@ -723,7 +726,7 @@
   <!-- MEDICINES TAB -->
   <section id="tab-medicines" class="tab-panel" role="tabpanel" aria-label="Medicines">
     <h2>Medicines</h2>
-    <p class="muted" style="font-size:.85em">Daily medicines besides your GLP-1 shot.</p>
+    <p class="muted" style="font-size:.9rem">Daily medicines besides your GLP-1 shot.</p>
     <form id="medicine-form" aria-label="Add a medicine" novalidate>
       <div class="measure-grid" style="grid-template-columns:2fr 1fr 1fr">
         <label>Medicine<input type="text" id="med-name" maxlength="80" placeholder="e.g. Vitamin D"></label>
@@ -742,10 +745,10 @@
   <!-- RECIPES TAB -->
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
-    <p class="muted" style="font-size:.85em">Nourishment that supports your next chapter.</p>
-    <p class="muted" style="font-size:.85em">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
+    <p class="muted" style="font-size:.9rem">Nourishment that supports your next chapter.</p>
+    <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
     <h3 style="margin-top:18px">Paste a Recipe</h3>
-    <p class="muted" style="font-size:.85em">Paste a recipe from anywhere.</p>
+    <p class="muted" style="font-size:.9rem">Paste a recipe from anywhere.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
     <form id="paste-recipe-form" class="hidden" aria-label="Paste a recipe" novalidate>
       <label>Paste a recipe<textarea id="paste-recipe-text" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
@@ -782,7 +785,7 @@
     </form>
     <div id="recipe-list" class="entry-list"></div>
     <h3 style="margin-top:18px">Search recipes online</h3>
-    <p class="muted" style="font-size:.85em">Search the recipe database for a dish.</p>
+    <p class="muted" style="font-size:.9rem">Search the recipe database for a dish.</p>
     <form id="recipe-search-form" aria-label="Search recipes online" novalidate>
       <div style="display:flex;gap:8px">
         <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken" aria-label="Search recipes" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
@@ -824,9 +827,9 @@
       <button type="button" class="kitchen-chip" data-filter="low-sodium">Low Sodium</button>
       <button type="button" class="kitchen-chip" data-filter="low-oxalate">Low-Oxalate</button>
     </div>
-    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.85em">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
+    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.9rem">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
     <div id="kitchen-list" class="kitchen-list"></div>
-    <p class="muted" style="font-size:.85em">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
+    <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
     <div id="recipe-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Recipe">
       <div class="modal-card">
         <button type="button" class="modal-x" id="recipe-modal-x" aria-label="Close recipe">×</button>
@@ -854,9 +857,9 @@
       <button class="btn btn-small" id="morning-checkin-reply" style="margin-top:8px">Reply in chat</button>
       <p class="muted hidden" id="morning-checkin-connect" style="margin:8px 0 0">Chat is not available in the demo.</p>
     </div>
-    <p class="muted" style="font-size:.85em;margin:0 0 6px">Sample conversation</p>
+    <p class="muted" style="font-size:.9rem;margin:0 0 6px">Sample conversation</p>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
-    <p class="muted" style="font-size:.85em;margin:0 0 6px">Chat is not available in the demo. It is part of the full app.</p>
+    <p class="muted" style="font-size:.9rem;margin:0 0 6px">Chat is not available in the demo. It is part of the full app.</p>
     <form id="chat-form" class="chat-form">
       <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
@@ -865,9 +868,9 @@
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
 
     <details class="card" style="margin-top:16px" id="memory-optin-card" open>
-      <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">Companion memory</summary>
+      <summary style="cursor:pointer;font-weight:700;font-size:1.2rem">Companion memory</summary>
       <div style="margin-top:12px">
-      <p class="muted" style="font-size:.9em">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
+      <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
         <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
         Remember me
@@ -893,7 +896,7 @@
         </label>
         <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
       </div>
-      <p class="muted hidden" id="memory-saved-msg" style="font-size:.85em;margin-top:8px">Your companion will remember you now.</p>
+      <p class="muted hidden" id="memory-saved-msg" style="font-size:.9rem;margin-top:8px">Your companion will remember you now.</p>
       </div>
     </details>
   </section>
@@ -1077,7 +1080,7 @@
           Read Companion replies aloud
         </label>
         <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
-        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--slate);background:#f8fafc;margin-top:.35em">
+        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--ink);background:#FDFBF7;margin-top:.35em">
           <option value="">Phone default voice</option>
         </select>
         <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
@@ -1128,12 +1131,12 @@
         </label>
         <button type="button" class="btn" id="export-diary-csv">Download diary (CSV)</button>
       </div>
-      <p class="muted" style="margin:8px 0 0;font-size:.85em">One row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem">One row per food entry per day, with water, movement, weight, mood, and journal notes. It opens in Google Sheets.</p>
       <p class="code-msg" id="csv-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
-      <p class="muted" style="margin-top:14px;font-size:.85em">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
+      <p class="muted" style="margin-top:14px;font-size:.9rem">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
     </div>
 
     <div class="card">
@@ -1243,7 +1246,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=044"></script>
+<script src="demo-seed.js?v=045"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1268,7 +1271,7 @@
     </div>
   </div>
 
-<script src="app.js?v=044"></script>
+<script src="app.js?v=045"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

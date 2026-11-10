@@ -12,7 +12,7 @@
   --sage: #5A6B52;
   --sage-dark: #44503E;
   --sage-deep: #364031;
-  --sage-light: #B5BCB1;
+  --sage-light: #7A8B6F;
   --sage-soft: #DEE1DC;
   /* Very light sage tint: 12% exact sage #5A6B52 mixed with white, so the
      white cards stand out against the page (v164 beauty redesign). */
@@ -23,9 +23,9 @@
   --ink-soft: #4A4840;
   --muted: #6E6A5E;
   --border: #E8E2D4;
-  --field-border: #767676;
-  --danger: #B0563E;
-  --focus: #2F6FED;
+  --sage-border: #DEE1DC;
+  --danger: #87692B;
+  --focus: #5A6B52;
   --radius: 20px;
   --radius-sm: 14px;
   --shadow: 0 2px 16px rgba(78, 92, 70, 0.08);
@@ -49,8 +49,8 @@ a, a:visited {
   position: absolute;
   left: 16px;
   top: -100px;
-  background: #0b1a30;
-  color: #f0dfae;
+  background: #5A6B52;
+  color: #FDFBF7;
   padding: 12px 16px;
   border-radius: 8px;
   z-index: 100;
@@ -90,7 +90,7 @@ h1, h2, h3 {
 }
 
 .app-header {
-  background: linear-gradient(160deg, var(--sage-deep) 0%, var(--sage-dark) 50%, var(--sage-deep) 100%);
+  background: var(--sage-deep);
   color: #fff;
   padding: 24px 20px 24px;
   text-align: center;
@@ -100,20 +100,11 @@ h1, h2, h3 {
   border-bottom: 3px solid var(--gold);
 }
 
-.app-header::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -20%;
-  width: 140%;
-  height: 200%;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
-  pointer-events: none;
-}
+/* Flat sage header: no gradients, per the Brand Identity guide. */
 
 .app-header h1 {
   color: #fff;
-  font-size: clamp(1.4rem, 5vw, 2.1rem);
+  font-size: clamp(1.75rem, 5vw, 2.1rem);
   margin: 0 0 8px;
   letter-spacing: 0.01em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
@@ -139,7 +130,7 @@ h1, h2, h3 {
   font-style: italic;
   position: relative;
   letter-spacing: 0.02em;
-  color: #F0DFAE;
+  color: #E8B54A;
 }
 
 main {
@@ -165,7 +156,7 @@ main {
 .date-line {
   color: var(--muted);
   margin-top: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .card h3, .card h2.card-title {
@@ -190,7 +181,7 @@ main {
 .code-msg {
   color: var(--danger);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 .code-msg.success {
   color: var(--sage-dark);
@@ -224,7 +215,7 @@ input[aria-invalid="true"]:focus-visible {
 }
 
 .progress-fill {
-  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 60%, var(--gold-light) 100%);
+  background: var(--gold);
   height: 100%;
   width: 0%;
   border-radius: 12px;
@@ -233,7 +224,7 @@ input[aria-invalid="true"]:focus-visible {
 
 .percent-line {
   color: var(--ink-soft);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   margin-bottom: 10px;
 }
 
@@ -265,7 +256,7 @@ input[aria-invalid="true"]:focus-visible {
 .streak-line {
   text-align: center;
   color: var(--sage);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   margin: 6px 0 0;
 }
 .streak-line:empty { display: none; }
@@ -303,7 +294,7 @@ input[aria-invalid="true"]:focus-visible {
   box-shadow: 0 0 0 2px #EDE9DF;
 }
 .se-timeline-item.se-sev-moderate::before { background: var(--gold); }
-.se-timeline-item.se-sev-severe::before { background: #A33A1F; }
+.se-timeline-item.se-sev-severe::before { background: #87692B; box-shadow: 0 0 0 2px #87692B; }
 
 .btn {
   font: inherit;
@@ -329,7 +320,7 @@ input[aria-invalid="true"]:focus-visible {
 
 .btn-small {
   padding: 10px 16px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 500;
   min-height: 44px;
 }
@@ -341,17 +332,17 @@ input[aria-invalid="true"]:focus-visible {
   color: var(--ink);
 }
 
-/* AA contrast: lighter gold end stop, dark button text 4.90:1 (was 3.59:1 on gold-dark) */
+/* Flat gold button, dark text, AA contrast. No gradients, per the Brand Identity guide. */
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold) 0%, #87692B 100%);
+  background: var(--gold);
   border-color: var(--gold-dark);
   color: #2D2D2D;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(201, 169, 106, 0.35);
+  box-shadow: 0 2px 8px rgba(232, 181, 74, 0.35);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 4px 14px rgba(201, 169, 106, 0.45);
+  box-shadow: 0 4px 14px rgba(232, 181, 74, 0.45);
 }
 
 .btn-primary:active {
@@ -379,7 +370,7 @@ input[aria-invalid="true"]:focus-visible {
   background: #fff;
   border-color: var(--danger);
   color: var(--danger);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   padding: 10px 16px;
   min-height: 44px;
 }
@@ -389,7 +380,7 @@ label {
   display: block;
   margin: 12px 0;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 label input,
@@ -401,7 +392,7 @@ label textarea {
   font: inherit;
   font-weight: 400;
   padding: 10px 12px;
-  border: 1px solid var(--field-border);
+  border: 1px solid var(--border);
   border-radius: 10px;
   background: #fff;
   color: var(--ink);
@@ -421,7 +412,7 @@ label textarea {
   display: block;
   margin: 12px 0;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .field-group select {
@@ -431,7 +422,7 @@ label textarea {
   font: inherit;
   font-weight: 400;
   padding: 10px 12px;
-  border: 1px solid var(--field-border);
+  border: 1px solid var(--border);
   border-radius: 10px;
   background: #fff;
   color: var(--ink);
@@ -487,7 +478,7 @@ label textarea {
 
 .app-footer .footer-copy {
   margin-top: 4px;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
 }
 
 .measure-grid {
@@ -507,7 +498,7 @@ label textarea {
 
 .measure-grid input {
   padding: 10px;
-  border: 1px solid var(--field-border);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
   width: 100%;
@@ -553,7 +544,7 @@ label textarea {
   right: 0;
   background: rgba(0,0,0,0.65);
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   padding: 4px 8px;
   display: flex;
   justify-content: space-between;
@@ -566,7 +557,7 @@ label textarea {
   color: #fff;
   border-radius: 4px;
   padding: 2px 8px;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
@@ -585,12 +576,12 @@ label textarea {
 
 .entry-sub {
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   margin: 0 0 4px;
 }
 
 .entry-notes {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
   margin: 4px 0;
 }
@@ -603,7 +594,7 @@ label textarea {
 
 .badge {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   padding: 3px 12px;
   border-radius: 20px;
@@ -612,18 +603,18 @@ label textarea {
 }
 
 .badge-mild {
-  background: #DFF0DC;
-  color: #256B28;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .badge-moderate {
   background: #FBEFD2;
-  color: #8A5A00;
+  color: #87692B;
 }
 
 .badge-severe {
-  background: #F8DCD2;
-  color: #A33A1F;
+  background: #87692B;
+  color: #FDFBF7;
 }
 
 .stats-row {
@@ -643,13 +634,13 @@ label textarea {
 }
 
 .stat-value {
-  font-size: 1.7rem;
+  font-size: 1.85rem;
   font-weight: 700;
   margin: 0;
 }
 
 .stat-value.loss {
-  color: #2F7A33;
+  color: var(--sage);
 }
 
 .stat-unit {
@@ -674,7 +665,7 @@ label textarea {
 
 .copyright {
   margin-top: 16px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -763,17 +754,17 @@ label textarea {
    It closes the same way Cancel, Escape and backdrop tap do. */
 .modal-x {
   position: absolute; top: 10px; right: 10px;
-  width: 38px; height: 38px; border-radius: 50%; border: none;
+  width: 44px; height: 44px; border-radius: 50%; border: none;
   background: transparent; color: var(--muted); font-size: 1.5rem; line-height: 1;
   cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
 }
 .modal-x:hover { background: var(--sage-soft); }
 .modal-x:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .modal-card h2 { margin-top: 0; }
-.modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .92rem; }
+.modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .9rem; }
 .modal-card label select, .modal-card label input {
   display: block; width: 100%; margin-top: 6px; padding: 10px 12px;
-  border: 1px solid var(--field-border, #767676); border-radius: 10px; font-size: 1rem;
+  border: 1px solid var(--border, #ddd); border-radius: 10px; font-size: 1rem;
 }
 
 /* Today dashboard: encouragement banner and summary grid */
@@ -826,7 +817,7 @@ label textarea {
   max-width: 85%;
   padding: 10px 14px;
   border-radius: 16px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.45;
 }
 .chat-msg.user {
@@ -868,7 +859,7 @@ label textarea {
 .chat-form textarea {
   flex: 1;
   padding: 12px;
-  border: 1px solid var(--field-border, #767676);
+  border: 1px solid var(--border, #ddd);
   border-radius: 12px;
   font-size: 1rem;
   font-family: inherit;
@@ -970,7 +961,7 @@ label textarea {
 /* 50+ readability and calm: larger base type, roomier tap targets */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--sage-tint);
   color: var(--ink);
   padding-bottom: 144px;
@@ -992,7 +983,7 @@ body {
   /* WCAG 1.4.12: allow wrapping instead of nowrap with ellipsis, so numbers are not truncated at larger text spacing */
   white-space: normal;
   overflow: visible;
-  font-size: 1.5rem;
+  font-size: 1.85rem;
 }
 .pc-goal {
   white-space: normal;
@@ -1077,7 +1068,7 @@ details.card[open] summary::before {
   transform: rotate(90deg);
 }
 details.card summary h3 {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
 }
 
 /* Injection site map */
@@ -1120,13 +1111,13 @@ details.card summary h3 {
   transition: fill 0.15s ease;
 }
 #site-map .zone-label {
-  font-size: 11px;
+  font-size: 0.7rem;
   fill: var(--sage-dark);
   pointer-events: none;
   font-weight: 600;
 }
 #site-map .zone-sublabel {
-  font-size: 9px;
+  font-size: 0.7rem;
   fill: var(--sage-dark);
   opacity: 0.7;
   pointer-events: none;
@@ -1154,7 +1145,7 @@ details.card summary h3 {
 .site-map-caption .rotation-nudge {
   display: block;
   margin-top: 4px;
-  color: #7A6238;
+  color: #87692B;
   font-weight: 600;
 }
 
@@ -1173,7 +1164,7 @@ input[type="text"],
 input[type="number"],
 select,
 textarea {
-  font-size: 16px; /* prevents iOS zoom on focus */
+  font-size: 1rem; /* prevents iOS zoom on focus */
   min-height: 48px; /* comfortable tap target */
 }
 
@@ -1187,17 +1178,17 @@ textarea {
 .donut-wrap { position: relative; width: 300px; height: 300px; margin: 1rem auto 0.25rem; }
 .donut-wrap svg { display: block; }
 .donut-seg { transition: opacity 0.25s ease; cursor: pointer; }
-.donut-label { font-size: 14px; font-weight: 700; fill: #333; pointer-events: none; }
+.donut-label { font-size: 0.85rem; font-weight: 700; fill: #333; pointer-events: none; }
 .donut-center {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center; pointer-events: none;
 }
 .donut-center .big {
-  font-family: Georgia, "Times New Roman", serif; font-size: 2.3rem; font-weight: 600; line-height: 1; color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif; font-size: 3rem; font-weight: 600; line-height: 1; color: var(--ink);
 }
 .donut-center .big small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }
-.donut-center .cap { font-size: 0.82rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
-.donut-note { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; }
+.donut-center .cap { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
+.donut-note { text-align: center; font-size: 0.85rem; color: var(--muted); margin: 0.35rem 0 0; }
 
 .macro-rows { margin-top: 0.9rem; border-top: 1px solid #EFE9D6; }
 .macro-row {
@@ -1214,9 +1205,9 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .dot.protein { background: var(--gold); }
 .dot.carbs { background: var(--sage); }
 .dot.fat { background: #DCC9A3; border: 1px solid #C9B586; }
-.macro-vals { font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
+.macro-vals { font-size: 0.9rem; color: var(--ink); white-space: nowrap; }
 .macro-vals .of { color: var(--muted); }
-.macro-why { grid-column: 1 / -1; font-size: .85em; }
+.macro-why { grid-column: 1 / -1; font-size: .9rem; }
 .macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: visible; margin-top: 0.3rem; }
 /* Slide a macro row (v169): the bar is the slide target, like the rings.
    touch-action none so the page does not scroll while sliding. The
@@ -1229,10 +1220,10 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-bar { touch-action: none; cursor: ew-resize; padding: 9px 11px; margin: 0 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { position: relative; display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
-.macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #C9A96A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #E8B54A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
 .macro-row, .macro-bar { user-select: none; -webkit-user-select: none; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
-.macro-pct { font-size: 0.82rem; color: var(--muted); }
+.macro-pct { font-size: 0.85rem; color: var(--muted); }
 /* Log steppers on each macro row: change the day's logged grams by
    exactly 1, like the ring nudge buttons. */
 .macro-stepper { display: inline-flex; align-items: center; gap: 8px; }
@@ -1246,8 +1237,8 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-log-btn:active { background: var(--sage-soft); }
 
 /* Today's Movement card */
-.movement-sub { margin: 0.25rem 0 0; font-size: 0.92rem; font-weight: 700; color: #87692B; }
-.movement-desc { margin: 0.3rem 0 0; font-size: 0.88rem; line-height: 1.45; color: var(--muted); }
+.movement-sub { margin: 0.25rem 0 0; font-size: 0.9rem; font-weight: 700; color: #87692B; }
+.movement-desc { margin: 0.3rem 0 0; font-size: 0.85rem; line-height: 1.45; color: var(--muted); }
 .moves { list-style: none; margin: 0.75rem 0 0; padding: 0; }
 .moves li { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0; border-top: 1px solid #EFE9D6; }
 .moves li:first-child { border-top: none; }
@@ -1261,14 +1252,14 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .move-check.done { background: var(--gold); }
 .move-check.done svg { opacity: 1; }
 .move-check:focus-visible { outline: 3px solid var(--sage); outline-offset: 2px; }
-.move-name { flex: 1; font-weight: 600; font-size: 0.98rem; line-height: 1.3; color: var(--ink); }
+.move-name { flex: 1; font-weight: 600; font-size: 0.9rem; line-height: 1.3; color: var(--ink); }
 li.done-move .move-name { color: #5C6656; }
-.move-reps { font-size: 0.88rem; color: var(--muted); white-space: nowrap; text-align: right; }
+.move-reps { font-size: 0.85rem; color: var(--muted); white-space: nowrap; text-align: right; }
 .move-progress { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid #EFE9D6; }
 .move-track { height: 8px; border-radius: 4px; background: #F0EAD6; overflow: hidden; }
 .move-track i { display: block; height: 100%; width: 0%; background: var(--gold); border-radius: 4px; transition: width 0.3s ease; }
 .move-count { margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--muted); }
-.move-logged { margin: 0.25rem 0 0; font-size: 0.88rem; font-weight: 700; color: var(--sage-dark); display: none; }
+.move-logged { margin: 0.25rem 0 0; font-size: 0.85rem; font-weight: 700; color: var(--sage-dark); display: none; }
 .move-logged.show { display: block; }
 
 /* Movement plan editor: one row per exercise, checkbox plus reps. */
@@ -1286,11 +1277,11 @@ li.done-move .move-name { color: #5C6656; }
 }
 #movement-plan-editor { margin-top: 12px; border-top: 1px solid #EFE9D6; padding-top: 4px; }
 #movement-plan-add { border-top: 1px solid #EFE9D6; margin-top: 12px; padding-top: 12px; }
-#movement-plan-add h3 { margin: 0 0 4px; font-size: 1rem; }
+#movement-plan-add h3 { margin: 0 0 4px; font-size: 1.2rem; }
 #movement-plan-add .form-actions { margin-top: 10px; }
 /* Remove button on a custom exercise row (v169). */
 .plan-remove {
-  flex: none; width: 32px; height: 32px; border-radius: 50%; border: none;
+  flex: none; width: 44px; height: 44px; border-radius: 50%; border: none;
   background: transparent; color: var(--muted); font-size: 1.3rem; line-height: 1;
   cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
 }
@@ -1298,8 +1289,8 @@ li.done-move .move-name { color: #5C6656; }
 .plan-remove:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .plan-row:first-child { border-top: none; }
 .plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; }
-.plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
-.plan-row .plan-pattern { font-size: 0.78rem; color: var(--muted); font-weight: 400; display: block; }
+.plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.9rem; }
+.plan-row .plan-pattern { font-size: 0.85rem; color: var(--muted); font-weight: 400; display: block; }
 .plan-row .plan-detail { width: 110px; flex: none; margin: 0; }
 
 /* More sheet: slides up from above the tab bar. Effects, Companion,
@@ -1345,8 +1336,8 @@ li.done-move .move-name { color: #5C6656; }
    row. Compact, but never below 44px tall; they wrap to two rows only
    on very narrow screens. */
 .weight-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 6px; }
-.weight-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 10px 12px; font-size: 0.95rem; }
-.weight-hero-label { color: var(--muted); margin: 0; font-size: 0.95rem; }
+.weight-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 10px 12px; font-size: 0.9rem; }
+.weight-hero-label { color: var(--muted); margin: 0; font-size: 0.9rem; }
 .weight-hero-num {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 3rem; font-weight: 600; margin: 0; line-height: 1.1; color: var(--ink);
@@ -1354,20 +1345,20 @@ li.done-move .move-name { color: #5C6656; }
 .weight-hero-num .unit { font-size: 1.2rem; color: var(--muted); font-weight: 400; }
 .weight-hero-date { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.9rem; }
 .weight-hero-date:empty { display: none; }
-.bmi-line { text-align: center; color: var(--sage-deep); font-weight: 600; margin: 4px 0 0; font-size: 0.95rem; }
+.bmi-line { text-align: center; color: var(--sage-deep); font-weight: 600; margin: 4px 0 0; font-size: 0.9rem; }
 .bmi-line:empty { display: none; }
 /* BMI extras (v169): how far the current weight sits from the healthy
    range, and the healthy range for this height. Calm and compact. */
-.bmi-over { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.92rem; }
+.bmi-over { text-align: center; color: var(--muted); margin: 2px 0 0; font-size: 0.9rem; }
 .bmi-over:empty { display: none; }
 .bmi-healthy { text-align: center; margin: 10px auto 0; padding: 10px 14px; max-width: 340px; background: var(--sage-tint); border-radius: 12px; }
-.bmi-healthy p { margin: 0; font-size: 0.88rem; color: var(--sage-deep); line-height: 1.5; }
-.bmi-healthy .bmi-cutoffs { margin-top: 4px; font-size: 0.82rem; color: var(--muted); }
+.bmi-healthy p { margin: 0; font-size: 0.85rem; color: var(--sage-deep); line-height: 1.5; }
+.bmi-healthy .bmi-cutoffs { margin-top: 4px; font-size: 0.85rem; color: var(--muted); }
 
 /* Journal (v168): entries as elegant cards with the date in serif. */
 #tab-journal .entry-sub {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
 }
 
 /* Settings (v168): grouped sections with clear headings. */
@@ -1392,14 +1383,15 @@ html[data-theme="dark"] {
   --sage-tint: #20261F;
   --gold-soft: #3A3220;
   --gold-dark: #E8B54A;
-  --danger: #D98A70;
-  --focus: #7FB0FF;
+  --danger: #E8B54A;
+  --focus: #9DB894;
   /* --sage stays #5A6B52: white text on it is 5.9:1, so the user
      bubbles and buttons keep their contrast on dark backgrounds. */
 }
 html[data-theme="dark"] body { background: var(--sage-tint); }
-html[data-theme="dark"] .btn,
-html[data-theme="dark"] .btn-danger { background: #2B332A; }
+/* :not(.btn-primary): the gold primary buttons keep their flat gold
+   in dark mode; every other button goes dark. */
+html[data-theme="dark"] .btn:not(.btn-primary) { background: #2B332A; }
 html[data-theme="dark"] label input,
 html[data-theme="dark"] label select,
 html[data-theme="dark"] label textarea,
@@ -1460,7 +1452,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   font-size: 0.85rem;
   padding: 6px 12px;
 }
-.chat-listen.playing { background: #E8B54A; border-color: #C9A96A; color: #2B2B28; font-weight: 700; }
+.chat-listen.playing { background: #E8B54A; border-color: #87692B; color: #2B2B28; font-weight: 700; }
 
 /* Mic button (v000): visible Listening state while recording. */
 .chat-mic.listening {
@@ -1522,7 +1514,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .kitchen-chip {
   font: inherit;
-  font-size: .85em;
+  font-size: .9rem;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
@@ -1540,11 +1532,11 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   box-shadow: var(--shadow);
 }
 .kitchen-photo { width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-sm); display: block; }
-.kitchen-credit { font-size: .75em; color: var(--muted); margin: 2px 0 8px; }
+.kitchen-credit { font-size: .75rem; color: var(--muted); margin: 2px 0 8px; }
 .kitchen-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; margin-top: 8px; }
 .kitchen-macro b { display: block; font-size: 1.05em; }
-.kitchen-macro span { font-size: .8em; color: var(--muted); }
-.kitchen-details { margin-top: 8px; font-size: .9em; }
+.kitchen-macro span { font-size: .85rem; color: var(--muted); }
+.kitchen-details { margin-top: 8px; font-size: .9rem; }
 .kitchen-details summary { cursor: pointer; font-weight: 500; }
 .kitchen-details ul, .kitchen-details ol { margin: 6px 0 0 18px; padding: 0; }
 .kitchen-details li { margin: 2px 0; }
@@ -1581,7 +1573,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 .slider-row .goals-add { margin-top: 0; flex: none; }
 .slider-amount { background: none; border: none; padding: 0; margin: 0; cursor: pointer; font: inherit; color: inherit; text-align: left; display: flex; align-items: baseline; gap: 6px; min-height: 44px; }
 .slider-amount:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.slider-goal { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+.slider-goal { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
 .goal-slider { width: 100%; margin: 10px 0 8px; accent-color: var(--sage); height: 28px; display: block; }
 .slider-hint { color: var(--muted); margin: 6px 0 0; font-size: 0.9rem; }
 .slider-amount .big-number { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px; }
@@ -1591,7 +1583,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 #tab-today .card { padding: 18px; margin: 14px 0; }
 
 /* ---------- Progress view (v038) ---------- */
-.progress-big { font-size: 2rem; font-weight: 700; letter-spacing: -0.01em; color: var(--sage-deep); }
+.progress-big { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.01em; color: var(--sage-deep); }
 .progress-small { color: var(--sage-dark); }
 .week-bars { display: flex; gap: 6px; margin-top: 12px; }
 .week-bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
@@ -1599,7 +1591,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 .week-bar-track { width: 100%; height: 110px; display: flex; align-items: flex-end; justify-content: center; }
 .week-bar { width: 100%; max-width: 30px; border-radius: 6px 6px 0 0; }
 .week-bar-empty { background: #EDEBE3; }
-.week-bar-day { font-size: .8rem; color: var(--sage); margin-top: 6px; }
+.week-bar-day { font-size: .85rem; color: var(--sage); margin-top: 6px; }
 
 /* v039: compact pass. Even text, collapsible Movement section, compact
    macro rows, Kitchen photo cards, compact Companion header. */
@@ -1618,14 +1610,14 @@ canvas { max-width: 100%; height: auto; display: block; }
 .section-toggle-summary { flex: 1; font-size: .85rem; color: var(--muted); text-align: right; line-height: 1.4; }
 .section-toggle-chevron { color: #87692B; font-size: 1rem; line-height: 1; flex: none; }
 .section-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
-.movement-subhead { font-size: 1rem; font-weight: 700; margin: 14px 0 8px; line-height: 1.3; }
+.movement-subhead { font-size: 1.2rem; font-weight: 700; margin: 14px 0 8px; line-height: 1.3; }
 
 /* Compact macro rows: name and numbers on one line, a thin bar below,
    and the detail (why line and percent) only on the selected row. */
 .macro-detail { grid-column: 1 / -1; display: none; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 0.2rem; }
 .macro-row.selected .macro-detail { display: flex; }
-.macro-detail .macro-why { font-size: .85em; }
-.macro-detail .macro-pct { font-size: .82rem; color: var(--muted); }
+.macro-detail .macro-why { font-size: .9rem; }
+.macro-detail .macro-pct { font-size: .85rem; color: var(--muted); }
 
 /* Kitchen photo cards: horizontal featured row, two-column full list. */
 .kitchen-featured { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; scroll-snap-type: x mandatory; }
@@ -1640,7 +1632,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 .kitchen-photo-wrap .kitchen-photo { border-radius: 0; }
 .kitchen-chip-tag { position: absolute; left: 8px; bottom: 8px; background: rgba(43, 43, 40, 0.85); color: #FDFBF7; font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
 .kitchen-photo-body { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 12px 12px; }
-.kitchen-photo-body strong { font-size: .95rem; line-height: 1.3; }
+.kitchen-photo-body strong { font-size: .9rem; line-height: 1.3; }
 .kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
 .kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
@@ -1659,7 +1651,31 @@ canvas { max-width: 100%; height: auto; display: block; }
    privacy note as one line with the full text behind a tap. */
 .chat-header-compact { gap: 8px; }
 .chat-header-compact .chat-header-avatar { width: 26px; height: 20px; }
-.chat-header-compact h2 { font-size: 1.25rem; line-height: 1.3; }
+.chat-header-compact h2 { font-size: 1.2rem; line-height: 1.3; }
 .chat-privacy { margin: 8px 0 12px; }
 .chat-privacy summary { font-size: .85rem; color: var(--muted); cursor: pointer; line-height: 1.4; }
 .chat-privacy summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Print fallback for the doctor summary (v046): when the PDF library
+   is unavailable, the print dialog shows only the summary. */
+@media print {
+  body * { visibility: hidden; }
+  #doctor-modal, #doctor-modal * { visibility: visible; }
+  #doctor-modal {
+    position: absolute;
+    inset: 0;
+    display: block !important;
+    background: #fff;
+  }
+  #doctor-modal .modal-card {
+    box-shadow: none;
+    border: none;
+    max-width: none;
+  }
+  #doctor-modal .form-actions, #doctor-modal #doctor-msg { display: none !important; }
+  #doctor-modal textarea {
+    border: none;
+    background: #fff;
+    height: auto;
+  }
+}

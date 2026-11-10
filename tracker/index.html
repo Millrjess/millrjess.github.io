@@ -159,7 +159,7 @@
       background: var(--bg);
       color: var(--ink);
       font-family: var(--sans);
-      font-size: 1.19rem;
+      font-size: 1.125rem;
       line-height: 1.65;
       overflow-x: hidden;
     }
@@ -172,9 +172,7 @@
       display: grid;
       align-items: center;
       padding: 64px 0 48px;
-      background:
-        radial-gradient(circle at 90% 5%, color-mix(in srgb, var(--gold-pale) 72%, transparent) 0, transparent 29%),
-        linear-gradient(155deg, var(--surface) 0 58%, var(--surface-soft) 58% 100%);
+      background: var(--surface);
       border-bottom: 1px solid var(--line);
     }
     .hero-grid { display: grid; grid-template-columns: 1fr; gap: 0; align-items: center; max-width: 68ch; }
@@ -312,7 +310,7 @@
       .wrap { width: min(100% - 28px, 1140px); }
       nav .wrap { flex-wrap: wrap; gap: 8px; }
       nav .wrap div:last-child { gap: 14px !important; font-size: .85rem; }
-      .hero { padding: 30px 0 26px; background: linear-gradient(165deg, var(--surface) 0 66%, var(--surface-soft) 66% 100%); }
+      .hero { padding: 30px 0 26px; background: var(--surface); }
       h1 { font-size: clamp(2.45rem, 13vw, 3.8rem); }
       .actions { flex-direction: column; }
       .button { width: 100%; }
@@ -366,7 +364,7 @@
       html { scroll-behavior: auto; }
       *, *:before, *:after { transition-duration: .01ms !important; }
     }
-    #mc_embed_signup{background:transparent;clear:left;font:14px Helvetica,Arial,sans-serif;width:100%;}
+    #mc_embed_signup{background:transparent;clear:left;font:1rem "DM Sans",system-ui,sans-serif;width:100%;}
   .skip-link{position:absolute;left:-9999px;top:8px;background:#5A6B52;color:#FDFBF7;padding:.6em 1em;z-index:200;border-radius:8px}
 .skip-link:focus{left:8px}
 </style>
@@ -593,6 +591,17 @@
             </form>
           </div>
           <script src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+          <style>
+            /* Local overrides for the Mailchimp signup form (v046): the
+               Mailchimp stylesheet uses off-brand colors and an off-brand
+               font. These rules load after it and win on order. */
+            #mc_embed_signup { font-family: "DM Sans", system-ui, sans-serif; }
+            #mc_embed_signup .asterisk { color: #87692B; }
+            #mc_embed_signup #mce-error-response { color: #87692B; }
+            #mc_embed_signup #mce-success-response { color: #5A6B52; }
+            #mc_embed_signup input { border-color: #E8E2D4; font-family: "DM Sans", system-ui, sans-serif; }
+            #mc_embed_signup .button { background: #E8B54A; color: #233027; font-family: "DM Sans", system-ui, sans-serif; }
+          </style>
           <script>(function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';}(jQuery));var $mcj=jQuery.noConflict(true);</script>
         </div>
       </div>
