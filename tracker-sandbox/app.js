@@ -5585,7 +5585,478 @@ const KITCHEN_RECIPES = [
       "Top each round with a little tuna and feta.",
       "Squeeze lemon over the top, add dill, and eat."
     ]
+  },
+  {
+    id: "seared-chicken-strawberry-salsa",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/recipes/~/~/~/~/~/~/~/~/~/~/~/~/~/~/~/~/link.aspx?_id=7F767E96A6254AF8A9300AF7C586E8C8&_z=z",
+    name: "Seared Chicken with Strawberry Salsa",
+    category: "High Protein",
+    time: 25, difficulty: "Easy", servings: 4,
+    protein: 25, carbs: 11, fat: 7, calories: 207,
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    ingredients: [
+      "4 boneless, skinless chicken breast halves, about 4 ounces each, all visible fat removed",
+      "1/2 teaspoon paprika",
+      "1/4 teaspoon ground cumin or ground allspice",
+      "1/4 teaspoon salt",
+      "1/4 teaspoon pepper",
+      "1 cup diced, hulled strawberries",
+      "1 medium poblano pepper, seeds and ribs removed, diced (or 3/4 medium green bell pepper)",
+      "1/2 cup finely chopped red onion",
+      "1/4 cup chopped fresh mint or cilantro",
+      "2 tablespoons fresh lemon juice",
+      "1 tablespoon sugar",
+      "1/8 teaspoon crushed red pepper flakes",
+      "2 teaspoons canola or corn oil"
+    ],
+    steps: [
+      "Mix the paprika, cumin, salt, and pepper. Sprinkle over the chicken and let it stand 10 minutes.",
+      "Stir the salsa ingredients together in a bowl: strawberries, poblano, red onion, mint, lemon juice, sugar, and red pepper flakes.",
+      "Heat the oil in a large skillet over medium-high heat. Cook the chicken smooth side down until done, about 5 minutes per side.",
+      "Serve each breast topped with salsa."
+    ]
+  },
+  {
+    id: "tuscan-chicken-kebabs",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/recipes/tuscan-style-grilled-chicken-kebabs",
+    name: "Tuscan Chicken Kebabs",
+    category: "High Protein",
+    time: 35, difficulty: "Easy", servings: 4,
+    protein: 31, carbs: 16, fat: 3, calories: 215,
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    ingredients: [
+      "1 teaspoon grated lemon zest",
+      "2 tablespoons fresh lime juice",
+      "1 tablespoon chopped fresh rosemary, or 1 teaspoon dried rosemary, crushed",
+      "2 teaspoons olive oil",
+      "2 cloves garlic, minced",
+      "1 teaspoon dried oregano, crumbled",
+      "1/4 teaspoon crushed red pepper flakes",
+      "1 pound boneless, skinless chicken breasts, all visible fat removed, cut into 16 cubes",
+      "16 whole button or cremini mushrooms, ends trimmed",
+      "1 medium green bell pepper, cut into 16 pieces",
+      "16 cherry tomatoes",
+      "1/2 cup uncooked instant brown rice",
+      "1 cup fat-free, low-sodium chicken broth",
+      "1/4 cup dry-packed sun-dried tomatoes, cut into 1/4-inch cubes"
+    ],
+    steps: [
+      "Stir the lemon zest, lime juice, rosemary, oil, garlic, oregano, and red pepper flakes together. Add the chicken and stir to coat. Cover and refrigerate at least 15 minutes.",
+      "Soak 8 wooden skewers in water. Cook the rice in the broth with the sun-dried tomatoes, following the package directions.",
+      "Thread the chicken, mushrooms, bell pepper, and tomatoes onto the skewers.",
+      "Grill over medium-high heat, turning once, until the chicken is cooked through, about 10 minutes.",
+      "Serve 2 skewers per person over the rice."
+    ]
+  },
+  {
+    id: "baked-chicken-strips-green-beans",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/baked-chicken-strips-with-microwave-green-beans",
+    name: "Baked Chicken Strips with Green Beans",
+    category: "High Protein",
+    time: 30, difficulty: "Easy", servings: 4,
+    protein: 30, carbs: 24, fat: 4, calories: 252,
+    tags: ["high-protein", "lunch", "dinner", "easy-prep", "low-sodium"],
+    ingredients: [
+      "1 pound boneless, skinless chicken breasts, cut into 1-inch strips (or chicken tenderloins)",
+      "1/3 cup whole-wheat flour",
+      "1/2 teaspoon black pepper",
+      "1/3 cup skim milk",
+      "2 tablespoons low-fat, low-sodium grated Parmesan cheese",
+      "1/3 cup quick-cooking oats",
+      "1 teaspoon garlic or onion powder",
+      "1/2 teaspoon paprika",
+      "1 pound fresh green beans, washed, stems removed",
+      "1/2 cup water",
+      "1 teaspoon minced garlic, from a jar",
+      "1/4 teaspoon black pepper"
+    ],
+    steps: [
+      "Heat the oven to 375 degrees F. Spray a baking sheet with cooking spray.",
+      "Put the flour and pepper in one shallow dish, the milk in a second, and the Parmesan, oats, garlic powder, and paprika in a third.",
+      "Dip each strip in flour, then milk, then the oat mixture. Place on the baking sheet.",
+      "Bake 15 to 20 minutes, turning once, until golden and cooked through.",
+      "Put the beans, water, garlic, and pepper in a microwave-safe dish. Cover and microwave on high 6 to 8 minutes, until crisp-tender.",
+      "Serve the strips with the beans."
+    ]
+  },
+  {
+    id: "oat-crusted-chicken-fingers",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/baked-oat-crusted-chicken-fingers-with-sweet-mustard-sauce",
+    name: "Oat-Crusted Chicken Fingers",
+    category: "High Protein",
+    time: 25, difficulty: "Easy", servings: 4,
+    protein: 31, carbs: 24, fat: 5, calories: 265,
+    tags: ["high-protein", "lunch", "dinner", "low-sodium"],
+    ingredients: [
+      "1 pound chicken tenders",
+      "1/2 cup rolled oats",
+      "1/4 cup whole-wheat breadcrumbs",
+      "1/4 cup skim milk",
+      "1 egg white",
+      "1 teaspoon paprika",
+      "1/2 teaspoon garlic powder",
+      "1/4 teaspoon salt",
+      "1/4 teaspoon pepper",
+      "1/4 cup fat-free plain Greek yogurt",
+      "1 tablespoon honey",
+      "1 tablespoon Dijon mustard",
+      "1 teaspoon lemon juice"
+    ],
+    steps: [
+      "Heat the oven to 400 degrees F. Spray a baking sheet with cooking spray.",
+      "Pulse the oats in a food processor until coarse crumbs form. Mix with the breadcrumbs, paprika, garlic powder, salt, and pepper.",
+      "Whisk the milk and egg white in a shallow dish.",
+      "Dip each tender in the milk mixture, then coat in the oat crumbs. Place on the baking sheet.",
+      "Bake 15 to 18 minutes, turning once, until golden and cooked through.",
+      "Stir the yogurt, honey, mustard, and lemon juice together for the sauce. Serve on the side."
+    ]
+  },
+  {
+    id: "huevos-rancheros",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/huevos-rancheros",
+    name: "Huevos Rancheros",
+    category: "Easy Breakfasts",
+    time: 25, difficulty: "Easy", servings: 4,
+    protein: 24, carbs: 37, fat: 14, calories: 370,
+    tags: ["high-protein", "breakfast", "easy-prep", "low-sodium"],
+    ingredients: [
+      "1 teaspoon canola oil",
+      "1/2 cup chopped onion",
+      "1 poblano pepper, chopped",
+      "1 jalapeno pepper, seeded and chopped",
+      "2 cloves garlic, minced",
+      "1 can (14.5 ounces) no-salt-added crushed tomatoes",
+      "1/4 cup water",
+      "1/4 teaspoon salt",
+      "1 teaspoon canola oil",
+      "4 eggs",
+      "8 egg whites (about 1 cup liquid egg whites)",
+      "4 corn tortillas",
+      "1 can (15 ounces) no-salt-added black beans, rinsed and drained",
+      "1/2 cup shredded low-fat Mexican cheese blend",
+      "1 avocado, sliced",
+      "1/4 cup chopped cilantro",
+      "1 lime, cut into wedges"
+    ],
+    steps: [
+      "Heat the oil in a skillet. Cook the onion, poblano, jalapeno, and garlic until soft, about 5 minutes.",
+      "Add the tomatoes, water, and salt. Simmer 10 minutes to make the salsa.",
+      "Warm the tortillas and the beans.",
+      "Cook the eggs and egg whites in a second skillet until set.",
+      "Place a tortilla on each plate. Top with beans, an egg, salsa, cheese, avocado, and cilantro. Serve with a lime wedge."
+    ]
+  },
+  {
+    id: "southwestern-quinoa-egg-bowl",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/southwestern-quinoa-and-egg-breakfast-bowl",
+    name: "Southwestern Quinoa and Egg Bowl",
+    category: "Easy Breakfasts",
+    time: 25, difficulty: "Easy", servings: 4,
+    protein: 18, carbs: 29, fat: 15, calories: 323,
+    tags: ["breakfast", "easy-prep", "low-sodium"],
+    ingredients: [
+      "1 cup uncooked quinoa, rinsed",
+      "1 1/2 cups water",
+      "1 cup halved cherry tomatoes",
+      "1 cup corn kernels, fresh or frozen and thawed",
+      "1 avocado, diced",
+      "2 green onions, sliced",
+      "1/4 cup chopped cilantro",
+      "8 eggs",
+      "Salt and pepper to taste",
+      "Hot sauce, to taste"
+    ],
+    steps: [
+      "Bring the quinoa and water to a boil. Cover, lower the heat, and simmer 15 minutes. Let it stand 5 minutes, then fluff with a fork.",
+      "Stir in the tomatoes, corn, avocado, green onions, and cilantro.",
+      "Cook the eggs as you like them, sunny side up or over easy.",
+      "Spoon the quinoa into bowls and top each with 2 eggs. Season with salt, pepper, and hot sauce."
+    ]
+  },
+  {
+    id: "microwave-egg-veggie-bowl",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/-/media/Healthy-Living-Files/Heart-Check-files/RD-Toolkits/Microwave-Egg--Veggie-Breakfast-Bowl-Recipe.pdf?sc_lang=en",
+    name: "Microwave Egg and Veggie Bowl",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 21, carbs: 3, fat: 11, calories: 195,
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly"],
+    ingredients: [
+      "2 eggs",
+      "1 egg white",
+      "1/2 cup fresh spinach, chopped",
+      "1/4 cup sliced mushrooms",
+      "2 tablespoons shredded low-fat cheese",
+      "2 tablespoons chopped tomato",
+      "Salt and pepper to taste"
+    ],
+    steps: [
+      "Whisk the eggs and egg white in a microwave-safe mug or bowl.",
+      "Stir in the spinach, mushrooms, and tomato.",
+      "Microwave on high for 1 minute. Stir.",
+      "Microwave 30 to 60 seconds more, until the eggs are set.",
+      "Top with the cheese and season with salt and pepper."
+    ]
+  },
+  {
+    id: "western-mug-omelet",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://www.heart.org/en/-/media/Healthy-Living-Files/Healthy-Eating/Shop_Smart_Eat_Smart_Cook_Booklet_2nd_Edition.pdf?sc_lang=en",
+    name: "Western Mug Omelet",
+    category: "Easy Breakfasts",
+    time: 5, difficulty: "Easy", servings: 1,
+    protein: 19, carbs: 9, fat: 2, calories: 130,
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly"],
+    ingredients: [
+      "Cooking spray",
+      "7 tablespoons liquid egg whites (1/4 cup plus 3 tablespoons)",
+      "1/2 cup chopped red bell peppers",
+      "1/2 cup chopped mushrooms",
+      "2 tablespoons shredded lite low-fat cheese",
+      "2 tablespoons fat-free milk",
+      "1 tablespoon chopped green onion"
+    ],
+    steps: [
+      "Lightly coat a microwave-safe mug with cooking spray.",
+      "Stir all the ingredients together in the mug.",
+      "Microwave on high for 1 minute. Stir.",
+      "Microwave 1 to 2 minutes more, until the eggs are cooked through."
+    ]
+  },
+  {
+    id: "lemon-garlic-salmon-foil-packet",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/lemon-garlic-salmon-foil-pack-with-green-beans-and-new-potatoes",
+    name: "Lemon-Garlic Salmon Foil Packet",
+    category: "Balanced Dinners",
+    time: 30, difficulty: "Easy", servings: 4,
+    protein: 26, carbs: 26, fat: 15, calories: 343,
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    ingredients: [
+      "1 pound new potatoes, halved",
+      "1 pound green beans, trimmed",
+      "2 tablespoons olive oil",
+      "2 teaspoons minced garlic",
+      "4 salmon fillets, about 4 ounces each",
+      "1 lemon, thinly sliced",
+      "Salt and pepper to taste"
+    ],
+    steps: [
+      "Heat the oven to 400 degrees F. Cut 4 large sheets of foil.",
+      "Toss the potatoes and green beans with the oil, garlic, salt, and pepper.",
+      "Place a salmon fillet in the center of each foil sheet. Divide the potatoes and beans around the fish. Lay lemon slices on top.",
+      "Fold the foil into sealed packets and place on a baking sheet.",
+      "Bake 20 to 25 minutes, until the salmon flakes and the potatoes are tender."
+    ]
+  },
+  {
+    id: "citrus-tea-tilapia",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/citrus-tea-tilapia?sc_camp=1E2E4F3023444DC58AD804747F7735F2",
+    name: "Citrus Tea Tilapia",
+    category: "Balanced Dinners",
+    time: 20, difficulty: "Easy", servings: 4,
+    protein: 23, carbs: 10, fat: 6, calories: 186,
+    tags: ["high-protein", "low-carb", "dinner", "low-sodium"],
+    ingredients: [
+      "4 tilapia fillets, about 4 ounces each",
+      "1 cup orange juice",
+      "3/4 cup brewed unsweetened tea, cooled",
+      "2 tablespoons olive oil",
+      "1/4 cup sliced green onions",
+      "2 teaspoons grated fresh ginger",
+      "1 1/2 teaspoons grated orange zest",
+      "1 tablespoon cornstarch",
+      "1 teaspoon low-sodium soy sauce",
+      "1/4 cup water",
+      "Salt and pepper to taste"
+    ],
+    steps: [
+      "Season the fish with salt and pepper.",
+      "Heat the oil in a large skillet over medium-high heat. Cook the fish 3 to 4 minutes per side, until it flakes. Remove and keep warm.",
+      "Stir the orange juice, tea, green onions, ginger, and zest into the pan. Simmer 2 minutes.",
+      "Mix the cornstarch, soy sauce, and water. Stir into the pan and cook until the sauce thickens, about 1 minute.",
+      "Spoon the sauce over the fish and serve."
+    ]
+  },
+  {
+    id: "chicken-mole",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/-/media/AHA/Recipe/PDF-Files/Simple-Cooking-with-Heart-at-Home-Packet.pdf?la=en",
+    name: "Chicken Mole",
+    category: "Balanced Dinners",
+    time: 35, difficulty: "Easy", servings: 4,
+    protein: 27, carbs: 17, fat: 8, calories: 248,
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    ingredients: [
+      "1 cup low-sodium chicken broth",
+      "1/2 cup chopped onion",
+      "1 clove garlic, minced",
+      "1 can (8 ounces) no-salt-added tomato sauce",
+      "1 can (4 ounces) chopped green chiles",
+      "1/4 cup sliced almonds",
+      "1 chipotle pepper in adobo sauce",
+      "1 tablespoon unsweetened cocoa powder",
+      "1 tablespoon brown sugar",
+      "2 pounds boneless, skinless chicken breasts",
+      "4 corn tortillas, cut into 1-inch strips",
+      "1/4 cup fat-free sour cream",
+      "1/4 cup sliced green onions"
+    ],
+    steps: [
+      "Blend the broth, onion, garlic, tomato sauce, green chiles, almonds, chipotle pepper, cocoa, and brown sugar until smooth.",
+      "Pour the sauce into a large skillet and bring to a simmer.",
+      "Add the chicken, cover, and cook 20 to 25 minutes, until cooked through.",
+      "While the chicken cooks, bake the tortilla strips at 375 degrees F until crisp, about 8 minutes.",
+      "Slice the chicken and spoon the sauce over it. Top with the tortilla strips, sour cream, and green onions."
+    ]
+  },
+  {
+    id: "salmon-cucumbers-dill",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://www.heart.org/en/recipes/salmon-baked-with-cucumbers-and-dill",
+    name: "Salmon with Cucumbers and Dill",
+    category: "Balanced Dinners",
+    time: 20, difficulty: "Easy", servings: 4,
+    protein: 26, carbs: 6, fat: 8, calories: 200,
+    tags: ["high-protein", "low-carb", "dinner", "low-sodium"],
+    ingredients: [
+      "4 salmon fillets, about 4 ounces each",
+      "2 small cucumbers, peeled and thinly sliced",
+      "1/4 cup chopped fresh dill",
+      "1/4 cup thinly sliced red onion",
+      "2 tablespoons lemon juice",
+      "Salt and pepper to taste"
+    ],
+    steps: [
+      "Heat the oven to 375 degrees F. Lightly spray a baking dish with cooking spray.",
+      "Season the fish with salt and pepper and place in the dish.",
+      "Mix the cucumbers, dill, red onion, and lemon juice. Spoon over the fish.",
+      "Bake 12 to 15 minutes, until the salmon flakes easily."
+    ]
+  },
+  {
+    id: "tomato-stuffed-salmon-salad",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/en/recipes/tomato-stuffed-with-dill-salmon-salad",
+    name: "Tomato Stuffed with Dill Salmon Salad",
+    category: "Small Appetite",
+    time: 20, difficulty: "Easy", servings: 4,
+    protein: 27, carbs: 16, fat: 7, calories: 235,
+    tags: ["high-protein", "low-carb", "small-portions", "lunch", "easy-prep", "low-sodium"],
+    ingredients: [
+      "4 large tomatoes, 3 to 4 inches across, left whole",
+      "1 can (14.75 ounces) low-sodium salmon, packed in water, drained (or 5 pouches of 2.6-ounce low-sodium salmon)",
+      "2 stalks celery, sliced crosswise into 1/4-inch pieces",
+      "1/2 small red onion, about 1/2 cup, chopped",
+      "2 tablespoons nonfat mayonnaise",
+      "1/4 cup plain, low-fat yogurt",
+      "Juice of half a lemon, about 2 tablespoons",
+      "3/4 teaspoon dried dill",
+      "1 head romaine or other lettuce, leaves separated and washed",
+      "1 large cucumber, peeled and cut into 1/4-inch rounds"
+    ],
+    steps: [
+      "Cut a thin slice off the top of each tomato. Scoop out the pulp and seeds and chop the pulp.",
+      "Break the drained salmon into half-inch chunks in a bowl. Add the celery and onion and toss.",
+      "Add the chopped tomato pulp to the salmon.",
+      "Stir the mayonnaise, yogurt, lemon juice, and dill together in a cup. Add to the salmon and toss to coat.",
+      "Set 2 to 3 lettuce leaves on each plate. Place a hollowed tomato on top and fill with the salmon salad. Serve with the cucumber rounds."
+    ]
+  },
+  {
+    id: "broccoli-cheese-scramble-muffin",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://professional.heart.org/en/recipes/broccoli-and-cheese-egg-white-scramble-on-whole-wheat-english-muffin",
+    name: "Broccoli and Cheese Scramble",
+    category: "Small Appetite",
+    time: 10, difficulty: "Easy", servings: 4,
+    protein: 15, carbs: 18, fat: 1, calories: 141,
+    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-sodium"],
+    ingredients: [
+      "Cooking spray",
+      "1 1/2 cups finely chopped fresh or frozen broccoli florets, thawed if frozen",
+      "1/4 cup water",
+      "8 extra-large egg whites, or 1 1/4 cups egg white substitute",
+      "1/2 cup fat-free milk",
+      "1/4 teaspoon freshly ground pepper",
+      "1/4 cup shredded fat-free Cheddar cheese",
+      "2 whole-wheat English muffins, lowest sodium available, split and toasted"
+    ],
+    steps: [
+      "Spray a skillet with cooking spray. Cook the broccoli with the water over medium heat until tender, about 3 minutes.",
+      "Whisk the egg whites, milk, and pepper together. Pour into the skillet.",
+      "Cook, stirring gently, until the eggs are set.",
+      "Stir in the cheese until it melts.",
+      "Spoon the scramble over the toasted muffin halves."
+    ]
+  },
+  {
+    id: "salmon-honey-balsamic-glaze",
+    image: "",
+    credit: "",
+    source: "Adapted from the American Heart Association",
+    sourceUrl: "https://recipes.heart.org/-/media/AHA/Recipe/PDF-Files/Simple-Cooking-with-Heart-at-Home-Packet.pdf?la=en",
+    name: "Salmon with Honey Balsamic Glaze",
+    category: "Small Appetite",
+    time: 25, difficulty: "Easy", servings: 4,
+    protein: 24, carbs: 7, fat: 9, calories: 205,
+    tags: ["high-protein", "low-carb", "small-portions", "dinner", "low-sodium"],
+    ingredients: [
+      "Cooking spray",
+      "1 1/2 tablespoons mayonnaise (light mayonnaise works too)",
+      "1 1/2 tablespoons balsamic vinegar",
+      "1 tablespoon honey",
+      "1 1/2 teaspoons sesame seeds",
+      "3/4 teaspoon dried oregano, crumbled",
+      "3/4 teaspoon olive oil",
+      "1 medium garlic clove, minced",
+      "4 salmon fillets, about 4 ounces each"
+    ],
+    steps: [
+      "Heat the oven to 375 degrees F. Lightly spray a shallow baking dish with cooking spray.",
+      "Whisk the mayonnaise and vinegar together in a small bowl until smooth.",
+      "Whisk in the honey, sesame seeds, oregano, olive oil, and garlic.",
+      "Place the fish in the baking dish. Spread the glaze over the top and sides.",
+      "Bake 15 to 20 minutes, until the fish is cooked to the doneness you like."
+    ]
   }
+
 ];
 let kitchenFilter = "all";
 const kitchenServings = {}; // recipe id -> servings to add (default 1)
