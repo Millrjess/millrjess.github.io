@@ -1784,6 +1784,8 @@ function renderMacros() {
     if (pctEl) pctEl.textContent = macroProgressText(totals[key], targets[key]);
     const barEl = document.getElementById("bar-" + key);
     if (barEl) barEl.style.width = Math.min(100, pct) + "%";
+    const barWrap = document.getElementById("macro-bar-" + key);
+    if (barWrap) { barWrap.setAttribute("aria-valuenow", String(totals[key])); barWrap.setAttribute("aria-valuetext", totals[key] + " grams"); }
     const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
     if (row) row.classList.toggle("selected", selectedMacro === key);
   });
@@ -1798,7 +1800,9 @@ function renderMacros() {
 let editingFoodId = null;
 
 document.querySelectorAll(".macro-row").forEach((row) => {
-  row.addEventListener("click", () => {
+  row.addEventListener("click", (e) => {
+    // A slide on the bar must not also select the macro on release.
+    if (suppressMacroRowClick) { suppressMacroRowClick = false; return; }
     selectMacro(row.dataset.macro);
   });
 });
@@ -1806,6 +1810,115 @@ document.querySelectorAll(".donut-seg").forEach((seg) => {
   seg.addEventListener("click", () => selectMacro(seg.dataset.macro));
 });
 
+
+/* adjustMacroBy: change the day's logged grams by a magnitude, used
+   by the v169 row slide: a drag of N grams is one entry of N, or one
+   trim of N. Carbs and fat attach to the day's most recent food entry,
+   or a fresh Quick add entry when the day has none yet, so one slide
+   never spams the log with tiny entries. */
+function adjustMacroBy(key, delta) {
+  if (!delta) return;
+  const date = viewedDateStr();
+  if (key === "protein") {
+    if (delta > 0) {
+      store.protein.push({ id: uid(), date, grams: delta, food: "Quick add" });
+    } else {
+      trimDayEntries("protein", "grams", date, -delta);
+    }
+  } else if (delta > 0) {
+    const todays = store.protein.filter((e) => e.date === date);
+    if (todays.length) {
+      const last = todays[todays.length - 1];
+      last[key] = (Number(last[key]) || 0) + delta;
+      if (Number(last.calories) > 0) last.calories = entryCalories(last);
+    } else {
+      const entry = { id: uid(), date, grams: 0, food: "Quick add" };
+      entry[key] = delta;
+      store.protein.push(entry);
+    }
+  } else {
+    trimDayEntries("protein", key, date, -delta);
+  }
+  saveStore();
+  renderToday();
+}
+
+/* Slide a macro row (v169, restored v048): horizontal slide on the
+   row's progress bar changes that macro's logged grams, 1 g per 8px,
+   the same step as the rings. The donut itself does not slide; tapping
+   a row still selects the macro. The row updates live while sliding;
+   the store is written once, on release, through adjustMacroBy, so
+   entries, snapshots, and the backup cap behave exactly as for a
+   stepper tap. Clamped at zero. */
+let suppressMacroRowClick = false;
+function bindMacroSlide(key) {
+  const bar = document.getElementById("macro-bar-" + key);
+  if (!bar) return;
+  let sliding = false;
+  let startX = 0;
+  let startTotal = 0;
+  let liveTotal = 0;
+  let moved = false;
+  function paintLive() {
+    const totals = macroTotals(viewedDateStr());
+    totals[key] = liveTotal;
+    const targets = macroTargets();
+    const loggedEl = document.getElementById("logged-" + key);
+    if (loggedEl) loggedEl.textContent = liveTotal;
+    const pct = targets[key] > 0 ? Math.round(100 * liveTotal / targets[key]) : 0;
+    const pctEl = document.getElementById("pct-" + key);
+    if (pctEl) pctEl.textContent = macroProgressText(liveTotal, targets[key]);
+    const barEl = document.getElementById("bar-" + key);
+    if (barEl) barEl.style.width = Math.min(100, pct) + "%";
+    bar.setAttribute("aria-valuenow", String(liveTotal));
+    bar.setAttribute("aria-valuetext", liveTotal + " grams");
+    const slideTargetsSet = targets.protein > 0 || targets.carbs > 0 || targets.fat > 0;
+    paintDonut(slideTargetsSet ? totals : { protein: 0, carbs: 0, fat: 0 });
+    if (selectedMacro === key) {
+      document.getElementById("macro-center-grams").textContent = liveTotal;
+    }
+    renderCalories(totals);
+  }
+  bar.addEventListener("pointerdown", (e) => {
+    sliding = true;
+    moved = false;
+    startX = e.clientX;
+    startTotal = macroTotals(viewedDateStr())[key];
+    liveTotal = startTotal;
+    try { bar.setPointerCapture(e.pointerId); } catch {}
+    e.preventDefault();
+  });
+  bar.addEventListener("pointermove", (e) => {
+    if (!sliding) return;
+    const next = Math.max(0, startTotal + Math.round((e.clientX - startX) / 8));
+    if (next !== liveTotal) moved = true;
+    liveTotal = next;
+    paintLive();
+  });
+  function endSlide() {
+    if (!sliding) return;
+    sliding = false;
+    const delta = liveTotal - startTotal;
+    if (delta !== 0) {
+      if (moved) suppressMacroRowClick = true;
+      adjustMacroBy(key, delta);
+    } else {
+      renderToday();
+    }
+  }
+  bar.addEventListener("pointerup", endSlide);
+  bar.addEventListener("pointercancel", () => {
+    sliding = false;
+    renderToday();
+  });
+  bar.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    e.stopPropagation();
+    adjustMacroBy(key, e.key === "ArrowRight" ? 1 : -1);
+  });
+}
+MACRO_KEYS.forEach(bindMacroSlide);
 
 document.getElementById("macro-log-food").addEventListener("click", () => {
   const form = document.getElementById("macro-food-form");
@@ -6186,6 +6299,19 @@ function renderKitchenSimple() {
    words and layout, in our colors. */
 const BOOKMARK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
 const BOOKMARK_SAVED_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#E8B54A" stroke="#87692B" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
+/* Recipe source line (v048): the American Heart Association recipes
+   carry a source field and a sourceUrl. The modal shows the full
+   attribution with the source as a link; cards show the plain text. */
+function recipeSourceHtml(r) {
+  if (!r || !r.source) return "";
+  const text = String(r.source);
+  const url = r.sourceUrl ? String(r.sourceUrl) : "";
+  if (!url) return `<p class="kitchen-source">${escapeHtml(text)}</p>`;
+  const name = "American Heart Association";
+  const idx = text.indexOf(name);
+  if (idx === -1) return `<p class="kitchen-source">${escapeHtml(text)} (<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Source</a>)</p>`;
+  return `<p class="kitchen-source">${escapeHtml(text.slice(0, idx))}<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${name}</a>${escapeHtml(text.slice(idx + name.length))}</p>`;
+}
 function kitchenPhotoCardHtml(r) {
   const saved = kitchenIsSaved(r.id);
   const photo = r.image
@@ -6195,6 +6321,7 @@ function kitchenPhotoCardHtml(r) {
     <button type="button" class="kitchen-photo-open" data-kitchen-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.name)}">
       <span class="kitchen-photo-wrap">${photo}<span class="kitchen-chip-tag">${escapeHtml(r.category)}</span></span>
       <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong><span class="muted">${r.calories} cal</span></span>
+      ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
   </article>`;
@@ -6205,7 +6332,7 @@ function toggleKitchenSave(id) {
   if (kitchenIsSaved(r.id)) {
     store.recipes = store.recipes.filter((x) => x.kitchenId !== r.id);
   } else {
-    store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "", protein: r.protein, carbs: r.carbs, fat: r.fat, calories: r.calories, servings: r.servings });
+    store.recipes.push({ id: uid(), title: r.name, body: kitchenBodyText(r), date: viewedDateStr(), kitchenId: r.id, image: r.image || "", credit: r.credit || "", source: r.source || "", sourceUrl: r.sourceUrl || "", protein: r.protein, carbs: r.carbs, fat: r.fat, calories: r.calories, servings: r.servings });
   }
   saveStore();
   renderRecipes();
@@ -6300,7 +6427,7 @@ function openRecipeModal(id) {
         <button type="button" class="btn btn-small btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
       </div>
       <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat.</p>
-      ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}`;
+      ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}`;
   } else {
     const r = (store.recipes || []).find((x) => x.id === id);
     if (!r) return;
@@ -6308,7 +6435,7 @@ function openRecipeModal(id) {
       ${recipePhotoHtml(r) || `<div class="recipe-placeholder" aria-hidden="true"><img src="icons/lotus-gold-only-transparent.png" alt=""></div>`}
       <h2 id="recipe-modal-title" style="margin:12px 0 4px">${escapeHtml(r.title)}</h2>
       <p style="white-space:pre-wrap;margin:6px 0 0">${escapeHtml(r.body)}</p>
-      ${recipeMacrosHtml(r)}`;
+      ${recipeMacrosHtml(r)}${recipeSourceHtml(r)}`;
   }
   bindRecipeModalButtons();
   modal.classList.remove("hidden");
@@ -6356,6 +6483,8 @@ function closeRecipeModal() {
 }
 const recipeModalX = document.getElementById("recipe-modal-x");
 if (recipeModalX) recipeModalX.addEventListener("click", closeRecipeModal);
+const recipeModalClose = document.getElementById("recipe-modal-close");
+if (recipeModalClose) recipeModalClose.addEventListener("click", closeRecipeModal);
 const recipeModal = document.getElementById("recipe-modal");
 if (recipeModal) recipeModal.addEventListener("click", (e) => {
   if (e.target.id === "recipe-modal") closeRecipeModal();
@@ -6430,6 +6559,7 @@ function renderRecipes() {
       <button type="button" class="kitchen-photo-open" data-recipe-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.title)}">
         <span class="kitchen-photo-wrap">${photo}</span>
         <span class="kitchen-photo-body"><strong>${escapeHtml(r.title)}</strong>${calories ? `<span class="muted">${calories} cal</span>` : ""}</span>
+        ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
       </button>
       <button type="button" class="btn btn-small btn-danger kitchen-card-del" data-recipe-del="${r.id}" aria-label="Delete ${escapeHtml(r.title)}">Delete</button>
     </article>`;
@@ -6713,6 +6843,7 @@ function renderSettings() {
       document.getElementById("set-fat-pct").value = fpct;
     }
   }
+  syncMacroPctSliders();
   document.getElementById("set-height-ft").value = s.heightFt === "" || s.heightFt === undefined ? "" : s.heightFt;
   document.getElementById("set-height-in").value = s.heightIn === "" || s.heightIn === undefined ? "" : s.heightIn;
   document.getElementById("set-goal-weight").value = s.goalWeight || "";
@@ -6809,23 +6940,91 @@ function keepMacroTarget(raw, current, fallback) {
 /* Set macro gram goals from calories and percentages. Protein and
    carbs are 4 calories a gram, fat is 9. The percentages must add
    up to 100. Fills the gram fields above; Save Settings keeps them. */
-document.getElementById("set-macro-pct-btn").addEventListener("click", () => {
-  const msg = document.getElementById("set-macro-pct-msg");
+/* Macro percentage sliders (v048): each percentage has a slider under
+   its type-in field. Protein and carbs are the adjustable pair; fat is
+   always the remainder, so the three always add up to 100. The same
+   rounding as the saved split: protein and carbs round to the nearest
+   percent, fat takes the remainder. Sliding or typing a percentage
+   refills the gram fields live when a calorie target is set. */
+function macroPctValues() {
+  return {
+    protein: Number(document.getElementById("set-protein-pct").value) || 0,
+    carbs: Number(document.getElementById("set-carbs-pct").value) || 0,
+    fat: Number(document.getElementById("set-fat-pct").value) || 0
+  };
+}
+function syncMacroPctSliders() {
+  const p = macroPctValues();
+  const ps = document.getElementById("set-protein-pct-slider");
+  const cs = document.getElementById("set-carbs-pct-slider");
+  const fs = document.getElementById("set-fat-pct-slider");
+  if (ps) ps.value = p.protein;
+  if (cs) cs.value = p.carbs;
+  if (fs) fs.value = p.fat;
+}
+function writeMacroPct(p) {
+  document.getElementById("set-protein-pct").value = p.protein;
+  document.getElementById("set-carbs-pct").value = p.carbs;
+  document.getElementById("set-fat-pct").value = p.fat;
+  syncMacroPctSliders();
+}
+function fillMacroGramsFromPct() {
   const cal = Number(document.getElementById("set-calorie-target").value);
-  const pp = Number(document.getElementById("set-protein-pct").value);
-  const cp = Number(document.getElementById("set-carbs-pct").value);
-  const fp = Number(document.getElementById("set-fat-pct").value);
-  if (!(cal > 0)) { msg.textContent = "Enter your daily calorie target above first."; return; }
-  if (![pp, cp, fp].every((n) => Number.isFinite(n) && n >= 0)) { msg.textContent = "Enter a percentage for protein, carbs, and fat."; return; }
-  const sum = pp + cp + fp;
-  if (sum !== 100) { msg.textContent = "Percentages must add up to 100. Yours add up to " + sum + "."; return; }
-  const pg = Math.round(cal * pp / 100 / 4);
-  const cg = Math.round(cal * cp / 100 / 4);
-  const fg = Math.round(cal * fp / 100 / 9);
+  if (!(cal > 0)) return false;
+  const p = macroPctValues();
+  const pg = Math.round(cal * p.protein / 100 / 4);
+  const cg = Math.round(cal * p.carbs / 100 / 4);
+  const fg = Math.round(cal * p.fat / 100 / 9);
   document.getElementById("set-protein-goal").value = pg;
   document.getElementById("set-carbs-goal").value = cg;
   document.getElementById("set-fat-goal").value = fg;
-  msg.textContent = "Set to " + pg + "g protein, " + cg + "g carbs, " + fg + "g fat. Tap Save below to keep them.";
+  const msg = document.getElementById("set-macro-pct-msg");
+  if (msg) msg.textContent = "Set to " + pg + "g protein, " + cg + "g carbs, " + fg + "g fat. Tap Save below to keep them.";
+  return true;
+}
+function balanceMacroPct(changed) {
+  const p = macroPctValues();
+  const clamp = (n) => Math.max(0, Math.min(100, Math.round(n)));
+  if (changed === "fat") {
+    const f = clamp(p.fat);
+    const rest = 100 - f;
+    const total = p.protein + p.carbs;
+    let pr, cb;
+    if (total > 0) {
+      pr = Math.round(p.protein * rest / total);
+      cb = rest - pr;
+    } else {
+      pr = rest; cb = 0;
+    }
+    writeMacroPct({ protein: pr, carbs: cb, fat: f });
+  } else {
+    const v = clamp(p[changed]);
+    const other = changed === "protein" ? "carbs" : "protein";
+    const ov = Math.min(p[other], 100 - v);
+    const out = { protein: 0, carbs: 0, fat: 0 };
+    out[changed] = v; out[other] = ov; out.fat = 100 - v - ov;
+    writeMacroPct(out);
+  }
+  fillMacroGramsFromPct();
+}
+["protein", "carbs", "fat"].forEach((key) => {
+  const slider = document.getElementById("set-" + key + "-pct-slider");
+  if (slider) slider.addEventListener("input", () => {
+    document.getElementById("set-" + key + "-pct").value = slider.value;
+    balanceMacroPct(key);
+  });
+  const field = document.getElementById("set-" + key + "-pct");
+  if (field) field.addEventListener("change", () => balanceMacroPct(key));
+});
+document.getElementById("set-macro-pct-btn").addEventListener("click", () => {
+  const msg = document.getElementById("set-macro-pct-msg");
+  const cal = Number(document.getElementById("set-calorie-target").value);
+  const p = macroPctValues();
+  if (!(cal > 0)) { msg.textContent = "Enter your daily calorie target above first."; return; }
+  if (![p.protein, p.carbs, p.fat].every((n) => Number.isFinite(n) && n >= 0)) { msg.textContent = "Enter a percentage for protein, carbs, and fat."; return; }
+  const sum = p.protein + p.carbs + p.fat;
+  if (sum !== 100) { msg.textContent = "Percentages must add up to 100. Yours add up to " + sum + "."; return; }
+  fillMacroGramsFromPct();
 });
 
 document.getElementById("settings-form").addEventListener("submit", (e) => {

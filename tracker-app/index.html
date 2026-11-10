@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=047">
+<link rel="stylesheet" href="styles.css?v=048">
 </head>
 <body>
 
@@ -272,19 +272,19 @@
         <div class="macro-row selected" data-macro="protein">
           <button type="button" class="macro-name" aria-label="Show protein in the center of the chart"><span class="dot protein"></span>Protein</button>
           <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></span>
-          <span class="macro-bar" id="macro-bar-protein"><i id="bar-protein" style="background:#E8B54A"></i></span>
+          <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Protects muscle</span><span class="macro-pct" id="pct-protein"></span></span>
         </div>
         <div class="macro-row" data-macro="carbs">
           <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart"><span class="dot carbs"></span>Carbs</button>
           <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></span>
-          <span class="macro-bar" id="macro-bar-carbs"><i id="bar-carbs" style="background:#5A6B52"></i></span>
+          <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Energy for the day</span><span class="macro-pct" id="pct-carbs"></span></span>
         </div>
         <div class="macro-row" data-macro="fat">
           <button type="button" class="macro-name" aria-label="Show fat in the center of the chart"><span class="dot fat"></span>Fat</button>
           <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></span>
-          <span class="macro-bar" id="macro-bar-fat"><i id="bar-fat" style="background:#DCC9A3"></i></span>
+          <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat"></span></span>
         </div>
       </div>
@@ -855,9 +855,10 @@
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
     <div id="recipe-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Recipe">
-      <div class="modal-card">
+      <div class="modal-card recipe-modal-card">
         <button type="button" class="modal-x" id="recipe-modal-x" aria-label="Close recipe">×</button>
         <div id="recipe-modal-body"></div>
+        <div class="recipe-modal-footer"><button type="button" class="btn btn-block" id="recipe-modal-close">Close</button></div>
       </div>
     </div>
   </section>
@@ -1004,12 +1005,15 @@
         <div style="display:flex;gap:10px">
           <label style="flex:1">Protein %
             <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
+            <input type="range" class="goal-slider" id="set-protein-pct-slider" min="0" max="100" step="1" value="32" aria-label="Protein percentage">
           </label>
           <label style="flex:1">Carbs %
             <input type="number" id="set-carbs-pct" min="0" max="100" step="1" value="35">
+            <input type="range" class="goal-slider" id="set-carbs-pct-slider" min="0" max="100" step="1" value="35" aria-label="Carbs percentage">
           </label>
           <label style="flex:1">Fat %
             <input type="number" id="set-fat-pct" min="0" max="100" step="1" value="33">
+            <input type="range" class="goal-slider" id="set-fat-pct-slider" min="0" max="100" step="1" value="33" aria-label="Fat percentage">
           </label>
         </div>
         <div style="margin-top:10px">
@@ -1423,7 +1427,7 @@
     </div>
   </div>
 
-<script src="app.js?v=047"></script>
+<script src="app.js?v=048"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
