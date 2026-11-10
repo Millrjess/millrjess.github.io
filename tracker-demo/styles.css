@@ -1885,11 +1885,11 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
    and no clip, the lotus is whole and solid at every stage. The stage
    shows through scale and opacity only. */
 .bloom-wrap { display: flex; justify-content: center; margin: 2px 0 0; }
-.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.75; transform: scale(0.88); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; }
-.bloom-stage-1 .bloom-lotus { opacity: 0.8; transform: scale(0.92); }
-.bloom-stage-2 .bloom-lotus { opacity: 0.85; transform: scale(0.94); }
-.bloom-stage-3 .bloom-lotus { opacity: 0.9; transform: scale(0.96); }
-.bloom-stage-4 .bloom-lotus { opacity: 0.95; transform: scale(0.98); }
+.bloom-lotus { height: 60px; width: auto; display: block; opacity: 0.9; transform: scale(0.96); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; }
+.bloom-stage-1 .bloom-lotus { opacity: 0.92; transform: scale(0.97); }
+.bloom-stage-2 .bloom-lotus { opacity: 0.94; transform: scale(0.98); }
+.bloom-stage-3 .bloom-lotus { opacity: 0.96; transform: scale(0.99); }
+.bloom-stage-4 .bloom-lotus { opacity: 0.98; transform: scale(1); }
 .bloom-stage-5 .bloom-lotus { opacity: 1; transform: scale(1); }
 .welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
 .welcome-card .bloom-stage-line { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 2px 0 0; }

@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v061";
+const APP_VERSION = "v062";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1645,30 +1645,59 @@ function renderStreak() {
 /* ---------- v058: the lotus bloom ---------- */
 /* The lotus on the welcome card opens a little more with each logged
    day and strength session. Quiet and cumulative: it never closes
-   again. Five stages across the first three months of logging, then
-   it stays open. A day with a strength session counts once extra, so
-   strength opens it faster. v061: no mask, the lotus is whole and
-   solid at every stage, and one plain line under the caption states
-   the stage and what fully open takes. Plain and factual, no
-   pressure language. */
-function bloomStage() {
+   again, and a missed day only pauses it, never sends it backward.
+   Five stages across the first three months of logging, then it starts
+   again as a new bud, and the count of completed blooms is kept.
+   A day with a strength session counts once extra, so strength opens
+   it faster. v062: one image per stage, so the lotus genuinely opens
+   petal by petal like a real lotus. Stage 0 is the closed bud,
+   stages 1-4 are intermediates in the same brushed gold, stage 5 is
+   the brand lotus itself, unchanged. The images carry the opening now,
+   so the scale and opacity progression in the CSS is subtle. Plain and
+   factual, no pressure language. */
+function bloomProgress() {
   const days = loggedDates().size;
   const strengthDays = new Set((store.strength || []).map((e) => e.date)).size;
   const points = days + strengthDays;
-  if (points <= 0) return 0;
-  if (points <= 7) return 1;
-  if (points <= 21) return 2;
-  if (points <= 45) return 3;
-  if (points <= 89) return 4;
-  return 5;
+  const blooms = Math.floor(points / 90);
+  const position = points % 90;
+  let stage;
+  if (points <= 0) stage = 0;
+  else if (position === 0) stage = 5;
+  else if (position <= 7) stage = 1;
+  else if (position <= 21) stage = 2;
+  else if (position <= 45) stage = 3;
+  else stage = 4;
+  return { points: points, blooms: blooms, position: position, stage: stage };
 }
+function bloomStage() {
+  return bloomProgress().stage;
+}
+/* v062: one image per stage. Stage 4 is the brand lotus squeezed to
+   92 percent width, so it is the same flower, just not quite fully
+   spread, and the step to stage 5 does not change flowers. */
+const BLOOM_IMAGES = [
+  "icons/lotus-bud-closed.png",
+  "icons/lotus-open-1.png",
+  "icons/lotus-open-2.png",
+  "icons/lotus-open-3.png",
+  "icons/lotus-open-4.png",
+  "icons/lotus-gold-only-transparent.png"
+];
 function renderBloom() {
   const card = document.getElementById("welcome-card");
   if (!card) return;
-  const stage = bloomStage();
+  const progress = bloomProgress();
+  const stage = progress.stage;
   for (let i = 1; i <= 5; i++) card.classList.toggle("bloom-stage-" + i, stage === i);
+  const img = card.querySelector(".bloom-lotus");
+  if (img) img.src = BLOOM_IMAGES[stage];
   const line = document.getElementById("bloom-stage-line");
-  if (line) line.textContent = stage === 0 ? "Your lotus starts to open when you log. Fully open at 90 days of logging." : "Stage " + stage + " of 5. Fully open at 90 days of logging.";
+  if (line) {
+    if (stage === 0) line.textContent = "Your lotus starts to open when you log. Fully open at 90 days of logging.";
+    else if (progress.blooms > 0) line.textContent = "Stage " + stage + " of 5. " + progress.blooms + (progress.blooms === 1 ? " bloom" : " blooms") + " completed.";
+    else line.textContent = "Stage " + stage + " of 5. Fully open at 90 days of logging.";
+  }
 }
 
 /* v052: today's focus, in one line in the welcome card. One thing,

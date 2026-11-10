@@ -31,7 +31,7 @@
  *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v000-features-57";
+const CACHE_NAME = "new-chapter-tracker-v000-features-58";
 const ASSETS = [
   "./",
   "./index.html",
@@ -43,7 +43,12 @@ const ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
-  "./icons/lotus-gold-only-transparent.png"
+  "./icons/lotus-gold-only-transparent.png",
+  "./icons/lotus-bud-closed.png",
+  "./icons/lotus-open-1.png",
+  "./icons/lotus-open-2.png",
+  "./icons/lotus-open-3.png",
+  "./icons/lotus-open-4.png"
 ];
 
 /* App shell: always try the network first so updates reach the user. */
