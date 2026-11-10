@@ -51,53 +51,43 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this only for Zepbound?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. The tracker is designed for people using Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You can record your own medication and dose." }
+      "name": "Can I try it first?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. The full tracker with the Companion is $3.99 a month or $29.99 a year." }
     },
     {
       "@type": "Question",
-      "name": "Does the tracker give medical advice?",
-      "acceptedAnswer": { "@type": "Answer", "text": "New Chapter: GLP-1 Tracker™ is a personal wellness and lifestyle organization tool. It does not diagnose, treat, or replace professional medical advice. Always follow the medication instructions from your prescriber." }
+      "name": "How do I cancel, and what about refunds?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Cancel in your Stripe portal (website subscriptions) or in the Play Store (Play subscriptions). Cancel anytime. Your cancellation takes effect at the end of the period you paid for, and you keep access until then. Your first subscription is fully refundable within 30 days on request. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. Refund requests are answered within one business day." }
     },
     {
       "@type": "Question",
-      "name": "How do I cancel?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Subscriptions are for an indefinite term, and you are charged at the beginning of each billing cycle, monthly or annually, unless you cancel. Cancel anytime. When you cancel, you keep access for the time you have already paid for, and you are not charged again. Cancelling does not by itself refund the current period, except for the first-subscription refund described below. Website subscriptions cancel by emailing millrjess@gmail.com. Play subscriptions cancel in the Play Store. First subscription refund: full refund on request within the first 30 days. After 30 days, no partial refund for the current month or year. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. For subscription, cancellation, or refund help, email millrjess@gmail.com. Replies within 1 business day." }
-    },
-    {
-      "@type": "Question",
-      "name": "Is it available now?",
-      "acceptedAnswer": { "@type": "Answer", "text": "It is available now. Subscribe on the sales page and you will receive the app link by email." }
-    },
-    {
-      "@type": "Question",
-      "name": "Why do I need the AI Wellness Companion?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Free chat answers general questions. The Companion lives inside the tracker, remembers you, notices your streaks, and speaks first with encouragement. It is tuned for GLP-1, with no food guilt and no medical advice. It knows your goals and preferences when you ask it to, and it is right there where you already log. That is what $3.99 a month pays for." }
+      "name": "What happens to my data if I cancel?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You keep your data and lose the Companion. Your tracked entries stay on your device. You can resubscribe anytime." }
     },
     {
       "@type": "Question",
       "name": "Is my data private?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Everything you track stays on your device. Only the messages you choose to send to the Companion leave it, to get a reply. They are not stored, not sold, and not used to train AI models. Cloudflare, which runs the Companion, commits to zero data retention for these messages and no training on them. If you turn on Companion Memory, only your name, goals, and preferences are stored, and you can delete them anytime." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Everything you track stays on your phone. The only thing that leaves is what you choose to send, either to the Companion for a reply or to your doctor through your medical portal. Cloudflare, which runs the Companion, commits to zero data retention and no training on those messages." }
     },
     {
       "@type": "Question",
-      "name": "Can I try it before I subscribe?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Try the demo free, no sign-in, sample data only. The full tracker with the AI Wellness Companion is $3.99 a month. When you cancel, you keep your tracking and your data, and you lose the Companion. That is how the subscription works." }
+      "name": "Does it give medical advice?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It is a personal organization tool and does not diagnose, treat, or replace your prescriber, dietitian, or doctor. Always follow your prescriber's instructions." }
     },
     {
       "@type": "Question",
-      "name": "Can I change the water goal?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The water goal is adjustable in Settings. Individual hydration needs vary, so follow any guidance your healthcare professional has given you." }
-    },
-    {
-      "@type": "Question",
-      "name": "What can I record for movement?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Record daily movement in minutes, for walks, stretching, and more, and log strength sessions from your own routine." }
+      "name": "Is this only for Zepbound?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It works with Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You enter your own medication and dose." }
     },
     {
       "@type": "Question",
       "name": "How do I back up my entries?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Your entries are saved automatically on your device, and the app keeps backup copies. To keep a copy outside the app, open Settings, then Backup and restore, and tap Download backup. The file saves to your phone, in Files under Downloads. To restore, go back to Backup and restore, tap Restore backup, then choose the backup file. A backup is not in Google Drive unless you moved a copy there yourself." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Entries save automatically on your device. For a copy of your own, go to Settings, then Backup and restore, and tap Download backup. To restore, tap Restore backup and choose the file." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I change the water goal?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, in Settings. Hydration needs vary, so follow any guidance from your healthcare professional." }
     }
   ]
 }
@@ -231,6 +221,11 @@
     .feature .icon svg { width: 100%; height: 100%; stroke-width: 1.5; }
     .feature h3 { margin-bottom: 10px; }
     .feature p { color: var(--muted); font-size: 1rem; margin-bottom: 0; line-height: 1.5; }
+    .pillars-list { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .pillar { padding: 22px 24px 22px 0; border-bottom: 1px solid var(--line); }
+    .pillar:not(:first-child) { border-left: 1px solid var(--line); padding-left: 24px; }
+    .pillar h3 { margin-bottom: 10px; }
+    .pillar p { color: var(--muted); font-size: 1rem; margin-bottom: 0; line-height: 1.5; }
 
 
 
@@ -336,6 +331,8 @@
       .testimonials { padding-top: 32px; }
       .section-head { margin-bottom: 28px; }
       .feature-list { grid-template-columns: 1fr; }
+      .pillars-list { grid-template-columns: 1fr; }
+      .pillar, .pillar:not(:first-child) { border-left: 0; padding: 18px 0; }
       .feature, .feature:not(:nth-child(3n+1)), .feature:nth-child(even) { border-left: 0; padding: 18px 0; min-height: 0; display: grid; grid-template-columns: 45px 1fr; column-gap: 18px; }
       .feature .icon { margin: 0; grid-row: span 2; width: 36px; height: 36px; }
       .feature h3 { margin: 1px 0 5px; }
@@ -385,34 +382,18 @@
           <div class="eyebrow">The GLP-1 tracker built for strength</div>
           <h1>Protect your strength while the medicine works</h1>
           <p style="font-family:var(--serif);font-size:1.3rem;color:var(--sage-dark);margin-bottom:18px">Stay strong while the medicine works.</p>
-          <p class="subhead">About 25 percent of the weight lost on tirzepatide can be lean mass, not fat. About 40 percent on semaglutide. Protein, shots, water, and weight are scattered across notes and memory. New Chapter: GLP-1 Tracker™ puts your whole routine in one calm place, so you can protect what matters.</p>
-          <p><strong>Protein. Water. Movement. Never miss a shot.</strong> Everything organized in one app, easy to keep track of. Your whole routine together, without judgment.</p>
+          <p class="subhead">About 25% of weight lost on tirzepatide, and about 40% on semaglutide, can be lean mass, not fat. New Chapter keeps your protein, water, shots, and weight in one calm place, so you can protect what matters.</p>
           <div class="actions">
+            <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try the free demo <span aria-hidden="true">→</span></a>
             <a class="button primary" href="#pricing">See pricing <span aria-hidden="true">→</span></a>
-            <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try the demo <span aria-hidden="true">→</span></a>
           </div>
-          <p class="cta-note">Only $3.99 a month to try, or $29.99 a year. Cancel anytime. Try the demo free first.</p>
-          <section aria-label="Product highlights"><ul class="mini-trust" style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:8px">
-            <li><span><i></i>No complicated spreadsheets</span></li>
-          </ul></section>
+          <p class="cta-note">From $3.99 a month, cancel anytime.</p>
         </div>
 
       </div>
     </section>
 
-    <section class="why-different" style="background:var(--surface)">
-      <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
-        <h2 style="margin-bottom:16px">Private by design.</h2>
-        <p>Everything you track stays on your phone. Only the messages you choose to send to the Companion leave it, to get a reply. They are not stored and not used to train AI models. Your health information is not shared with third parties. It leaves your phone only when you choose to send it: to your doctor through your medical portal, or to the Companion to get a reply. Free apps sell data and show ads. This one does not. Your health information stays on your phone, where it belongs.</p>
-      </div>
-    </section>
 
-    <section class="whole-body" style="background:var(--surface)">
-      <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
-        <h2 style="margin-bottom:16px">More than weight loss. A healthier way forward.</h2>
-        <p>Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The tracker helps you protect muscle, bones, heart, brain, skin, and digestion through protein, water, movement, injections, weight, and side effects. No food guilt.</p>
-      </div>
-    </section>
 
     <section class="demo-video" style="text-align:center;background:var(--surface-soft)">
       <div class="wrap" style="max-width:560px;margin:auto">
@@ -436,6 +417,43 @@
       </div>
     </section>
 
+    <section class="founder">
+      <div class="wrap">
+        <div class="stories-shell">
+          <div class="story-mark word" aria-hidden="true">Lived<br>experience</div>
+          <div><h2>Why I built it.</h2><p>I am on Zepbound, and I needed a way to stay organized during treatment. So I built the app I wanted: one that understands my dietary needs, never makes me feel guilty about food, and keeps my health information on my phone.</p><p style="margin-top:14px;color:var(--ink)"><strong>Jessica A. Miller, Founder, New Chapter: GLP-1 Tracker™</strong></p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pillars">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Three things it does.</h2>
+          <p>Protein, shots, and a clear record for your doctor, in one calm place.</p>
+        </div>
+        <div class="pillars-list">
+          <article class="pillar"><h3>Protect muscle.</h3><p>Set your protein, carb, and fat targets. Scan a barcode or say what you ate, and the food fills itself in. Build your own strength routine from moves you choose, and log a session in seconds.</p></article>
+          <article class="pillar"><h3>Stay on schedule.</h3><p>Your next shot date is always visible. Log a dose in seconds, rotate injection sites, and keep water and side effects in the same place.</p></article>
+          <article class="pillar"><h3>Arrive prepared.</h3><p>At each refill, send your doctor one summary of your dose, weight, exercise, and side effects through your medical portal.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="whole-body" style="background:var(--surface)">
+      <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
+        <h2 style="margin-bottom:16px">More than weight loss. A healthier way forward.</h2>
+        <p>Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The tracker helps you protect muscle, bones, heart, brain, skin, and digestion through protein, water, movement, injections, weight, and side effects. No food guilt.</p>
+      </div>
+    </section>
+
+    <section class="why-different" style="background:var(--surface)">
+      <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
+        <h2 style="margin-bottom:16px">Private by design.</h2>
+        <p>Everything you track stays on your phone. Only the messages you choose to send to the Companion leave it, to get a reply. They are not stored and not used to train AI models. Your health information is not shared with third parties. It leaves your phone only when you choose to send it: to your doctor through your medical portal, or to the Companion to get a reply. Free apps sell data and show ads. This one does not. Your health information stays on your phone, where it belongs.</p>
+      </div>
+    </section>
+
     <section class="included" style="background:var(--surface-soft)">
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Included, not extra.</h2>
@@ -453,28 +471,19 @@
       </div>
     </section>
 
-    <section class="features" id="features">
-      <div class="wrap">
-        <div class="section-head">
-          <h2>What sets it apart.</h2>
-          <p>A real AI Companion, your data on your device, and nutrition built around balance, not restriction.</p>
-        </div>
-        <div class="feature-list">
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><h3>AI Wellness Companion</h3><p>A real conversational AI, not a scripted bot. It understands your dietary needs, suggests recipes, and remembers you when you ask it to. Replies can be read aloud in the best voice on your phone. Preview any voice before you select it.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M11 8v8M14 8v8M17 8v8"/></svg></div><h3>Scan barcode</h3><p>Point the camera at a barcode. The food, the macros, and the calories fill themselves in. No typing, no searching.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></svg></div><h3>Log by voice</h3><p>Say what you ate, and the app fills in the food. No typing, no searching. Other apps charge extra for this. We include it.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 12V3"/><path d="M12 12h9"/></svg></div><h3>Nutrition Balance</h3><p>Plug in your individual macros and dietary needs. Protein, carbohydrates, and healthy fats against targets you set yourself, in grams or as a percentage of your calories. Protein-forward, with no failure language when a target is missed.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12h16a8 8 0 0 1-16 0Z"/><path d="M8 8c0-1.5 1-1.5 1-3M13 8c0-1.5 1-1.5 1-3"/></svg></div><h3>New Chapter Kitchen</h3><p>A nutrition-focused recipe library: High Protein, Easy Breakfasts, Balanced Dinners, and Small Appetite. Every recipe shows protein, carbs, fat, and calories per serving. Tap Add to Today's Nutrition and the recipe feeds straight into your daily totals.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 6l-9.5 9.5L8.5 10.5 1 18"/><path d="M17 6h6v6"/></svg></div><h3>My Body Profile</h3><p>Your weight, height, and BMI in one place. BMI is calculated automatically, with a goal weight and a BMI history chart.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Private by design</h3><p>Everything you track stays on your phone. Only the messages you choose to send to the Companion leave it, to get a reply. Free apps sell data and show ads. This one does not.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 4h2m3 0h2m3 0h2m-10 3h2m3 0h2"/></svg></div><h3>Injection calendar</h3><p>Month view of every shot and your next dose. Log a shot in seconds.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3s6 6.6 6 10.8a6 6 0 0 1-12 0C6 9.6 12 3 12 3Z"/><path d="M9.3 14.4a3 3 0 0 0 2.1 3.4"/></svg></div><h3>Water tracking</h3><p>Log water as you drink it, toward your daily goal.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 7v10m12-10v10M3 9v6m18-6v6M6 12h12"/></svg></div><h3>Movement and strength</h3><p>Log walks, workouts, and strength sessions. Choose your own moves from a list you can customize, and log a session in seconds.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><h3>Daily journal and reflections</h3><p>Write daily journal entries and evening reflections, and keep them together.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 15l3 3 5-6"/></svg></div><h3>Your week at a glance</h3><p>A weekly nutrition digest, Monday to Sunday. Your week in one view, with no failure language when a target is missed.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div><h3>Download your diary</h3><p>Export your food entries as a CSV file that opens in Google Sheets. Your data, yours to keep. Other apps charge extra for this. We include it.</p></article>
-          <article class="feature"><div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><h3>Scan my plate (coming soon)</h3><p>Take a photo of your plate, and the app identifies the food and fills in the macros for you. No typing.</p></article>
-        </div>
+
+    <section class="companion" style="background:var(--surface)">
+      <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
+        <h2 style="margin-bottom:16px">Your Companion.</h2>
+        <p>A real conversation, tuned for GLP-1. It knows your goals and dietary needs, suggests recipes, notices your streaks, and answers in plain language. It can read replies aloud in the voice you choose.</p>
+        <ul style="line-height:1.6;padding-left:20px">
+          <li><strong>It remembers you</strong> when you ask it to. Memory stores your name, goals, preferences, medication, dose, and shot day, and you can delete them anytime.</li>
+          <li><strong>It speaks first</strong> each morning, with a gentle question to start the day.</li>
+          <li><strong>No food guilt, no medical advice.</strong></li>
+          <li><strong>Forty messages a day</strong>, right where you already log.</li>
+        </ul>
+        <p>Free chat answers general questions. The Companion lives inside your tracker, so it already knows your routine.</p>
+        <p>Only the messages you send leave your phone. They are not stored, sold, or used to train AI models.</p>
       </div>
     </section>
 
@@ -483,7 +492,6 @@
         <h2 style="margin-bottom:16px">Bring it to your doctor.</h2>
         <p>At each refill, your doctor may ask questions: your current dose, your current weight, what you are doing for weight management and exercise, and any side effects. The tracker puts all four in one summary you can copy or download and send through your medical portal.</p>
         <p>It is not a medical device. It does not replace your doctor's advice, your dietitian's guidance, or medical supervision. It complements them. When you arrive with a clear record, your doctor and dietitian can see the whole picture and make better decisions with you.</p>
-        <p>Doctors love a patient who arrives with organized notes. This is how you arrive.</p>
         <p>We don't pretend to be your doctor. And we don't charge a high membership fee. It's $3.99 a month, cancel anytime.</p>
       </div>
     </section>
@@ -520,7 +528,7 @@
             <a class="button primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01">Subscribe Annual</a>
           </div>
         </div>
-        <p class="payment-note">After subscribing, you will receive the app link by email. Secure payment through Stripe.</p>
+        <p class="payment-note">After subscribing, you will receive the app link by email. Secure payment through Stripe. Cancel anytime. Your first subscription is fully refundable within 30 days on request. After 30 days, no partial refund for the current month or year.</p>
       </div>
     </section>
 
@@ -536,29 +544,19 @@
       </div>
     </section>
 
-    <section class="testimonials">
-      <div class="wrap">
-        <div class="stories-shell">
-          <div class="story-mark word" aria-hidden="true">Lived<br>experience</div>
-          <div><h2>Built from lived Zepbound experience.</h2><p>I built this app for myself first. I am not just the developer. I am a user, too. I needed a way to stay organized during treatment. I wanted a Companion that understands my dietary needs and suggests recipes. My health information stays on my phone, where it belongs. $3.99 a month. Cancel anytime.</p><p style="margin-top:14px;color:var(--ink)"><strong>Jessica A. Miller, Founder, New Chapter: GLP-1 Tracker™</strong></p></div>
-        </div>
-      </div>
-    </section>
 
     <section class="faq" id="faq">
       <div class="wrap faq-grid">
         <div class="faq-copy"><h2>Questions, answered.</h2><p>Clear information before you decide.</p></div>
         <div class="accordion">
-          <details><summary>Is this only for Zepbound?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. The tracker is designed for people using Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You can record your own medication and dose.</p></details>
-          <details><summary>Does the tracker give medical advice?<span aria-hidden="true" class="faq-icon"></span></summary><p>New Chapter: GLP-1 Tracker™ is a personal wellness and lifestyle organization tool. It does not diagnose, treat, or replace professional medical advice. Always follow the medication instructions from your prescriber.</p></details>
-          <details><summary>How do I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>Subscriptions are for an indefinite term, and you are charged at the beginning of each billing cycle, monthly or annually, unless you cancel. Cancel anytime. When you cancel, you keep access for the time you have already paid for, and you are not charged again. Cancelling does not by itself refund the current period, except for the first-subscription refund described below. Website subscriptions cancel by emailing millrjess@gmail.com. Play subscriptions cancel in the Play Store.</p><p>First subscription refund: full refund on request within the first 30 days. After 30 days, no partial refund for the current month or year. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. For subscription, cancellation, or refund help, email millrjess@gmail.com. Replies within 1 business day.</p></details>
-          <details><summary>Is it available now?<span aria-hidden="true" class="faq-icon"></span></summary><p>It is available now. Subscribe above.</p></details>
-          <details><summary>Can I change the water goal?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The water goal is adjustable in Settings. Individual hydration needs vary, so follow any guidance your healthcare professional has given you.</p></details>
-          <details><summary>What can I record for movement?<span aria-hidden="true" class="faq-icon"></span></summary><p>Record daily movement in minutes, for walks, stretching, and more, and log strength sessions from your own routine.</p></details>
-          <details><summary>How do I back up my entries?<span aria-hidden="true" class="faq-icon"></span></summary><p>Your entries are saved automatically on your device, and the app keeps backup copies. To keep a copy outside the app, open Settings, then Backup and restore, and tap Download backup. The file saves to your phone, in Files under Downloads. To restore, go back to Backup and restore, tap Restore backup, then choose the backup file. A backup is not in Google Drive unless you moved a copy there yourself.</p></details>
-          <details><summary>Why do I need the AI Wellness Companion?<span aria-hidden="true" class="faq-icon"></span></summary><p>Free chat answers general questions. The Companion lives inside the tracker, remembers you, notices your streaks, and speaks first with encouragement. It is tuned for GLP-1, with no food guilt and no medical advice. It knows your goals and preferences when you ask it to, and it is right there where you already log. That is what $3.99 a month pays for.</p></details>
-          <details><summary>Is my data private?<span aria-hidden="true" class="faq-icon"></span></summary><p>Everything you track stays on your device. Only the messages you choose to send to the Companion leave it, to get a reply. They are not stored, not sold, and not used to train AI models. Cloudflare, which runs the Companion, commits to zero data retention for these messages and no training on them. If you turn on Companion Memory, only your name, goals, and preferences are stored, and you can delete them anytime.</p></details>
-          <details><summary>Can I try it before I subscribe?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. Try the demo free, no sign-in, sample data only. The full tracker with the AI Wellness Companion is $3.99 a month. When you cancel, you keep your data, and you lose the Companion.</p></details>
+          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. The full tracker with the Companion is $3.99 a month or $29.99 a year.</p></details>
+          <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Cancel in your Stripe portal (website subscriptions) or in the Play Store (Play subscriptions). Cancel anytime. Your cancellation takes effect at the end of the period you paid for, and you keep access until then. Your first subscription is fully refundable within 30 days on request. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. Refund requests are answered within one business day.</p></details>
+          <details><summary>What happens to my data if I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>You keep your data and lose the Companion. Your tracked entries stay on your device. You can resubscribe anytime.</p></details>
+          <details><summary>Is my data private?<span aria-hidden="true" class="faq-icon"></span></summary><p>Everything you track stays on your phone. The only thing that leaves is what you choose to send, either to the Companion for a reply or to your doctor through your medical portal. Cloudflare, which runs the Companion, commits to zero data retention and no training on those messages.</p></details>
+          <details><summary>Does it give medical advice?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. It is a personal organization tool and does not diagnose, treat, or replace your prescriber, dietitian, or doctor. Always follow your prescriber's instructions.</p></details>
+          <details><summary>Is this only for Zepbound?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. It works with Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You enter your own medication and dose.</p></details>
+          <details><summary>How do I back up my entries?<span aria-hidden="true" class="faq-icon"></span></summary><p>Entries save automatically on your device. For a copy of your own, go to Settings, then Backup and restore, and tap Download backup. To restore, tap Restore backup and choose the file.</p></details>
+          <details><summary>Can I change the water goal?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes, in Settings. Hydration needs vary, so follow any guidance from your healthcare professional.</p></details>
           
         </div>
       </div>
