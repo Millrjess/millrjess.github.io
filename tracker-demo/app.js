@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v049";
+const APP_VERSION = "v050";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -5258,8 +5258,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "seared-chicken-strawberry-salsa",
-    image: "",
-    credit: "",
+    image: "kitchen/seared-chicken-strawberry-salsa.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/recipes/~/~/~/~/~/~/~/~/~/~/~/~/~/~/~/~/link.aspx?_id=7F767E96A6254AF8A9300AF7C586E8C8&_z=z",
     name: "Seared Chicken with Strawberry Salsa",
@@ -5291,8 +5291,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "tuscan-chicken-kebabs",
-    image: "",
-    credit: "",
+    image: "kitchen/tuscan-chicken-kebabs.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/recipes/tuscan-style-grilled-chicken-kebabs",
     name: "Tuscan Chicken Kebabs",
@@ -5326,8 +5326,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "baked-chicken-strips-green-beans",
-    image: "",
-    credit: "",
+    image: "kitchen/baked-chicken-strips-green-beans.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/baked-chicken-strips-with-microwave-green-beans",
     name: "Baked Chicken Strips with Green Beans",
@@ -5360,8 +5360,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "oat-crusted-chicken-fingers",
-    image: "",
-    credit: "",
+    image: "kitchen/oat-crusted-chicken-fingers.jpg",
+    credit: "\"Baked Chicken Tenders with Sweet and Sour Sauce\" by TheCulinaryGeek, licensed under CC BY 2.0",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/baked-oat-crusted-chicken-fingers-with-sweet-mustard-sauce",
     name: "Oat-Crusted Chicken Fingers",
@@ -5395,8 +5395,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "huevos-rancheros",
-    image: "",
-    credit: "",
+    image: "kitchen/huevos-rancheros.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/huevos-rancheros",
     name: "Huevos Rancheros",
@@ -5433,8 +5433,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "southwestern-quinoa-egg-bowl",
-    image: "",
-    credit: "",
+    image: "kitchen/southwestern-quinoa-egg-bowl.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/southwestern-quinoa-and-egg-breakfast-bowl",
     name: "Southwestern Quinoa and Egg Bowl",
@@ -5463,8 +5463,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "microwave-egg-veggie-bowl",
-    image: "",
-    credit: "",
+    image: "kitchen/microwave-egg-veggie-bowl.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/-/media/Healthy-Living-Files/Heart-Check-files/RD-Toolkits/Microwave-Egg--Veggie-Breakfast-Bowl-Recipe.pdf?sc_lang=en",
     name: "Microwave Egg and Veggie Bowl",
@@ -5491,8 +5491,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "western-mug-omelet",
-    image: "",
-    credit: "",
+    image: "kitchen/western-mug-omelet.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://www.heart.org/en/-/media/Healthy-Living-Files/Healthy-Eating/Shop_Smart_Eat_Smart_Cook_Booklet_2nd_Edition.pdf?sc_lang=en",
     name: "Western Mug Omelet",
@@ -5518,8 +5518,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "lemon-garlic-salmon-foil-packet",
-    image: "",
-    credit: "",
+    image: "kitchen/lemon-garlic-salmon-foil-packet.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/lemon-garlic-salmon-foil-pack-with-green-beans-and-new-potatoes",
     name: "Lemon-Garlic Salmon Foil Packet",
@@ -5546,8 +5546,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "citrus-tea-tilapia",
-    image: "",
-    credit: "",
+    image: "kitchen/citrus-tea-tilapia.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/citrus-tea-tilapia?sc_camp=1E2E4F3023444DC58AD804747F7735F2",
     name: "Citrus Tea Tilapia",
@@ -5578,8 +5578,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "chicken-mole",
-    image: "",
-    credit: "",
+    image: "kitchen/chicken-mole.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/-/media/AHA/Recipe/PDF-Files/Simple-Cooking-with-Heart-at-Home-Packet.pdf?la=en",
     name: "Chicken Mole",
@@ -5612,8 +5612,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "salmon-cucumbers-dill",
-    image: "",
-    credit: "",
+    image: "kitchen/salmon-cucumbers-dill.jpg",
+    credit: "\"Pittsburgh salmon salad\" by Triciaburmeister, licensed under CC BY-SA 4.0",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://www.heart.org/en/recipes/salmon-baked-with-cucumbers-and-dill",
     name: "Salmon with Cucumbers and Dill",
@@ -5638,8 +5638,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "tomato-stuffed-salmon-salad",
-    image: "",
-    credit: "",
+    image: "kitchen/tomato-stuffed-salmon-salad.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/en/recipes/tomato-stuffed-with-dill-salmon-salad",
     name: "Tomato Stuffed with Dill Salmon Salad",
@@ -5669,8 +5669,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "broccoli-cheese-scramble-muffin",
-    image: "",
-    credit: "",
+    image: "kitchen/broccoli-cheese-scramble-muffin.jpg",
+    credit: "Pexels",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://professional.heart.org/en/recipes/broccoli-and-cheese-egg-white-scramble-on-whole-wheat-english-muffin",
     name: "Broccoli and Cheese Scramble",
@@ -5698,8 +5698,8 @@ const KITCHEN_RECIPES = [
   },
   {
     id: "salmon-honey-balsamic-glaze",
-    image: "",
-    credit: "",
+    image: "kitchen/salmon-honey-balsamic-glaze.jpg",
+    credit: "\"Mesa Grill Ancho Chile Honey Glazed Salmon\" by Calgary Reviews, licensed under CC BY 2.0",
     source: "Adapted from the American Heart Association",
     sourceUrl: "https://recipes.heart.org/-/media/AHA/Recipe/PDF-Files/Simple-Cooking-with-Heart-at-Home-Packet.pdf?la=en",
     name: "Salmon with Honey Balsamic Glaze",
@@ -5724,6 +5724,70 @@ const KITCHEN_RECIPES = [
       "Whisk in the honey, sesame seeds, oregano, olive oil, and garlic.",
       "Place the fish in the baking dish. Spread the glaze over the top and sides.",
       "Bake 15 to 20 minutes, until the fish is cooked to the doneness you like."
+    ]
+  },
+  {
+    id: "chicken-creole-20-minute",
+    image: "",
+    credit: "",
+    source: "Adapted from NHLBI, NIH, 20-Minute Chicken Creole",
+    sourceUrl: "https://www.nhlbi.nih.gov/health/heart-healthy-living/healthy-foods/healthy-eating-recipes/20-minute-chicken-creole",
+    name: "20-Minute Chicken Creole",
+    category: "Balanced Dinners",
+    time: 35, difficulty: "Easy", servings: 4,
+    protein: 30, carbs: 30, fat: 5, calories: 285,
+    tags: ["high-protein", "lunch", "dinner", "dairy-free", "nut-free", "egg-free"],
+    ingredients: [
+      "12 oz boneless, skinless chicken breast, cut into thin strips",
+      "1 cup canned whole peeled tomatoes, chopped, with their juice",
+      "1 cup chili sauce (look for the lowest sodium version)",
+      "1 1/2 cups green bell pepper, chopped",
+      "1 1/2 cups celery, chopped",
+      "1/4 cup onion, chopped",
+      "1 tablespoon garlic, minced (about 2 to 3 cloves)",
+      "1 tablespoon fresh basil (or 1 teaspoon dried)",
+      "1 tablespoon fresh parsley (or 1 teaspoon dried)",
+      "1/4 teaspoon crushed red pepper",
+      "1/4 teaspoon salt",
+      "Nonstick cooking spray"
+    ],
+    steps: [
+      "Lightly coat a large skillet with cooking spray and heat it over high heat.",
+      "Add the chicken strips and cook, stirring often, for 3 to 5 minutes until no longer pink, then lower the heat.",
+      "Stir in the tomatoes with their juice, chili sauce, bell pepper, celery, onion, garlic, basil, parsley, crushed red pepper, and salt.",
+      "Bring to a boil, then cover, lower to a simmer, and cook for 10 minutes. Serve hot. The source suggests serving over rice, but rice is not included in the macros."
+    ]
+  },
+  {
+    id: "crock-pot-vegetable-lentil-stew",
+    image: "",
+    credit: "",
+    source: "Adapted from USDA MyPlate Kitchen, Crock Pot Vegetable Lentil Stew",
+    sourceUrl: "https://myplate-prod.azureedge.us/es/recipes/estofado-de-lentejas-con-verduras",
+    name: "Crock Pot Vegetable Lentil Stew",
+    category: "Balanced Dinners",
+    time: 480, difficulty: "Easy", servings: 8,
+    protein: 14, carbs: 36, fat: 4, calories: 236,
+    tags: ["vegetarian", "vegan", "gluten-free", "dairy-free", "nut-free", "egg-free", "dinner", "budget-friendly"],
+    ingredients: [
+      "2 tablespoons olive oil",
+      "1 large onion, sliced",
+      "3 garlic cloves, minced",
+      "2 bay leaves",
+      "2 teaspoons salt (optional)",
+      "1 cup carrot, chopped",
+      "2 cups kale, chopped",
+      "2 cups chard, chopped",
+      "2 cups dried lentils",
+      "8 cups low-sodium vegetable broth",
+      "1 can (14.5 ounces) low-sodium chopped tomatoes",
+      "1 can cannellini beans, drained and rinsed"
+    ],
+    steps: [
+      "Warm the olive oil in a pan over medium heat and cook the onion and garlic until soft.",
+      "Put the onion and garlic, carrot, kale, chard, lentils, vegetable broth, tomatoes, cannellini beans, bay leaves, and salt if using, in a slow cooker and stir.",
+      "Cover and cook on low for 8 hours or on high for 4 hours, until the lentils are tender.",
+      "Remove the bay leaves before serving."
     ]
   }
 
