@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=050">
+<link rel="stylesheet" href="styles.css?v=051">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -107,12 +107,13 @@
       </div>
     </div>
 
-    <p class="greeting-line" id="greeting-line" aria-live="off"></p>
-
-    <p class="streak-line" id="streak-line" aria-live="off"></p>
-
-    <div class="encouragement" role="note">
-      <p id="encouragement-text" style="margin:0"></p>
+    <div class="card welcome-card" id="welcome-card">
+      <p class="greeting-line" id="greeting-line" aria-live="off"></p>
+      <p class="streak-line" id="streak-line" aria-live="off"></p>
+      <p class="focus-line" id="today-focus-line" aria-live="off"></p>
+      <div class="encouragement" role="note">
+        <p id="encouragement-text" style="margin:0"></p>
+      </div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -451,6 +452,16 @@
       <div class="week-bars" id="progress-bars-weight" role="img" aria-label="Weight by day"></div>
       <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-weight-note"></p>
     </div>
+    <div class="card" id="progress-stack-card">
+      <h3 class="card-title">Your week by macro</h3>
+      <p class="muted" style="margin:0 0 4px;font-size:.9rem">Protein first, then carbs, then fat. Each bar is one day.</p>
+      <div class="week-bars" id="progress-bars-stack" role="img" aria-label="Macros by day, stacked"></div>
+      <div class="stack-legend" aria-hidden="true"><span><i style="background:#E8B54A"></i>Protein</span><span><i style="background:#5A6B52"></i>Carbs</span><span><i style="background:#7A8B6F"></i>Fat</span></div>
+      <table class="avg-table">
+        <thead><tr><th scope="col"></th><th scope="col">Avg</th><th scope="col">Goal</th></tr></thead>
+        <tbody id="progress-avg-body"></tbody>
+      </table>
+    </div>
     <button class="btn btn-primary" id="progress-back" style="width:100%">Back to Today</button>
   </section>
 
@@ -577,7 +588,7 @@
       <p class="muted" id="weight-milestones" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted" id="weight-per-week" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted" id="weight-goal-date" style="font-size:.9rem;margin:8px 0 0"></p>
-      <p class="muted" id="weight-chart-empty">Log two weigh-ins to see your chart.</p>
+      <p class="muted empty-state" id="weight-chart-empty">Log two weigh-ins to see your chart.</p>
     </div>
 
     <div class="card" id="bmi-chart-card">
@@ -1272,7 +1283,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=050"></script>
+<script src="demo-seed.js?v=051"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1297,7 +1308,7 @@
     </div>
   </div>
 
-<script src="app.js?v=050"></script>
+<script src="app.js?v=051"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

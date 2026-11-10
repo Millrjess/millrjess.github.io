@@ -152,6 +152,13 @@ main {
   display: block;
 }
 
+/* v052: cards fade in gently when a tab opens. Opacity only, 0.25s
+   ease, no keyframes. The .tab-fading class holds them at opacity 0
+   for one frame; showTab removes it and they ease in. Reduced motion
+   makes the transition instant. */
+.tab-panel .card { transition: opacity 0.25s ease; }
+.tab-panel.tab-fading .card { opacity: 0; transition: none; }
+
 .tab-panel h2 {
   font-size: 1.75rem;
   margin-bottom: 4px;
@@ -265,6 +272,15 @@ input[aria-invalid="true"]:focus-visible {
   margin: 6px 0 0;
 }
 .streak-line:empty { display: none; }
+
+/* v052: the morning greeting, streak, today's focus, and the daily
+   encouragement live in one warm card at the top of Today. */
+.welcome-card { text-align: center; border-top: 3px solid var(--gold); }
+.welcome-card .greeting-line { margin: 0; }
+.welcome-card .streak-line { margin: 6px 0 0; }
+.focus-line { text-align: center; color: var(--sage-dark); font-size: 0.9rem; font-weight: 600; margin: 6px 0 0; }
+.focus-line:empty { display: none; }
+.welcome-card .encouragement { background: transparent; border: none; border-radius: 0; padding: 0; margin: 10px 0 0; }
 
 
 /* Journal monthly chapters (v166): serif month headings. */
@@ -736,6 +752,19 @@ label textarea {
   padding: 24px 12px;
 }
 
+/* v052: every empty state carries the small flat gold lotus, so an
+   empty list still looks like the product. The lotus is the brand
+   mark, on white, with clear space. */
+.empty-state::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 31px;
+  margin: 0 auto 10px;
+  background: url("icons/lotus-gold-only-transparent.png") center / contain no-repeat;
+  opacity: 0.9;
+}
+
 @media (min-width: 480px) {
   .tab-label {
     font-size: 0.7rem;
@@ -1191,7 +1220,7 @@ textarea {
    527.79). Tap a row or a segment to show that macro in the center. */
 .donut-wrap { position: relative; width: 300px; height: 300px; margin: 1rem auto 0.25rem; }
 .donut-wrap svg { display: block; }
-.donut-seg { transition: opacity 0.25s ease; cursor: pointer; }
+.donut-seg { transition: opacity 0.25s ease, stroke-dasharray 0.35s ease, stroke-dashoffset 0.35s ease; cursor: pointer; }
 .donut-label { font-size: 0.85rem; font-weight: 700; fill: #333; pointer-events: none; }
 .donut-center {
   position: absolute; inset: 0; display: flex; flex-direction: column;
@@ -1271,6 +1300,10 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-bar { touch-action: none; cursor: ew-resize; padding: 9px 11px; margin: 0 0 0.3rem; background-clip: content-box; }
 .macro-bar:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .macro-bar i { position: relative; display: block; height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+
+/* v052: one short note under a food's macros, when something about
+   it is worth a line. */
+.food-note { font-size: 0.85em; color: var(--sage); margin-top: 2px; }
 .macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #E8B54A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
 .macro-row, .macro-bar { user-select: none; -webkit-user-select: none; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
@@ -1605,6 +1638,12 @@ canvas { max-width: 100%; height: auto; display: block; }
 /* Compact Today cards (v034): 7-day strip, meal rows, weight card. */
 .week-strip { display:flex; gap:4px; margin:8px 0 4px; }
 .week-day { flex:1; border:1px solid var(--border); background:#fff; border-radius:8px; padding:4px 0 3px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:0; font:inherit; }
+
+/* v052: the week strip fills day by day. A logged day grows a short
+   gold bar at its base, 0.35s ease, when the strip renders. */
+.week-day { position: relative; }
+.week-fill { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); display: block; height: 3px; width: 0; background: var(--gold); border-radius: 2px; transition: width 0.35s ease; }
+.week-strip.filled .week-fill { width: 24px; }
 .week-day .week-letter { font-size:.7rem; color:var(--muted); }
 .week-day .week-num { font-size:.85rem; font-weight:700; color:var(--sage-dark); }
 .week-day.today .week-num { color:#5A6B52; }
@@ -1647,6 +1686,19 @@ canvas { max-width: 100%; height: auto; display: block; }
 .week-bar { width: 100%; max-width: 30px; border-radius: 6px 6px 0 0; }
 .week-bar-empty { background: #EDEBE3; }
 .week-bar-day { font-size: .85rem; color: var(--sage); margin-top: 6px; }
+
+/* v052: weekly stacked macro bars (Progress). Protein first, then
+   carbs, then fat, in brand colors only. The column rounds at the
+   top; the fill grows gently when the view renders. */
+.stack-bar { display: flex; flex-direction: column; width: 100%; max-width: 30px; height: 0; border-radius: 6px 6px 0 0; overflow: hidden; transition: height 0.35s ease; }
+#progress-bars-stack.filled .stack-bar { height: var(--h); }
+.stack-bar i { display: block; width: 100%; flex: none; }
+.stack-legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 10px 0 0; font-size: 0.85rem; color: var(--sage-dark); }
+.stack-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.avg-table { width: 100%; border-collapse: collapse; margin: 12px 0 0; font-size: 0.9rem; }
+.avg-table th, .avg-table td { padding: 6px 4px; text-align: right; border-top: 1px solid var(--border); }
+.avg-table th:first-child, .avg-table td:first-child { text-align: left; }
+.avg-table th { color: var(--muted); font-weight: 600; }
 
 /* v039: compact pass. Even text, collapsible Movement section, compact
    macro rows, Kitchen photo cards, compact Companion header. */

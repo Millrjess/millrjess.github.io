@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v050";
+const APP_VERSION = "v051";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -783,11 +783,20 @@ function byDate(a, b) { return String((a && a.date) || "").localeCompare(String(
 function byDateDesc(a, b) { return byDate(b, a); }
 
 function renderEncouragement() {
+  const el = document.getElementById("encouragement-text");
+  if (!el) return;
+  /* v052: when food is logged today, the greeting says so, plainly.
+     Borrowed from the macro-screens inspiration ("Keep it up! You
+     have tracked 6 meals for today"), in the app's own words. */
+  const entriesToday = (store.protein || []).filter((e) => e.date === viewedDateStr()).length;
+  if (entriesToday > 0) {
+    el.textContent = "Keep it up. You have logged " + entriesToday + (entriesToday === 1 ? " food" : " foods") + " today.";
+    return;
+  }
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.round((localMidnight(now) - localMidnight(start)) / 86400000);
-  document.getElementById("encouragement-text").textContent =
-    ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
+  el.textContent = ENCOURAGEMENTS[dayOfYear % ENCOURAGEMENTS.length];
 }
 
 /* ---------- Tab navigation (v168: five tabs; Effects, Companion and
@@ -819,6 +828,16 @@ function showTab(name) {
     if (b.dataset.tab === "more") b.setAttribute("aria-expanded", "false");
   });
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
+  /* v052: cards fade in gently when a tab opens. The class goes on in
+     the same frame the panel appears, so the cards start at opacity 0
+     with no transition, then ease to full over 0.25s. Reduced motion
+     makes it instant. */
+  const newPanel = document.getElementById("tab-" + name);
+  if (newPanel) {
+    newPanel.classList.add("tab-fading");
+    void newPanel.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => newPanel.classList.remove("tab-fading")));
+  }
   window.scrollTo(0, 0);
   if (name === "weight") { drawWeightChart(); drawBMIChart(); }
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
@@ -1198,6 +1217,48 @@ function renderProgress() {
         ? "Logged " + loggedDays.size + " of 7 days."
         : "Seven days logged this week.";
   }
+  renderMacroStack(dates);
+}
+/* v052: weekly stacked macro bars on Progress. Protein first, then
+   carbs, then fat, in brand colors only. Each bar is one day; the
+   height is that day's total grams against the week's biggest day.
+   The Avg vs Goal table under it uses the same numbers as the cards
+   above, so the two never disagree. */
+function renderMacroStack(dates) {
+  const box = document.getElementById("progress-bars-stack");
+  if (!box) return;
+  const totals = dates.map((d) => macroTotals(d));
+  const sums = totals.map((t) => t.protein + t.carbs + t.fat);
+  const maxTotal = Math.max(1, ...sums);
+  box.classList.remove("filled");
+  box.innerHTML = totals.map((t, i) => {
+    const sum = sums[i];
+    const val = sum > 0 ? String(sum) : "";
+    const bar = sum <= 0
+      ? '<div class="week-bar week-bar-empty" style="height:6px"></div>'
+      : '<div class="stack-bar" style="--h:' + Math.max(6, Math.round(100 * sum / maxTotal)) + '%">'
+        + '<i style="height:' + (100 * t.protein / sum).toFixed(1) + '%;background:#E8B54A"></i>'
+        + '<i style="height:' + (100 * t.carbs / sum).toFixed(1) + '%;background:#5A6B52"></i>'
+        + '<i style="height:' + (100 * t.fat / sum).toFixed(1) + '%;background:#7A8B6F"></i></div>';
+    return '<div class="week-bar-col"><span class="week-bar-val">' + val + '</span><div class="week-bar-track">' + bar + '</div><span class="week-bar-day">' + progressDayLetter(dates[i]) + '</span></div>';
+  }).join("");
+  box.setAttribute("aria-label", "Macros by day, stacked: " + totals.map((t, i) => progressDayLetter(dates[i]) + " " + (sums[i] > 0 ? sums[i] + " grams" : "nothing logged")).join(", "));
+  requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add("filled")));
+  const body = document.getElementById("progress-avg-body");
+  if (body) {
+    const targets = macroTargets();
+    const rows = [
+      { label: "Protein", key: "protein", goal: targets.protein },
+      { label: "Carbs", key: "carbs", goal: targets.carbs },
+      { label: "Fat", key: "fat", goal: targets.fat }
+    ].map((r) => {
+      const daysWith = totals.filter((t) => t[r.key] > 0).length;
+      const total = totals.reduce((s, t) => s + t[r.key], 0);
+      const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
+      return "<tr><td>" + r.label + "</td><td>" + avg + "g</td><td>" + (r.goal > 0 ? r.goal + "g" : "—") + "</td></tr>";
+    }).join("");
+    body.innerHTML = rows;
+  }
 }
 /* Progress entry point (v049, R-15): Progress is a real tab, so it
    opens through showTab like every other tab. No nav tab stays active
@@ -1249,6 +1310,7 @@ function renderWeekStrip() {
   const letters = ["S", "M", "T", "W", "T", "F", "S"];
   const todayS = todayStr(0);
   const viewed = viewedDateStr();
+  const logged = loggedDates(); // v052: days with any entry get a gold fill at the base of the strip.
   let html = "";
   for (let i = 0; i < 7; i++) {
     const d = new Date(sunday);
@@ -1257,9 +1319,11 @@ function renderWeekStrip() {
     const isViewed = iso === viewed;
     const isToday = iso === todayS;
     const isFuture = iso > todayS;
-    html += '<button type="button" class="week-day' + (isViewed ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-day="' + iso + '"' + (isFuture ? " disabled" : "") + ' aria-label="' + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + '"' + (isViewed ? ' aria-current="date"' : "") + '><span class="week-letter">' + letters[i] + '</span><span class="week-num">' + d.getDate() + "</span></button>";
+    html += '<button type="button" class="week-day' + (isViewed ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-day="' + iso + '"' + (isFuture ? " disabled" : "") + ' aria-label="' + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + '"' + (isViewed ? ' aria-current="date"' : "") + '><span class="week-letter">' + letters[i] + '</span><span class="week-num">' + d.getDate() + "</span>" + (logged.has(iso) ? '<span class="week-fill" aria-hidden="true"></span>' : "") + "</button>";
   }
   strip.innerHTML = html;
+  strip.classList.remove("filled");
+  requestAnimationFrame(() => requestAnimationFrame(() => strip.classList.add("filled")));
   strip.querySelectorAll("[data-week-day]").forEach((b) => b.addEventListener("click", () => {
     viewOffset = daysBetween(todayStr(), b.dataset.weekDay);
     renderToday();
@@ -1342,6 +1406,7 @@ function renderToday() {
 
   renderGreeting();
   renderStreak();
+  renderTodayFocus();
   renderEncouragement();
   renderNextInjection();
   renderMood();
@@ -1378,6 +1443,42 @@ function renderStreak() {
   if (!el) return;
   const n = currentStreak();
   el.textContent = n >= 2 ? "Logged " + n + " days in a row." : n === 1 ? "Logged day 1." : "";
+}
+
+/* v052: today's focus, in one line in the welcome card. One thing,
+   from data already on the phone: a shot due today first, then the
+   macro furthest from its target, then water, then movement. When
+   everything for today is done, the focus is rest. Past days show
+   nothing, since the focus is about today. */
+function renderTodayFocus() {
+  const el = document.getElementById("today-focus-line");
+  if (!el) return;
+  if (viewOffset !== 0) { el.textContent = ""; return; }
+  const t = viewedDateStr();
+  const due = nextShotDue();
+  if (due && (due.daysUntil === 0 || due.overdueDays > 0)) {
+    el.textContent = due.overdueDays > 0 ? "Today's focus: your shot is due." : "Today's focus: your shot is due today.";
+    return;
+  }
+  const targets = macroTargets();
+  const totals = macroTotals(t);
+  if (targets.protein > 0 && totals.protein < targets.protein) {
+    el.textContent = "Today's focus: protein. " + (targets.protein - totals.protein) + "g to go.";
+    return;
+  }
+  const waterGoal = Number(store.settings.waterGoal) || 92;
+  const waterOz = sumForDate(store.water, t, "oz");
+  if (waterOz < waterGoal) {
+    el.textContent = "Today's focus: water. " + (waterGoal - waterOz) + " oz to go.";
+    return;
+  }
+  const moveGoal = Number(store.settings.movementGoal) || 30;
+  const exMin = sumForDate(store.exercise, t, "minutes");
+  if (exMin < moveGoal) {
+    el.textContent = "Today's focus: movement. " + (moveGoal - exMin) + " min to go.";
+    return;
+  }
+  el.textContent = "Today's focus: rest. Everything for today is done.";
 }
 
 /* Greeting (v165): time of day only, no name. The demo is shown to
@@ -1753,12 +1854,21 @@ function renderMacros() {
    foods. Each meal row has its own Log button, which opens the form
    with that meal preselected. */
 let editingFoodId = null;
+/* v052: one short note under a food's macros, when something about it
+   is worth a line. Only from data the entry already carries. */
+function foodNote(e) {
+  const p = Number(e.grams) || 0, c = Number(e.carbs) || 0, f = Number(e.fat) || 0;
+  if (p >= 15) return "High in protein.";
+  if (c >= 30 && p < 5) return "Mostly carbs.";
+  if (f >= 20) return "High in fat.";
+  return "";
+}
 function foodItemHtml(e) {
   const p = Number(e.grams) || 0, c = Number(e.carbs) || 0, f = Number(e.fat) || 0;
   const kcal = entryCalories(e);
   return "<div class=\"food-item\" style=\"display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--border)\">"
     + "<div style=\"flex:1;min-width:0\"><div style=\"font-weight:600\">" + escapeHtml(e.food || "Logged food") + "</div>"
-    + "<div class=\"muted\" style=\"font-size:.85em\">" + p + "g protein · " + c + "g carbs · " + f + "g fat · " + kcal + " cal</div></div>"
+    + "<div class=\"muted\" style=\"font-size:.85em\">" + p + "g protein · " + c + "g carbs · " + f + "g fat · " + kcal + " cal</div>" + (foodNote(e) ? "<div class=\"food-note\">" + foodNote(e) + "</div>" : "") + "</div>"
     + "<button type=\"button\" class=\"btn btn-small\" data-edit-food=\"" + e.id + "\" aria-label=\"Edit " + escapeHtml(e.food || "food") + "\">Edit</button>"
     + "<button type=\"button\" class=\"btn btn-small btn-danger\" data-del-food=\"" + e.id + "\" aria-label=\"Delete " + escapeHtml(e.food || "food") + "\">Delete</button></div>";
 }
@@ -2200,7 +2310,7 @@ function renderFoodLibrary() {
   }
   if (!foods.length) {
     const empty = document.createElement("p");
-    empty.className = "muted";
+    empty.className = "muted empty-state";
     empty.style.cssText = "font-size:.9em;margin:0";
     empty.textContent = "No foods saved yet.";
     list.appendChild(empty);
@@ -2263,7 +2373,7 @@ function renderFoodArchive() {
   list.appendChild(head);
   if (!foods.length) {
     const empty = document.createElement("p");
-    empty.className = "muted";
+    empty.className = "muted empty-state";
     empty.style.cssText = "font-size:.9em;margin:0";
     empty.textContent = "Nothing archived yet.";
     list.appendChild(empty);
@@ -4096,9 +4206,6 @@ function drawWeightChart() {
     }
   });
 
-  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
-  grad.addColorStop(0, "rgba(201,169,106,0.35)");
-  grad.addColorStop(1, "rgba(201,169,106,0.02)");
   ctx.beginPath();
   sorted.forEach((w, i) => (i === 0 ? ctx.moveTo(x(i), y(w.value)) : ctx.lineTo(x(i), y(w.value))));
   ctx.strokeStyle = "#E8B54A";
@@ -4107,7 +4214,7 @@ function drawWeightChart() {
   ctx.lineTo(x(sorted.length - 1), H - padB);
   ctx.lineTo(x(0), H - padB);
   ctx.closePath();
-  ctx.fillStyle = grad;
+  ctx.fillStyle = "rgba(232, 181, 74, 0.16)"; // v052: flat soft gold fill, no gradient and no retired gold.
   ctx.fill();
 
   ctx.fillStyle = "#E8B54A";
@@ -4254,9 +4361,6 @@ function drawBMIChart() {
       ctx.textAlign = "center";
     }
   });
-  const grad = ctx.createLinearGradient(0, padT, 0, H - padB);
-  grad.addColorStop(0, "rgba(201,169,106,0.35)");
-  grad.addColorStop(1, "rgba(201,169,106,0.02)");
   ctx.beginPath();
   bmis.forEach((v, i) => (i === 0 ? ctx.moveTo(x(i), y(v)) : ctx.lineTo(x(i), y(v))));
   ctx.strokeStyle = "#E8B54A";
@@ -4265,7 +4369,7 @@ function drawBMIChart() {
   ctx.lineTo(x(bmis.length - 1), H - padB);
   ctx.lineTo(x(0), H - padB);
   ctx.closePath();
-  ctx.fillStyle = grad;
+  ctx.fillStyle = "rgba(232, 181, 74, 0.16)"; // v052: flat soft gold fill, no gradient and no retired gold.
   ctx.fill();
   ctx.fillStyle = "#E8B54A";
   bmis.forEach((v, i) => {
