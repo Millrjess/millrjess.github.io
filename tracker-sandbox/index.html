@@ -46,7 +46,7 @@
 
 
 <a class="skip-link" href="#app-main">Skip to main content</a>
-<header class="app-header" role="banner" aria-label="App header">
+<header class="app-header" aria-label="App header">
   <img class="header-lotus" src="icons/lotus-gold-only-transparent.png" alt="New Chapter gold lotus logo" width="63" height="48">
   <h1>New Chapter: GLP-1 Tracker™</h1>
   <p class="tagline">Stay strong while the medicine works.</p>
@@ -138,7 +138,7 @@
       <p class="muted hidden" id="today-refill-line" style="margin:8px 0 0;font-size:.9rem"><span id="today-refill-text"></span> <button type="button" class="btn-link" id="today-refill-settings-btn">Change it in Settings</button></p>
     </div>
 
-    <div class="card" id="glp1-actions-card" aria-label="GLP-1 quick actions">
+    <div class="card" id="glp1-actions-card" role="group" aria-label="GLP-1 quick actions">
       <h2 class="card-title">Quick Actions</h2>
       <div class="quick-actions">
         <button type="button" class="btn btn-primary btn-small" id="qa-log-shot">Log shot</button>
@@ -149,7 +149,7 @@
 
 
 
-    <div class="card" id="water-card" aria-label="Water">
+    <div class="card" id="water-card" role="group" aria-label="Water">
       <h2 class="card-title">Water</h2>
       <div class="slider-row">
         <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
@@ -165,7 +165,7 @@
       </div>
     </div>
 
-    <div class="card" id="movement-card" aria-label="Movement">
+    <div class="card" id="movement-card" role="group" aria-label="Movement">
       <button type="button" class="section-toggle" id="movement-toggle" aria-expanded="true" aria-controls="movement-body">
         <span class="section-toggle-title">Movement</span>
         <span class="section-toggle-summary" id="movement-summary">0 of 30 min</span>
@@ -265,14 +265,14 @@
       </div>
     </div>
 
-    <div class="card" id="weight-today-card" aria-label="Weight">
+    <div class="card" id="weight-today-card" role="group" aria-label="Weight">
       <h2 class="card-title">Weight</h2>
       <p style="margin:0"><span class="big-number" id="today-weight-value">-</span> <span style="font-size:1rem;color:var(--muted)"> lbs</span></p>
       <p class="muted" id="today-weight-change" style="margin:6px 0 0;font-size:.9rem"></p>
       <button class="btn btn-primary btn-small" data-goto="weight" style="margin-top:12px">Log weight</button>
     </div>
 
-    <div class="card" id="macros-card" aria-label="Your Macros">
+    <div class="card" id="macros-card" role="group" aria-label="Your Macros">
       <h2 class="card-title">Macros</h2>
       <p class="muted" style="margin:0">Protein, carbohydrates, and healthy fats, tracked to your own targets.</p>
 
@@ -354,7 +354,7 @@
 
     </div>
 
-    <div class="card" id="foods-card" aria-label="Today's food">
+    <div class="card" id="foods-card" role="group" aria-label="Today's food">
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
@@ -390,7 +390,7 @@
           <button type="button" class="btn btn-small" id="macro-food-photo-btn">Take a photo</button>
           <input type="file" id="macro-food-photo" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your food">
           <div id="macro-food-photo-preview" class="hidden" style="margin-top:8px;display:flex;align-items:center;gap:10px">
-            <img id="macro-food-photo-thumb" src="" alt="Photo of this food" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--sage-border)">
+            <img id="macro-food-photo-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo of this food" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--sage-border)">
             <button type="button" class="btn btn-small" id="macro-food-photo-remove">Remove photo</button>
           </div>
         </div>
@@ -835,7 +835,7 @@
         <label>Calories<input type="number" id="recipe-calories" min="0" step="1" inputmode="numeric"></label>
         <label>Servings (this recipe makes)<input type="number" id="recipe-servings" min="1" step="1" inputmode="numeric"></label>
       </div>
-      <img id="recipe-photo-preview" src="" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
+      <img id="recipe-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
       <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
       <input type="file" id="recipe-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo for this recipe">
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px">
@@ -998,18 +998,24 @@
         <h4 style="margin:0 0 8px">Or set by percentage</h4>
         <p class="muted">Enter your calorie target above, then each macro's share. The app fills in the grams.</p>
         <div style="display:flex;gap:10px">
-          <label style="flex:1">Protein %
-            <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
+          <div style="flex:1">
+            <label style="margin-bottom:0">Protein %
+              <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
+            </label>
             <input type="range" class="goal-slider" id="set-protein-pct-slider" min="0" max="100" step="1" value="32" aria-label="Protein percentage">
-          </label>
-          <label style="flex:1">Carbs %
-            <input type="number" id="set-carbs-pct" min="0" max="100" step="1" value="35">
+          </div>
+          <div style="flex:1">
+            <label style="margin-bottom:0">Carbs %
+              <input type="number" id="set-carbs-pct" min="0" max="100" step="1" value="35">
+            </label>
             <input type="range" class="goal-slider" id="set-carbs-pct-slider" min="0" max="100" step="1" value="35" aria-label="Carbs percentage">
-          </label>
-          <label style="flex:1">Fat %
-            <input type="number" id="set-fat-pct" min="0" max="100" step="1" value="33">
+          </div>
+          <div style="flex:1">
+            <label style="margin-bottom:0">Fat %
+              <input type="number" id="set-fat-pct" min="0" max="100" step="1" value="33">
+            </label>
             <input type="range" class="goal-slider" id="set-fat-pct-slider" min="0" max="100" step="1" value="33" aria-label="Fat percentage">
-          </label>
+          </div>
         </div>
         <div style="margin-top:10px">
           <button type="button" class="btn btn-primary" id="set-macro-pct-btn">Set goals from percentages</button>
@@ -1246,7 +1252,7 @@
        log opens the photo larger. -->
   <div id="food-photo-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Food photo">
     <div class="modal-card">
-      <img id="food-photo-large" src="" alt="Food photo, larger view" style="width:100%;border-radius:12px">
+      <img id="food-photo-large" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Food photo, larger view" style="width:100%;border-radius:12px">
       <div class="form-actions" style="margin-top:12px">
         <button type="button" class="btn" id="food-photo-close">Close</button>
       </div>
@@ -1255,7 +1261,7 @@
 
 </main>
 
-<footer class="app-footer" role="contentinfo" aria-label="App footer">
+<footer class="app-footer" aria-label="App footer">
   <p><a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
@@ -1398,7 +1404,7 @@
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
       <p class="muted">Scan my plate is coming soon. Take a photo of your plate, and the app will identify the food and fill in the macros for you. No typing.</p>
-      <img id="plate-photo-preview" src="" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
+      <img id="plate-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
       <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
       <input type="file" id="plate-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo of your plate">
       <p id="plate-status" class="muted" role="status"></p>
