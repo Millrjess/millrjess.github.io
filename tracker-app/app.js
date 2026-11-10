@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v060";
+const APP_VERSION = "v061";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1645,9 +1645,12 @@ function renderStreak() {
 /* ---------- v058: the lotus bloom ---------- */
 /* The lotus on the welcome card opens a little more with each logged
    day and strength session. Quiet and cumulative: it never closes
-   again, there is no count and no streak pressure. Five stages across
-   the first three months of logging, then it stays open. A day with a
-   strength session counts once extra, so strength opens it faster. */
+   again. Five stages across the first three months of logging, then
+   it stays open. A day with a strength session counts once extra, so
+   strength opens it faster. v061: no mask, the lotus is whole and
+   solid at every stage, and one plain line under the caption states
+   the stage and what fully open takes. Plain and factual, no
+   pressure language. */
 function bloomStage() {
   const days = loggedDates().size;
   const strengthDays = new Set((store.strength || []).map((e) => e.date)).size;
@@ -1664,6 +1667,8 @@ function renderBloom() {
   if (!card) return;
   const stage = bloomStage();
   for (let i = 1; i <= 5; i++) card.classList.toggle("bloom-stage-" + i, stage === i);
+  const line = document.getElementById("bloom-stage-line");
+  if (line) line.textContent = stage === 0 ? "Your lotus starts to open when you log. Fully open at 90 days of logging." : "Stage " + stage + " of 5. Fully open at 90 days of logging.";
 }
 
 /* v052: today's focus, in one line in the welcome card. One thing,

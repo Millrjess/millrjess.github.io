@@ -1879,17 +1879,17 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
 #strength-saved-msg { margin: 6px 0 0; }
 
 /* The lotus bloom. The lotus opens a little more with each logged
-   day and strength session, quiet and cumulative. The PNG is revealed
-   from the base upward as the stage rises, with a gentle scale, so it
-   reads as opening, never bursting. v060: the reveal is a soft
-   gradient mask, not a clip-path. A hard clip sliced the top of the
-   flower; the mask fades the top in instead, so the lotus always
-   looks whole at every stage. */
+   day and strength session, quiet and cumulative. Stage 0 is a small
+   closed bud, the smallest and faintest state, and the flower opens
+   from there as days are logged; it never closes again. v061: no mask
+   and no clip, the lotus is whole and solid at every stage. The stage
+   shows through scale and opacity only. */
 .bloom-wrap { display: flex; justify-content: center; margin: 2px 0 0; }
-.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.8; transform: scale(0.92); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; -webkit-mask-image: linear-gradient(to bottom, transparent 58%, #000 82%); mask-image: linear-gradient(to bottom, transparent 58%, #000 82%); }
-.bloom-stage-1 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 46%, #000 70%); mask-image: linear-gradient(to bottom, transparent 46%, #000 70%); opacity: 0.85; transform: scale(0.94); }
-.bloom-stage-2 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 34%, #000 58%); mask-image: linear-gradient(to bottom, transparent 34%, #000 58%); opacity: 0.9; transform: scale(0.96); }
-.bloom-stage-3 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 22%, #000 46%); mask-image: linear-gradient(to bottom, transparent 22%, #000 46%); opacity: 0.95; transform: scale(0.98); }
-.bloom-stage-4 .bloom-lotus { -webkit-mask-image: linear-gradient(to bottom, transparent 10%, #000 34%); mask-image: linear-gradient(to bottom, transparent 10%, #000 34%); opacity: 1; transform: scale(1); }
-.bloom-stage-5 .bloom-lotus { -webkit-mask-image: none; mask-image: none; opacity: 1; transform: scale(1); }
+.bloom-lotus { width: 54px; height: auto; display: block; opacity: 0.75; transform: scale(0.88); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; }
+.bloom-stage-1 .bloom-lotus { opacity: 0.8; transform: scale(0.92); }
+.bloom-stage-2 .bloom-lotus { opacity: 0.85; transform: scale(0.94); }
+.bloom-stage-3 .bloom-lotus { opacity: 0.9; transform: scale(0.96); }
+.bloom-stage-4 .bloom-lotus { opacity: 0.95; transform: scale(0.98); }
+.bloom-stage-5 .bloom-lotus { opacity: 1; transform: scale(1); }
 .welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
+.welcome-card .bloom-stage-line { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 2px 0 0; }

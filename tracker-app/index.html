@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=060">
+<link rel="stylesheet" href="styles.css?v=061">
 </head>
 <body>
 
@@ -123,6 +123,7 @@
     <div class="card welcome-card" id="welcome-card">
       <div class="bloom-wrap" aria-hidden="true"><img class="bloom-lotus" src="icons/lotus-gold-only-transparent.png" alt=""></div>
       <p class="bloom-caption">Your lotus opens a little more each day you log.</p>
+      <p class="bloom-stage-line" id="bloom-stage-line"></p>
       <p class="greeting-line" id="greeting-line" aria-live="off"></p>
       <p class="streak-line" id="streak-line" aria-live="off"></p>
       <p class="focus-line" id="today-focus-line" aria-live="off"></p>
@@ -1505,7 +1506,7 @@
     </div>
   </div>
 
-<script src="app.js?v=060"></script>
+<script src="app.js?v=061"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
