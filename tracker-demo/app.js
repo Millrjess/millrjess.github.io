@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v056";
+const APP_VERSION = "v057";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -841,6 +841,7 @@ function showTab(name) {
   window.scrollTo(0, 0);
   if (name === "weight") { drawWeightChart(); drawBMIChart(); }
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
+  if (name === "journal") renderMood();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
   if (name === "recipes") renderRecipes();
@@ -881,7 +882,7 @@ function openSettingsAt(cardId) {
 }
 
 /* More sheet (v168, Companion moved to the main nav in v169): Effects
-   and Settings live here. Opens from the More tab; picking one shows
+   and Settings, and Recipes live here. Opens from the More tab; picking one shows
    its panel and closes the sheet. Escape or the backdrop closes it
    without changing tabs. */
 let moreSheetOpener = null;
@@ -4657,6 +4658,14 @@ document.getElementById("show-journal-form").addEventListener("click", () => {
   toggleForm(journalForm, document.getElementById("show-journal-form"), true);
 });
 
+/* v057: the Evening Reflection card moved to the Journal tab, so its
+   button opens the journal form instead of switching tabs. */
+const reflectionWriteBtn = document.getElementById("reflection-write-btn");
+if (reflectionWriteBtn) reflectionWriteBtn.addEventListener("click", () => {
+  document.getElementById("show-journal-form").click();
+  journalForm.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 document.getElementById("cancel-journal").addEventListener("click", () => {
   toggleForm(journalForm, document.getElementById("show-journal-form"), false);
 });
@@ -6669,9 +6678,10 @@ function syncMacroPctSliders() {
   const ps = document.getElementById("set-protein-pct-slider");
   const cs = document.getElementById("set-carbs-pct-slider");
   const fs = document.getElementById("set-fat-pct-slider");
-  if (ps) ps.value = p.protein;
-  if (cs) cs.value = p.carbs;
-  if (fs) fs.value = p.fat;
+  // v057: paint each slider track with the macro color up to the thumb.
+  if (ps) { ps.value = p.protein; ps.style.setProperty("--fill-pct", p.protein + "%"); }
+  if (cs) { cs.value = p.carbs; cs.style.setProperty("--fill-pct", p.carbs + "%"); }
+  if (fs) { fs.value = p.fat; fs.style.setProperty("--fill-pct", p.fat + "%"); }
 }
 function writeMacroPct(p) {
   document.getElementById("set-protein-pct").value = p.protein;

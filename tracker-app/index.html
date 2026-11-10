@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=056">
+<link rel="stylesheet" href="styles.css?v=057">
 </head>
 <body>
 
@@ -300,7 +300,7 @@
 
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein">
-          <button type="button" class="macro-name" aria-label="Show protein in the center of the chart"><span class="dot protein"></span>Protein</button>
+          <button type="button" class="macro-name" aria-label="Show protein in the center of the chart">Protein</button>
           <button type="button" class="macro-vals" id="logged-protein-btn" aria-label="Protein logged today. Tap to add more."><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Protects muscle</span><span class="macro-pct" id="pct-protein"></span></span>
@@ -314,7 +314,7 @@
           </div>
         </div>
         <div class="macro-row" data-macro="carbs">
-          <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart"><span class="dot carbs"></span>Carbs</button>
+          <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart">Carbs</button>
           <button type="button" class="macro-vals" id="logged-carbs-btn" aria-label="Carbs logged today. Tap to add more."><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Energy for the day</span><span class="macro-pct" id="pct-carbs"></span></span>
@@ -328,7 +328,7 @@
           </div>
         </div>
         <div class="macro-row" data-macro="fat">
-          <button type="button" class="macro-name" aria-label="Show fat in the center of the chart"><span class="dot fat"></span>Fat</button>
+          <button type="button" class="macro-name" aria-label="Show fat in the center of the chart">Fat</button>
           <button type="button" class="macro-vals" id="logged-fat-btn" aria-label="Fat logged today. Tap to add more."><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat"></span></span>
@@ -401,37 +401,6 @@
       <summary style="cursor:pointer;font-weight:600">Your Companion noticed something</summary>
       <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
       <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
-    </details>
-
-    <div class="card">
-      <h2 class="card-title">Daily Mood</h2>
-      <select id="mood-select" aria-label="Daily mood">
-        <option value="">Choose a mood</option>
-        <option>Great</option>
-        <option>Good</option>
-        <option>Okay</option>
-        <option>Low</option>
-        <option>Calm</option>
-        <option>Bad</option>
-        <option>Terrible</option>
-      </select>
-      <p class="muted" id="mood-today-label" hidden></p>
-    </div>
-
-    <div class="card">
-      <h2 class="card-title">Evening Reflection</h2>
-      <p>A few minutes to reflect.</p>
-      <button class="btn btn-primary" data-goto="journal">Write journal entry</button>
-    </div>
-
-    <details class="card" id="review-details">
-      <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
-        <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
-        <h2 class="card-title" style="margin:0;font-size:1.2rem" id="review-title">This month</h2>
-        <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
-      </div>
-      <div id="review-body" style="margin-top:12px"></div>
     </details>
 
     <details class="card" id="digest-details">
@@ -757,6 +726,37 @@
     </form>
     <p class="code-msg" id="journal-saved-msg" role="status" style="min-height:1.2em"></p>
 
+    <div class="card">
+      <h2 class="card-title">Daily Mood</h2>
+      <select id="mood-select" aria-label="Daily mood">
+        <option value="">Choose a mood</option>
+        <option>Great</option>
+        <option>Good</option>
+        <option>Okay</option>
+        <option>Low</option>
+        <option>Calm</option>
+        <option>Bad</option>
+        <option>Terrible</option>
+      </select>
+      <p class="muted" id="mood-today-label" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Evening Reflection</h2>
+      <p>A few minutes to reflect.</p>
+      <button class="btn btn-primary" id="reflection-write-btn">Write journal entry</button>
+    </div>
+
+    <details class="card" id="review-details">
+      <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
+        <h2 class="card-title" style="margin:0;font-size:1.2rem" id="review-title">This month</h2>
+        <button class="btn btn-small" id="review-next" aria-label="Next month">→</button>
+      </div>
+      <div id="review-body" style="margin-top:12px"></div>
+    </details>
+
     <div id="journal-list" class="entry-list"></div>
 
     <h3 style="margin-top:20px">Side effects</h3>
@@ -940,6 +940,10 @@
         <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
       </div>
       <p class="muted hidden" id="memory-saved-msg" style="font-size:.9rem;margin-top:8px">Your companion will remember you now.</p>
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+        <p class="muted" style="font-size:.9rem;margin:0 0 8px">Want your companion to forget everything it remembers about you?</p>
+        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
+      </div>
       </div>
     </details>
   </section>
@@ -1031,19 +1035,19 @@
             <label style="margin-bottom:0">Protein %
               <input type="number" id="set-protein-pct" min="0" max="100" step="1" value="32">
             </label>
-            <input type="range" class="goal-slider" id="set-protein-pct-slider" min="0" max="100" step="1" value="32" aria-label="Protein percentage">
+            <input type="range" class="goal-slider pct-fill" id="set-protein-pct-slider" min="0" max="100" step="1" value="32" aria-label="Protein percentage">
           </div>
           <div style="flex:1">
             <label style="margin-bottom:0">Carbs %
               <input type="number" id="set-carbs-pct" min="0" max="100" step="1" value="35">
             </label>
-            <input type="range" class="goal-slider" id="set-carbs-pct-slider" min="0" max="100" step="1" value="35" aria-label="Carbs percentage">
+            <input type="range" class="goal-slider pct-fill" id="set-carbs-pct-slider" min="0" max="100" step="1" value="35" aria-label="Carbs percentage">
           </div>
           <div style="flex:1">
             <label style="margin-bottom:0">Fat %
               <input type="number" id="set-fat-pct" min="0" max="100" step="1" value="33">
             </label>
-            <input type="range" class="goal-slider" id="set-fat-pct-slider" min="0" max="100" step="1" value="33" aria-label="Fat percentage">
+            <input type="range" class="goal-slider pct-fill" id="set-fat-pct-slider" min="0" max="100" step="1" value="33" aria-label="Fat percentage">
           </div>
         </div>
         <div style="margin-top:10px">
@@ -1098,8 +1102,9 @@
       </details>
 
       <h2 class="settings-group">Your Companion</h2>
-      <div class="card" id="settings-companion-card">
-        <h3>AI Wellness Companion access</h3>
+      <details class="card" id="settings-companion-card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">AI Wellness Companion access</h3></summary>
+        <div style="margin-top:12px">
         <p class="muted" id="coach-status-line">Checking companion status...</p>
         <div id="coach-code-entry">
           <label>Access code
@@ -1115,10 +1120,12 @@
             <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
           </label>
         </details>
-      </div>
+        </div>
+      </details>
 
-      <div class="card" id="settings-subscription-card">
-        <h3>Subscription</h3>
+      <details class="card" id="settings-subscription-card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Subscription</h3></summary>
+        <div style="margin-top:12px">
         <p class="muted" id="subscription-status-line">Manage your subscription</p>
         <button type="button" id="resubscribe-btn" class="btn btn-primary btn-block" aria-expanded="false" aria-controls="resubscribe-plans">Subscribe</button>
         <div id="resubscribe-plans" class="hidden" style="margin-top:12px">
@@ -1133,10 +1140,12 @@
           <p class="muted">You keep access until the end of your paid period. After that, the Companion locks but your entries stay on your device and you can resubscribe anytime.</p>
           <p class="muted">One-tap cancel in Settings is coming soon.</p>
         </div>
-      </div>
+        </div>
+      </details>
 
-      <div class="card">
-        <h3>Your Companion</h3>
+      <details class="card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your Companion</h3></summary>
+        <div style="margin-top:12px">
         <p class="muted">Give your AI Wellness Companion a name and a look.</p>
         <label>Companion name
           <input type="text" id="set-companion-name" maxlength="60" placeholder="AI Wellness Companion" autocomplete="off">
@@ -1159,10 +1168,12 @@
         <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
         <p class="muted">Only the best voices on this phone are listed. For more natural voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
         <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
-      </div>
+        </div>
+      </details>
 
-      <div class="card">
-        <h3>Appearance</h3>
+      <details class="card">
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Appearance</h3></summary>
+        <div style="margin-top:12px">
         <p class="muted">Change how the app looks. The lotus stays gold.</p>
         <fieldset class="picker-fieldset" id="theme-picker">
           <legend>Theme</legend>
@@ -1175,7 +1186,8 @@
           <label class="picker-option"><input type="radio" name="text-size" value="normal" checked>Normal</label>
           <label class="picker-option"><input type="radio" name="text-size" value="large">Large</label>
         </fieldset>
-      </div>
+        </div>
+      </details>
 
       <div id="play-subscription-card"></div>
 
@@ -1253,9 +1265,8 @@
       <h4 style="margin:16px 0 8px">Privacy</h4>
       <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It stays on this device. Only messages you choose to send to the Companion leave it, to get a reply.</p>
       <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your messages leave this device and are processed by our service to generate a reply. Messages are not stored on our servers afterward, unless you turn on Companion Memory. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
-      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, preferences, your medication, your dose, and your shot day so replies feel personal. You can delete it anytime with the button below.</p>
+      <p><strong>Companion memory (optional, off by default):</strong> if you turn it on in the Companion tab, we store your name, goals, preferences, your medication, your dose, and your shot day so replies feel personal. You can delete it anytime from the Companion tab, under Companion memory.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
-        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
         <a class="btn btn-small" href="terms.html" style="text-decoration:none;display:inline-flex;align-items:center">Terms of Service</a>
       </div>
@@ -1309,17 +1320,18 @@
 <div id="more-sheet-backdrop" class="sheet-backdrop hidden"></div>
 <div id="more-sheet" class="more-sheet hidden" role="dialog" aria-modal="true" aria-label="More">
   <div class="more-sheet-handle" aria-hidden="true"></div>
+  <p class="more-sheet-title">More</p>
   <button type="button" class="more-item" data-more-goto="side-effects">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
-    <span class="more-item-label">Effects</span>
+    <span class="more-item-label">Effects</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
   <button type="button" class="more-item" data-more-goto="settings">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
-    <span class="more-item-label">Settings</span>
+    <span class="more-item-label">Settings</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
   <button type="button" class="more-item" data-more-goto="recipes">
     <span class="more-item-icon" aria-hidden="true">🍲</span>
-    <span class="more-item-label">Recipes</span>
+    <span class="more-item-label">Recipes</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
@@ -1463,7 +1475,7 @@
     </div>
   </div>
 
-<script src="app.js?v=056"></script>
+<script src="app.js?v=057"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

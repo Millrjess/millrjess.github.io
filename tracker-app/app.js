@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v056";
+const APP_VERSION = "v057";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -919,6 +919,7 @@ function showTab(name) {
   window.scrollTo(0, 0);
   if (name === "weight") { drawWeightChart(); drawBMIChart(); }
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
+  if (name === "journal") renderMood();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
   if (name === "recipes") renderRecipes();
@@ -961,7 +962,7 @@ function openSettingsAt(cardId) {
 }
 
 /* More sheet (v168, Companion moved to the main nav in v169): Effects
-   and Settings live here. Opens from the More tab; picking one shows
+   and Settings, and Recipes live here. Opens from the More tab; picking one shows
    its panel and closes the sheet. Escape or the backdrop closes it
    without changing tabs. */
 let moreSheetOpener = null;
@@ -2854,6 +2855,23 @@ async function lookupBarcode(code) {
     status.textContent = "The food database is temporarily unavailable. Try again, or enter the grams by hand.";
   }
 }
+/* v057: the camera-reader libraries ship as local files (assets/js/),
+   precached by the service worker, so the scanner works offline and
+   when the CDN is unreachable. The CDN stays as a fallback if the
+   local file fails to load. */
+function loadScriptLocalFirst(localSrc, cdnSrc) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = localSrc;
+    s.onload = resolve;
+    s.onerror = () => {
+      const f = document.createElement("script");
+      f.src = cdnSrc;
+      f.onload = resolve; f.onerror = reject; document.head.appendChild(f);
+    };
+    document.head.appendChild(s);
+  });
+}
 async function startScanCamera() {
   const status = document.getElementById("scan-status");
   const video = document.getElementById("scan-video");
@@ -2882,11 +2900,7 @@ async function startScanCamera() {
     try {
       if (!window.Html5Qrcode) {
         status.textContent = "Loading the camera reader...";
-        await new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
-          s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
-        });
+        await loadScriptLocalFirst("assets/js/html5-qrcode.min.js", "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js");
       }
       if (scanStream) { scanStream.getTracks().forEach((tr) => tr.stop()); scanStream = null; }
       video.srcObject = null;
@@ -2920,11 +2934,7 @@ async function startScanCamera() {
     }
     setScanView("video");
     if (!window.ZXingBrowser) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
-        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
-      });
+      await loadScriptLocalFirst("assets/js/zxing-browser.min.js", "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js");
     }
     const ZX = window.ZXingBrowser;
     scanZxingReader = new ZX.BrowserMultiFormatReader();
@@ -2973,11 +2983,7 @@ async function captureBarcodeFrame() {
   }
   try {
     if (!window.ZXingBrowser) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js";
-        s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
-      });
+      await loadScriptLocalFirst("assets/js/zxing-browser.min.js", "https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js");
     }
     const ZX = window.ZXingBrowser;
     const reader = new ZX.BrowserMultiFormatReader();
@@ -5116,6 +5122,14 @@ document.getElementById("show-journal-form").addEventListener("click", () => {
   toggleForm(journalForm, document.getElementById("show-journal-form"), true);
 });
 
+/* v057: the Evening Reflection card moved to the Journal tab, so its
+   button opens the journal form instead of switching tabs. */
+const reflectionWriteBtn = document.getElementById("reflection-write-btn");
+if (reflectionWriteBtn) reflectionWriteBtn.addEventListener("click", () => {
+  document.getElementById("show-journal-form").click();
+  journalForm.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 document.getElementById("cancel-journal").addEventListener("click", () => {
   toggleForm(journalForm, document.getElementById("show-journal-form"), false);
 });
@@ -7136,9 +7150,10 @@ function syncMacroPctSliders() {
   const ps = document.getElementById("set-protein-pct-slider");
   const cs = document.getElementById("set-carbs-pct-slider");
   const fs = document.getElementById("set-fat-pct-slider");
-  if (ps) ps.value = p.protein;
-  if (cs) cs.value = p.carbs;
-  if (fs) fs.value = p.fat;
+  // v057: paint each slider track with the macro color up to the thumb.
+  if (ps) { ps.value = p.protein; ps.style.setProperty("--fill-pct", p.protein + "%"); }
+  if (cs) { cs.value = p.carbs; cs.style.setProperty("--fill-pct", p.carbs + "%"); }
+  if (fs) { fs.value = p.fat; fs.style.setProperty("--fill-pct", p.fat + "%"); }
 }
 function writeMacroPct(p) {
   document.getElementById("set-protein-pct").value = p.protein;
@@ -8480,8 +8495,8 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
 })();
 
 /* ---------- First-run setup ---------- */
-/* A 4-step setup shown once, on a fresh install: name, medication +
-   dose, shot day, height + goal weight. Nothing is required: every
+/* A 5-step setup shown once, on a fresh install: name, medication +
+   dose, shot day, height + goal weight, and macro targets. Nothing is required: every
    step can be left blank, and Skip closes the setup without saving.
    Existing installs already have nct-setup-done set and never see it. */
 let setupStep = 1;
@@ -8504,9 +8519,14 @@ function finishSetup(save) {
     if (dose) store.settings.dose = dose;
     const shotDay = document.getElementById("setup-shot-day").value;
     if (shotDay) store.settings.shotDay = shotDay;
-    const hft = Number(document.getElementById("setup-height-ft").value);
+    // v057: a blank height field stays blank (Number("") is 0, which
+    // used to save 0 and show 0 in Settings). Same blank check as
+    // the Settings save.
+    const hftRaw = document.getElementById("setup-height-ft").value.trim();
+    const hft = hftRaw === "" ? NaN : Number(hftRaw);
     if (Number.isFinite(hft) && hft >= 0 && hft <= 8) store.settings.heightFt = hft;
-    const hin = Number(document.getElementById("setup-height-in").value);
+    const hinRaw = document.getElementById("setup-height-in").value.trim();
+    const hin = hinRaw === "" ? NaN : Number(hinRaw);
     if (Number.isFinite(hin) && hin >= 0 && hin <= 11) store.settings.heightIn = hin;
     const gw = Number(document.getElementById("setup-goal-weight").value);
     if (gw > 0) store.settings.goalWeight = gw;

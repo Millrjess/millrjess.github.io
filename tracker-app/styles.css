@@ -1255,10 +1255,6 @@ button.macro-vals:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-name { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 1rem; color: var(--ink); }
 button.macro-name { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
-.dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
-.dot.protein { background: var(--gold); }
-.dot.carbs { background: var(--sage); }
-.dot.fat { background: #DCC9A3; border: 1px solid #C9B586; }
 .macro-vals { font-size: 0.9rem; color: var(--ink); white-space: nowrap; }
 .macro-vals .of { color: var(--muted); }
 .macro-why { grid-column: 1 / -1; font-size: .9rem; }
@@ -1279,6 +1275,12 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
    it is worth a line. */
 .food-note { font-size: 0.85em; color: var(--sage); margin-top: 2px; }
 .macro-bar i::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #E8B54A; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+
+/* v057: the thumb carries the macro color, so each row reads as one
+   color from the name to the thumb. The base rule above is gold,
+   which is the protein color. */
+.macro-row[data-macro="carbs"] .macro-bar i::after { border-color: var(--sage); }
+.macro-row[data-macro="fat"] .macro-bar i::after { border-color: #C9B586; }
 .macro-row, .macro-bar { user-select: none; -webkit-user-select: none; }
 .macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
 .macro-pct { font-size: 0.85rem; color: var(--muted); }
@@ -1386,6 +1388,8 @@ li.done-move .move-name { color: #5C6656; }
 }
 .more-item-icon svg { width: 22px; height: 22px; }
 .more-item-label { flex: 1; }
+.more-sheet-title { margin: 0 4px 4px; font-weight: 700; font-size: 1.1rem; }
+.more-item-chevron { color: var(--muted); font-size: 1.3rem; line-height: 1; }
 .more-close { justify-content: center; color: var(--muted); }
 
 /* Weight tab (v168): big calm current number, BMI under it. */
@@ -1676,6 +1680,19 @@ canvas { max-width: 100%; height: auto; display: block; }
 .slider-amount:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .slider-goal { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
 .goal-slider { width: 100%; margin: 10px 0 8px; accent-color: var(--sage); height: 28px; display: block; }
+
+/* v057: the Settings macro percentage sliders fill with the macro
+   color up to the thumb, like the Today bars. The fill percentage
+   is set by syncMacroPctSliders in app.js. */
+#set-protein-pct-slider { --fill: #E8B54A; }
+#set-carbs-pct-slider { --fill: #5A6B52; }
+#set-fat-pct-slider { --fill: #DCC9A3; }
+.goal-slider.pct-fill { -webkit-appearance: none; appearance: none; background: transparent; }
+.goal-slider.pct-fill::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--fill) var(--fill-pct, 0%), #EDEBE3 var(--fill-pct, 0%)); }
+.goal-slider.pct-fill::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--fill); box-shadow: 0 1px 3px rgba(0,0,0,0.25); margin-top: -6px; cursor: ew-resize; }
+.goal-slider.pct-fill::-moz-range-track { height: 6px; border-radius: 3px; background: #EDEBE3; }
+.goal-slider.pct-fill::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--fill); }
+.goal-slider.pct-fill::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--fill); box-shadow: 0 1px 3px rgba(0,0,0,0.25); cursor: ew-resize; }
 .slider-hint { color: var(--muted); margin: 6px 0 0; font-size: 0.9rem; }
 .slider-amount .big-number { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px; }
 
