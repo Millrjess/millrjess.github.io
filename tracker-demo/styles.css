@@ -40,6 +40,11 @@
 a, a:visited {
   color: var(--sage-dark);
 }
+/* Dark theme plain links (v049, R-08): sage dark is too dark on dark
+   cards, so links use the light sage from the dark-theme palette. */
+html[data-theme="dark"] a, html[data-theme="dark"] a:visited {
+  color: #9DB894;
+}
 
 :focus-visible {
   outline: 3px solid var(--focus);
@@ -1198,6 +1203,43 @@ textarea {
 .donut-center .big small { font-size: 1.1rem; font-weight: 500; color: var(--muted); }
 .donut-center .cap { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; max-width: 110px; line-height: 1.3; }
 .donut-note { text-align: center; font-size: 0.85rem; color: var(--muted); margin: 0.35rem 0 0; }
+/* Type an amount to add, inline (v049): the big number on water,
+   movement, and each macro row is a button. Tapping it shows a small
+   row in the same card, so the three work the same way. The row is a
+   plain wrapper (hidden with .hidden) with the flex layout on an inner
+   row, so toggling .hidden always wins. */
+.inline-add-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+.inline-add-row input { flex: 1; min-width: 90px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; font: inherit; background: #fff; color: var(--ink); }
+.inline-add-row input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.inline-add-preview { margin: 6px 0 0; font-size: .9rem; color: var(--muted); }
+/* The donut center number is a button (v049): the center keeps pointer
+   events while the wrapper stays none, so a real tap reaches it. */
+.donut-center button { pointer-events: auto; background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 12px; }
+.donut-center button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* The logged number on each macro row is a button (v049): tapping it
+   opens the same type-in row water and movement use. */
+button.macro-vals { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; }
+button.macro-vals:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.macro-inline-add { grid-column: 1 / -1; }
+.macro-inline-add input { user-select: text; -webkit-user-select: text; cursor: text; }
+/* Shots tab actions (v049): the two buttons sit side by side, equal
+   width and height, with a clean gap, so the row never staggers. The
+   labels are short and never wrap, so both fit on one line at phone
+   width. */
+.shots-actions { display: flex; gap: 10px; margin: 12px 0; }
+.shots-actions .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; text-align: center; }
+/* Progress photo comparison (v049, R-17): two picked photos sit side
+   by side with their dates. */
+.photo-item.selected { outline: 3px solid #E8B54A; outline-offset: 2px; }
+.photo-compare-row { display: flex; gap: 10px; }
+.photo-compare-row figure { flex: 1 1 0; min-width: 0; margin: 0; }
+.photo-compare-row img { width: 100%; border-radius: 12px; display: block; }
+.photo-compare-row figcaption { font-size: .9rem; color: var(--muted); margin-top: 4px; text-align: center; }
+/* Settings groups (v049, R-13): three plain headings that group the
+   cards, so the long page reads as plan, companion, data. */
+.settings-group { font-size: 1.2rem; margin: 20px 0 8px; }
+
+
 
 .macro-rows { margin-top: 0.9rem; border-top: 1px solid #EFE9D6; }
 .macro-row {

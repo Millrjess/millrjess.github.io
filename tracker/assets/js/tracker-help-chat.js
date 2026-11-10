@@ -46,6 +46,36 @@
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);background:#FDFBF7;border:1px solid #d5dccf;border-radius:16px;box-shadow:0 14px 34px -18px rgba(50,66,48,.22);padding:16px;font-family:inherit;color:#233027";
   panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#44503E;font-weight:700'>Help chat</p><button id='thc-close' aria-label='Close help chat' style='background:#E8B54A;border:2px solid #5A6B52;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#233027;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>This help chat is not Jessica. It answers questions about New Chapter: GLP-1 Tracker\u2122, only from this sales page, and it links you to the section that covers your question. I cannot take a payment or change a subscription.</p><div id='thc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='thc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about price, cancelling, or the tracker</label><input id='thc-q' type='text' aria-label='Ask about price, cancelling, or the tracker' placeholder='Ask about the tracker' style='flex:1;padding:.8em;border:1px solid #d5dccf;border-radius:10px;font:inherit;font-size:1em;background:#fff;color:#233027'><button id='thc-send' style='background:#5A6B52;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#4a554c;margin:12px 0 0'>Try: How much does it cost? How do I cancel? Is it available now? Does it give medical advice?</p>";
   var st=document.createElement("style"); st.textContent="#thc-toggle:focus-visible{outline:3px solid #5A6B52; outline-offset:2px; box-shadow:0 0 0 6px #E8B54A, 0 10px 22px -8px rgba(50,66,48,.35)} #thc-close:focus-visible, #thc-send:focus-visible, #thc-q:focus-visible{outline:3px solid #5A6B52; outline-offset:2px} @media (max-width:620px){ #thc-toggle{bottom:92px !important} #thc-panel{bottom:160px !important} }"; document.head.appendChild(st);
+  /* Keep the bubble (and its panel) clear of the sticky Subscribe bar.
+     When #sticky-bar is visible, lift the bubble so its bottom sits
+     12px above the bar's top edge, using the bar's live position, so
+     safe-area insets and bar height are handled exactly. When the bar
+     is hidden, the bubble returns to its usual spot (20px desktop,
+     92px mobile) and the panel returns to its usual spot. */
+  var bar=document.getElementById("sticky-bar");
+  function raiseBubble(){
+    var raised=false;
+    if(bar){
+      var r=bar.getBoundingClientRect();
+      if(bar.classList.contains("on") && r.bottom>0 && r.top<window.innerHeight){
+        var lift=Math.ceil(window.innerHeight-r.top)+12;
+        btn.style.setProperty("bottom",lift+"px","important");
+        panel.style.setProperty("bottom",(lift+56+12)+"px","important");
+        raised=true;
+      }
+    }
+    if(!raised){
+      btn.style.setProperty("bottom","20px");
+      panel.style.setProperty("bottom","88px");
+    }
+  }
+  if(bar && "MutationObserver" in window){
+    new MutationObserver(raiseBubble).observe(bar,{attributes:true,attributeFilter:["class"]});
+    bar.addEventListener("transitionend",raiseBubble);
+  }
+  window.addEventListener("resize",raiseBubble);
+  window.addEventListener("scroll",raiseBubble,{passive:true});
+  raiseBubble();
   document.body.appendChild(btn); document.body.appendChild(panel);
   function ask(){
     var inp=document.getElementById("thc-q"); var q=inp.value.trim(); if(!q) return;

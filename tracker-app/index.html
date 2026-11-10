@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=048">
+<link rel="stylesheet" href="styles.css?v=049">
 </head>
 <body>
 
@@ -87,6 +87,15 @@
       <p style="margin:0" id="storage-warning-text"></p>
       <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
     </div>
+    <div class="card hidden" id="discover-card" style="border-left:4px solid #E8B54A">
+      <h2 class="card-title" style="margin-top:0">What you can do</h2>
+      <p style="margin:0 0 8px">Two things worth knowing: your doctor summary lives on the Shots tab, and foods you log once are saved under Your foods, so logging them again takes one tap.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="discover-doctor-btn">See the doctor summary</button>
+        <button class="btn btn-small" id="discover-foods-btn">See Your foods</button>
+        <button class="btn btn-small" id="discover-dismiss-btn">Got it</button>
+      </div>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn btn-small" aria-label="Previous day">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
@@ -124,13 +133,15 @@
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="goto-shots-btn">Log shot</button>
+        <button class="btn btn-small hidden" id="goto-shot-day-btn">Set shot day</button>
       </div>
+      <p class="muted hidden" id="today-refill-line" style="margin:8px 0 0;font-size:.9rem"><span id="today-refill-text"></span> <button type="button" class="btn-link" id="today-refill-settings-btn">Change it in Settings</button></p>
     </div>
 
     <div class="card" id="glp1-actions-card" aria-label="GLP-1 quick actions">
       <h2 class="card-title">Quick Actions</h2>
       <div class="quick-actions">
-        <button type="button" class="btn btn-primary btn-small" id="qa-log-dose">Log dose</button>
+        <button type="button" class="btn btn-primary btn-small" id="qa-log-shot">Log shot</button>
         <button type="button" class="btn btn-small" id="qa-reminders">Reminders</button>
         <button type="button" class="btn btn-small" id="qa-log-effect">Side effect</button>
       </div>
@@ -144,23 +155,39 @@
         <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
       </div>
       <input type="range" class="goal-slider" id="water-slider" min="0" max="184" step="1" value="0" aria-label="Water drunk today, in ounces">
+      <div class="hidden" id="water-inline-add">
+        <div class="inline-add-row">
+          <input type="text" id="water-inline-input" inputmode="numeric" autocomplete="off" placeholder="16" aria-label="Ounces of water to add">
+          <button type="button" class="btn btn-primary btn-small" id="water-inline-add-btn" disabled>Add</button>
+          <button type="button" class="btn btn-small" id="water-inline-cancel-btn">Cancel</button>
+        </div>
+        <p class="muted inline-add-preview" id="water-inline-preview" aria-live="polite">Type a whole number to add.</p>
+      </div>
     </div>
 
     <div class="card" id="movement-card" aria-label="Movement">
-      <button type="button" class="section-toggle" id="movement-toggle" aria-expanded="false" aria-controls="movement-body">
+      <button type="button" class="section-toggle" id="movement-toggle" aria-expanded="true" aria-controls="movement-body">
         <span class="section-toggle-title">Movement</span>
         <span class="section-toggle-summary" id="movement-summary">0 of 30 min</span>
         <span class="section-toggle-chevron" aria-hidden="true">▸</span>
       </button>
-      <div id="movement-body" hidden>
+      <div id="movement-body">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-          <h3 class="movement-subhead" style="margin-top:0">Cardio</h3>
+          <h3 class="movement-subhead" style="margin-top:0">Minutes today</h3>
           <button class="btn btn-small" id="movement-customize" style="flex:none" aria-expanded="false" aria-controls="movement-plan-editor">Customize</button>
         </div>
         <div class="slider-row">
           <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
         </div>
         <input type="range" class="goal-slider" id="exercise-slider" min="0" max="60" step="1" value="0" aria-label="Movement today, in minutes">
+        <div class="hidden" id="exercise-inline-add">
+          <div class="inline-add-row">
+            <input type="text" id="exercise-inline-input" inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Minutes of movement to add">
+            <button type="button" class="btn btn-primary btn-small" id="exercise-inline-add-btn" disabled>Add</button>
+            <button type="button" class="btn btn-small" id="exercise-inline-cancel-btn">Cancel</button>
+          </div>
+          <p class="muted inline-add-preview" id="exercise-inline-preview" aria-live="polite">Type a whole number to add.</p>
+        </div>
         <div id="movement-routine" style="margin-top:8px">
           <p class="movement-sub" id="movement-sub">Choose your moves to start.</p>
           <p class="movement-desc">Tap the gold circle as you finish each move.</p>
@@ -173,7 +200,7 @@
           <p class="muted" id="movement-total" style="margin:8px 0 0;font-size:.9rem"></p>
         </div>
         <div id="movement-plan-editor" class="hidden">
-          <h3 class="movement-subhead">Your movement plan</h3>
+          <h3 class="movement-subhead">Your routine</h3>
           <p class="muted">Pick your moves. Finishing them all logs the minutes below.</p>
           <label style="display:block;margin-bottom:12px">Minutes when all done
             <input type="number" id="movement-plan-minutes" min="1" step="1" value="5" style="width:80px">
@@ -211,7 +238,7 @@
             <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
           </div>
         </div>
-        <h3 class="movement-subhead">Strength training</h3>
+        <h3 class="movement-subhead">Strength session</h3>
         <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
         <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
         <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
@@ -261,31 +288,57 @@
           <text id="seg-label-fat" class="donut-label" x="108" y="108" text-anchor="middle" dominant-baseline="middle"></text>
         </svg>
         <div class="donut-center">
-          <span class="big"><span id="macro-center-grams">0</span><small> grams</small></span>
-          <span class="cap" id="macro-center-label">protein logged today</span>
+          <button type="button" id="macro-center-btn" aria-label="Add protein logged today. Tap to add more.">
+            <span class="big"><span id="macro-center-grams">0</span><small> grams</small></span>
+            <span class="cap" id="macro-center-label">protein logged today</span>
+          </button>
         </div>
       </div>
-      <p class="donut-note">Each segment is one macro's share. Tap to expand.</p>
+      <p class="donut-note">Tap a segment to see it in the center. Tap the center number to add more.</p>
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9rem"></p>
 
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein">
           <button type="button" class="macro-name" aria-label="Show protein in the center of the chart"><span class="dot protein"></span>Protein</button>
-          <span class="macro-vals"><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></span>
+          <button type="button" class="macro-vals" id="logged-protein-btn" aria-label="Protein logged today. Tap to add more."><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Protects muscle</span><span class="macro-pct" id="pct-protein"></span></span>
+          <div class="macro-inline-add hidden" id="protein-inline-add">
+            <div class="inline-add-row">
+              <input type="text" id="protein-inline-input" inputmode="numeric" autocomplete="off" placeholder="15" aria-label="Grams of protein to add">
+              <button type="button" class="btn btn-primary btn-small" id="protein-inline-add-btn" disabled>Add</button>
+              <button type="button" class="btn btn-small" id="protein-inline-cancel-btn">Cancel</button>
+            </div>
+            <p class="muted inline-add-preview" id="protein-inline-preview" aria-live="polite">Type a whole number to add.</p>
+          </div>
         </div>
         <div class="macro-row" data-macro="carbs">
           <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart"><span class="dot carbs"></span>Carbs</button>
-          <span class="macro-vals"><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></span>
+          <button type="button" class="macro-vals" id="logged-carbs-btn" aria-label="Carbs logged today. Tap to add more."><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Energy for the day</span><span class="macro-pct" id="pct-carbs"></span></span>
+          <div class="macro-inline-add hidden" id="carbs-inline-add">
+            <div class="inline-add-row">
+              <input type="text" id="carbs-inline-input" inputmode="numeric" autocomplete="off" placeholder="20" aria-label="Grams of carbs to add">
+              <button type="button" class="btn btn-primary btn-small" id="carbs-inline-add-btn" disabled>Add</button>
+              <button type="button" class="btn btn-small" id="carbs-inline-cancel-btn">Cancel</button>
+            </div>
+            <p class="muted inline-add-preview" id="carbs-inline-preview" aria-live="polite">Type a whole number to add.</p>
+          </div>
         </div>
         <div class="macro-row" data-macro="fat">
           <button type="button" class="macro-name" aria-label="Show fat in the center of the chart"><span class="dot fat"></span>Fat</button>
-          <span class="macro-vals"><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></span>
+          <button type="button" class="macro-vals" id="logged-fat-btn" aria-label="Fat logged today. Tap to add more."><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">—</span> <span class="of">grams</span></button>
           <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
           <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat"></span></span>
+          <div class="macro-inline-add hidden" id="fat-inline-add">
+            <div class="inline-add-row">
+              <input type="text" id="fat-inline-input" inputmode="numeric" autocomplete="off" placeholder="10" aria-label="Grams of fat to add">
+              <button type="button" class="btn btn-primary btn-small" id="fat-inline-add-btn" disabled>Add</button>
+              <button type="button" class="btn btn-small" id="fat-inline-cancel-btn">Cancel</button>
+            </div>
+            <p class="muted inline-add-preview" id="fat-inline-preview" aria-live="polite">Type a whole number to add.</p>
+          </div>
         </div>
       </div>
 
@@ -348,21 +401,6 @@
       <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
       <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
     </details>
-
-    <div id="add-amount-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="add-amount-title">
-      <div class="modal-card">
-        <h2 id="add-amount-title">Add water</h2>
-        <p class="muted" id="add-amount-now">Now: 0 oz</p>
-        <label>Amount to add
-          <input type="text" id="add-amount-input" inputmode="numeric" autocomplete="off" placeholder="16">
-        </label>
-        <p class="muted" id="add-amount-preview" aria-live="polite">Type a whole number to add.</p>
-        <div class="form-actions">
-          <button type="button" class="btn btn-primary" id="add-amount-add" disabled>Add</button>
-          <button type="button" class="btn" id="add-amount-cancel">Cancel</button>
-        </div>
-      </div>
-    </div>
 
     <div class="card">
       <h2 class="card-title">Daily Mood</h2>
@@ -443,8 +481,10 @@
   <!-- INJECTIONS TAB -->
   <section id="tab-shots" class="tab-panel" role="tabpanel" aria-label="Shots">
     <h2>Shots</h2>
-    <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
-    <button class="btn" id="add-shot-reminder" style="margin-left:8px">🔔 Add shot reminder</button>
+    <div class="shots-actions">
+      <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
+      <button class="btn" id="add-shot-reminder">🔔 Shot reminder</button>
+    </div>
     <p class="muted" style="font-size:.9rem;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
     <p class="muted hidden" id="shot-reminder-note" style="font-size:.9rem;margin:6px 0 0"></p>
 
@@ -655,6 +695,7 @@
       </label>
     </div>
 
+    <div id="photo-compare" class="hidden" style="margin-bottom:12px"></div>
     <div id="photo-grid" class="photo-grid"></div>
 
     <div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
@@ -747,31 +788,32 @@
     <div id="sideeffect-list" class="entry-list"></div>
   </section>
 
-  <!-- MEDICINES TAB -->
-  <section id="tab-medicines" class="tab-panel" role="tabpanel" aria-label="Medicines">
-    <h2>Medicines</h2>
-    <p class="muted" style="font-size:.9rem">Daily medicines besides your GLP-1 shot.</p>
-    <form id="medicine-form" aria-label="Add a medicine" novalidate>
-      <div class="measure-grid" style="grid-template-columns:2fr 1fr 1fr">
-        <label>Medicine<input type="text" id="med-name" maxlength="80" placeholder="e.g. Vitamin D"></label>
-        <label>Dose<input type="text" id="med-dose" maxlength="40" placeholder="e.g. 1000 IU"></label>
-        <label>Time<input type="text" id="med-time" maxlength="20" placeholder="e.g. Morning"></label>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="med-submit-btn">Add medicine</button>
-        <button type="button" class="btn hidden" id="med-cancel-btn">Cancel</button>
-      </div>
-      <p class="code-msg" id="med-msg" style="min-height:1.2em"></p>
-    </form>
-    <div id="medicine-list" class="entry-list"></div>
-  </section>
-
   <!-- RECIPES TAB -->
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
     <p class="muted" style="font-size:.9rem">Nourishment that supports your next chapter.</p>
     <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
-    <h3 style="margin-top:18px">Paste a Recipe</h3>
+    <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
+      <button type="button" class="kitchen-chip active" data-filter="all">All</button>
+      <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
+      <button type="button" class="kitchen-chip" data-filter="quick-and-easy">Quick and easy</button>
+      <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
+      <button type="button" class="kitchen-chip" data-filter="easy-breakfasts">Easy Breakfasts</button>
+      <button type="button" class="kitchen-chip" data-filter="balanced-dinners">Balanced Dinners</button>
+      <button type="button" class="kitchen-chip" data-filter="small-appetite">Small Appetite</button>
+      <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
+      <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
+      <button type="button" class="kitchen-chip" data-filter="dairy-free">Dairy-free</button>
+      <button type="button" class="kitchen-chip" data-filter="low-sodium">Low-sodium</button>
+      <button type="button" class="kitchen-chip" data-filter="nut-free">Nut-free</button>
+      <button type="button" class="kitchen-chip" data-filter="egg-free">Egg-free</button>
+      <button type="button" class="kitchen-chip" data-filter="low-oxalate">Low-Oxalate</button>
+    </div>
+    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.9rem">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
+    <div id="kitchen-list" class="kitchen-list"></div>
+    <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
+<div id="meal-ideas" class="card" style="margin-top:16px"></div>
+<h3 style="margin-top:18px">Paste a Recipe</h3>
     <p class="muted" style="font-size:.9rem">Paste a recipe from anywhere.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
     <form id="paste-recipe-form" class="hidden" aria-label="Paste a recipe" novalidate>
@@ -781,7 +823,7 @@
       </div>
       <p class="code-msg" id="paste-recipe-msg" style="min-height:1.2em"></p>
     </form>
-    <h3 style="margin-top:18px">Your saved recipes</h3>
+<h3 style="margin-top:18px">Your saved recipes</h3>
     <button type="button" class="btn btn-small" id="recipe-form-toggle" aria-expanded="false" aria-controls="recipe-form">Add your own recipe</button>
     <form id="recipe-form" class="hidden" aria-label="Save a recipe" novalidate>
       <label>Title<input type="text" id="recipe-title" maxlength="120" placeholder="e.g. High-protein Greek yogurt bowl"></label>
@@ -808,53 +850,17 @@
       <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
     </form>
     <div id="recipe-list" class="entry-list"></div>
-    <h3 style="margin-top:18px">Search recipes online</h3>
+<h3 style="margin-top:18px">Search recipes online</h3>
     <p class="muted" style="font-size:.9rem">Search the recipe database for a dish.</p>
     <form id="recipe-search-form" aria-label="Search recipes online" novalidate>
       <div style="display:flex;gap:8px">
-        <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken" aria-label="Search recipes" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
-        <button type="submit" class="btn btn-primary">Search</button>
+        <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken (coming soon)" aria-label="Search recipes, coming soon" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
+        <button type="submit" class="btn btn-primary">Search (coming soon)</button>
       </div>
       <p class="code-msg" id="recipe-search-msg" style="min-height:1.2em"></p>
     </form>
     <div id="recipe-search-results" class="entry-list"></div>
-    <div id="meal-ideas" class="card" style="margin-top:16px"></div>
-    <div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-        <h3 style="margin:18px 0 0">Fresh picks for you</h3>
-        <button type="button" class="btn btn-small" id="kitchen-see-all">See all</button>
-      </div>
-      <div id="kitchen-featured" class="kitchen-featured" aria-label="Fresh picks for you"></div>
-    </div>
-    <div>
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-        <h3 style="margin:18px 0 0">Quick and easy</h3>
-        <button type="button" class="btn btn-small" id="kitchen-shuffle">Shuffle</button>
-      </div>
-      <div id="kitchen-simple" class="kitchen-simple" aria-label="Quick and easy meals"></div>
-    </div>
-    <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
-      <button type="button" class="kitchen-chip active" data-filter="all">All</button>
-      <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
-      <button type="button" class="kitchen-chip" data-filter="easy-breakfasts">Easy Breakfasts</button>
-      <button type="button" class="kitchen-chip" data-filter="balanced-dinners">Balanced Dinners</button>
-      <button type="button" class="kitchen-chip" data-filter="small-appetite">Small Appetite</button>
-      <button type="button" class="kitchen-chip" data-filter="low-carb">Low Carb</button>
-      <button type="button" class="kitchen-chip" data-filter="balanced-macros">Balanced Macros</button>
-      <button type="button" class="kitchen-chip" data-filter="small-portions">Small Portions</button>
-      <button type="button" class="kitchen-chip" data-filter="easy-prep">Easy Prep</button>
-      <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
-      <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
-      <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
-      <button type="button" class="kitchen-chip" data-filter="snacks-smoothies">Snacks &amp; Smoothies</button>
-      <button type="button" class="kitchen-chip" data-filter="budget-friendly">Budget-Friendly</button>
-      <button type="button" class="kitchen-chip" data-filter="low-sodium">Low Sodium</button>
-      <button type="button" class="kitchen-chip" data-filter="low-oxalate">Low-Oxalate</button>
-    </div>
-    <p class="muted hidden" id="kitchen-oxalate-note" style="font-size:.9rem">Low-oxalate options use ingredients generally lower in oxalate. Oxalate content varies by serving size and preparation.</p>
-    <div id="kitchen-list" class="kitchen-list"></div>
-    <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
-    <div id="recipe-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Recipe">
+<div id="recipe-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Recipe">
       <div class="modal-card recipe-modal-card">
         <button type="button" class="modal-x" id="recipe-modal-x" aria-label="Close recipe">×</button>
         <div id="recipe-modal-body"></div>
@@ -889,8 +895,9 @@
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
+    <p style="margin:4px 0 0"><button type="button" class="btn-link" id="chat-clear-btn">Clear chat history</button></p>
 
-    <details class="card" style="margin-top:16px" id="memory-optin-card" open>
+    <details class="card" style="margin-top:16px" id="memory-optin-card">
       <summary style="cursor:pointer;font-weight:700;font-size:1.2rem">Companion memory</summary>
       <div style="margin-top:12px">
       <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
@@ -929,6 +936,7 @@
     <h2>Settings</h2>
 
     <form id="settings-form">
+      <h2 class="settings-group">Your plan</h2>
       <details class="card" open id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
@@ -963,6 +971,9 @@
           </select>
         </label>
         <p class="muted">Today counts down to your next shot.</p>
+        <p class="muted" style="font-size:.9rem">The shot reminder lives in your phone's calendar. Change or remove it there.</p>
+        <p class="muted hidden" id="shot-reminder-mismatch" style="font-size:.9rem"></p>
+        <button type="button" class="btn btn-small hidden" id="shot-reminder-redownload-btn">Download new reminder</button>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1067,6 +1078,7 @@
         </div>
       </details>
 
+      <h2 class="settings-group">Your Companion</h2>
       <div class="card" id="settings-companion-card">
         <h3>AI Wellness Companion access</h3>
         <p class="muted" id="coach-status-line">Checking companion status...</p>
@@ -1097,7 +1109,8 @@
         </div>
         <p class="muted">Resubscribing unlocks the same account, data, and Companion.</p>
         <div style="margin-top:16px">
-          <a class="btn" href="mailto:millrjess@gmail.com?subject=Cancel%20my%20New%20Chapter%20subscription&amp;body=I%20would%20like%20to%20cancel%20my%20New%20Chapter%3A%20GLP-1%20Tracker%20subscription.%20Please%20confirm%20my%20cancellation%20and%20let%20me%20know%20my%20last%20day%20of%20access." style="display:block;text-align:center;text-decoration:none">Cancel subscription</a>
+          <button type="button" id="manage-subscription-btn" class="btn btn-block">Manage subscription</button>
+          <p class="muted" id="portal-msg" style="min-height:1.2em"></p>
           <p class="muted">You keep access until the end of your paid period. After that, the Companion locks but your entries stay on your device and you can resubscribe anytime.</p>
           <p class="muted">One-tap cancel in Settings is coming soon.</p>
         </div>
@@ -1150,11 +1163,18 @@
 
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Changes save as you type.</p>
       <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
     </form>
 
-    <details class="card" open>
-      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your data</h3></summary>
+    <div class="card">
+      <h3>Contact support</h3>
+      <p class="muted">Questions about your subscription, cancellation, or a refund? <a href="mailto:millrjess@gmail.com?subject=New%20Chapter%20Tracker%20support">Email millrjess@gmail.com</a>. Replies within 1 business day.</p>
+    </div>
+
+        <h2 class="settings-group">Your data</h2>
+<details class="card" open>
+      <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Backup, restore, and privacy</h3></summary>
       <div style="margin-top:12px">
     <div class="card">
       <p class="muted">Download everything you tracked. It opens in Excel, Google Sheets, or Numbers.</p>
@@ -1260,7 +1280,7 @@
     <span class="tab-dot" aria-hidden="true"></span>
   </button>
   <button class="tab-btn" data-tab="more" role="tab" aria-selected="false" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>More</title><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.2 3.8-4.8 7-4.8s5.8 1.6 7 4.8"/></svg></span>
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><title>More</title><circle cx="6" cy="6" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="18" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/><circle cx="6" cy="18" r="1.8"/><circle cx="12" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/></svg></span>
     <span class="tab-label">More</span>
     <span class="tab-dot" aria-hidden="true"></span>
   </button>
@@ -1276,10 +1296,6 @@
   <button type="button" class="more-item" data-more-goto="settings">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="more-item-label">Settings</span>
-  </button>
-  <button type="button" class="more-item" data-more-goto="medicines">
-    <span class="more-item-icon" aria-hidden="true">💊</span>
-    <span class="more-item-label">Medicines</span>
   </button>
   <button type="button" class="more-item" data-more-goto="recipes">
     <span class="more-item-icon" aria-hidden="true">🍲</span>
@@ -1406,7 +1422,7 @@
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
-      <p class="muted">Take a photo of your plate. The app will identify the food and fill in the macros.</p>
+      <p class="muted">Scan my plate is coming soon. Take a photo of your plate, and the app will identify the food and fill in the macros for you. No typing.</p>
       <img id="plate-photo-preview" src="" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
       <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
       <input type="file" id="plate-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo of your plate">
@@ -1427,7 +1443,7 @@
     </div>
   </div>
 
-<script src="app.js?v=048"></script>
+<script src="app.js?v=049"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

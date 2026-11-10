@@ -10,6 +10,9 @@
  *
  * Required secrets: AUTH_TOKEN (master token, backward compat)
  * Optional secrets: ADMIN_SECRET (for issuing per-user tokens)
+ * Portal secret: STRIPE_SECRET_KEY (restricted key, for the /api/portal
+ * Billing portal endpoint; add in the December dashboard deploy, with
+ * the Billing portal configured in the Stripe dashboard)
  * KV bindings: RATE_LIMITS (existing), USERS (per-user tokens + memory)
  */
 
@@ -102,6 +105,15 @@ export default {
     }
     if (url.pathname === "/api/memory" && request.method === "DELETE") {
       return handleDeleteMemory(request, env, auth);
+    }
+
+    // Billing portal: manage or cancel the subscription in Stripe.
+    // Token-gated: the token resolves the user's email from KV, and the
+    // Stripe customer is found by that email. Needs STRIPE_SECRET_KEY
+    // in the Worker environment (December dashboard deploy) and a
+    // configured Billing portal in the Stripe dashboard.
+    if (url.pathname === "/api/portal" && request.method === "POST") {
+      return handleBillingPortal(request, env, auth);
     }
 
     return corsResponse(JSON.stringify({ error: "Not found" }), request, 404);
@@ -233,6 +245,80 @@ async function handleStripeWebhook(request, env) {
   }
   // Acknowledge other event types without action
   return corsResponse(JSON.stringify({ ok: true }), request, 200);
+}
+
+/* ---------- Billing portal (Stripe) ---------- */
+/* One-tap manage/cancel: the app's Manage subscription button calls
+   this with its Companion token. The token resolves the user's email
+   from the KV user record (the same email the welcome and code flow
+   stored, looked up the way handleCodeRequest looks up email:<email>),
+   the Stripe customer is found by that email, and a Billing portal
+   session is created. Returns { url } for the app to open in a new tab.
+   Requires env.STRIPE_SECRET_KEY (restricted key) and a Billing portal
+   configured in the Stripe dashboard; both are December deploy steps.
+   Until then this returns 503 and the app shows the coming-soon line. */
+
+async function handleBillingPortal(request, env, auth) {
+  if (!(await checkPublicRateLimit(request, env, "portal", 10))) {
+    return corsResponse(JSON.stringify({ error: "Too many attempts. Try again later." }), request, 429);
+  }
+  if (!auth.userId) {
+    // A master token carries no identity, so there is no email to find.
+    return corsResponse(JSON.stringify({ error: "No account linked to this device." }), request, 400);
+  }
+  let email = "";
+  try {
+    const raw = await env.USERS.get("user:" + auth.userId);
+    if (raw) email = (JSON.parse(raw).email || "").toLowerCase().trim();
+  } catch (e) {
+    console.error("Portal KV error:", e);
+    return corsResponse(JSON.stringify({ error: "Storage unavailable" }), request, 500);
+  }
+  if (!email) {
+    return corsResponse(JSON.stringify({ error: "No account linked to this device." }), request, 400);
+  }
+  if (!env.STRIPE_SECRET_KEY) {
+    return corsResponse(JSON.stringify({ error: "Billing portal is not set up yet." }), request, 503);
+  }
+  const key = env.STRIPE_SECRET_KEY;
+  let customerId = "";
+  try {
+    const listRes = await fetch("https://api.stripe.com/v1/customers?email=" + encodeURIComponent(email) + "&limit=1", {
+      headers: { Authorization: "Bearer " + key }
+    });
+    if (!listRes.ok) {
+      console.error("Portal customer lookup failed:", listRes.status);
+      return corsResponse(JSON.stringify({ error: "Could not open the billing portal. Try again later." }), request, 502);
+    }
+    const list = await listRes.json();
+    if (!list.data || !list.data.length) {
+      return corsResponse(JSON.stringify({ error: "No subscription found for this email." }), request, 404);
+    }
+    customerId = list.data[0].id;
+  } catch (e) {
+    console.error("Portal customer lookup error:", e);
+    return corsResponse(JSON.stringify({ error: "Could not open the billing portal. Try again later." }), request, 502);
+  }
+  try {
+    const body = new URLSearchParams({ customer: customerId, return_url: APP_URL });
+    const sessRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + key, "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString()
+    });
+    if (!sessRes.ok) {
+      console.error("Portal session create failed:", sessRes.status);
+      return corsResponse(JSON.stringify({ error: "Could not open the billing portal. Try again later." }), request, 502);
+    }
+    const sess = await sessRes.json();
+    if (!sess.url) {
+      return corsResponse(JSON.stringify({ error: "Could not open the billing portal. Try again later." }), request, 502);
+    }
+    return corsResponse(JSON.stringify({ url: sess.url }), request, 200);
+  } catch (e) {
+    console.error("Portal session error:", e);
+    return corsResponse(JSON.stringify({ error: "Could not open the billing portal. Try again later." }), request, 502);
+  }
 }
 
 /* ---------- Recover app link by email ---------- */

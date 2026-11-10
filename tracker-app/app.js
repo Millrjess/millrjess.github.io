@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v048";
+const APP_VERSION = "v049";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -95,8 +95,6 @@ const DEFAULTS = {
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {},        // { "YYYY-MM-DD": "Good" }
   movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
-  medicines: [],    // { id, name, dose, time, date } daily medicines besides the GLP-1 shot
-  medicineTaken: {}, // { "YYYY-MM-DD": [medicine ids taken that day] }
   recipes: [],       // { id, title, body, date } saved recipes
   foodLibrary: {},   // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
   foodArchive: {}    // v031: archived foods, same entry shape as foodLibrary. Archiving never deletes a food.
@@ -135,7 +133,7 @@ function companionAvatarImg(className) {
 
 /* Collections that must be arrays, and the settings keys with their defaults.
    Used to validate anything loaded from storage or from a file (S3/S11). */
-const COLLECTION_KEYS = ["water", "protein", "exercise", "strength", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "medicines", "recipes"];
+const COLLECTION_KEYS = ["water", "protein", "exercise", "strength", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "recipes"];
 
 /* Validate a parsed store shape: arrays must be arrays (bad entries dropped),
    settings must be an object merged key-by-key over the defaults so a bad or
@@ -320,18 +318,9 @@ function validateStore(parsed, strict) {
     }
     out.movementDone = cleanDone;
   }
-  // Per-day medicine check-offs. Keep only real dates; each day holds
-  // the medicine ids taken that day.
-  if (parsed.medicineTaken !== undefined && (typeof parsed.medicineTaken !== "object" || Array.isArray(parsed.medicineTaken))) {
-    lastValidateDropped.push("medicineTaken");
-  } else if (parsed.medicineTaken && typeof parsed.medicineTaken === "object" && !Array.isArray(parsed.medicineTaken)) {
-    const cleanTaken = {};
-    for (const [d, v] of Object.entries(parsed.medicineTaken)) {
-      if (!isValidDateStr(d) || !Array.isArray(v)) continue;
-      cleanTaken[d] = v.filter((id) => typeof id === "string");
-    }
-    out.medicineTaken = cleanTaken;
-  }
+  // v049: the Medicines tab was removed. Any stored entries and per-day
+  // check-offs are dropped on load: they are never copied into the
+  // store, so the next save removes them from the device for good.
   // v028: food library, keyed by barcode or by name ("name:..."). Keep
   // only entries with a key and a name; sanitize the macros to
   // non-negative numbers. A bad value drops the whole library, not a crash.
@@ -470,7 +459,7 @@ function showStorageWarning(text) {
    save. */
 window.addEventListener("storage", (e) => {
   if (e.key === LS_KEY) {
-    showStorageWarning("This app is open in two places, and the other copy changed your entries. Reload to see the newest entries.");
+    showStorageWarning("This app is open in two places, and the other copy changed your entries. Your entries are safe and will show here the next time you save.");
   }
 });
 
@@ -563,7 +552,7 @@ function saveStore() {
     if (persistedGen !== loadedGen) {
       if (persistedStore) {
         store = mergeStores(persistedStore, store);
-        showStorageWarning("This app is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Reload to see the newest entries.");
+        showStorageWarning("This app is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Your entries will show here the next time you save.");
       }
     }
     // (2) A smaller in-memory store never replaces a saved store that
@@ -587,7 +576,7 @@ function saveStore() {
       if (!settingsMatch && persistedStore) {
         store = mergeStores(persistedStore, store);
         loadedGen = persistedGen;
-        showStorageWarning("This app is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Reload to see the newest entries.");
+        showStorageWarning("This app is open in two places, and the other copy changed your entries. The two copies were combined, so nothing was lost. Your entries will show here the next time you save.");
       }
     }
     // (3) A collection was dropped at load because it was damaged: do not
@@ -883,9 +872,18 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 /* Panels that live under the More button: when one of them is showing,
    More is the active tab. */
-const MORE_TABS = ["side-effects", "settings", "medicines", "recipes"];
+const MORE_TABS = ["side-effects", "settings", "recipes"];
 
 function showTab(name) {
+  // v049: Settings autosaves, so leaving the tab flushes any change
+  // typed in the last few hundred milliseconds instead of dropping it.
+  if (typeof autosaveSettings === "function") {
+    const activePanel = document.querySelector(".tab-panel.active");
+    if (activePanel && activePanel.id === "tab-settings" && name !== "settings") {
+      clearTimeout(settingsAutosaveTimer);
+      autosaveSettings();
+    }
+  }
   if (name === "more") { openMoreSheet(); return; }
   closeMoreSheet();
   // v000: navigating away from the Companion stops any reply being
@@ -904,7 +902,6 @@ function showTab(name) {
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
   if (name === "chat") { loadCoachMemory(); renderChat(); }
   if (name === "settings") renderPlaySubscription();
-  if (name === "medicines") renderMedicines();
   if (name === "recipes") renderRecipes();
   try {
     gtag("event", "page_view", {
@@ -992,8 +989,7 @@ document.addEventListener("keydown", (e) => {
     if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
     const doctorModal = document.getElementById("doctor-modal");
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
-    const addAmountModal = document.getElementById("add-amount-modal");
-    if (addAmountModal && !addAmountModal.classList.contains("hidden")) { e.preventDefault(); closeAddAmount(); return; }
+    if (inlineAddKey) { e.preventDefault(); closeInlineAdd(); return; }
     const recipeModalEsc = document.getElementById("recipe-modal");
     if (recipeModalEsc && !recipeModalEsc.classList.contains("hidden")) { e.preventDefault(); closeRecipeModal(); return; }
     const progressPanel = document.getElementById("tab-progress");
@@ -1155,6 +1151,7 @@ document.getElementById("review-next").addEventListener("click", () => {
    previous and next week navigation. Plain facts only, no failure
    language. */
 let digestWeekStart = null; // Date of the Monday starting the shown week
+let digestAutoOpened = false; // the digest opens itself once, on first render, when there is something to celebrate
 function weekMonday(d) {
   const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const day = x.getDay(); // 0 Sunday, 1 Monday
@@ -1224,8 +1221,8 @@ function renderWeeklyDigest() {
 
   const lines = [];
   lines.push("You showed up " + daysLogged.size + " of 7 days.");
-  if (proteinTotal) lines.push("Protein averaged " + Math.round(proteinTotal / 7) + " grams a day.");
-  if (waterTotal) lines.push("Water averaged " + Math.round(waterTotal / 7) + " ounces a day.");
+  if (proteinTotal) lines.push("Protein averaged " + Math.round(proteinTotal / daysLogged.size) + " grams a day across the " + daysLogged.size + (daysLogged.size === 1 ? " day" : " days") + " you logged.");
+  if (waterTotal) lines.push("Water averaged " + Math.round(waterTotal / daysLogged.size) + " ounces a day across the " + daysLogged.size + (daysLogged.size === 1 ? " day" : " days") + " you logged.");
   if (moveTotal) lines.push("Movement totaled " + moveTotal + " minutes.");
   if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
   if (effectLine) lines.push(effectLine);
@@ -1241,6 +1238,14 @@ function renderWeeklyDigest() {
     `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
 
   document.getElementById("digest-next").style.visibility = isCurrent ? "hidden" : "";
+  // v049, PM-32: when there is something to celebrate (a streak of 3
+  // or more, or 3 or more days logged), the digest opens itself the
+  // first time it renders, so the good week is seen, not missed.
+  if (!digestAutoOpened && isCurrent && (currentStreak() >= 3 || daysLogged.size >= 3)) {
+    digestAutoOpened = true;
+    const d = document.getElementById("digest-details");
+    if (d) d.open = true;
+  }
 }
 
 document.getElementById("digest-prev").addEventListener("click", () => {
@@ -1258,7 +1263,7 @@ document.getElementById("digest-next").addEventListener("click", () => {
    details elements carry no open attribute, and this closes them
    explicitly so they always start collapsed on first view. Tapping a
    summary still slides the section open. */
-["review-details", "digest-details"].forEach((id) => {
+["review-details"].forEach((id) => {
   const el = document.getElementById(id);
   if (el) el.open = false;
 });
@@ -1369,11 +1374,10 @@ function renderProgress() {
   const boxW = document.getElementById("progress-bars-weight");
   if (boxW) {
     const max = wSeen.length ? Math.max(...wSeen) : 0;
-    const min = wSeen.length ? Math.min(...wSeen) : 0;
     boxW.innerHTML = wValues.map((v, i) => {
       let pct = 0;
       if (v !== null) {
-        pct = max === min ? 50 : Math.round(8 + 92 * (v - (min - 1)) / (max - (min - 1)));
+        pct = max > 0 ? Math.round(8 + 92 * v / max) : 50;
       }
       return progressBarCol(v, pct, "#44503E", progressDayLetter(dates[i]), v === null ? "" : v.toFixed(1));
     }).join("");
@@ -1389,17 +1393,11 @@ function renderProgress() {
         : "Seven days logged this week.";
   }
 }
+/* Progress entry point (v049, R-15): Progress is a real tab, so it
+   opens through showTab like every other tab. No nav tab stays active
+   while viewing it. */
 function openProgress() {
-  document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-  const panel = document.getElementById("tab-progress");
-  if (panel) panel.classList.add("active");
-  document.querySelectorAll(".tab-btn").forEach((b) => {
-    const active = b.dataset.tab === "today";
-    b.classList.toggle("active", active);
-    b.setAttribute("aria-selected", active ? "true" : "false");
-  });
-  closeMoreSheet();
-  window.scrollTo(0, 0);
+  showTab("progress");
   renderProgress();
 }
 const openProgressBtn = document.getElementById("open-progress");
@@ -1496,6 +1494,7 @@ function openFoodFormForMeal(meal) {
   const form = document.getElementById("macro-food-form");
   if (!form) return;
   form.classList.remove("hidden");
+  openFoodLibraryIfAny();
   syncFormCalories();
   form.scrollIntoView({ behavior: "smooth", block: "start" });
   const nameInput = document.getElementById("macro-food-name");
@@ -1542,6 +1541,7 @@ function renderToday() {
   renderMood();
   renderBackupNudge();
   renderCorruptNotice();
+  renderDiscoverCard();
   if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
@@ -1674,82 +1674,110 @@ function bindGoalSlider(sliderId, numId, key, field, extra, goalFor) {
 bindGoalSlider("water-slider", "water-today", "water", "oz", {}, () => Number(store.settings.waterGoal) || 92);
 bindGoalSlider("exercise-slider", "exercise-today", "exercise", "minutes", { label: "Movement" }, () => Number(store.settings.movementGoal) || 30);
 
-/* ---------- Type an amount to add (v169) ---------- */
-/* The big number is a button. Tapping it opens a small sheet where the
-   person types a number (a 16 oz bottle is 16). The amount goes through
-   nudgeGoal, the same helper the sliders and the type-in sheet use, so
-   the store, snapshots, and the 3-per-day backup cap behave exactly as
-   before. Whole numbers only; Add stays disabled until one is typed. */
-const ADD_AMOUNT_CFG = {
-  water: { field: "oz", extra: {}, unit: "oz", unitWord: "ounces", title: "Add water", btnId: "water-num-btn" },
-  exercise: { field: "minutes", extra: { label: "Movement" }, unit: "min", unitWord: "minutes", title: "Add movement", btnId: "exercise-num-btn" }
+/* ---------- Type an amount to add, inline (v049) ---------- */
+/* The big number on water, movement, and each macro row is a button.
+   Tapping it shows a small row in the same card where the person types
+   a number (a 16 oz bottle is 16, or 15 grams of protein). The amount
+   goes through nudgeGoal for water and movement and adjustMacroBy for
+   the macros, the same helpers the sliders use, so the store,
+   snapshots, and the 3-per-day backup cap behave exactly as before.
+   Whole numbers only; Add stays disabled until one is typed. Water,
+   movement, and macros all use this one row, so the three work the
+   same way. Replaces the v169 type-in sheet. */
+const INLINE_ADD_CFG = {
+  water: { kind: "goal", field: "oz", extra: {}, unit: "oz", unitWord: "ounces" },
+  exercise: { kind: "goal", field: "minutes", extra: { label: "Movement" }, unit: "min", unitWord: "minutes" },
+  protein: { kind: "macro", unit: "g", unitWord: "grams" },
+  carbs: { kind: "macro", unit: "g", unitWord: "grams" },
+  fat: { kind: "macro", unit: "g", unitWord: "grams" }
 };
-let addAmountCtx = null; // { key, field, extra, unit, unitWord, startTotal, opener }
+let inlineAddKey = null; // which row is open: water, exercise, protein, carbs, or fat
+let inlineAddOpener = null;
 
-function addAmountTyped() {
-  const input = document.getElementById("add-amount-input");
+function inlineAddOpenerId(key) {
+  if (key === "water") return "water-num-btn";
+  if (key === "exercise") return "exercise-num-btn";
+  return "logged-" + key + "-btn";
+}
+function inlineAddStartTotal(key) {
+  const cfg = INLINE_ADD_CFG[key];
+  if (!cfg) return 0;
+  if (cfg.kind === "macro") return macroTotals(viewedDateStr())[key];
+  return sumForDate(store[key], viewedDateStr(), cfg.field);
+}
+function inlineAddTyped() {
+  if (!inlineAddKey) return 0;
+  const input = document.getElementById(inlineAddKey + "-inline-input");
   if (!input) return 0;
   const raw = input.value.trim();
   if (!/^\d+$/.test(raw)) return 0;
   return parseInt(raw, 10);
 }
-function refreshAddAmountPreview() {
-  if (!addAmountCtx) return;
-  const n = addAmountTyped();
-  const addBtn = document.getElementById("add-amount-add");
-  const preview = document.getElementById("add-amount-preview");
+function refreshInlineAdd() {
+  if (!inlineAddKey) return;
+  const cfg = INLINE_ADD_CFG[inlineAddKey];
+  const n = inlineAddTyped();
+  const addBtn = document.getElementById(inlineAddKey + "-inline-add-btn");
+  const preview = document.getElementById(inlineAddKey + "-inline-preview");
   if (addBtn) addBtn.disabled = n <= 0;
   if (preview) {
     preview.textContent = n > 0
-      ? "After adding: " + (addAmountCtx.startTotal + n) + " " + addAmountCtx.unit
+      ? "After adding: " + (inlineAddStartTotal(inlineAddKey) + n) + " " + cfg.unit
       : "Type a whole number to add.";
   }
 }
-function openAddAmount(key) {
-  const cfg = ADD_AMOUNT_CFG[key];
-  const modal = document.getElementById("add-amount-modal");
-  const input = document.getElementById("add-amount-input");
-  if (!cfg || !modal || !input) return;
-  const startTotal = sumForDate(store[key], viewedDateStr(), cfg.field);
-  addAmountCtx = {
-    key, field: cfg.field, extra: cfg.extra, unit: cfg.unit, unitWord: cfg.unitWord,
-    startTotal, opener: document.getElementById(cfg.btnId)
-  };
-  document.getElementById("add-amount-title").textContent = cfg.title;
-  document.getElementById("add-amount-now").textContent = "Now: " + startTotal + " " + cfg.unit;
+function openInlineAdd(key, opener) {
+  const cfg = INLINE_ADD_CFG[key];
+  const row = document.getElementById(key + "-inline-add");
+  const input = document.getElementById(key + "-inline-input");
+  if (!cfg || !row || !input) return;
+  if (inlineAddKey && inlineAddKey !== key) closeInlineAdd();
+  inlineAddKey = key;
+  inlineAddOpener = opener || document.getElementById(inlineAddOpenerId(key));
+  row.classList.remove("hidden");
   input.value = "";
-  refreshAddAmountPreview();
-  modal.classList.remove("hidden");
+  refreshInlineAdd();
   input.focus();
 }
-function closeAddAmount() {
-  const modal = document.getElementById("add-amount-modal");
-  if (modal) modal.classList.add("hidden");
-  if (addAmountCtx && addAmountCtx.opener && document.contains(addAmountCtx.opener)) addAmountCtx.opener.focus();
-  addAmountCtx = null;
+function closeInlineAdd() {
+  if (!inlineAddKey) return;
+  const row = document.getElementById(inlineAddKey + "-inline-add");
+  if (row) row.classList.add("hidden");
+  inlineAddKey = null;
+  if (inlineAddOpener && document.contains(inlineAddOpener)) inlineAddOpener.focus();
+  inlineAddOpener = null;
 }
-document.getElementById("water-num-btn").addEventListener("click", () => openAddAmount("water"));
-document.getElementById("exercise-num-btn").addEventListener("click", () => openAddAmount("exercise"));
-document.getElementById("add-amount-input").addEventListener("input", refreshAddAmountPreview);
-document.getElementById("add-amount-input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const addBtn = document.getElementById("add-amount-add");
-    if (addBtn && !addBtn.disabled) addBtn.click();
-  }
-});
-document.getElementById("add-amount-add").addEventListener("click", () => {
-  if (!addAmountCtx) return;
-  const n = addAmountTyped();
+function submitInlineAdd() {
+  if (!inlineAddKey) return;
+  const n = inlineAddTyped();
   if (n <= 0) return;
-  const ctx = addAmountCtx;
-  closeAddAmount();
-  nudgeGoal(ctx.key, ctx.field, ctx.extra, n);
+  const cfg = INLINE_ADD_CFG[inlineAddKey];
+  const key = inlineAddKey;
+  closeInlineAdd();
+  if (cfg.kind === "macro") adjustMacroBy(key, n);
+  else nudgeGoal(key, cfg.field, cfg.extra, n);
+}
+["water", "exercise", "protein", "carbs", "fat"].forEach((key) => {
+  const opener = document.getElementById(inlineAddOpenerId(key));
+  if (opener) opener.addEventListener("click", () => openInlineAdd(key, opener));
+  const input = document.getElementById(key + "-inline-input");
+  if (input) {
+    input.addEventListener("input", refreshInlineAdd);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const addBtn = document.getElementById(key + "-inline-add-btn");
+        if (addBtn && !addBtn.disabled) addBtn.click();
+      }
+    });
+  }
+  const addBtn = document.getElementById(key + "-inline-add-btn");
+  if (addBtn) addBtn.addEventListener("click", submitInlineAdd);
+  const cancelBtn = document.getElementById(key + "-inline-cancel-btn");
+  if (cancelBtn) cancelBtn.addEventListener("click", closeInlineAdd);
 });
-document.getElementById("add-amount-cancel").addEventListener("click", closeAddAmount);
-document.getElementById("add-amount-modal").addEventListener("click", (e) => {
-  if (e.target.id === "add-amount-modal") closeAddAmount();
-});
+const macroCenterBtn = document.getElementById("macro-center-btn");
+if (macroCenterBtn) macroCenterBtn.addEventListener("click", () => openInlineAdd(selectedMacro, macroCenterBtn));
 
 /* ---------- Your Macros (v168) ---------- */
 /* Protein, carbs and fat on the front page, against the user's own
@@ -1855,6 +1883,22 @@ function macroProgressText(logged, target) {
   const over = Math.round(logged - target);
   return pct + "% of your target" + (over > 0 ? " · +" + over + "g over your target" : "");
 }
+/* The tap-to-type buttons name the macro and the current total (v049),
+   so a screen reader hears the same numbers a sighted user sees. */
+function syncMacroAddLabels(totals, targets) {
+  const names = { protein: "Protein", carbs: "Carbs", fat: "Fat" };
+  MACRO_KEYS.forEach((key) => {
+    const btn = document.getElementById("logged-" + key + "-btn");
+    if (btn) {
+      const targetPart = targets[key] > 0
+        ? totals[key] + " of " + targets[key] + " grams"
+        : totals[key] + " grams, no target set";
+      btn.setAttribute("aria-label", names[key] + " logged today, " + targetPart + ". Tap to add more.");
+    }
+  });
+  const centerBtn = document.getElementById("macro-center-btn");
+  if (centerBtn) centerBtn.setAttribute("aria-label", "Add " + selectedMacro + " logged today, " + totals[selectedMacro] + " grams. Tap to add more.");
+}
 function renderMacros() {
   const card = document.getElementById("macros-card");
   if (!card) return;
@@ -1897,6 +1941,7 @@ function renderMacros() {
     const row = document.querySelector('.macro-row[data-macro="' + key + '"]');
     if (row) row.classList.toggle("selected", selectedMacro === key);
   });
+  syncMacroAddLabels(totals, targets);
   renderCalories(totals);
   const svg = card.querySelector(".donut-wrap svg");
   if (svg) svg.setAttribute("aria-label", "Donut chart of today's macros. Protein " + totals.protein + " grams in gold, carbs " + totals.carbs + " grams in sage, fat " + totals.fat + " grams in cream tan.");
@@ -2059,6 +2104,7 @@ function bindMacroSlide(key) {
     if (selectedMacro === key) {
       document.getElementById("macro-center-grams").textContent = liveTotal;
     }
+    syncMacroAddLabels(totals, targets);
     renderCalories(totals);
   }
   bar.addEventListener("pointerdown", (e) => {
@@ -2102,6 +2148,14 @@ function bindMacroSlide(key) {
 }
 MACRO_KEYS.forEach(bindMacroSlide);
 
+/* Your foods first (v049, R-23): when the Log food form opens, the
+   saved foods show with it, so logging a repeat takes one tap. Only
+   when there is something saved; an empty library stays hidden. */
+function openFoodLibraryIfAny() {
+  const list = document.getElementById("macro-food-library");
+  if (!list) return;
+  if (Object.keys(foodLibrary()).length > 0) { renderFoodLibrary(); list.classList.remove("hidden"); }
+}
 document.getElementById("macro-log-food").addEventListener("click", () => {
   const form = document.getElementById("macro-food-form");
   const wasHidden = form.classList.contains("hidden");
@@ -2110,6 +2164,7 @@ document.getElementById("macro-log-food").addEventListener("click", () => {
     editingFoodId = null;
     const mealSel = document.getElementById("macro-food-meal");
     if (mealSel) mealSel.value = "";
+    openFoodLibraryIfAny();
     syncFormCalories();
     form.scrollIntoView({ behavior: "smooth", block: "start" });
     document.getElementById("macro-food-name").focus();
@@ -2541,7 +2596,7 @@ async function searchFoodByName() {
     status.textContent = "Pick a food.";
   }
   try {
-    const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=8&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
+    const data = await fetchFoodJson("https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodeURIComponent(query) + "&search_simple=1&action=process&json=1&page_size=50&countries_tags_en=united-states&fields=product_name,brands,nutriments,serving_size");
     if (!data) { status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand."; openFoodLibrary(); return; }
     const products = rankFoodSearchResults((data && data.products) || [], query);
     if (!products.length) {
@@ -3137,7 +3192,7 @@ function renderMovement() {
    shows just the totals. The slider, tap-to-type, routine toggles,
    Customize, strength form and list, and doctor summary data are all
    unchanged. */
-let movementSectionOpen = false;
+let movementSectionOpen = true;
 let strengthFormOpen = false;
 function renderMovementSummary() {
   const el = document.getElementById("movement-summary");
@@ -3392,12 +3447,15 @@ function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
   const gotoBtn = document.getElementById("goto-shots-btn");
+  renderTodayRefillLine();
   // Done state first: it applies even before a shot day is set, so a
   // buyer who logged a shot never sees "Log shot" again today
   // and cannot double-log. (The old code returned early above when no
   // shot day was set, so the button stayed visible with no done state.)
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
   gotoBtn.style.display = alreadyLogged ? "none" : "";
+  const shotDayBtn = document.getElementById("goto-shot-day-btn");
+  if (shotDayBtn) shotDayBtn.classList.toggle("hidden", alreadyLogged || !!shotDay);
   if (alreadyLogged) {
     el.textContent = "\u2713 Today's shot logged.";
     return;
@@ -3439,13 +3497,15 @@ function renderNextInjection() {
 document.getElementById("goto-shots-btn").addEventListener("click", () => {
   showTab("shots");
 });
+document.getElementById("goto-shot-day-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
+document.getElementById("today-refill-settings-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
 
 /* GLP-1 quick actions (v035): three links on Today to the flows
    that already exist. Log dose opens the Shots tab with the log form
    open. Reminders runs the existing calendar shot reminder download.
    Log side effect opens the Side Effects tab with the log form open.
    No new data, no new screens. */
-document.getElementById("qa-log-dose").addEventListener("click", () => {
+document.getElementById("qa-log-shot").addEventListener("click", () => {
   showTab("shots");
   document.getElementById("show-injection-form").click();
 });
@@ -3637,10 +3697,20 @@ function toggleForm(form, showBtn, show) {
 }
 
 /* ---------- Shot reminder (calendar) ---------- */
-document.getElementById("add-shot-reminder").addEventListener("click", () => {
+/* Shot reminder (v049, R-05): a weekly calendar file for the shot
+   day. The reminder lives in the phone's calendar: change or remove
+   it there. The day the file was built for is remembered, so Settings
+   can say when it no longer matches the shot day. */
+const REMINDER_SHOT_DAY_KEY = "nct-reminder-shot-day";
+function downloadShotReminder() {
   const shotDay = store.settings.shotDay;
+  const note = document.getElementById("shot-reminder-note");
   if (!shotDay) {
-    alert("Set your shot day in Settings first, then come back to add the reminder.");
+    if (note) {
+      note.innerHTML = 'Set your shot day in Settings first, then come back to add the reminder. <button type="button" class="btn-link" id="shot-reminder-goto-settings">Go to Settings</button>';
+      note.classList.remove("hidden");
+      document.getElementById("shot-reminder-goto-settings").addEventListener("click", () => openSettingsAt("settings-goals-card"));
+    }
     return;
   }
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -3679,12 +3749,30 @@ document.getElementById("add-shot-reminder").addEventListener("click", () => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  const note = document.getElementById("shot-reminder-note");
+  try { localStorage.setItem(REMINDER_SHOT_DAY_KEY, shotDay); } catch {}
   if (note) {
-    note.textContent = "Open the downloaded file to add it to your calendar.";
+    note.textContent = "Reminder downloaded for " + shotDay + "s. Open the downloaded file to add it to your calendar. The reminder lives in your phone's calendar. Change or remove it there.";
     note.classList.remove("hidden");
   }
-});
+  renderShotReminderMismatch();
+}
+document.getElementById("add-shot-reminder").addEventListener("click", downloadShotReminder);
+document.getElementById("shot-reminder-redownload-btn").addEventListener("click", downloadShotReminder);
+/* Settings mismatch line (v049, R-05): when the shot day changed
+   after the reminder was downloaded, say so and offer a new file. */
+function renderShotReminderMismatch() {
+  const line = document.getElementById("shot-reminder-mismatch");
+  const btn = document.getElementById("shot-reminder-redownload-btn");
+  let saved = null;
+  try { saved = localStorage.getItem(REMINDER_SHOT_DAY_KEY); } catch {}
+  const shotDay = store.settings.shotDay;
+  const mismatch = saved && shotDay && saved !== shotDay;
+  if (line) {
+    line.textContent = mismatch ? "Your downloaded reminder is for " + saved + "s. Your shot day is now " + shotDay + "s." : "";
+    line.classList.toggle("hidden", !mismatch);
+  }
+  if (btn) btn.classList.toggle("hidden", !mismatch);
+}
 
 document.getElementById("show-injection-form").addEventListener("click", () => {
   editingInjectionId = null;
@@ -4808,6 +4896,22 @@ document.getElementById("photo-input").addEventListener("change", (e) => {
   e.target.value = "";
 });
 
+/* Progress photo comparison (v049, R-17): tap Compare on two photos
+   to see them side by side with their dates. A third pick replaces
+   the first. Clear empties the comparison. */
+let photoCompareIds = [];
+function renderPhotoCompare() {
+  const box = document.getElementById("photo-compare");
+  if (!box) return;
+  const picked = photoCompareIds.map((id) => (store.photos || []).find((p) => p.id === id)).filter(Boolean);
+  if (!picked.length) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+  box.classList.remove("hidden");
+  box.innerHTML = '<div class="photo-compare-row">' + picked.map((p) =>
+    '<figure><img src="' + p.dataUrl + '" alt="Progress photo from ' + escapeHtml(formatDate(p.date)) + '"><figcaption>' + escapeHtml(formatDate(p.date)) + '</figcaption></figure>').join("") + '</div>'
+    + (picked.length < 2 ? '<p class="muted" style="margin:8px 0 0;font-size:.9rem">Pick another photo to compare.</p>' : '')
+    + '<p style="margin:8px 0 0"><button type="button" class="btn btn-small" id="photo-compare-clear">Clear comparison</button></p>';
+  document.getElementById("photo-compare-clear").addEventListener("click", () => { photoCompareIds = []; renderPhotos(); });
+}
 function renderPhotos() {
   const grid = document.getElementById("photo-grid");
   // Snapshots keep photo dates only, not the pictures; skip those here.
@@ -4817,10 +4921,11 @@ function renderPhotos() {
     return;
   }
   grid.innerHTML = sorted.map((p) => `
-    <div class="photo-item">
+    <div class="photo-item${photoCompareIds.includes(p.id) ? " selected" : ""}">
       <img src="${p.dataUrl}" alt="Progress photo from ${escapeHtml(formatDate(p.date))}" loading="lazy">
       <div class="photo-date">
         <span>${escapeHtml(formatDate(p.date))}</span>
+        <button data-compare-photo="${p.id}" aria-pressed="${photoCompareIds.includes(p.id) ? "true" : "false"}">${photoCompareIds.includes(p.id) ? "Selected" : "Compare"}</button>
         <button data-del-photo="${p.id}" aria-label="Delete photo">Delete</button>
       </div>
     </div>`).join("");
@@ -4828,9 +4933,21 @@ function renderPhotos() {
   grid.querySelectorAll("[data-del-photo]").forEach((b) => b.addEventListener("click", () => {
     if (!confirm("Delete this photo?")) return;
     store.photos = store.photos.filter((x) => x.id !== b.dataset.delPhoto);
+    photoCompareIds = photoCompareIds.filter((id) => id !== b.dataset.delPhoto);
     saveStore();
     renderPhotos();
   }));
+  grid.querySelectorAll("[data-compare-photo]").forEach((b) => b.addEventListener("click", () => {
+    const id = b.dataset.comparePhoto;
+    const at = photoCompareIds.indexOf(id);
+    if (at >= 0) photoCompareIds.splice(at, 1);
+    else {
+      if (photoCompareIds.length >= 2) photoCompareIds.shift();
+      photoCompareIds.push(id);
+    }
+    renderPhotos();
+  }));
+  renderPhotoCompare();
 }
 
 /* ---------- Journal ---------- */
@@ -5113,102 +5230,33 @@ function renderSeTrends() {
   const sevNum = { "Mild": 1, "Moderate": 2, "Severe": 3 };
   const groups = {};
   recent.forEach((e) => {
-    const key = (e.symptom || "Effect").trim();
-    if (!groups[key]) groups[key] = { count: 0, sev: 0, n: 0 };
+    // v049: group by the lowercased symptom, so "Nausea" and "nausea"
+    // count together. The display name keeps the first spelling typed.
+    const display = (e.symptom || "Effect").trim();
+    const key = display.toLowerCase();
+    if (!groups[key]) groups[key] = { display, count: 0, sev: 0, n: 0, last: "" };
     groups[key].count++;
     if (sevNum[e.severity]) { groups[key].sev += sevNum[e.severity]; groups[key].n++; }
+    if (!groups[key].last || e.date > groups[key].last) groups[key].last = e.date;
   });
-  const rows = Object.entries(groups).sort((a, b) => b[1].count - a[1].count).map(([name, g]) => {
+  const shotDates = new Set((store.injections || []).map((e) => e.date));
+  const dayBeforeStr = (d) => {
+    const p = String(d).split("-");
+    const dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    dt.setDate(dt.getDate() - 1);
+    return localDateStr(dt);
+  };
+  const rows = Object.entries(groups).sort((a, b) => b[1].count - a[1].count).map(([key, g]) => {
     const avg = g.n ? (g.sev / g.n).toFixed(1) : "—";
-    return `<li><strong>${escapeHtml(name)}</strong>: ${g.count} time${g.count === 1 ? "" : "s"} in the last 30 days, average severity ${avg} of 3</li>`;
+    let shotNote = "";
+    if (g.last && (shotDates.has(g.last) || shotDates.has(dayBeforeStr(g.last)))) {
+      const sd = shotDates.has(g.last) ? g.last : dayBeforeStr(g.last);
+      shotNote = ", after your shot on " + formatDate(sd);
+    }
+    return `<li><strong>${escapeHtml(g.display)}</strong>: ${g.count} time${g.count === 1 ? "" : "s"} in the last 30 days, average severity ${avg} of 3${shotNote}</li>`;
   }).join("");
   el.innerHTML = `<h3 style="margin:12px 0 6px">Trends, last 30 days</h3><ul style="margin:0;padding-left:20px">${rows}</ul>`;
 }
-
-/* ---------- Medicines ---------- */
-/* Daily medicines besides the GLP-1 shot. A standing list (name, dose,
-   time) with a per-day check-off: tap the circle when you take one.
-   Taken state is per date, so a new day starts unchecked. */
-function renderMedicines() {
-  const list = document.getElementById("medicine-list");
-  if (!list) return;
-  const date = viewedDateStr();
-  const taken = (store.medicineTaken && store.medicineTaken[date]) || [];
-  if (!store.medicines.length) {
-    list.innerHTML = '<p class="empty-state">No medicines yet.</p>';
-    return;
-  }
-  list.innerHTML = store.medicines.map((m) => {
-    const isTaken = taken.includes(m.id);
-    return `<div class="entry-row" style="display:flex;align-items:center;gap:10px">
-      <button type="button" class="move-check${isTaken ? " done" : ""}" data-med="${m.id}" aria-pressed="${isTaken ? "true" : "false"}" aria-label="Mark ${escapeHtml(m.name)} taken today"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6.5"/></svg></button>
-      <span style="flex:1"><strong>${escapeHtml(m.name)}</strong>${m.dose ? " · " + escapeHtml(m.dose) : ""}${m.time ? " · " + escapeHtml(m.time) : ""}</span>
-      <button type="button" class="btn btn-small" data-med-edit="${m.id}" aria-label="Edit ${escapeHtml(m.name)}">Edit</button>
-      <button type="button" class="btn btn-small" data-med-del="${m.id}">Delete</button>
-    </div>`;
-  }).join("");
-  list.querySelectorAll("[data-med]").forEach((btn) => btn.addEventListener("click", () => {
-    const d = viewedDateStr();
-    if (!store.medicineTaken) store.medicineTaken = {};
-    const arr = store.medicineTaken[d] || [];
-    const i = arr.indexOf(btn.dataset.med);
-    if (i === -1) arr.push(btn.dataset.med); else arr.splice(i, 1);
-    store.medicineTaken[d] = arr;
-    saveStore();
-    renderMedicines();
-  }));
-  list.querySelectorAll("[data-med-del]").forEach((btn) => btn.addEventListener("click", () => {
-    store.medicines = store.medicines.filter((m) => m.id !== btn.dataset.medDel);
-    saveStore();
-    renderMedicines();
-  }));
-  list.querySelectorAll("[data-med-edit]").forEach((btn) => btn.addEventListener("click", () => {
-    const m = (store.medicines || []).find((x) => x.id === btn.dataset.medEdit);
-    if (!m) return;
-    editingMedId = m.id;
-    document.getElementById("med-name").value = m.name || "";
-    document.getElementById("med-dose").value = m.dose || "";
-    document.getElementById("med-time").value = m.time || "";
-    document.getElementById("med-submit-btn").textContent = "Save changes";
-    document.getElementById("med-cancel-btn").classList.remove("hidden");
-    document.getElementById("med-name").focus();
-  }));
-}
-/* Editing a medicine keeps its id, so the taken history for that
-   medicine is kept. Deleting and re-adding would lose it. */
-let editingMedId = null;
-function resetMedForm() {
-  document.getElementById("medicine-form").reset();
-  document.getElementById("med-submit-btn").textContent = "Add medicine";
-  document.getElementById("med-cancel-btn").classList.add("hidden");
-}
-document.getElementById("med-cancel-btn").addEventListener("click", () => {
-  editingMedId = null;
-  resetMedForm();
-  document.getElementById("med-msg").textContent = "";
-});
-document.getElementById("medicine-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const msg = document.getElementById("med-msg");
-  const name = document.getElementById("med-name").value.trim().slice(0, 80);
-  if (!name) { setFormStatus(msg, "Type the medicine name first.", true); return; }
-  const dose = document.getElementById("med-dose").value.trim().slice(0, 40);
-  const time = document.getElementById("med-time").value.trim().slice(0, 20);
-  if (editingMedId) {
-    const i = (store.medicines || []).findIndex((x) => x.id === editingMedId);
-    if (i !== -1) {
-      store.medicines[i] = { ...store.medicines[i], name, dose, time };
-      setFormStatus(msg, "Medicine updated.", false);
-    }
-    editingMedId = null;
-  } else {
-    store.medicines.push({ id: uid(), name, dose, time, date: viewedDateStr() });
-    setFormStatus(msg, "Medicine added.", false);
-  }
-  saveStore();
-  resetMedForm();
-  renderMedicines();
-});
 
 /* ---------- Saved recipes ---------- */
 /* Recipes from the Companion, saved to cook again. Title plus the
@@ -5231,7 +5279,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 2,
     protein: 36, carbs: 5, fat: 9, calories: 245,
-    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium", "low-oxalate"],
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-oxalate", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "2 chicken breasts (about 225 g total)",
       "2 zucchini, sliced",
@@ -5255,7 +5303,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 10, difficulty: "Easy", servings: 1,
     protein: 25, carbs: 9, fat: 6, calories: 190,
-    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "budget-friendly", "low-sodium"],
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "budget-friendly", "vegetarian", "gluten-free", "low-sodium", "nut-free"],
     ingredients: [
       "170 g plain nonfat Greek yogurt (about 3/4 cup)",
       "1 boiled egg, halved",
@@ -5277,7 +5325,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 20, carbs: 31, fat: 2, calories: 222,
-    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "low-sodium"],
+    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "vegetarian", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "170 g plain nonfat Greek yogurt (about 3/4 cup)",
       "75 g blueberries (about 1/2 cup)",
@@ -5297,7 +5345,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 10, difficulty: "Easy", servings: 1,
     protein: 24, carbs: 16, fat: 15, calories: 295,
-    tags: ["breakfast", "easy-prep", "low-carb", "budget-friendly", "low-sodium"],
+    tags: ["breakfast", "easy-prep", "low-carb", "budget-friendly", "vegetarian", "nut-free"],
     ingredients: [
       "2 eggs",
       "30 g fresh spinach (about 1 cup)",
@@ -5320,7 +5368,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 25, difficulty: "Easy", servings: 2,
     protein: 32, carbs: 28, fat: 16, calories: 384,
-    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "2 salmon fillets (about 225 g total)",
       "200 g cooked quinoa (about 1 cup)",
@@ -5343,7 +5391,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 2,
     protein: 31, carbs: 28, fat: 16, calories: 380,
-    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "240 g lean ground turkey",
       "200 g cooked sweet potato, cubed (about 1 cup)",
@@ -5366,7 +5414,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 18, carbs: 14, fat: 2, calories: 146,
-    tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "low-oxalate"],
+    tags: ["snacks-smoothies", "breakfast", "small-portions", "easy-prep", "balanced-macros", "low-oxalate", "vegetarian", "gluten-free", "low-sodium", "egg-free"],
     ingredients: [
       "170 g plain nonfat Greek yogurt (about 3/4 cup)",
       "50 g blueberries (about 1/3 cup)",
@@ -5387,7 +5435,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 10, difficulty: "Easy", servings: 1,
     protein: 18, carbs: 16, fat: 7, calories: 199,
-    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-sodium", "low-oxalate"],
+    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-oxalate", "vegetarian", "nut-free"],
     ingredients: [
       "1 egg, boiled or fried",
       "1 slice whole wheat bread, toasted",
@@ -5409,7 +5457,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 2,
     protein: 41, carbs: 10, fat: 9, calories: 285,
-    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "gluten-free", "dairy-free", "nut-free", "egg-free"],
     ingredients: [
       "2 chicken breasts (about 300 g total)",
       "100 g canned white beans, drained",
@@ -5434,7 +5482,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 10, difficulty: "Easy", servings: 2,
     protein: 37, carbs: 19, fat: 6, calories: 278,
-    tags: ["high-protein", "lunch", "easy-prep", "budget-friendly", "low-sodium"],
+    tags: ["high-protein", "lunch", "easy-prep", "budget-friendly", "gluten-free", "dairy-free", "nut-free", "egg-free"],
     ingredients: [
       "2 cans tuna in water, drained (about 240 g total)",
       "160 g canned white beans, drained",
@@ -5457,7 +5505,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 20, difficulty: "Easy", servings: 2,
     protein: 36, carbs: 31, fat: 8, calories: 340,
-    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "240 g raw shrimp, peeled",
       "200 g cooked quinoa (about 1 cup)",
@@ -5481,7 +5529,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 21, carbs: 27, fat: 4, calories: 228,
-    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "low-sodium"],
+    tags: ["breakfast", "easy-prep", "small-portions", "budget-friendly", "vegetarian", "nut-free", "egg-free"],
     ingredients: [
       "170 g low-fat cottage cheese (about 3/4 cup)",
       "75 g blueberries (about 1/2 cup)",
@@ -5501,7 +5549,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 21, carbs: 17, fat: 8, calories: 224,
-    tags: ["breakfast", "easy-prep", "small-portions", "low-sodium"],
+    tags: ["breakfast", "easy-prep", "small-portions", "vegetarian", "gluten-free", "low-sodium", "egg-free"],
     ingredients: [
       "170 g plain nonfat Greek yogurt (about 3/4 cup)",
       "50 g blueberries (about 1/3 cup)",
@@ -5521,7 +5569,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 27, carbs: 3, fat: 14, calories: 246,
-    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions"],
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "gluten-free", "nut-free"],
     ingredients: [
       "2 eggs",
       "30 g diced cooked chicken breast",
@@ -5543,7 +5591,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 2,
     protein: 34, carbs: 35, fat: 4, calories: 312,
-    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly"],
+    tags: ["high-protein", "balanced-macros", "lunch", "dinner", "budget-friendly", "dairy-free", "nut-free", "egg-free"],
     ingredients: [
       "1 chicken breast (about 200 g)",
       "160 g canned black beans, drained",
@@ -5567,7 +5615,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 25, difficulty: "Easy", servings: 2,
     protein: 35, carbs: 28, fat: 9, calories: 333,
-    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "300 g pork tenderloin",
       "200 g cooked sweet potato, cubed (about 1 cup)",
@@ -5590,7 +5638,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 2,
     protein: 36, carbs: 29, fat: 8, calories: 332,
-    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "2 cod fillets (about 300 g total)",
       "200 g cooked quinoa (about 1 cup)",
@@ -5613,7 +5661,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 17, carbs: 10, fat: 6, calories: 162,
-    tags: ["snacks-smoothies", "small-portions", "easy-prep", "low-sodium"],
+    tags: ["snacks-smoothies", "small-portions", "easy-prep", "vegetarian", "gluten-free", "nut-free", "egg-free"],
     ingredients: [
       "100 g shelled edamame (about 2/3 cup)",
       "50 g low-fat cottage cheese (about 3 tablespoons)",
@@ -5633,7 +5681,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 12, carbs: 16, fat: 11, calories: 211,
-    tags: ["snacks-smoothies", "small-portions", "easy-prep", "budget-friendly", "low-sodium"],
+    tags: ["snacks-smoothies", "small-portions", "easy-prep", "budget-friendly", "vegetarian", "gluten-free", "dairy-free", "low-sodium", "nut-free"],
     ingredients: [
       "60 g hummus (about 1/4 cup)",
       "1 boiled egg, halved",
@@ -5654,7 +5702,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 20, carbs: 4, fat: 7, calories: 159,
-    tags: ["high-protein", "low-carb", "snacks-smoothies", "small-portions", "easy-prep"],
+    tags: ["high-protein", "low-carb", "snacks-smoothies", "small-portions", "easy-prep", "gluten-free", "nut-free", "egg-free"],
     ingredients: [
       "60 g canned tuna in water, drained",
       "80 g cucumber, sliced into thick rounds",
@@ -5677,7 +5725,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 4,
     protein: 25, carbs: 11, fat: 7, calories: 207,
-    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "4 boneless, skinless chicken breast halves, about 4 ounces each, all visible fat removed",
       "1/2 teaspoon paprika",
@@ -5710,7 +5758,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 35, difficulty: "Easy", servings: 4,
     protein: 31, carbs: 16, fat: 3, calories: 215,
-    tags: ["high-protein", "low-carb", "lunch", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "lunch", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "1 teaspoon grated lemon zest",
       "2 tablespoons fresh lime juice",
@@ -5745,7 +5793,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 30, difficulty: "Easy", servings: 4,
     protein: 30, carbs: 24, fat: 4, calories: 252,
-    tags: ["high-protein", "lunch", "dinner", "easy-prep", "low-sodium"],
+    tags: ["high-protein", "lunch", "dinner", "easy-prep", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "1 pound boneless, skinless chicken breasts, cut into 1-inch strips (or chicken tenderloins)",
       "1/3 cup whole-wheat flour",
@@ -5779,7 +5827,7 @@ const KITCHEN_RECIPES = [
     category: "High Protein",
     time: 25, difficulty: "Easy", servings: 4,
     protein: 31, carbs: 24, fat: 5, calories: 265,
-    tags: ["high-protein", "lunch", "dinner", "low-sodium"],
+    tags: ["high-protein", "lunch", "dinner", "low-sodium", "nut-free"],
     ingredients: [
       "1 pound chicken tenders",
       "1/2 cup rolled oats",
@@ -5814,7 +5862,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 25, difficulty: "Easy", servings: 4,
     protein: 24, carbs: 37, fat: 14, calories: 370,
-    tags: ["high-protein", "breakfast", "easy-prep", "low-sodium"],
+    tags: ["high-protein", "breakfast", "easy-prep", "vegetarian", "gluten-free", "nut-free"],
     ingredients: [
       "1 teaspoon canola oil",
       "1/2 cup chopped onion",
@@ -5852,7 +5900,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 25, difficulty: "Easy", servings: 4,
     protein: 18, carbs: 29, fat: 15, calories: 323,
-    tags: ["breakfast", "easy-prep", "low-sodium"],
+    tags: ["breakfast", "easy-prep", "vegetarian", "gluten-free", "dairy-free", "low-sodium", "nut-free"],
     ingredients: [
       "1 cup uncooked quinoa, rinsed",
       "1 1/2 cups water",
@@ -5882,7 +5930,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 21, carbs: 3, fat: 11, calories: 195,
-    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly"],
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly", "vegetarian", "gluten-free", "nut-free"],
     ingredients: [
       "2 eggs",
       "1 egg white",
@@ -5910,7 +5958,7 @@ const KITCHEN_RECIPES = [
     category: "Easy Breakfasts",
     time: 5, difficulty: "Easy", servings: 1,
     protein: 19, carbs: 9, fat: 2, calories: 130,
-    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly"],
+    tags: ["high-protein", "low-carb", "breakfast", "easy-prep", "small-portions", "budget-friendly", "vegetarian", "gluten-free", "nut-free"],
     ingredients: [
       "Cooking spray",
       "7 tablespoons liquid egg whites (1/4 cup plus 3 tablespoons)",
@@ -5937,7 +5985,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 30, difficulty: "Easy", servings: 4,
     protein: 26, carbs: 26, fat: 15, calories: 343,
-    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "1 pound new potatoes, halved",
       "1 pound green beans, trimmed",
@@ -5965,7 +6013,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 4,
     protein: 23, carbs: 10, fat: 6, calories: 186,
-    tags: ["high-protein", "low-carb", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "dinner", "dairy-free", "nut-free", "egg-free"],
     ingredients: [
       "4 tilapia fillets, about 4 ounces each",
       "1 cup orange juice",
@@ -5997,7 +6045,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 35, difficulty: "Easy", servings: 4,
     protein: 27, carbs: 17, fat: 8, calories: 248,
-    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium"],
+    tags: ["high-protein", "balanced-macros", "dinner", "low-sodium", "egg-free"],
     ingredients: [
       "1 cup low-sodium chicken broth",
       "1/2 cup chopped onion",
@@ -6031,7 +6079,7 @@ const KITCHEN_RECIPES = [
     category: "Balanced Dinners",
     time: 20, difficulty: "Easy", servings: 4,
     protein: 26, carbs: 6, fat: 8, calories: 200,
-    tags: ["high-protein", "low-carb", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"],
     ingredients: [
       "4 salmon fillets, about 4 ounces each",
       "2 small cucumbers, peeled and thinly sliced",
@@ -6057,7 +6105,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 20, difficulty: "Easy", servings: 4,
     protein: 27, carbs: 16, fat: 7, calories: 235,
-    tags: ["high-protein", "low-carb", "small-portions", "lunch", "easy-prep", "low-sodium"],
+    tags: ["high-protein", "low-carb", "small-portions", "lunch", "easy-prep", "gluten-free", "low-sodium", "nut-free"],
     ingredients: [
       "4 large tomatoes, 3 to 4 inches across, left whole",
       "1 can (14.75 ounces) low-sodium salmon, packed in water, drained (or 5 pouches of 2.6-ounce low-sodium salmon)",
@@ -6088,7 +6136,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 10, difficulty: "Easy", servings: 4,
     protein: 15, carbs: 18, fat: 1, calories: 141,
-    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "low-sodium"],
+    tags: ["breakfast", "small-portions", "easy-prep", "budget-friendly", "vegetarian", "nut-free"],
     ingredients: [
       "Cooking spray",
       "1 1/2 cups finely chopped fresh or frozen broccoli florets, thawed if frozen",
@@ -6117,7 +6165,7 @@ const KITCHEN_RECIPES = [
     category: "Small Appetite",
     time: 25, difficulty: "Easy", servings: 4,
     protein: 24, carbs: 7, fat: 9, calories: 205,
-    tags: ["high-protein", "low-carb", "small-portions", "dinner", "low-sodium"],
+    tags: ["high-protein", "low-carb", "small-portions", "dinner", "gluten-free", "dairy-free", "low-sodium", "nut-free"],
     ingredients: [
       "Cooking spray",
       "1 1/2 tablespoons mayonnaise (light mayonnaise works too)",
@@ -6223,42 +6271,10 @@ function renderMealIdeas() {
   box.querySelectorAll("[data-kitchen-add]").forEach((btn) => btn.addEventListener("click", () => addKitchenToToday(btn.dataset.kitchenAdd, 1)));
 }
 
-/* Simple meals row (v039): up to four quick recipes (15 minutes or
-   less, or tagged Easy Prep). Picked once per page load and reshuffled
-   only on Shuffle, so the row does not jump while the user works. */
-let kitchenSimpleIds = null;
+/* Quick and easy pool (v049, R-07): recipes ready in 15 minutes or
+   less, or tagged Easy Prep. The Quick and easy filter shows this pool. */
 function kitchenQuickPool() {
   return KITCHEN_RECIPES.filter((r) => r.time <= 15 || r.tags.includes("easy-prep"));
-}
-function shuffleKitchenSimple() {
-  const pool = kitchenQuickPool().map((r) => r.id);
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
-  }
-  kitchenSimpleIds = pool.slice(0, 4);
-}
-function kitchenTopMacro(r) {
-  const p = r.protein, c = r.carbs, f = r.fat;
-  if (p >= c && p >= f) return p + "g protein";
-  if (c >= p && c >= f) return c + "g carbs";
-  return f + "g fat";
-}
-function renderKitchenSimple() {
-  const box = document.getElementById("kitchen-simple");
-  if (!box) return;
-  if (!kitchenSimpleIds) shuffleKitchenSimple();
-  box.innerHTML = kitchenSimpleIds.map((id) => {
-    const r = KITCHEN_RECIPES.find((x) => x.id === id);
-    if (!r) return "";
-    return `<article class="simple-card">
-      <p class="simple-macro">${escapeHtml(kitchenTopMacro(r))}</p>
-      <strong>${escapeHtml(r.name)}</strong>
-      <p class="muted">${escapeHtml(r.category)} · Ready in ${r.time} minutes</p>
-      <button type="button" class="btn btn-small" data-simple-open="${r.id}">See the recipe</button>
-    </article>`;
-  }).join("");
-  box.querySelectorAll("[data-simple-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.simpleOpen)));
 }
 
 /* One photo card (v039): photo, category chip, name, and calories, with
@@ -6311,19 +6327,21 @@ function bindKitchenCards(root) {
   root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
 }
 
+/* The Kitchen is one library (v049, R-07): one filter row and one
+   list, each recipe shown once. Fresh picks is a filter (the first
+   six), Quick and easy is a filter (the quick pool). The old Fresh
+   picks and Quick and easy sections are gone. */
+function kitchenFiltered() {
+  if (kitchenFilter === "all") return KITCHEN_RECIPES.slice();
+  if (kitchenFilter === "fresh-picks") return KITCHEN_RECIPES.slice(0, 6);
+  if (kitchenFilter === "quick-and-easy") return kitchenQuickPool();
+  return KITCHEN_RECIPES.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+}
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
   if (!list) return;
   renderMealIdeas();
-  renderKitchenSimple();
-  const shown = KITCHEN_RECIPES.filter((r) => kitchenFilter === "all" || r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
-  const featured = document.getElementById("kitchen-featured");
-  if (featured) {
-    featured.innerHTML = shown.length
-      ? shown.slice(0, 6).map((r) => kitchenPhotoCardHtml(r)).join("")
-      : '<p class="empty-state">No recipes match this filter.</p>';
-    bindKitchenCards(featured);
-  }
+  const shown = kitchenFiltered();
   if (!shown.length) {
     list.innerHTML = '<p class="empty-state">No recipes match this filter.</p>';
     return;
@@ -6339,18 +6357,6 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
   renderKitchen();
 }));
 
-/* See all scrolls to the full Kitchen list; Shuffle reshuffles only
-   the Simple meals row. */
-const kitchenSeeAllBtn = document.getElementById("kitchen-see-all");
-if (kitchenSeeAllBtn) kitchenSeeAllBtn.addEventListener("click", () => {
-  const list = document.getElementById("kitchen-list");
-  if (list) list.scrollIntoView({ behavior: "smooth", block: "start" });
-});
-const kitchenShuffleBtn = document.getElementById("kitchen-shuffle");
-if (kitchenShuffleBtn) kitchenShuffleBtn.addEventListener("click", () => {
-  shuffleKitchenSimple();
-  renderKitchenSimple();
-});
 
 /* Recipe detail (v039): tap a card to see the full recipe, with the
    photo, ingredients, steps, nutrition, servings, Save, and Add to
@@ -6835,25 +6841,36 @@ function renderSettings() {
   if (readAloudBox) readAloudBox.checked = s.readAloud === true;
   populateVoicePicker();
   renderRefillCountdown();
+  renderShotReminderMismatch();
 }
 
+/* The refill line, shared by the Settings countdown and the Today
+   card (v049, R-04): one wording, one place, so the two never drift. */
+function refillLineText() {
+  const rd = store.settings.refillDate;
+  if (!rd) return "";
+  const diffDays = daysBetween(todayStr(), rd);
+  if (diffDays < 0) return "Your refill date has passed. Consider requesting a refill soon.";
+  if (diffDays === 0) return "Your refill is due today.";
+  if (diffDays === 1) return "Your refill is due tomorrow.";
+  return "Your refill is due in " + diffDays + " days (" + formatDate(rd) + ").";
+}
 function renderRefillCountdown() {
   const el = document.getElementById("refill-countdown");
+  if (el) el.textContent = refillLineText();
+}
+/* Refill line on Today (v049, R-04): shown only when the refill is
+   within 7 days or already passed, with a link to Settings to change
+   the date. */
+function renderTodayRefillLine() {
+  const line = document.getElementById("today-refill-line");
+  const text = document.getElementById("today-refill-text");
+  if (!line || !text) return;
   const rd = store.settings.refillDate;
-  if (!rd) {
-    el.textContent = "";
-    return;
-  }
-  const diffDays = daysBetween(todayStr(), rd);
-  if (diffDays < 0) {
-    el.textContent = "Your refill date has passed. Consider requesting a refill soon.";
-  } else if (diffDays === 0) {
-    el.textContent = "Your refill is due today.";
-  } else if (diffDays === 1) {
-    el.textContent = "Your refill is due tomorrow.";
-  } else {
-    el.textContent = "Your refill is due in " + diffDays + " days (" + formatDate(rd) + ").";
-  }
+  const diff = rd ? daysBetween(todayStr(), rd) : null;
+  if (diff === null || diff > 7) { line.classList.add("hidden"); return; }
+  text.textContent = refillLineText();
+  line.classList.remove("hidden");
 }
 
 /* v000: the Companion and Appearance controls apply as soon as they
@@ -7005,29 +7022,14 @@ document.getElementById("set-macro-pct-btn").addEventListener("click", () => {
   const sum = p.protein + p.carbs + p.fat;
   if (sum !== 100) { msg.textContent = "Percentages must add up to 100. Yours add up to " + sum + "."; return; }
   fillMacroGramsFromPct();
+  autosaveSettings();
 });
 
-document.getElementById("settings-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const keyInput = document.getElementById("set-companion-key").value.trim();
-  const existingKey = getAuthToken();
-  let tokenSaveFailed = false;
-  if (keyInput && keyInput !== maskToken(existingKey)) {
-    if (existingKey && !confirm("Replace the companion key you already have saved? The old key will stop working here.")) {
-      document.getElementById("set-companion-key").value = maskToken(existingKey);
-      return;
-    }
-    // Verify the key actually stuck: a full or blocked store would
-    // otherwise swallow the key silently. The goals still save below;
-    // the warning is shown with the saved message at the end.
-    try {
-      localStorage.setItem(TOKEN_KEY, keyInput);
-      tokenSaveFailed = localStorage.getItem(TOKEN_KEY) !== keyInput;
-    } catch { tokenSaveFailed = true; }
-    if (!tokenSaveFailed) rememberCompanionToken();
-    if (tokenSaveFailed) document.getElementById("set-companion-key").value = maskToken(getAuthToken());
-  }
-  store.settings.medication = document.getElementById("set-med").value.trim() || "Zepbound";
+/* Read the Settings form into store.settings (v049, R-01): the
+   same field reads the Save button used to do, so an autosave
+   and a Save write exactly the same values. */
+function collectSettingsFromForm() {
+  store.settings.medication = document.getElementById("set-med").value.trim() || "";
   store.settings.dose = document.getElementById("set-dose").value;
   store.settings.shotDay = document.getElementById("set-shot-day").value;
   const wg = Number(document.getElementById("set-water-goal").value);
@@ -7078,6 +7080,29 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
   store.settings.readAloud = readAloudChecked ? readAloudChecked.checked === true : false;
   const voiceSelSave = document.getElementById("set-companion-voice");
   if (voiceSelSave) store.settings.companionVoice = voiceSelSave.value || "";
+  }
+
+document.getElementById("settings-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const keyInput = document.getElementById("set-companion-key").value.trim();
+  const existingKey = getAuthToken();
+  let tokenSaveFailed = false;
+  if (keyInput && keyInput !== maskToken(existingKey)) {
+    if (existingKey && !confirm("Replace the companion key you already have saved? The old key will stop working here.")) {
+      document.getElementById("set-companion-key").value = maskToken(existingKey);
+      return;
+    }
+    // Verify the key actually stuck: a full or blocked store would
+    // otherwise swallow the key silently. The goals still save below;
+    // the warning is shown with the saved message at the end.
+    try {
+      localStorage.setItem(TOKEN_KEY, keyInput);
+      tokenSaveFailed = localStorage.getItem(TOKEN_KEY) !== keyInput;
+    } catch { tokenSaveFailed = true; }
+    if (!tokenSaveFailed) rememberCompanionToken();
+    if (tokenSaveFailed) document.getElementById("set-companion-key").value = maskToken(getAuthToken());
+  }
+collectSettingsFromForm();
   saveStore();
   applyAppearance();
   renderChat();
@@ -7091,6 +7116,32 @@ document.getElementById("settings-form").addEventListener("submit", (e) => {
       : "Settings saved.";
     savedMsg.classList.add("success");
   }
+});
+
+
+/* Settings autosave (v049, R-01): every change in the Settings form
+   saves itself a moment later, so an edit is never lost by leaving
+   the page without tapping Save. The save reads the form and writes
+   the store only; it never re-renders Settings, which would reset the
+   percentage sliders, and never touches the companion key, which keeps
+   its confirm flow on Save. */
+var settingsAutosaveTimer = null;
+function autosaveSettings() {
+  collectSettingsFromForm();
+  saveStore();
+  renderShotReminderMismatch();
+  const savedMsg = document.getElementById("settings-saved-msg");
+  if (savedMsg) { savedMsg.textContent = "Saved."; savedMsg.classList.add("success"); }
+}
+document.getElementById("settings-form").addEventListener("input", (e) => {
+  if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) {
+    clearTimeout(settingsAutosaveTimer);
+    settingsAutosaveTimer = setTimeout(autosaveSettings, 600);
+  }
+});
+document.getElementById("settings-form").addEventListener("change", () => {
+  clearTimeout(settingsAutosaveTimer);
+  settingsAutosaveTimer = setTimeout(autosaveSettings, 300);
 });
 
 /* ---------- Companion access code ---------- */
@@ -7225,8 +7276,9 @@ function updateResubscribeBtn() {
 }
 
 /* Subscription section in Settings: Resubscribe reveals the two Stripe
-   plan links; Cancel is a pre-filled email (one-tap portal cancel needs a
-   server and is a post-November 30 follow up). */
+   plan links; Manage subscription opens the Stripe Billing portal in a
+   new tab (v049; the Worker endpoint and dashboard setup land with the
+   December update). Until then the button shows the coming-soon line. */
 document.getElementById("resubscribe-btn").addEventListener("click", () => {
   const btn = document.getElementById("resubscribe-btn");
   const plans = document.getElementById("resubscribe-plans");
@@ -7235,6 +7287,32 @@ document.getElementById("resubscribe-btn").addEventListener("click", () => {
   plans.classList.toggle("hidden", !opening);
   btn.setAttribute("aria-expanded", opening ? "true" : "false");
   updateResubscribeBtn();
+});
+/* Manage subscription opens the Stripe Billing portal in a new tab.
+   Any failure shows the coming-soon line; it never falls back to email. */
+const manageSubscriptionBtn = document.getElementById("manage-subscription-btn");
+if (manageSubscriptionBtn) manageSubscriptionBtn.addEventListener("click", async () => {
+  const btn = manageSubscriptionBtn;
+  const msg = document.getElementById("portal-msg");
+  const setMsg = (t) => { if (msg) msg.textContent = t; };
+  const token = getAuthToken();
+  if (!token) { setMsg("One-tap cancel arrives with the December update."); return; }
+  btn.disabled = true;
+  setMsg("Opening your billing page...");
+  try {
+    const res = await fetch(WORKER_URL + "/api/portal", { method: "POST", headers: { "X-Auth-Token": token } });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.url) {
+      setMsg("");
+      window.open(data.url, "_blank", "noopener");
+    } else {
+      setMsg("One-tap cancel arrives with the December update.");
+    }
+  } catch {
+    setMsg("One-tap cancel arrives with the December update.");
+  } finally {
+    btn.disabled = false;
+  }
 });
 document.getElementById("set-access-code").addEventListener("input", () => {
   const input = document.getElementById("set-access-code");
@@ -7479,6 +7557,51 @@ async function startPlayPurchase() {
 // on the website this resolves to null immediately and does nothing, and
 // getPlayService never rejects, so there is no unhandled rejection.
 getPlayService();
+
+/* "What you can do" card (v049, R-14): shown during the first week,
+   until dismissed. It points to the two things new users miss most:
+   the doctor summary and Your foods. */
+function discoverFirstUseDate() {
+  let earliest = null;
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects", "measurements", "photos"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (e.date && (!earliest || e.date < earliest)) earliest = e.date; });
+  });
+  Object.keys(store.moods || {}).forEach((d) => { if (!earliest || d < earliest) earliest = d; });
+  return earliest;
+}
+function renderDiscoverCard() {
+  const card = document.getElementById("discover-card");
+  if (!card) return;
+  let show = false;
+  try { show = !localStorage.getItem("nct-discover-dismissed"); } catch { show = true; }
+  if (show) {
+    const first = discoverFirstUseDate();
+    if (first) {
+      const days = Math.floor((Date.now() - new Date(first + "T12:00:00").getTime()) / 86400000);
+      show = days <= 7;
+    }
+  }
+  card.classList.toggle("hidden", !show);
+}
+document.getElementById("discover-dismiss-btn").addEventListener("click", () => {
+  try { localStorage.setItem("nct-discover-dismissed", "1"); } catch {}
+  document.getElementById("discover-card").classList.add("hidden");
+});
+document.getElementById("discover-doctor-btn").addEventListener("click", () => {
+  showTab("shots");
+  const b = document.getElementById("doctor-summary-btn");
+  if (b) b.click();
+});
+document.getElementById("discover-foods-btn").addEventListener("click", () => {
+  showTab("today");
+  const form = document.getElementById("macro-food-form");
+  if (form && form.classList.contains("hidden")) {
+    document.getElementById("macro-log-food").click();
+  } else {
+    openFoodLibraryIfAny();
+    if (form) form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
 
 /* ---------- Backup nudge ---------- */
 
@@ -8163,7 +8286,6 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
   if (localStorage.getItem("nct-setup-done")) return;
   // Set sensible defaults silently, no blocking wizard.
   // User can change everything in Settings.
-  if (!store.settings.medication) store.settings.medication = "Zepbound";
   if (!store.settings.waterGoal) store.settings.waterGoal = 92;
   // v005: no preset macro targets; the user sets their own in Settings.
   // Only save when there is actually something to save. Saving an empty
@@ -8931,6 +9053,16 @@ function addTypingIndicator() {
   return row; // the caller removes the whole row (lotus included)
 }
 
+/* Clear chat history (v049, R-23): the Companion keeps at most 20
+   messages; this removes them all, from the device and from memory,
+   after a confirm. Nothing else is touched. */
+document.getElementById("chat-clear-btn").addEventListener("click", () => {
+  if (!chatHistory.length) return;
+  if (!confirm("Clear your chat history? This cannot be undone.")) return;
+  chatHistory = [];
+  try { localStorage.removeItem(CHAT_KEY); } catch {}
+  renderChat();
+});
 document.getElementById("chat-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   stopSpeaking(); // a new message stops any reply still being read aloud
