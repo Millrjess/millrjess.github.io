@@ -243,7 +243,7 @@ input[aria-invalid="true"]:focus-visible {
 
 .goals-add {
   border: 1.5px solid var(--gold);
-  background: #fff;
+  background: var(--card-bg);
   color: var(--ink);
   border-radius: var(--radius-sm);
   padding: 8px 14px;
@@ -1212,7 +1212,7 @@ textarea {
    plain wrapper (hidden with .hidden) with the flex layout on an inner
    row, so toggling .hidden always wins. */
 .inline-add-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
-.inline-add-row input { flex: 1; min-width: 90px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; font: inherit; background: #fff; color: var(--ink); }
+.inline-add-row input { flex: 1; min-width: 90px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; font: inherit; background: var(--card-bg); color: var(--ink); }
 .inline-add-row input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .inline-add-preview { margin: 6px 0 0; font-size: .9rem; color: var(--muted); }
 /* The donut center number is a button (v049): the center keeps pointer
@@ -1262,7 +1262,7 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-vals { font-size: 0.9rem; color: var(--ink); white-space: nowrap; }
 .macro-vals .of { color: var(--muted); }
 .macro-why { grid-column: 1 / -1; font-size: .9rem; }
-.macro-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #F0EAD6; overflow: visible; margin-top: 0.3rem; }
+.macro-bar { grid-column: 1 / -1; height: 24px; border-radius: 3px; background: #F0EAD6; overflow: visible; margin-top: 0.3rem; }
 /* Slide a macro row (v169): the bar is the slide target, like the rings.
    touch-action none so the page does not scroll while sliding. The
    padding widens the grab area to about 20px tall while the visible
@@ -1461,6 +1461,37 @@ html[data-theme="dark"] .chat-form textarea { background: #2B332A; }
 html[data-theme="dark"] .btn-link { color: #9DB894; }
 html[data-theme="dark"] .streak-line { color: #9DB894; }
 html[data-theme="dark"] .se-timeline-item::before { border-color: #2B332A; }
+/* v055 WCAG 2.2 AA: dark-theme contrast fixes (SC 1.4.3). The tab bar,
+   More sheet, modals, and the selected macro row keep a light
+   background in dark mode while their text goes light; give them a
+   dark background. Sage text that fails on dark card/page backgrounds
+   goes to the established dark light-sage #9DB894. */
+html[data-theme="dark"] .tab-bar { background: rgba(43, 51, 42, 0.96); }
+html[data-theme="dark"] .tab-btn.active,
+html[data-theme="dark"] .tab-btn.active .tab-icon { color: var(--gold); }
+html[data-theme="dark"] .more-sheet { background: var(--card-bg); }
+html[data-theme="dark"] .modal-card,
+html[data-theme="dark"] .recipe-modal-footer { background: var(--card-bg); }
+html[data-theme="dark"] .macro-row.selected { background: var(--gold-soft); }
+html[data-theme="dark"] .code-msg.success,
+html[data-theme="dark"] .greeting-line,
+html[data-theme="dark"] .focus-line,
+html[data-theme="dark"] .encouragement p,
+html[data-theme="dark"] .move-logged,
+html[data-theme="dark"] .journal-chapter,
+html[data-theme="dark"] .bmi-line,
+html[data-theme="dark"] .bmi-healthy p,
+html[data-theme="dark"] .badge-mild,
+html[data-theme="dark"] .more-item-icon,
+html[data-theme="dark"] .progress-big,
+html[data-theme="dark"] .progress-small,
+html[data-theme="dark"] .week-bar-val,
+html[data-theme="dark"] .stack-legend,
+html[data-theme="dark"] .simple-macro,
+html[data-theme="dark"] .food-note,
+html[data-theme="dark"] .stat-value.loss,
+html[data-theme="dark"] li.done-move .move-name { color: #9DB894; }
+html[data-theme="dark"] .movement-sub { color: var(--gold); }
 
 html[data-theme="cream"] {
   --cream: #FFFDF8;
@@ -1578,7 +1609,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   padding: 6px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--card-bg);
   color: var(--ink);
   cursor: pointer;
 }
