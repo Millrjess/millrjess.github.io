@@ -8155,6 +8155,957 @@ const KITCHEN_RECIPES = [
       "Add the chicken and mushrooms and cook 8 minutes, until the chicken is done.",
       "Stir in the lime juice and fish sauce, then top with cilantro."
     ]
+  },
+  {
+    "id": "provencal-herb-omelet",
+    "image": "kitchen/provencal-herb-omelet.jpg",
+    "credit": "",
+    "name": "Provençal Herb Omelet",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 21,
+    "carbs": 4,
+    "fat": 10,
+    "saturatedFat": 4.6,
+    "calories": 190,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 large egg plus 2 egg whites",
+      "1 tbsp chopped fresh herbs (parsley, chives, tarragon)",
+      "1/2 oz goat cheese, crumbled",
+      "1 tsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Whisk the egg and egg whites with the herbs, salt, and pepper.",
+      "Warm the olive oil in a small pan over medium heat.",
+      "Pour in the eggs and cook gently, lifting the edges as they set.",
+      "Sprinkle the goat cheese over the top and fold the omelet in half.",
+      "Slide onto a plate and serve right away."
+    ]
+  },
+  {
+    "id": "riviera-yogurt-bowl-lavender-honey",
+    "image": "kitchen/riviera-yogurt-bowl-lavender-honey.jpg",
+    "credit": "",
+    "name": "Riviera Yogurt Bowl with Lavender",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 20,
+    "carbs": 16,
+    "fat": 6,
+    "saturatedFat": 1.5,
+    "calories": 198,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 cup plain Greek yogurt",
+      "1/2 cup mixed berries",
+      "1 tbsp sliced almonds"
+    ],
+    "steps": [
+      "Scoop the yogurt into a bowl.",
+      "Top with the berries.",
+      "Sprinkle the almonds over the top."
+    ]
+  },
+  {
+    "id": "nicoise-breakfast-toast",
+    "image": "kitchen/nicoise-breakfast-toast.jpg",
+    "credit": "",
+    "name": "Niçoise Breakfast Toast",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 24,
+    "carbs": 18,
+    "fat": 14,
+    "saturatedFat": 3.7,
+    "calories": 294,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "vegetarian",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 small slice whole-grain bread",
+      "1 tbsp olive tapenade",
+      "2 hard-boiled eggs, sliced",
+      "2 tomato slices",
+      "2 fresh basil leaves"
+    ],
+    "steps": [
+      "Toast the bread until golden.",
+      "Spread the tapenade over the toast.",
+      "Lay the egg slices and tomato on top.",
+      "Tear the basil over the top and serve."
+    ]
+  },
+  {
+    "id": "pistou-breakfast-scramble",
+    "image": "kitchen/pistou-breakfast-scramble.jpg",
+    "credit": "",
+    "name": "Pistou Breakfast Scramble",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 21,
+    "carbs": 6,
+    "fat": 11,
+    "saturatedFat": 4.2,
+    "calories": 207,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 large eggs",
+      "1 tbsp basil pistou",
+      "1/2 cup cherry tomatoes, halved",
+      "1 tsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Whisk the eggs with the pistou, salt, and pepper.",
+      "Warm the olive oil in a pan over medium heat and soften the tomatoes for 1 minute.",
+      "Pour in the eggs and scramble gently until just set.",
+      "Serve right away."
+    ]
+  },
+  {
+    "id": "fig-almond-overnight-oats",
+    "image": "kitchen/fig-almond-overnight-oats.jpg",
+    "credit": "",
+    "name": "Fig and Almond Overnight Oats",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 23,
+    "carbs": 14,
+    "fat": 10,
+    "saturatedFat": 1.5,
+    "calories": 238,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "vegetarian",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/3 cup rolled oats",
+      "1/2 cup milk or almond milk",
+      "1 dried fig, chopped",
+      "1/2 cup plain Greek yogurt",
+      "1 tbsp sliced almonds"
+    ],
+    "steps": [
+      "Stir the oats, milk, and yogurt together in a jar or bowl.",
+      "Stir in the fig and almonds.",
+      "Cover and refrigerate overnight."
+    ]
+  },
+  {
+    "id": "salade-nicoise-grilled-tuna",
+    "image": "kitchen/salade-nicoise-grilled-tuna.jpg",
+    "credit": "",
+    "name": "Salade Niçoise with Grilled Tuna",
+    "category": "Lunch",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 32,
+    "carbs": 18,
+    "fat": 14,
+    "saturatedFat": 4.6,
+    "calories": 326,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "4 oz tuna steak",
+      "1 hard-boiled egg, halved",
+      "1 cup green beans, steamed",
+      "1 small potato, boiled and sliced",
+      "5 Niçoise olives",
+      "1 cup lettuce leaves",
+      "1 tbsp olive oil",
+      "1 tsp lemon juice"
+    ],
+    "steps": [
+      "Grill the tuna for 2 to 3 minutes per side and slice it.",
+      "Arrange the lettuce on a plate.",
+      "Top with the tuna, egg, green beans, potato, and olives.",
+      "Drizzle with olive oil and lemon juice."
+    ]
+  },
+  {
+    "id": "ratatouille-white-bean-bowl",
+    "image": "kitchen/ratatouille-white-bean-bowl.jpg",
+    "credit": "",
+    "name": "Ratatouille and White Bean Bowl",
+    "category": "Lunch",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 22,
+    "carbs": 20,
+    "fat": 13,
+    "saturatedFat": 3.1,
+    "calories": 285,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "vegetarian",
+      "gluten-free",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 eggplant, diced",
+      "2 zucchini, sliced",
+      "1 bell pepper, diced",
+      "1/2 can white beans, drained",
+      "1 can diced tomatoes",
+      "2 cloves garlic, minced",
+      "1 tbsp olive oil",
+      "1 tsp herbes de Provence",
+      "2 hard-boiled eggs, halved",
+      "1/2 cup plain Greek yogurt"
+    ],
+    "steps": [
+      "Warm the olive oil in a large pan over medium heat.",
+      "Add the eggplant, zucchini, and pepper and cook for 8 minutes.",
+      "Stir in the garlic, tomatoes, beans, and herbs.",
+      "Simmer for 15 minutes until the vegetables are soft.",
+      "Serve warm in bowls, topped with a halved egg and a dollop of yogurt."
+    ]
+  },
+  {
+    "id": "provencal-chicken-olive-salad",
+    "image": "kitchen/provencal-chicken-olive-salad.jpg",
+    "credit": "",
+    "name": "Provençal Chicken and Olive Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 30,
+    "carbs": 8,
+    "fat": 12,
+    "saturatedFat": 3.5,
+    "calories": 260,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "4 oz cooked chicken breast, sliced",
+      "1 cup mixed greens",
+      "8 green olives, halved",
+      "1/2 cup cherry tomatoes, halved",
+      "1 tbsp olive oil",
+      "1 tsp lemon juice",
+      "1 tsp chopped fresh basil"
+    ],
+    "steps": [
+      "Put the greens in a bowl.",
+      "Top with the chicken, olives, and tomatoes.",
+      "Drizzle with olive oil and lemon juice.",
+      "Sprinkle the basil over the top."
+    ]
+  },
+  {
+    "id": "grilled-vegetable-goat-cheese-tartine",
+    "image": "kitchen/grilled-vegetable-goat-cheese-tartine.jpg",
+    "credit": "",
+    "name": "Grilled Vegetable and Goat Cheese Tartine",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 22,
+    "carbs": 19,
+    "fat": 12,
+    "saturatedFat": 4.8,
+    "calories": 272,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "vegetarian",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/2 slice whole-grain bread",
+      "1/2 cup grilled zucchini and bell pepper",
+      "1/2 oz goat cheese",
+      "1 hard-boiled egg and 1 hard-boiled egg white, sliced",
+      "4 fresh basil leaves",
+      "1 tsp olive oil"
+    ],
+    "steps": [
+      "Toast the bread until golden.",
+      "Pile the grilled vegetables on the toast.",
+      "Crumble the goat cheese over the top.",
+      "Lay the egg slices on top.",
+      "Drizzle with olive oil and add the basil."
+    ]
+  },
+  {
+    "id": "lentil-herb-salad-provencal",
+    "image": "kitchen/lentil-herb-salad-provencal.jpg",
+    "credit": "",
+    "name": "Lentil and Herb Salad Provençal",
+    "category": "Lunch",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 21,
+    "carbs": 20,
+    "fat": 12,
+    "saturatedFat": 2.9,
+    "calories": 272,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "vegetarian",
+      "gluten-free",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/3 cup green lentils",
+      "1 cup cherry tomatoes, halved",
+      "1 cucumber, diced",
+      "1/4 red onion, finely diced",
+      "1/4 cup chopped parsley and basil",
+      "2 hard-boiled eggs, halved",
+      "2 hard-boiled egg whites, halved",
+      "1/2 cup plain Greek yogurt",
+      "1 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Simmer the lentils in water for 20 minutes until tender, then drain and cool.",
+      "Toss the lentils with the tomatoes, cucumber, onion, and herbs.",
+      "Top with the egg halves and egg whites.",
+      "Whisk the yogurt with the olive oil and lemon juice and spoon over the top.",
+      "Season with salt and pepper and serve."
+    ]
+  },
+  {
+    "id": "bouillabaisse-light",
+    "image": "kitchen/bouillabaisse-light.jpg",
+    "credit": "",
+    "name": "Bouillabaisse (Light Fish Stew)",
+    "category": "Dinner",
+    "time": 35,
+    "difficulty": "Medium",
+    "servings": 4,
+    "protein": 32,
+    "carbs": 12,
+    "fat": 9,
+    "saturatedFat": 0.5,
+    "calories": 257,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb"
+    ],
+    "ingredients": [
+      "1 lb white fish fillets, cut into chunks",
+      "1/2 lb shrimp, peeled",
+      "1 can diced tomatoes",
+      "1 pinch saffron threads",
+      "1 fennel bulb, sliced",
+      "2 cloves garlic, minced",
+      "4 cups fish or vegetable stock",
+      "1 strip orange peel"
+    ],
+    "steps": [
+      "Simmer the stock with the saffron, fennel, garlic, and orange peel for 10 minutes.",
+      "Stir in the tomatoes and simmer for 5 minutes.",
+      "Add the fish and shrimp and cook gently for 8 minutes.",
+      "Ladle into bowls and serve."
+    ]
+  },
+  {
+    "id": "herb-roasted-chicken-provencal",
+    "image": "kitchen/herb-roasted-chicken-provencal.jpg",
+    "credit": "",
+    "name": "Herb-Roasted Chicken Provençal",
+    "category": "Dinner",
+    "time": 45,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 35,
+    "carbs": 6,
+    "fat": 12,
+    "saturatedFat": 2.0,
+    "calories": 272,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "4 chicken breasts",
+      "2 tsp herbes de Provence",
+      "1 lemon, sliced",
+      "2 cloves garlic, minced",
+      "12 green olives",
+      "1 tbsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Heat the oven to 400°F.",
+      "Rub the chicken with olive oil, herbs, garlic, salt, and pepper.",
+      "Place in a baking dish with the lemon slices and olives.",
+      "Roast for 30 to 35 minutes until cooked through."
+    ]
+  },
+  {
+    "id": "grilled-sea-bass-lemon-herbs",
+    "image": "kitchen/grilled-sea-bass-lemon-herbs.jpg",
+    "credit": "",
+    "name": "Grilled Sea Bass with Lemon and Herbs",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 34,
+    "carbs": 4,
+    "fat": 10,
+    "saturatedFat": 1.5,
+    "calories": 242,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 sea bass fillets",
+      "1 lemon, half juiced and half sliced",
+      "1 tbsp chopped fresh herbs (parsley, thyme)",
+      "1 tbsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Rub the fillets with olive oil, salt, and pepper.",
+      "Grill for 3 to 4 minutes per side until the fish flakes.",
+      "Squeeze the lemon juice over the top.",
+      "Sprinkle with herbs and serve with lemon slices."
+    ]
+  },
+  {
+    "id": "baked-cod-with-ratatouille",
+    "image": "kitchen/baked-cod-with-ratatouille.jpg",
+    "credit": "",
+    "name": "Baked Cod with Ratatouille",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 14,
+    "fat": 8,
+    "saturatedFat": 1.5,
+    "calories": 248,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cod fillets",
+      "2 cups ratatouille (eggplant, zucchini, pepper, tomato)",
+      "1 tbsp olive oil",
+      "1 tsp herbes de Provence",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Heat the oven to 400°F.",
+      "Place the cod in a baking dish and season with salt, pepper, and herbs.",
+      "Spoon the ratatouille around the fish and drizzle with olive oil.",
+      "Bake for 18 to 20 minutes until the fish flakes."
+    ]
+  },
+  {
+    "id": "provencal-beef-daube-light",
+    "image": "kitchen/provencal-beef-daube-light.jpg",
+    "credit": "",
+    "name": "Provençal Beef Daube (Light)",
+    "category": "Dinner",
+    "time": 120,
+    "difficulty": "Medium",
+    "servings": 4,
+    "protein": 32,
+    "carbs": 14,
+    "fat": 11,
+    "saturatedFat": 4.5,
+    "calories": 283,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb lean beef stew meat",
+      "1 can diced tomatoes",
+      "12 black olives",
+      "2 cloves garlic, minced",
+      "1 tsp herbes de Provence",
+      "1 cup beef stock",
+      "1 tbsp olive oil"
+    ],
+    "steps": [
+      "Warm the olive oil in a pot and brown the beef on all sides.",
+      "Add the garlic, tomatoes, olives, herbs, and stock.",
+      "Cover and braise on low heat for 1 hour 30 minutes until tender.",
+      "Serve in bowls with the sauce."
+    ]
+  },
+  {
+    "id": "grilled-shrimp-garlic-herbs",
+    "image": "kitchen/grilled-shrimp-garlic-herbs.jpg",
+    "credit": "",
+    "name": "Grilled Shrimp with Garlic and Herbs",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 28,
+    "carbs": 5,
+    "fat": 9,
+    "saturatedFat": 1.3,
+    "calories": 213,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/2 lb large shrimp, peeled",
+      "2 cloves garlic, minced",
+      "1 tbsp chopped parsley",
+      "1 tbsp olive oil",
+      "1 tsp lemon juice",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Toss the shrimp with garlic, parsley, olive oil, salt, and pepper.",
+      "Grill for 2 minutes per side until pink.",
+      "Squeeze the lemon juice over the top and serve."
+    ]
+  },
+  {
+    "id": "baked-salmon-olive-tapenade",
+    "image": "kitchen/baked-salmon-olive-tapenade.jpg",
+    "credit": "",
+    "name": "Baked Salmon with Olive Tapenade",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32,
+    "carbs": 4,
+    "fat": 14,
+    "saturatedFat": 2.3,
+    "calories": 270,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 salmon fillets",
+      "2 tbsp olive tapenade",
+      "1 lemon, sliced",
+      "1 tbsp chopped parsley",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Heat the oven to 400°F.",
+      "Season the salmon with salt and pepper and place in a baking dish.",
+      "Spread the tapenade over each fillet and add the lemon slices.",
+      "Bake for 12 to 14 minutes until the salmon flakes."
+    ]
+  },
+  {
+    "id": "chicken-olives-lemon-provencal",
+    "image": "kitchen/chicken-olives-lemon-provencal.jpg",
+    "credit": "",
+    "name": "Chicken with Olives and Lemon",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 33,
+    "carbs": 7,
+    "fat": 12,
+    "saturatedFat": 2.5,
+    "calories": 268,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 chicken breasts",
+      "12 green olives",
+      "1 lemon, sliced",
+      "2 cloves garlic, minced",
+      "1 tsp herbes de Provence",
+      "1 tbsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Season the chicken with salt, pepper, and herbs.",
+      "Sear in olive oil over medium-high heat for 4 minutes per side.",
+      "Add the garlic, olives, and lemon slices.",
+      "Cover and cook on low for 12 minutes until cooked through."
+    ]
+  },
+  {
+    "id": "vegetable-tian-provencal",
+    "image": "kitchen/vegetable-tian-provencal.jpg",
+    "credit": "",
+    "name": "Vegetable Tian Provençal",
+    "category": "Dinner",
+    "time": 45,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 20,
+    "carbs": 20,
+    "fat": 14,
+    "saturatedFat": 4.6,
+    "calories": 286,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "vegetarian",
+      "gluten-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 zucchini, sliced",
+      "1 eggplant, sliced",
+      "1 tomato, sliced",
+      "1/2 onion, sliced",
+      "2 oz Gruyère cheese, grated",
+      "1 tsp herbes de Provence",
+      "1 tbsp olive oil",
+      "4 poached eggs"
+    ],
+    "steps": [
+      "Heat the oven to 375°F.",
+      "Layer the sliced vegetables upright in a baking dish, alternating them.",
+      "Sprinkle with cheese, herbs, and olive oil.",
+      "Bake for 35 minutes until tender and golden.",
+      "Top each serving with a poached egg."
+    ]
+  },
+  {
+    "id": "turkey-white-bean-cassoulet-light",
+    "image": "kitchen/turkey-white-bean-cassoulet-light.jpg",
+    "credit": "",
+    "name": "Turkey and White Bean Cassoulet (Light)",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 26,
+    "carbs": 16,
+    "fat": 8,
+    "saturatedFat": 2.5,
+    "calories": 240,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 lb ground turkey",
+      "1 can white beans, drained",
+      "1 zucchini, diced",
+      "1 bell pepper, diced",
+      "1 can diced tomatoes",
+      "2 cloves garlic, minced",
+      "1 tsp herbes de Provence",
+      "1 tbsp olive oil",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Brown the turkey in olive oil over medium heat, breaking it up.",
+      "Stir in the garlic, tomatoes, beans, zucchini, and bell pepper.",
+      "Season with salt and pepper.",
+      "Simmer for 20 minutes and serve."
+    ]
+  },
+  {
+    "id": "olive-tapenade-cucumber-slices",
+    "image": "kitchen/olive-tapenade-cucumber-slices.jpg",
+    "credit": "",
+    "name": "Olive Tapenade with Cucumber Slices",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 13,
+    "carbs": 9,
+    "fat": 11,
+    "saturatedFat": 1.8,
+    "calories": 187,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "vegetarian",
+      "gluten-free",
+      "low-carb",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 cup pitted black olives",
+      "1 tbsp capers",
+      "1 clove garlic",
+      "1 tsp lemon juice",
+      "1 tbsp olive oil",
+      "1 cucumber, sliced into rounds",
+      "1 cup plain Greek yogurt, for serving"
+    ],
+    "steps": [
+      "Blend the olives, capers, garlic, lemon juice, and olive oil until chunky.",
+      "Spoon the tapenade into a small bowl.",
+      "Serve with the cucumber slices for scooping and the yogurt for dipping."
+    ]
+  },
+  {
+    "id": "herbed-goat-cheese-tomato-bites",
+    "image": "kitchen/herbed-goat-cheese-tomato-bites.jpg",
+    "credit": "",
+    "name": "Herbed Goat Cheese and Tomato Bites",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 12,
+    "carbs": 9,
+    "fat": 7,
+    "saturatedFat": 4.3,
+    "calories": 147,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "vegetarian",
+      "gluten-free",
+      "low-carb",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 1/2 oz goat cheese",
+      "8 cherry tomatoes, halved",
+      "1 tbsp chopped fresh herbs (basil, chives)",
+      "1 tsp olive oil",
+      "Black pepper",
+      "1 cup plain Greek yogurt, for serving",
+      "1 cucumber, sliced"
+    ],
+    "steps": [
+      "Roll the goat cheese into small balls and coat with the herbs.",
+      "Place a cheese ball on each tomato half.",
+      "Drizzle with olive oil and black pepper.",
+      "Serve with the cucumber slices and a spoonful of yogurt."
+    ]
+  },
+  {
+    "id": "chilled-cucumber-yogurt-soup",
+    "image": "kitchen/chilled-cucumber-yogurt-soup.jpg",
+    "credit": "",
+    "name": "Chilled Cucumber and Yogurt Soup",
+    "category": "Light Meals",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 10,
+    "carbs": 10,
+    "fat": 6,
+    "saturatedFat": 0.5,
+    "calories": 134,
+    "tags": [
+      "vegetarian",
+      "gluten-free",
+      "low-carb",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cucumbers, peeled and chopped",
+      "1 cup plain Greek yogurt",
+      "1 tbsp chopped dill",
+      "1 clove garlic, minced",
+      "1 tsp lemon juice",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Blend the cucumber, yogurt, dill, garlic, and lemon juice until smooth.",
+      "Season with salt and pepper.",
+      "Chill for 30 minutes and serve cold."
+    ]
+  },
+  {
+    "id": "simple-green-salad-lemon-herbs",
+    "image": "kitchen/simple-green-salad-lemon-herbs.jpg",
+    "credit": "",
+    "name": "Simple Green Salad with Lemon and Herbs",
+    "category": "Light Meals",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 12,
+    "carbs": 14,
+    "fat": 8,
+    "saturatedFat": 2.0,
+    "calories": 176,
+    "tags": [
+      "vegetarian",
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "easy-prep",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cups mixed greens",
+      "1/2 cup chickpeas, drained",
+      "1 tbsp chopped fresh herbs (parsley, basil)",
+      "1 tbsp olive oil",
+      "1 tsp lemon juice",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Put the greens and chickpeas in a bowl.",
+      "Whisk the olive oil and lemon juice with salt and pepper.",
+      "Pour the dressing over the salad and toss.",
+      "Sprinkle the herbs over the top."
+    ]
+  },
+  {
+    "id": "provencal-fish-soup-light",
+    "image": "kitchen/provencal-fish-soup-light.jpg",
+    "credit": "",
+    "name": "Provençal Fish Soup (Light)",
+    "category": "Light Meals",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 26,
+    "carbs": 12,
+    "fat": 8,
+    "saturatedFat": 1.5,
+    "calories": 224,
+    "tags": [
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "high-protein",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 lb white fish fillets (cod or sea bass), cut into chunks",
+      "1 can diced tomatoes",
+      "1 fennel bulb, thinly sliced",
+      "1 onion, chopped",
+      "2 cloves garlic, minced",
+      "1 tbsp olive oil",
+      "1 tsp herbes de Provence",
+      "4 cups low-sodium fish or vegetable stock",
+      "1 tbsp lemon juice",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Heat the olive oil in a pot and cook the onion, fennel, and garlic for 5 minutes.",
+      "Add the tomatoes, stock, and herbes de Provence. Simmer for 10 minutes.",
+      "Add the fish chunks and cook gently for 8 minutes, until the fish flakes.",
+      "Stir in the lemon juice and season with salt and pepper."
+    ]
   }
 ];
 let kitchenFilter = "all";
@@ -8279,10 +9230,6 @@ function kitchenPhotoCardHtml(r) {
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
-    <div class="kitchen-card-actions">
-      <button type="button" class="btn btn-small" data-kitchen-shop="${r.id}">Shopping list</button>
-      <button type="button" class="btn btn-small" data-kitchen-copy="${r.id}">Copy recipe</button>
-    </div>
   </article>`;
 }
 function toggleKitchenSave(id) {
@@ -8300,8 +9247,6 @@ function bindKitchenCards(root) {
   if (!root) return;
   root.querySelectorAll("[data-kitchen-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.kitchenOpen)));
   root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
-  root.querySelectorAll("[data-kitchen-shop]").forEach((btn) => btn.addEventListener("click", () => { addRecipeToShoppingList(btn.dataset.kitchenShop); flashButton(btn, "Added to list ✓"); }));
-  root.querySelectorAll("[data-kitchen-copy]").forEach((btn) => btn.addEventListener("click", () => copyRecipe(btn.dataset.kitchenCopy, btn)));
 }
 
 /* The Kitchen is one library (v049, R-07): one filter row and one
@@ -8445,6 +9390,94 @@ function copyRecipe(id, btn) {
     copyRecipeFallback(text, done);
   }
 }
+/* Shopping list copy and print. The plain text groups items under
+   "To buy" and "Check your pantry", each item with its recipe name,
+   so the list is useful on paper or pasted elsewhere. */
+function shoppingListText() {
+  const list = loadShoppingList();
+  const toBuy = [];
+  const checkPantry = [];
+  list.forEach((x) => (pantryMatch(x.text) ? checkPantry : toBuy).push(x));
+  const lines = ["Shopping list", ""];
+  if (toBuy.length) {
+    lines.push("To buy");
+    toBuy.forEach((x) => lines.push("- " + x.text + " (" + x.recipe + ")"));
+    lines.push("");
+  }
+  if (checkPantry.length) {
+    lines.push("Check your pantry");
+    checkPantry.forEach((x) => lines.push("- " + x.text + " (" + x.recipe + ")"));
+    lines.push("");
+  }
+  return lines.join("\n").trim();
+}
+function copyShoppingList(btn) {
+  const text = shoppingListText();
+  if (!text) return;
+  const done = () => flashButton(btn, "Copied \u2713");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
+  } else {
+    copyRecipeFallback(text, done);
+  }
+}
+function printShoppingList() {
+  const list = loadShoppingList();
+  if (!list.length) return;
+  const toBuy = [];
+  const checkPantry = [];
+  list.forEach((x) => (pantryMatch(x.text) ? checkPantry : toBuy).push(x));
+  const groupHtml = (title, items) => {
+    if (!items.length) return "";
+    return "<h2>" + title + "</h2><ul>"
+      + items.map((x) => "<li>" + escapeHtml(x.text) + " <span style=\"color:#666\">(" + escapeHtml(x.recipe) + ")</span></li>").join("")
+      + "</ul>";
+  };
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write("<!doctype html><html><head><title>Shopping list</title>"
+    + "<style>body{font-family:Georgia,serif;max-width:640px;margin:24px auto;padding:0 16px;color:#222}h1{font-size:22px}h2{font-size:16px;margin:18px 0 6px}ul{margin:0;padding-left:20px}li{margin:4px 0}</style>"
+    + "</head><body><h1>Shopping list</h1>"
+    + groupHtml("To buy", toBuy)
+    + groupHtml("Check your pantry", checkPantry)
+    + "</body></html>");
+  win.document.close();
+  win.focus();
+  win.print();
+}
+/* Pantry copy and print. The plain text lists each staple on its own
+   line, with a check mark for staples on hand and an empty box for
+   the rest, so the list is useful on paper or pasted elsewhere. */
+function pantryText() {
+  const staples = loadPantryStaples();
+  const lines = ["Pantry staples", ""];
+  staples.forEach((s) => lines.push((s.have ? "✓ " : "☐ ") + s.name));
+  return lines.join("\n").trim();
+}
+function copyPantry(btn) {
+  const text = pantryText();
+  if (!text) return;
+  const done = () => flashButton(btn, "Copied ✓");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
+  } else {
+    copyRecipeFallback(text, done);
+  }
+}
+function printPantry() {
+  const staples = loadPantryStaples();
+  if (!staples.length) return;
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write("<!doctype html><html><head><title>Pantry staples</title>"
+    + "<style>body{font-family:Georgia,serif;max-width:640px;margin:24px auto;padding:0 16px;color:#222}h1{font-size:22px}ul{margin:0;padding-left:20px}li{margin:4px 0}</style>"
+    + "</head><body><h1>Pantry staples</h1><ul>"
+    + staples.map((s) => "<li>" + (s.have ? "✓ " : "☐ ") + escapeHtml(s.name) + "</li>").join("")
+    + "</ul></body></html>");
+  win.document.close();
+  win.focus();
+  win.print();
+}
 /* The shopping list section in the Kitchen. "To buy" is the fresh
    items and the staples you do not have. "Check your pantry" is the
    staples you keep on hand, so you can skip them if already stocked.
@@ -8478,6 +9511,8 @@ function renderShoppingList() {
       html += shoppingGroupHtml("Check your pantry", checkPantry);
     }
     html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+      + '<button type="button" class="btn btn-small" data-shop-copy-list>Copy list</button>'
+      + '<button type="button" class="btn btn-small" data-shop-print-list>Print list</button>'
       + '<button type="button" class="btn btn-small" data-shop-clear-checked>Clear checked</button>'
       + '<button type="button" class="btn btn-small" data-shop-clear-all>Clear all</button></div>';
   }
@@ -8487,6 +9522,9 @@ function renderShoppingList() {
       '<label class="pantry-row"><input type="checkbox" data-pantry-have="' + i + '"' + (s.have ? " checked" : "") + '> <span>' + escapeHtml(s.name) + "</span>"
       + ' <button type="button" class="pantry-remove" data-pantry-remove="' + i + '" aria-label="Remove ' + escapeHtml(s.name) + '">×</button></label>'
     ).join("") + "</div>"
+    + (staples.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
+      + '<button type="button" class="btn btn-small" data-pantry-copy>Copy pantry</button>'
+      + '<button type="button" class="btn btn-small" data-pantry-print>Print pantry</button></div>' : "")
     + '<div style="display:flex;gap:8px;margin-top:8px">'
     + '<input type="text" id="pantry-add-input" maxlength="60" placeholder="Add a staple" aria-label="Add a pantry staple" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:15px">'
     + '<button type="button" class="btn btn-small" data-pantry-add>Add</button></div>';
@@ -8513,6 +9551,14 @@ function bindShoppingList(box) {
   });
   const clearAll = box.querySelector("[data-shop-clear-all]");
   if (clearAll) clearAll.addEventListener("click", () => { saveShoppingList([]); renderShoppingList(); });
+  const copyList = box.querySelector("[data-shop-copy-list]");
+  if (copyList) copyList.addEventListener("click", () => copyShoppingList(copyList));
+  const printList = box.querySelector("[data-shop-print-list]");
+  if (printList) printList.addEventListener("click", printShoppingList);
+  const copyPantryBtn = box.querySelector("[data-pantry-copy]");
+  if (copyPantryBtn) copyPantryBtn.addEventListener("click", () => copyPantry(copyPantryBtn));
+  const printPantryBtn = box.querySelector("[data-pantry-print]");
+  if (printPantryBtn) printPantryBtn.addEventListener("click", printPantry);
   box.querySelectorAll("[data-pantry-have]").forEach((cb) => cb.addEventListener("change", () => {
     const staples = loadPantryStaples();
     const s = staples[Number(cb.dataset.pantryHave)];

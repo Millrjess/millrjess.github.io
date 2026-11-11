@@ -1362,7 +1362,7 @@ li.done-move .move-name { color: #5C6656; }
 .plan-remove:hover { background: var(--sage-soft); }
 .plan-remove:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .plan-row:first-child { border-top: none; }
-.plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; }
+.plan-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; accent-color: var(--sage); }
 .plan-row .plan-name { flex: 1; font-weight: 600; font-size: 0.9rem; }
 .plan-row .plan-pattern { font-size: 0.85rem; color: var(--muted); font-weight: 400; display: block; }
 .plan-row .plan-detail { width: 110px; flex: none; margin: 0; }
@@ -1882,15 +1882,13 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
 .welcome-card .bloom-stage-line { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 2px 0 0; }
 
 /* Shopping list, pantry staples, and copy recipe (v069) */
-.kitchen-card-actions { display: flex; gap: 8px; padding: 8px 10px 10px; }
-.kitchen-card-actions .btn { flex: 1; }
 .shopping-list { display: grid; gap: 6px; }
 .shopping-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
-.shopping-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; }
+.shopping-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; accent-color: var(--sage); }
 .shopping-text { flex: 1; }
 .shopping-done { text-decoration: line-through; color: var(--muted); }
 .shopping-remove, .pantry-remove { border: none; background: none; font-size: 1.1rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 6px; flex: none; }
 .pantry-list { display: grid; gap: 6px; }
 .pantry-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
-.pantry-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; }
+.pantry-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; accent-color: var(--sage); }
 .pantry-row span { flex: 1; }
