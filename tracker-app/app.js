@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v067";
+const APP_VERSION = "v068";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -7237,6 +7237,898 @@ const KITCHEN_RECIPES = [
       "Spoon cottage cheese into a bowl.",
       "Top with berries and peach slices."
     ]
+  },
+  {
+    "id": "tamagoyaki-with-spinach",
+    "image": "kitchen/tamagoyaki-with-spinach.jpg",
+    "credit": "",
+    "name": "Japanese Tamagoyaki with Spinach",
+    "category": "Breakfast",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 25,
+    "carbs": 5,
+    "fat": 12,
+    "saturatedFat": 5.0,
+    "calories": 228,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "3 eggs",
+      "2 egg whites",
+      "1 cup fresh spinach",
+      "1 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1/2 tsp olive oil",
+      "Pinch of salt"
+    ],
+    "steps": [
+      "Whisk the eggs and egg whites with the soy sauce and salt.",
+      "Cook the spinach in a pan with the oil until wilted, then set aside.",
+      "Pour a thin layer of egg into the pan, add some spinach, and roll it up as it sets. Repeat with the rest of the egg and spinach, then slice."
+    ]
+  },
+  {
+    "id": "chicken-congee-with-egg",
+    "image": "kitchen/chicken-congee-with-egg.jpg",
+    "credit": "",
+    "name": "Chinese Chicken Congee with Egg",
+    "category": "Breakfast",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 27,
+    "carbs": 16,
+    "fat": 8,
+    "saturatedFat": 3.4,
+    "calories": 244,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1/4 cup white rice",
+      "4 cups low-sodium chicken broth",
+      "1 chicken breast, diced",
+      "3 eggs",
+      "1 cup sliced mushrooms",
+      "2 green onions, sliced",
+      "1 tsp grated ginger"
+    ],
+    "steps": [
+      "Simmer the rice and broth in a pot for 20 minutes, stirring often, until thick and creamy.",
+      "Add the chicken, mushrooms and ginger and cook 8 minutes more, until the chicken is done.",
+      "Stir in the eggs off the heat, then top with green onions and serve."
+    ]
+  },
+  {
+    "id": "kimchi-egg-scramble",
+    "image": "kitchen/kimchi-egg-scramble.jpg",
+    "credit": "",
+    "name": "Korean Kimchi Egg Scramble",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 23,
+    "carbs": 8,
+    "fat": 12,
+    "saturatedFat": 3.8,
+    "calories": 232,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "budget-friendly",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "2 eggs",
+      "3 egg whites",
+      "1/4 cup kimchi, chopped and rinsed",
+      "1 tsp sesame oil",
+      "1 green onion, sliced"
+    ],
+    "steps": [
+      "Heat the sesame oil in a pan and cook the kimchi for 2 minutes.",
+      "Whisk the eggs and egg whites and pour them into the pan.",
+      "Stir gently until the eggs are just set, then top with green onion."
+    ]
+  },
+  {
+    "id": "thai-coconut-chia-pudding",
+    "image": "kitchen/thai-coconut-chia-pudding.jpg",
+    "credit": "",
+    "name": "Thai Coconut Chia Pudding",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 24,
+    "carbs": 13,
+    "fat": 8,
+    "saturatedFat": 2.7,
+    "calories": 220,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian",
+      "gluten-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "3 tbsp chia seeds",
+      "6 tbsp light coconut milk",
+      "1 cup plain Greek yogurt",
+      "1/2 cup mango, diced",
+      "2 tbsp water"
+    ],
+    "steps": [
+      "Stir the chia seeds, coconut milk, water and yogurt together in a jar.",
+      "Chill in the fridge for at least 4 hours or overnight.",
+      "Top with mango and serve."
+    ]
+  },
+  {
+    "id": "vietnamese-chicken-and-herb-omelet",
+    "image": "kitchen/vietnamese-chicken-and-herb-omelet.jpg",
+    "credit": "",
+    "name": "Vietnamese Chicken and Herb Omelet",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 24,
+    "carbs": 4,
+    "fat": 12,
+    "saturatedFat": 4.5,
+    "calories": 220,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "2 eggs",
+      "1/2 cup cooked chicken, shredded",
+      "1/4 cup chopped fresh herbs (cilantro, mint, basil)",
+      "1 tsp fish sauce",
+      "1 tsp olive oil"
+    ],
+    "steps": [
+      "Whisk the eggs with the fish sauce.",
+      "Cook the chicken and herbs in a pan with the oil for 1 minute.",
+      "Pour in the eggs and cook until set, then fold in half and serve."
+    ]
+  },
+  {
+    "id": "miso-salmon-rice-bowl",
+    "image": "kitchen/miso-salmon-rice-bowl.jpg",
+    "credit": "",
+    "name": "Japanese Miso Salmon Rice Bowl",
+    "category": "Lunch",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 32,
+    "carbs": 18,
+    "fat": 12,
+    "saturatedFat": 2.5,
+    "calories": 308,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "balanced-macros"
+    ],
+    "ingredients": [
+      "1 salmon fillet",
+      "1 tbsp white miso paste",
+      "1/2 cup cooked rice",
+      "1/2 cup shelled edamame",
+      "1 cup steamed broccoli",
+      "1 green onion, sliced",
+      "1 tsp sesame seeds"
+    ],
+    "steps": [
+      "Spread the miso over the salmon and bake at 400°F for 12 minutes.",
+      "Spoon the rice into a bowl and top with the edamame and broccoli.",
+      "Flake the salmon over the bowl and finish with green onion and sesame seeds."
+    ]
+  },
+  {
+    "id": "chicken-and-cucumber-salad",
+    "image": "kitchen/chicken-and-cucumber-salad.jpg",
+    "credit": "",
+    "name": "Chinese Chicken and Cucumber Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 8,
+    "fat": 12,
+    "saturatedFat": 2.5,
+    "calories": 260,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "2 cups cooked chicken, shredded",
+      "2 cucumbers, sliced thin",
+      "1 tbsp rice vinegar",
+      "1 tbsp sesame oil",
+      "1 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp sesame seeds"
+    ],
+    "steps": [
+      "Toss the chicken and cucumber together in a bowl.",
+      "Whisk the vinegar, sesame oil and soy sauce, then pour over the salad.",
+      "Sprinkle with sesame seeds and serve chilled."
+    ]
+  },
+  {
+    "id": "green-papaya-chicken-salad",
+    "image": "kitchen/green-papaya-chicken-salad.jpg",
+    "credit": "",
+    "name": "Thai Green Papaya Chicken Salad",
+    "category": "Lunch",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 28,
+    "carbs": 11,
+    "fat": 10,
+    "saturatedFat": 1.5,
+    "calories": 246,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "2 cups shredded green papaya",
+      "2 cups cooked chicken, shredded",
+      "1 carrot, grated",
+      "Juice of 1 lime",
+      "1 tbsp fish sauce",
+      "1/4 cup fresh cilantro"
+    ],
+    "steps": [
+      "Toss the papaya, chicken and carrot in a large bowl.",
+      "Whisk the lime juice and fish sauce and pour over the salad.",
+      "Top with cilantro and serve."
+    ]
+  },
+  {
+    "id": "chicken-pho",
+    "image": "kitchen/chicken-pho.jpg",
+    "credit": "",
+    "name": "Vietnamese Chicken Pho",
+    "category": "Lunch",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 14,
+    "fat": 6,
+    "saturatedFat": 1.0,
+    "calories": 230,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts",
+      "6 cups low-sodium chicken broth",
+      "2 oz rice noodles",
+      "1 onion, halved",
+      "1 tbsp fish sauce",
+      "2 cups bean sprouts",
+      "1/4 cup fresh cilantro and basil",
+      "1 lime, cut into wedges"
+    ],
+    "steps": [
+      "Simmer the broth with the onion and chicken for 20 minutes, then lift out the chicken and slice it.",
+      "Cook the noodles in the broth as directed, then return the chicken to the pot with the fish sauce.",
+      "Ladle into bowls and top with bean sprouts, herbs and lime."
+    ]
+  },
+  {
+    "id": "chicken-bibimbap-bowl",
+    "image": "kitchen/chicken-bibimbap-bowl.jpg",
+    "credit": "",
+    "name": "Korean Chicken Bibimbap Bowl",
+    "category": "Lunch",
+    "time": 25,
+    "difficulty": "Medium",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 16,
+    "fat": 12,
+    "saturatedFat": 3.0,
+    "calories": 292,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "balanced-macros",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts, sliced thin",
+      "1 cup cooked rice",
+      "2 eggs",
+      "1 cup shredded carrots",
+      "1 cup shredded zucchini",
+      "1 cup spinach",
+      "1/2 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp sesame oil",
+      "1 tbsp gluten-free gochujang"
+    ],
+    "steps": [
+      "Cook the chicken in a pan with the soy sauce and sesame oil until done, about 8 minutes.",
+      "Wilt the spinach, cook the carrots and zucchini for 2 minutes, and fry the eggs.",
+      "Build each bowl with rice, chicken, vegetables and a fried egg, and serve with gochujang on the side."
+    ]
+  },
+  {
+    "id": "teriyaki-salmon",
+    "image": "kitchen/teriyaki-salmon.jpg",
+    "credit": "",
+    "name": "Japanese Teriyaki Salmon",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32,
+    "carbs": 7,
+    "fat": 14,
+    "saturatedFat": 2.0,
+    "calories": 282,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "balanced-macros"
+    ],
+    "ingredients": [
+      "2 salmon fillets",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp grated ginger",
+      "2 cloves garlic, minced",
+      "Juice of 1 lime",
+      "1/2 cup cooked rice",
+      "2 cups steamed broccoli"
+    ],
+    "steps": [
+      "Mix the soy sauce, ginger, garlic and lime juice, and brush it over the salmon.",
+      "Pan-sear the salmon 4 minutes per side, brushing with more sauce as it cooks.",
+      "Serve with rice and broccoli."
+    ]
+  },
+  {
+    "id": "chicken-yakitori-skewers",
+    "image": "kitchen/chicken-yakitori-skewers.jpg",
+    "credit": "",
+    "name": "Japanese Chicken Yakitori Skewers",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Medium",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 1,
+    "fat": 10,
+    "saturatedFat": 2.0,
+    "calories": 214,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb chicken breast, cut into chunks",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp grated ginger",
+      "2 cloves garlic, minced",
+      "Juice of 1 lime",
+      "4 green onions, cut into pieces",
+      "Wooden skewers, soaked in water"
+    ],
+    "steps": [
+      "Mix the soy sauce, ginger, garlic and lime juice, and marinate the chicken for 15 minutes.",
+      "Thread the chicken and green onion pieces onto the skewers.",
+      "Grill or broil 10 to 12 minutes, turning and brushing with the marinade, until cooked through."
+    ]
+  },
+  {
+    "id": "garlic-shrimp-stir-fry",
+    "image": "kitchen/garlic-shrimp-stir-fry.jpg",
+    "credit": "",
+    "name": "Chinese Garlic Shrimp Stir-Fry",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 28,
+    "carbs": 10,
+    "fat": 10,
+    "saturatedFat": 1.3,
+    "calories": 242,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb shrimp, peeled",
+      "4 cloves garlic, minced",
+      "2 cups snap peas",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tbsp sesame oil",
+      "1 tsp grated ginger"
+    ],
+    "steps": [
+      "Heat the sesame oil in a large pan and cook the garlic and ginger for 1 minute.",
+      "Add the shrimp and snap peas and cook 4 minutes, until the shrimp turn pink.",
+      "Stir in the soy sauce and serve."
+    ]
+  },
+  {
+    "id": "beef-and-broccoli",
+    "image": "kitchen/beef-and-broccoli.jpg",
+    "credit": "",
+    "name": "Chinese Beef and Broccoli",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 14,
+    "fat": 12,
+    "saturatedFat": 4.1,
+    "calories": 284,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "3/4 lb flank steak, sliced thin",
+      "3 cups broccoli florets",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tbsp gluten-free oyster sauce",
+      "1 tsp sesame oil",
+      "2 cloves garlic, minced",
+      "Juice of 1 lime",
+      "1 tsp grated ginger"
+    ],
+    "steps": [
+      "Sear the beef in a hot pan with the sesame oil for 3 minutes, then set aside.",
+      "Cook the broccoli and garlic in the same pan for 4 minutes.",
+      "Return the beef to the pan, add the soy sauce, oyster sauce, lime juice and ginger, and toss for 1 minute."
+    ]
+  },
+  {
+    "id": "thai-basil-chicken-with-peppers",
+    "image": "kitchen/thai-basil-chicken-with-peppers.jpg",
+    "credit": "",
+    "name": "Thai Basil Chicken with Peppers",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 12,
+    "fat": 12,
+    "saturatedFat": 2.0,
+    "calories": 276,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb chicken breast, sliced thin",
+      "2 bell peppers, sliced",
+      "1 cup fresh basil leaves",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp fish sauce",
+      "1 tbsp olive oil",
+      "2 cloves garlic, minced"
+    ],
+    "steps": [
+      "Heat the oil in a pan and cook the garlic for 1 minute.",
+      "Add the chicken and peppers and cook 8 minutes, until the chicken is done.",
+      "Stir in the soy sauce, fish sauce and basil until the basil wilts, then serve."
+    ]
+  },
+  {
+    "id": "thai-red-curry-with-tofu",
+    "image": "kitchen/thai-red-curry-with-tofu.jpg",
+    "credit": "",
+    "name": "Thai Red Curry with Tofu",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 27,
+    "carbs": 16,
+    "fat": 15,
+    "saturatedFat": 4.4,
+    "calories": 307,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "vegetarian",
+      "vegan",
+      "gluten-free",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 1/2 blocks firm tofu, cubed",
+      "1/2 can light coconut milk",
+      "1 cup low-sodium vegetable broth",
+      "2 tbsp red curry paste",
+      "2 cups mixed vegetables (bell pepper, zucchini, green beans)",
+      "1 tbsp fish sauce or gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1/4 cup fresh basil"
+    ],
+    "steps": [
+      "Simmer the coconut milk, broth and curry paste in a pot for 2 minutes.",
+      "Add the tofu and vegetables and cook 10 minutes, until tender.",
+      "Stir in the sauce and basil, then serve."
+    ]
+  },
+  {
+    "id": "vietnamese-lemongrass-chicken",
+    "image": "kitchen/vietnamese-lemongrass-chicken.jpg",
+    "credit": "",
+    "name": "Vietnamese Lemongrass Chicken",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Medium",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 1,
+    "fat": 12,
+    "saturatedFat": 3.0,
+    "calories": 232,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb chicken breast, sliced",
+      "2 stalks lemongrass, minced",
+      "1 tbsp fish sauce",
+      "2 cloves garlic, minced",
+      "1 tbsp olive oil",
+      "1 cup cooked rice"
+    ],
+    "steps": [
+      "Mix the lemongrass, fish sauce and garlic, and marinate the chicken for 15 minutes.",
+      "Cook the chicken in a pan with the oil for 10 minutes, until browned and cooked through.",
+      "Serve over rice."
+    ]
+  },
+  {
+    "id": "vietnamese-shrimp-and-vegetable-stir-fry",
+    "image": "kitchen/vietnamese-shrimp-and-vegetable-stir-fry.jpg",
+    "credit": "",
+    "name": "Vietnamese Shrimp and Vegetable Stir-Fry",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 26,
+    "carbs": 12,
+    "fat": 10,
+    "saturatedFat": 1.3,
+    "calories": 242,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 lb shrimp, peeled",
+      "2 cups mixed vegetables (carrots, bell pepper, snap peas)",
+      "1 tbsp fish sauce",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tbsp sesame oil",
+      "Juice of 1/2 lime"
+    ],
+    "steps": [
+      "Heat the sesame oil in a large pan and cook the vegetables for 3 minutes.",
+      "Add the shrimp and cook 4 minutes, until pink.",
+      "Stir in the fish sauce, soy sauce and lime juice, then serve."
+    ]
+  },
+  {
+    "id": "korean-bulgogi-beef",
+    "image": "kitchen/korean-bulgogi-beef.jpg",
+    "credit": "",
+    "name": "Korean Bulgogi Beef",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Medium",
+    "servings": 2,
+    "protein": 30,
+    "carbs": 7,
+    "fat": 9,
+    "saturatedFat": 4.0,
+    "calories": 229,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "3/4 lb sirloin, sliced very thin",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp sesame oil",
+      "2 cloves garlic, minced",
+      "1 tsp grated ginger",
+      "Juice of 1 lime",
+      "1/2 onion, sliced thin",
+      "1 tsp sesame seeds",
+      "1 cup cooked rice"
+    ],
+    "steps": [
+      "Mix the soy sauce, sesame oil, garlic, ginger and lime juice, and marinate the beef and onion for 15 minutes.",
+      "Cook in a hot pan for 5 minutes, until browned.",
+      "Sprinkle with sesame seeds and serve over rice."
+    ]
+  },
+  {
+    "id": "sundubu-tofu-stew",
+    "image": "kitchen/sundubu-tofu-stew.jpg",
+    "credit": "",
+    "name": "Korean Sundubu Tofu Stew",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 20,
+    "carbs": 10,
+    "fat": 12,
+    "saturatedFat": 3.2,
+    "calories": 228,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "vegetarian",
+      "gluten-free",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 block soft tofu",
+      "2 cups low-sodium vegetable broth",
+      "1/4 cup kimchi, chopped and rinsed",
+      "2 eggs",
+      "1 tbsp gluten-free gochujang",
+      "1 tsp sesame oil",
+      "1 green onion, sliced"
+    ],
+    "steps": [
+      "Simmer the broth, kimchi and gochujang in a pot for 5 minutes.",
+      "Gently add the tofu in large spoonfuls and cook 5 minutes more.",
+      "Crack the eggs into the stew, cover for 2 minutes, then top with sesame oil and green onion."
+    ]
+  },
+  {
+    "id": "cucumber-sesame-salad",
+    "image": "kitchen/cucumber-sesame-salad.jpg",
+    "credit": "",
+    "name": "Japanese Cucumber Sesame Salad",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 14,
+    "carbs": 14,
+    "fat": 8,
+    "saturatedFat": 0.8,
+    "calories": 184,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "vegan",
+      "gluten-free",
+      "vegetarian",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cucumbers, sliced thin",
+      "1 cup shelled edamame",
+      "1 tbsp rice vinegar",
+      "1 tsp sesame oil",
+      "1 tsp sesame seeds",
+      "Pinch of salt"
+    ],
+    "steps": [
+      "Toss the cucumber and edamame in a bowl.",
+      "Whisk the vinegar, sesame oil and salt and pour over the salad.",
+      "Chill 10 minutes, then sprinkle with sesame seeds."
+    ]
+  },
+  {
+    "id": "kimchi-tofu-bites",
+    "image": "kitchen/kimchi-tofu-bites.jpg",
+    "credit": "",
+    "name": "Korean Kimchi Tofu Bites",
+    "category": "Snacks",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 12,
+    "carbs": 6,
+    "fat": 8,
+    "saturatedFat": 1.6,
+    "calories": 144,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "vegetarian",
+      "vegan",
+      "gluten-free"
+    ],
+    "ingredients": [
+      "1 block firm tofu, cut into cubes",
+      "1/4 cup kimchi, chopped and rinsed",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp sesame oil",
+      "1 tsp sesame seeds"
+    ],
+    "steps": [
+      "Pan-fry the tofu cubes in the sesame oil for 6 minutes, turning until golden on all sides.",
+      "Add the kimchi and soy sauce and cook 2 minutes more.",
+      "Serve warm, sprinkled with sesame seeds."
+    ]
+  },
+  {
+    "id": "mushroom-and-tofu-soup",
+    "image": "kitchen/mushroom-and-tofu-soup.jpg",
+    "credit": "",
+    "name": "Japanese Mushroom and Tofu Soup",
+    "category": "Light Meals",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 12,
+    "carbs": 8,
+    "fat": 6,
+    "saturatedFat": 0.6,
+    "calories": 134,
+    "tags": [
+      "small-portions",
+      "high-protein",
+      "vegan",
+      "vegetarian",
+      "gluten-free"
+    ],
+    "ingredients": [
+      "2 cups sliced mushrooms",
+      "1/2 block firm tofu, cubed",
+      "4 cups low-sodium vegetable broth",
+      "2 tbsp white miso paste",
+      "1 green onion, sliced",
+      "1 tsp grated ginger"
+    ],
+    "steps": [
+      "Simmer the mushrooms and ginger in the broth for 10 minutes.",
+      "Add the tofu and cook 3 minutes more.",
+      "Stir in the miso until dissolved, then top with green onion."
+    ]
+  },
+  {
+    "id": "egg-drop-soup",
+    "image": "kitchen/egg-drop-soup.jpg",
+    "credit": "",
+    "name": "Chinese Egg Drop Soup",
+    "category": "Light Meals",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 10,
+    "carbs": 6,
+    "fat": 5,
+    "saturatedFat": 2.0,
+    "calories": 109,
+    "tags": [
+      "small-portions",
+      "high-protein",
+      "budget-friendly",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "4 cups low-sodium chicken broth",
+      "2 eggs, beaten",
+      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1 tsp sesame oil",
+      "1 green onion, sliced",
+      "1 tsp cornstarch mixed with 2 tbsp water"
+    ],
+    "steps": [
+      "Bring the broth to a gentle simmer and stir in the soy sauce and cornstarch mixture.",
+      "Slowly pour in the beaten eggs while stirring, so they form thin ribbons.",
+      "Finish with sesame oil and green onion."
+    ]
+  },
+  {
+    "id": "chicken-coconut-soup",
+    "image": "kitchen/chicken-coconut-soup.jpg",
+    "credit": "",
+    "name": "Thai Chicken Coconut Soup",
+    "category": "Light Meals",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 22,
+    "carbs": 8,
+    "fat": 7,
+    "saturatedFat": 3.5,
+    "calories": 183,
+    "tags": [
+      "small-portions",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts, sliced thin",
+      "1/2 can light coconut milk",
+      "3 cups low-sodium chicken broth",
+      "1 cup sliced mushrooms",
+      "Juice of 1 lime",
+      "1 tbsp fish sauce",
+      "1/4 cup fresh cilantro"
+    ],
+    "steps": [
+      "Simmer the coconut milk and broth in a pot for 5 minutes.",
+      "Add the chicken and mushrooms and cook 8 minutes, until the chicken is done.",
+      "Stir in the lime juice and fish sauce, then top with cilantro."
+    ]
   }
 ];
 let kitchenFilter = "all";
@@ -7422,6 +8314,7 @@ if (kitchenSearchInput) kitchenSearchInput.addEventListener("input", () => {
   kitchenSearch = kitchenSearchInput.value;
   renderKitchen();
 });
+
 
 
 /* Recipe detail (v039): tap a card to see the full recipe, with the
