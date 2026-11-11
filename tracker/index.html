@@ -37,11 +37,11 @@
   "video": {
     "@type": "VideoObject",
     "name": "New Chapter: GLP-1 Tracker™ walkthrough",
-    "description": "Walkthrough of the New Chapter: GLP-1 Tracker™ app showing injection logging, weight tracking, water and protein goals, side effects, journal, and settings.",
-    "thumbnailUrl": "https://millrjess.github.io/tracker/assets/walkthrough-poster-v11-short.jpg",
-    "contentUrl": "https://millrjess.github.io/tracker/assets/tracker-walkthrough-v11-short.mp4",
-    "duration": "PT56S",
-    "uploadDate": "2026-11-10T00:00:00-05:00"
+    "description": "Walkthrough of the New Chapter: GLP-1 Tracker™ app: the doctor visit summary and shot schedule, the AI Wellness Companion, and GLP-1 friendly recipes from Greece, Provence, and Japan.",
+    "thumbnailUrl": "https://millrjess.github.io/tracker/assets/walkthrough-poster-v12-short.jpg",
+    "contentUrl": "https://millrjess.github.io/tracker/assets/tracker-walkthrough-v12-short.mp4",
+    "duration": "PT30S",
+    "uploadDate": "2026-11-11T00:00:00-05:00"
   }
 }
 </script>
@@ -399,20 +399,21 @@
     <section class="demo-video" style="text-align:center;background:var(--surface-soft)">
       <div class="wrap" style="max-width:560px;margin:auto">
         <h2 style="margin-bottom:16px">See it in action.</h2>
-        <p style="color:var(--muted);margin-bottom:18px">Under a minute. Your whole routine, in one calm place.</p>
-        <video controls playsinline preload="metadata" title="App walkthrough: New Chapter: GLP-1 Tracker™" style="width:100%;max-width:300px;border-radius:20px;box-shadow:var(--shadow)" poster="assets/walkthrough-poster-v11-short.jpg">
-          <source src="assets/tracker-walkthrough-v11-short.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
+        <p style="color:var(--muted);margin-bottom:18px">Under 30 seconds. Your whole routine, in one calm place.</p>
+        <div style="position:relative;width:100%;max-width:300px;margin:auto">
+          <video id="walkthrough-video" autoplay muted loop controls playsinline preload="metadata" title="App walkthrough: New Chapter: GLP-1 Tracker™" style="width:100%;border-radius:20px;box-shadow:var(--shadow);display:block" poster="assets/walkthrough-poster-v12-short.jpg">
+            <source src="assets/tracker-walkthrough-v12-short.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <button id="walkthrough-sound" type="button" aria-label="Tap for sound" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:var(--sage);color:#FDFBF7;border:none;border-radius:999px;padding:12px 22px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(39,55,39,.35);white-space:nowrap">🔊 Tap for sound</button>
+        </div>
         <details style="text-align:left;max-width:68ch;margin:18px auto 0">
           <summary>Video transcript</summary>
-          <p>The medicine works. But the weight you lose is not all fat. Some of it is lean mass, and lean mass includes muscle.</p>
-          <p>Your weight, with a chart that shows the trend. One summary for your doctor at each refill.</p>
-          <p>Your next shot date is always visible. Log a shot in seconds.</p>
-          <p>Ask your Companion anything. It remembers you.</p>
-          <p>Mediterranean recipes, with protein and macros on every card. Find one you like, add it to today, and the macros feed straight into your day.</p>
-          <p>Everything organized in one app. Water, movement, macros, shots, weight. Scan a barcode, and the food fills itself in.</p>
-          <p>Only three dollars and ninety-nine cents to try. Cancel anytime. Stay strong while the medicine works.</p>
+          <p>The medicine works. But some weight you lose is lean mass, and lean mass includes muscle.</p>
+          <p>One summary for your doctor at each refill. Your next shot date is always visible.</p>
+          <p>Then ask your Companion anything. It remembers you.</p>
+          <p>In the Kitchen, salmon from Greece, chicken from Provence, teriyaki from Japan.</p>
+          <p>Private by design. Only three ninety-nine to try. Cancel anytime.</p>
         </details>
       </div>
     </section>
@@ -700,6 +701,19 @@
     <p class="wrap" style="max-width:68ch;margin:12px auto 0;color:var(--muted);font-size:.85rem">Zepbound, Mounjaro, Wegovy, and Ozempic are registered trademarks of their respective owners. New Chapter is not affiliated with or endorsed by Eli Lilly or Novo Nordisk.</p>
   </footer>
 
+  <script>
+    /* Walkthrough video (v12): autoplay muted; one tap turns the sound on. */
+    (function () {
+      var video = document.getElementById('walkthrough-video');
+      var button = document.getElementById('walkthrough-sound');
+      if (!video || !button) return;
+      button.addEventListener('click', function () {
+        video.muted = false;
+        video.play();
+        button.style.display = 'none';
+      });
+    })();
+  </script>
   <script src="assets/js/tracker-help-chat.js"></script>
 </body>
 </html>
