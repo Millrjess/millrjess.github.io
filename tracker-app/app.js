@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v066";
+const APP_VERSION = "v067";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -9356,7 +9356,7 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
    first run in the app. Acceptance is logged with a timestamp and
    the Terms version. The exact checkbox wording goes to the attorney
    later; the Terms themselves are not rewritten here. */
-const TERMS_VERSION = "2026-11-09";
+const TERMS_VERSION = "2026-11-11";
 const TERMS_ACCEPT_KEY = "nct-terms-accepted";
 function logTermsAcceptance() {
   try {

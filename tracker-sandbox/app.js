@@ -4724,7 +4724,7 @@ function downloadDoctorPdf() {
     }
     line("", { size: 11 });
     line("This summary is from your own log. It is not medical advice.", { size: 10 });
-    line("Your tracked data stays on this device. Only messages you choose to send to the Companion leave it, to get a reply.", { size: 10 });
+    line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.", { size: 10 });
     doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
     setFormStatus(msg, "Downloaded as a PDF.", false);
   } catch (e) {
@@ -9297,7 +9297,7 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
    first run in the app. Acceptance is logged with a timestamp and
    the Terms version. The exact checkbox wording goes to the attorney
    later; the Terms themselves are not rewritten here. */
-const TERMS_VERSION = "2026-11-09";
+const TERMS_VERSION = "2026-11-11";
 const TERMS_ACCEPT_KEY = "nct-terms-accepted";
 function logTermsAcceptance() {
   try {
