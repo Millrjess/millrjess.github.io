@@ -785,6 +785,10 @@ label textarea {
 .recipe-modal-card { display: flex; flex-direction: column; max-height: calc(100vh - 4vh - 48px); max-height: calc(100dvh - 4vh - 48px); }
 .recipe-modal-card #recipe-modal-body { overflow-y: auto; min-height: 0; }
 #recipe-modal .modal-x { background: var(--sage-soft); color: var(--ink); }
+/* v066: the X is 44px tall at top:10px, so content scrolled to the top
+   of the body used to slide under it (the Calories number was cut off).
+   A 60px top padding puts the body scroll area below the X. */
+#recipe-modal .modal-card { padding-top: 60px; }
 .recipe-modal-footer { flex: none; margin: 16px -24px -28px; padding: 14px 24px 20px; border-top: 1px solid var(--border, #ddd); background: var(--card, #fff); border-radius: 0 0 20px 20px; }
 .recipe-modal-footer .btn { margin: 0; }
 .modal-card h2 { margin-top: 0; }
@@ -1621,7 +1625,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-macro span { font-size: .85rem; color: var(--muted); }
 .kitchen-details { margin-top: 8px; font-size: .9rem; }
 .kitchen-details summary { cursor: pointer; font-weight: 500; }
-.kitchen-details ul, .kitchen-details ol { margin: 6px 0 0 18px; padding: 0; }
+.kitchen-details ul, .kitchen-details ol { margin: 6px 0 0; padding-left: 24px; }
 .kitchen-details li { margin: 2px 0; }
 .kitchen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .kitchen-stepper { display: inline-flex; align-items: center; gap: 8px; }

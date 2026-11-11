@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v065";
+const APP_VERSION = "v066";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -4128,6 +4128,9 @@ injForm.addEventListener("submit", (e) => {
   renderSiteMap();
   renderToday();
   toggleForm(injForm, document.getElementById("show-injection-form"), false);
+  // v066: after logging a shot, take the user to the Shots section so
+  // they see the logged shot.
+  showTab("shots");
   setFormStatus(document.getElementById("inj-saved-msg"), "Injection saved.", false);
 });
 
@@ -4495,12 +4498,18 @@ function renderBMI() {
   }
 }
 
-/* ---------- Doctor visit summary (v168) ---------- */
-/* One tap makes a simple summary of weight, shots, and side effects to
-   show her clinician. Text only; it never leaves the phone unless she
-   copies or downloads it herself. */
-function buildDoctorSummary() {
-  const lines = ["New Chapter: GLP-1 Tracker — Visit summary", "Prepared " + formatDate(todayStr()), ""];
+/* Doctor visit summary (v168, date range v066). One tap makes a
+   simple summary of weight, shots, and side effects to show her
+   clinician. Text only; it never leaves the phone unless she copies
+   or downloads it herself. The caller picks a date range; when none
+   is given it defaults to the last 30 days. */
+function buildDoctorSummary(fromDate, toDate) {
+  const ok = (d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
+  const to = ok(toDate) ? toDate : todayStr();
+  const from = ok(fromDate) ? fromDate : todayStr(-30);
+  const rangeLabel = formatDateShort(from) + " to " + formatDateShort(to);
+  const inRange = (d) => d >= from && d <= to;
+  const lines = ["New Chapter: GLP-1 Tracker \u2014 Visit summary", "Prepared " + formatDate(todayStr()), "Dates: " + formatDate(from) + " to " + formatDate(to) + ".", ""];
   // Weight
   const sortedW = [...(store.weight || [])].sort(byDate);
   const latest = sortedW[sortedW.length - 1];
@@ -4529,11 +4538,8 @@ function buildDoctorSummary() {
   if (sortedI.length) {
     const last = sortedI[0];
     lines.push("Last shot: " + formatDate(last.date) + " (" + (last.site || "site not recorded") + ", " + (last.medication || "medication not recorded") + (last.dose ? ", " + last.dose : "") + ").");
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-    const cutoff = localDateStr(ninetyDaysAgo);
-    const recent = sortedI.filter((s) => s.date >= cutoff);
-    lines.push("Shots in the last 90 days: " + recent.length + ".");
+    const recent = sortedI.filter((s) => inRange(s.date));
+    lines.push("Shots from " + rangeLabel + ": " + recent.length + ".");
     const missed = sortedI.filter((s) => s.status === "Missed").length;
     if (missed) lines.push("Missed shots on record: " + missed + ".");
   } else {
@@ -4542,21 +4548,19 @@ function buildDoctorSummary() {
   lines.push("");
   // Side effects
   const sortedE = [...(store.sideEffects || [])].sort(byDateDesc);
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const recentE = sortedE.filter((s) => s.date >= localDateStr(thirtyDaysAgo));
-  lines.push("Side effects (last 30 days)");
+  const recentE = sortedE.filter((s) => inRange(s.date));
+  lines.push("Side effects (" + rangeLabel + ")");
   if (recentE.length) {
     recentE.forEach((s) => {
-      lines.push("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " — " + s.notes : ""));
+      lines.push("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " \u2014 " + s.notes : ""));
     });
   } else {
-    lines.push("None logged in the last 30 days.");
+    lines.push("None logged from " + rangeLabel + ".");
   }
   lines.push("");
-  // Exercise (last 30 days)
-  const recentEx = (store.exercise || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
-  lines.push("Exercise (last 30 days)");
+  // Exercise
+  const recentEx = (store.exercise || []).filter((e) => inRange(e.date));
+  lines.push("Exercise (" + rangeLabel + ")");
   if (recentEx.length) {
     const totalMin = recentEx.reduce((t, e) => t + (Number(e.minutes) || 0), 0);
     const activeDays = new Set(recentEx.map((e) => e.date)).size;
@@ -4565,14 +4569,14 @@ function buildDoctorSummary() {
     const planLen = getMovementPlan().length;
     let routineDays = 0;
     for (const [d, st] of Object.entries(store.movementDone || {})) {
-      if (d >= localDateStr(thirtyDaysAgo) && st && Array.isArray(st.done) && st.done.length >= planLen) routineDays++;
+      if (inRange(d) && st && Array.isArray(st.done) && st.done.length >= planLen) routineDays++;
     }
     if (routineDays) lines.push("Daily movement routine completed on " + routineDays + " day" + (routineDays === 1 ? "" : "s") + ".");
   } else {
-    lines.push("No movement logged in the last 30 days.");
+    lines.push("No movement logged from " + rangeLabel + ".");
   }
-  // v033: strength sessions in the last 30 days, in the same Exercise section.
-  const recentSt = (store.strength || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
+  // v033: strength sessions in the chosen range, in the same Exercise section.
+  const recentSt = (store.strength || []).filter((e) => inRange(e.date));
   if (recentSt.length) {
     const stDays = new Set(recentSt.map((e) => e.date)).size;
     const stSets = recentSt.reduce((t, e) => t + (Number(e.sets) || 0), 0);
@@ -4586,11 +4590,25 @@ function openDoctorModal() {
   const modal = document.getElementById("doctor-modal");
   const text = document.getElementById("doctor-text");
   if (!modal || !text) return;
-  text.value = buildDoctorSummary();
+  const fromEl = document.getElementById("doctor-from");
+  const toEl = document.getElementById("doctor-to");
+  // Default range: last 30 days. A preset from the reminder (or a
+  // previous choice) stays as it is.
+  if (fromEl && !fromEl.value) fromEl.value = todayStr(-30);
+  if (toEl && !toEl.value) toEl.value = todayStr();
+  rebuildDoctorText();
   document.getElementById("doctor-msg").textContent = "";
   modal.classList.remove("hidden");
   const copyBtn = document.getElementById("doctor-copy");
   if (copyBtn) copyBtn.focus();
+}
+/* Rebuild the summary text from the From/To inputs (v066). */
+function rebuildDoctorText() {
+  const text = document.getElementById("doctor-text");
+  if (!text) return;
+  const fromEl = document.getElementById("doctor-from");
+  const toEl = document.getElementById("doctor-to");
+  text.value = buildDoctorSummary(fromEl ? fromEl.value : "", toEl ? toEl.value : "");
 }
 function closeDoctorModal() {
   document.getElementById("doctor-modal").classList.add("hidden");
@@ -4628,6 +4646,67 @@ document.getElementById("doctor-download").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   setFormStatus(document.getElementById("doctor-msg"), "Downloaded as a text file.", false);
 });
+const doctorFromEl = document.getElementById("doctor-from");
+if (doctorFromEl) doctorFromEl.addEventListener("change", rebuildDoctorText);
+const doctorToEl = document.getElementById("doctor-to");
+if (doctorToEl) doctorToEl.addEventListener("change", rebuildDoctorText);
+/* ---------- Doctor-share reminder (v066) ---------- */
+/* Gentle, once-only reminder to share side-effect notes with the
+   prescribing doctor. Fires when there are 3 side-effect notes in
+   the last 7 days, or any one note marked Severe. It never nags and
+   never gives medical advice; it only directs the user to the doctor.
+   The reminder shows once per trigger: the signature of the notes
+   that triggered it is stored, and a new trigger (a new Severe note,
+   or 3 new notes in 7 days) shows it again. */
+const DOCTOR_REMINDER_KEY = "nct-doctor-reminder-shown";
+function doctorReminderTrigger() {
+  const effects = (store.sideEffects || []).slice();
+  if (!effects.length) return null;
+  const sevenDaysAgo = todayStr(-7);
+  const recent = effects.filter((e) => e.date >= sevenDaysAgo);
+  const severe = effects.filter((e) => e.severity === "Severe").sort(byDateDesc);
+  if (severe.length) {
+    return { kind: "severe", sig: "severe:" + severe[0].id, from: severe[0].date, label: "a side effect marked Severe" };
+  }
+  if (recent.length >= 3) {
+    const top3 = recent.slice().sort(byDateDesc).slice(0, 3);
+    const ids = top3.map((e) => e.id).sort().join(",");
+    const from = top3.slice().sort(byDate)[0].date;
+    return { kind: "count", sig: "count:" + ids, from: from, label: "3 side effects in the last 7 days" };
+  }
+  return null;
+}
+function renderDoctorReminder() {
+  const box = document.getElementById("doctor-reminder");
+  if (!box) return;
+  const trig = doctorReminderTrigger();
+  if (!trig) { box.innerHTML = ""; return; }
+  let shown = "";
+  try { shown = localStorage.getItem(DOCTOR_REMINDER_KEY) || ""; } catch {}
+  if (shown === trig.sig) { box.innerHTML = ""; return; }
+  box.innerHTML = '<div class="card" style="border:1px solid var(--sage-border);background:var(--sage-tint)">'
+    + '<p style="margin:0 0 8px"><strong>Share with your doctor?</strong></p>'
+    + '<p class="muted" style="margin:0 0 10px">You have logged ' + escapeHtml(trig.label) + '. Consider sharing your notes with your prescribing doctor.</p>'
+    + '<div class="form-actions" style="flex-wrap:wrap">'
+    + '<button type="button" class="btn btn-primary" id="doctor-reminder-go">Prepare a summary for my doctor</button>'
+    + '<button type="button" class="btn" id="doctor-reminder-later">Not now</button>'
+    + '</div></div>';
+  const dismiss = () => {
+    try { localStorage.setItem(DOCTOR_REMINDER_KEY, trig.sig); } catch {}
+    box.innerHTML = "";
+  };
+  const goBtn = document.getElementById("doctor-reminder-go");
+  if (goBtn) goBtn.addEventListener("click", () => {
+    const fromEl = document.getElementById("doctor-from");
+    const toEl = document.getElementById("doctor-to");
+    if (fromEl) fromEl.value = trig.from;
+    if (toEl) toEl.value = todayStr();
+    dismiss();
+    openDoctorModal();
+  });
+  const laterBtn = document.getElementById("doctor-reminder-later");
+  if (laterBtn) laterBtn.addEventListener("click", dismiss);
+}
 
 function renderWeightMilestone() {
   const card = document.getElementById("milestone-card");
@@ -7375,9 +7454,9 @@ function openRecipeModal(id) {
       </div>
       <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving</p>
       <h3 style="margin:14px 0 4px">Ingredients</h3>
-      <ul style="margin:0 0 0 18px;padding:0">${kr.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
+      <ul style="margin:0;padding-left:24px">${kr.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
       <h3 style="margin:14px 0 4px">Steps</h3>
-      <ol style="margin:0 0 0 18px;padding:0">${kr.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
+      <ol style="margin:0;padding-left:24px">${kr.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
       <div class="kitchen-actions">
         <button type="button" class="btn btn-small" data-modal-kitchen-save="${kr.id}">${saved ? "Saved ✓" : "Save"}</button>
         <span class="kitchen-stepper">
@@ -7703,6 +7782,7 @@ function renderSideEffects() {
   const list = document.getElementById("sideeffect-list");
   if (!list) return;
   renderSeTrends();
+  renderDoctorReminder();
   const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No side effects logged yet.</p>';
@@ -9270,6 +9350,30 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
 });
 
 
+
+/* ---------- Clickwrap: Terms acceptance (v066) ---------- */
+/* Required, unchecked checkbox before purchase (sales page) and at
+   first run in the app. Acceptance is logged with a timestamp and
+   the Terms version. The exact checkbox wording goes to the attorney
+   later; the Terms themselves are not rewritten here. */
+const TERMS_VERSION = "2026-11-09";
+const TERMS_ACCEPT_KEY = "nct-terms-accepted";
+function logTermsAcceptance() {
+  try {
+    localStorage.setItem(TERMS_ACCEPT_KEY, JSON.stringify({ at: new Date().toISOString(), termsVersion: TERMS_VERSION }));
+  } catch {}
+}
+function setupTermsChecked() {
+  const box = document.getElementById("setup-terms");
+  // No checkbox in this copy (demo has no setup overlay): nothing to block.
+  if (!box) return true;
+  return box.checked;
+}
+function setupTermsMsg(text) {
+  const msg = document.getElementById("setup-terms-msg");
+  if (msg) msg.textContent = text || "";
+}
+
 /* ---------- First-run setup wizard ---------- */
 
 (function setupDefaults() {
@@ -9344,12 +9448,22 @@ const setupSkipBtn = document.getElementById("setup-skip");
 const setupOverlayEl = document.getElementById("setup-overlay");
 if (setupNextBtn) setupNextBtn.addEventListener("click", () => {
   if (setupStep < 5) showSetupStep(setupStep + 1);
-  else finishSetup(true);
+  else {
+    if (!setupTermsChecked()) { setupTermsMsg("Please agree to the Terms to continue."); return; }
+    setupTermsMsg("");
+    logTermsAcceptance();
+    finishSetup(true);
+  }
 });
 if (setupBackBtn) setupBackBtn.addEventListener("click", () => {
   if (setupStep > 1) showSetupStep(setupStep - 1);
 });
-if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => finishSetup(false));
+if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => {
+  if (!setupTermsChecked()) { setupTermsMsg("Please agree to the Terms to continue."); return; }
+  setupTermsMsg("");
+  logTermsAcceptance();
+  finishSetup(false);
+});
 /* Setup step 5: fill macro grams from the calorie target at the
    decided split, 35% carbs, 33% fat, 32% protein. */
 const setupFillPctBtn = document.getElementById("setup-fill-percent");

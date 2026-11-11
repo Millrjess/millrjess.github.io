@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=065">
+<link rel="stylesheet" href="styles.css?v=066">
 </head>
 <body>
 
@@ -705,6 +705,14 @@
       <div class="modal-card">
         <h2 style="margin-top:0">Doctor visit summary</h2>
         <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <label style="flex:1;min-width:140px">From
+            <input type="date" id="doctor-from" aria-label="Summary from date">
+          </label>
+          <label style="flex:1;min-width:140px">To
+            <input type="date" id="doctor-to" aria-label="Summary to date">
+          </label>
+        </div>
         <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
         <div class="form-actions" style="flex-wrap:wrap">
           <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
@@ -820,6 +828,8 @@
 
     <div id="se-trends" style="margin-top:12px"></div>
 
+    <div id="doctor-reminder" style="margin-top:12px"></div>
+
     <div id="sideeffect-list" class="entry-list"></div>
   </section>
 
@@ -836,9 +846,11 @@
       <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
       <button type="button" class="kitchen-chip" data-filter="quick-and-easy">Quick and easy</button>
       <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
-      <button type="button" class="kitchen-chip" data-filter="easy-breakfasts">Easy Breakfasts</button>
-      <button type="button" class="kitchen-chip" data-filter="balanced-dinners">Balanced Dinners</button>
-      <button type="button" class="kitchen-chip" data-filter="small-appetite">Small Appetite</button>
+      <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
+      <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
+      <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
+      <button type="button" class="kitchen-chip" data-filter="snacks">Snacks</button>
+      <button type="button" class="kitchen-chip" data-filter="light-meals">Light Meals</button>
       <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
       <button type="button" class="kitchen-chip" data-filter="vegan">Vegan</button>
       <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
@@ -852,8 +864,8 @@
     <h3 style="margin-top:18px">Recipes on the web</h3>
     <p class="muted" style="font-size:.9rem">These recipes open on their own website, in a new window.</p>
     <ul>
-      <li><a href="http://www.mayoclinic.org/healthy-living/recipes/french-country-chicken/rcp-20049778/" target="_blank" rel="noopener">MayoClinic.org French Country Chicken Information</a></li>
-      <li><a href="https://www.mayoclinic.org/healthy-lifestyle/recipes/lentil-ragout/rcp-20197726" target="_blank" rel="noopener">MayoClinic.org Lentil Ragout Information</a></li>
+      <li><a href="http://www.mayoclinic.org/healthy-living/recipes/french-country-chicken/rcp-20049778/" target="_blank" rel="noopener">French Country Chicken</a></li>
+      <li><a href="https://www.mayoclinic.org/healthy-lifestyle/recipes/lentil-ragout/rcp-20197726" target="_blank" rel="noopener">Lentil Ragout</a></li>
     </ul>
 <div id="meal-ideas" class="card" style="margin-top:16px"></div>
 <h3 style="margin-top:18px">Paste a Recipe</h3>
@@ -1458,6 +1470,12 @@
       <p class="muted" id="setup-percent-note" style="font-size:.9rem">Fills the grams from your calorie target.</p>
     </div>
 
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:.9rem;text-align:left">
+      <input type="checkbox" id="setup-terms" style="margin-top:2px">
+      <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a>.</span>
+    </label>
+    <p class="code-msg" id="setup-terms-msg" style="min-height:1.2em"></p>
+
     <div class="form-actions" style="margin-top:16px">
       <button type="button" class="btn hidden" id="setup-back">Back</button>
       <button type="button" class="btn btn-primary" id="setup-next">Next</button>
@@ -1523,7 +1541,7 @@
     </div>
   </div>
 
-<script src="app.js?v=065"></script>
+<script src="app.js?v=066"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

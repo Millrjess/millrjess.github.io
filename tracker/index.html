@@ -499,6 +499,11 @@
     <section class="pricing" id="pricing">
       <div class="wrap">
         <div class="price-intro"><h2>Start tracking today</h2><p>Try the demo free. The subscription unlocks the full tracker and your AI Wellness Companion.</p></div>
+        <label style="display:flex;gap:8px;align-items:flex-start;max-width:68ch;margin:0 auto 16px;font-size:.95rem">
+          <input type="checkbox" id="terms-agree" style="margin-top:3px">
+          <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
+        </label>
+        <p id="terms-msg" role="status" style="max-width:68ch;margin:0 auto 16px;min-height:1.2em;color:#8a2f2f"></p>
         <div class="price-grid">
           <div class="price-card">
             <h3>Monthly</h3>
@@ -643,6 +648,37 @@
         pastHero = true;
         update();
       }
+    })();
+  </script>
+
+  <script>
+    /* Clickwrap (v066): the Terms checkbox must be checked before any
+       Stripe checkout link can be followed. Acceptance is logged with
+       a timestamp and the Terms version. */
+    (function () {
+      var box = document.getElementById('terms-agree');
+      var msg = document.getElementById('terms-msg');
+      if (!box) return;
+      function logAcceptance() {
+        try {
+          localStorage.setItem('nct-terms-accepted', JSON.stringify({ at: new Date().toISOString(), termsVersion: '2026-11-09' }));
+        } catch {}
+      }
+      box.addEventListener('change', function () {
+        if (box.checked) { logAcceptance(); if (msg) msg.textContent = ''; }
+      });
+      document.querySelectorAll('a[href*="buy.stripe.com"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          if (!box.checked) {
+            e.preventDefault();
+            if (msg) msg.textContent = 'Please agree to the Terms first.';
+            box.focus();
+            box.scrollIntoView({ block: 'center' });
+          } else {
+            logAcceptance();
+          }
+        });
+      });
     })();
   </script>
 
