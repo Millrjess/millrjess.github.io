@@ -1,0 +1,38 @@
+# Run the tracker app and demo Playwright suites on GitHub, so a dead
+# Chrome on the local machine never blocks a ship check again.
+# The suites serve the app/demo over localhost themselves and drive the
+# Chromium that Playwright installs; they must run SEQUENTIALLY
+# (parallel runs crash Chrome). Pass counts are compared to the recorded
+# baselines (app 73/96, demo 60/85) by tests/check-baselines.js, because
+# a few checks are known pre-existing failures and a nonzero suite exit
+# on its own is not a failure.
+name: Tracker test suites
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install test dependencies
+        working-directory: tests
+        run: npm ci
+
+      - name: Install Chromium for Playwright
+        working-directory: tests
+        run: npx playwright-core install chromium --with-deps
+
+      - name: Run app and demo suites (sequential, against baselines)
+        run: node tests/check-baselines.js
