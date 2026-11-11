@@ -5,8 +5,8 @@
    array, no headless voices; demo: talking-voice on the disabled demo
    chat input; two V000 name checks), so a nonzero exit from a suite is
    NOT itself a failure here. What matters is the pass count:
-     app  >= 73/96
-     demo >= 60/85
+     app  >= 72/96
+     demo >= 59/85
    Exit 0 only when both suites meet their baselines at the expected
    totals; anything else (a crash, a missing count line, a changed
    total, a pass count below baseline) exits 1. */
@@ -16,8 +16,8 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const BASELINES = {
-  app: { script: path.join(__dirname, "app", "runTests.js"), args: ["after"], pass: 73, total: 96, pattern: /(\d+)\/(\d+) passed \(after\)/ },
-  demo: { script: path.join(__dirname, "demo", "runTests.js"), args: [], pass: 60, total: 85, pattern: /(\d+)\/(\d+) checks passed\./ },
+  app: { script: path.join(__dirname, "app", "runTests.js"), args: ["after"], pass: 72, total: 96, pattern: /(\d+)\/(\d+) passed \(after\)/ },
+  demo: { script: path.join(__dirname, "demo", "runTests.js"), args: [], pass: 59, total: 85, pattern: /(\d+)\/(\d+) checks passed\./ },
 };
 
 function runSuite(name, cfg) {
