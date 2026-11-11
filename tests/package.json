@@ -1,0 +1,12 @@
+{
+  "name": "tracker-audit-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright suites for the New Chapter tracker app and demo",
+  "scripts": {
+    "test": "node check-baselines.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.65.0"
+  }
+}
