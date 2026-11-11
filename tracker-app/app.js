@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v064";
+const APP_VERSION = "v065";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -5488,7 +5488,1678 @@ function renderSeTrends() {
    quinoa, vegetables, and grains). Calories are 4/4/9 from the rounded
    macros, the same conversion the app uses everywhere. Tags drive the
    filter chips. */
-const KITCHEN_RECIPES = [];
+const KITCHEN_RECIPES = [
+  {
+    "id": "greek-yogurt-berry-bowl",
+    "image": "kitchen/greek-yogurt-berry-bowl.jpg",
+    "credit": "",
+    "name": "Greek Yogurt Berry Bowl",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 20,
+    "carbs": 18,
+    "fat": 7,
+    "calories": 215,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "1 cup plain Greek yogurt",
+      "1/2 cup mixed berries",
+      "1 tbsp chia seeds",
+      "1 tbsp chopped nuts"
+    ],
+    "steps": [
+      "Scoop yogurt into a bowl.",
+      "Top with berries, chia seeds and nuts."
+    ]
+  },
+  {
+    "id": "mediterranean-egg-muffins",
+    "image": "kitchen/mediterranean-egg-muffins.jpg",
+    "credit": "",
+    "name": "Mediterranean Egg Muffins",
+    "category": "Breakfast",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 14,
+    "carbs": 6,
+    "fat": 10,
+    "calories": 170,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "6 eggs",
+      "1/2 cup chopped vegetables (spinach, peppers, onion)",
+      "1/4 cup feta cheese"
+    ],
+    "steps": [
+      "Whisk eggs and mix in veggies.",
+      "Pour into muffin tin, bake at 350°F for 18-20 min."
+    ]
+  },
+  {
+    "id": "overnight-oats-with-berries",
+    "image": "kitchen/overnight-oats-with-berries.jpg",
+    "credit": "",
+    "name": "Overnight Oats with Berries",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 18,
+    "carbs": 32,
+    "fat": 8,
+    "calories": 272,
+    "tags": [
+      "breakfast",
+      "easy-prep",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "1/2 cup rolled oats",
+      "1/2 cup unsweetened almond milk",
+      "1/4 cup Greek yogurt",
+      "1/2 cup blueberries"
+    ],
+    "steps": [
+      "Mix ingredients in a jar.",
+      "Refrigerate overnight."
+    ]
+  },
+  {
+    "id": "avocado-toast-with-egg",
+    "image": "kitchen/avocado-toast-with-egg.jpg",
+    "credit": "",
+    "name": "Avocado Toast with Egg",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 16,
+    "carbs": 24,
+    "fat": 14,
+    "calories": 286,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "1 slice whole-grain bread",
+      "1/2 avocado",
+      "1 egg",
+      "1 tsp lemon juice",
+      "Salt and pepper to taste"
+    ],
+    "steps": [
+      "Toast the bread.",
+      "Mash the avocado with lemon juice and spread it on the toast.",
+      "Cook the egg as you like and place it on top.",
+      "Season with salt and pepper."
+    ]
+  },
+  {
+    "id": "costa-rican-breakfast-bowl",
+    "image": "kitchen/costa-rican-breakfast-bowl.jpg",
+    "credit": "",
+    "name": "Costa Rican Breakfast Bowl",
+    "category": "Breakfast",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 20,
+    "carbs": 28,
+    "fat": 12,
+    "calories": 300,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free"
+    ],
+    "ingredients": [
+      "2 eggs",
+      "1/2 cup black beans",
+      "1/4 avocado",
+      "1/2 cup tomatoes",
+      "2 tbsp salsa"
+    ],
+    "steps": [
+      "Cook eggs, assemble bowl.",
+      "Top with avocado and salsa."
+    ]
+  },
+  {
+    "id": "greek-omelet-with-veggies",
+    "image": "kitchen/greek-omelet-with-veggies.jpg",
+    "credit": "",
+    "name": "Greek Omelet with Veggies",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 20,
+    "carbs": 6,
+    "fat": 14,
+    "calories": 230,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "2 eggs",
+      "1/2 cup spinach",
+      "1/2 cup tomatoes",
+      "2 tbsp feta cheese",
+      "1 tsp olive oil"
+    ],
+    "steps": [
+      "Whisk eggs, add veggies.",
+      "Cook in olive oil until set."
+    ]
+  },
+  {
+    "id": "smoothie-bowl-with-hemp-seeds",
+    "image": "kitchen/smoothie-bowl-with-hemp-seeds.jpg",
+    "credit": "",
+    "name": "Smoothie Bowl with Hemp Seeds",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 18,
+    "carbs": 20,
+    "fat": 9,
+    "calories": 233,
+    "tags": [
+      "breakfast",
+      "snacks-smoothies",
+      "high-protein",
+      "easy-prep",
+      "vegetarian",
+      "gluten-free"
+    ],
+    "ingredients": [
+      "1 cup plain Greek yogurt",
+      "1/2 cup frozen berries",
+      "1 tbsp hemp seeds",
+      "1/2 banana",
+      "1 tbsp chia seeds"
+    ],
+    "steps": [
+      "Blend the yogurt, berries, and banana until smooth.",
+      "Pour into a bowl.",
+      "Top with hemp seeds and chia seeds."
+    ]
+  },
+  {
+    "id": "cottage-cheese-with-fruit-nuts",
+    "image": "kitchen/cottage-cheese-with-fruit-nuts.jpg",
+    "credit": "",
+    "name": "Cottage Cheese with Fruit & Nuts",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 24,
+    "carbs": 12,
+    "fat": 8,
+    "calories": 216,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "1 cup cottage cheese",
+      "1/2 cup mixed berries",
+      "1 tbsp chopped walnuts",
+      "1 tsp honey"
+    ],
+    "steps": [
+      "Spoon the cottage cheese into a bowl.",
+      "Top with berries and walnuts.",
+      "Drizzle with honey."
+    ]
+  },
+  {
+    "id": "chia-pudding-with-coconut",
+    "image": "kitchen/chia-pudding-with-coconut.jpg",
+    "credit": "",
+    "name": "Chia Pudding with Coconut",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 16,
+    "carbs": 16,
+    "fat": 8,
+    "calories": 200,
+    "tags": [
+      "breakfast",
+      "easy-prep",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1/4 cup chia seeds",
+      "1 cup coconut milk",
+      "1 tbsp shredded coconut",
+      "1/2 cup berries"
+    ],
+    "steps": [
+      "Stir chia seeds into coconut milk.",
+      "Refrigerate overnight.",
+      "Top with shredded coconut and berries."
+    ]
+  },
+  {
+    "id": "spinach-feta-breakfast-wrap",
+    "image": "kitchen/spinach-feta-breakfast-wrap.jpg",
+    "credit": "",
+    "name": "Spinach & Feta Breakfast Wrap",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 18,
+    "carbs": 20,
+    "fat": 12,
+    "calories": 260,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "1 whole-grain wrap",
+      "2 eggs",
+      "1 cup spinach",
+      "2 tbsp feta cheese",
+      "1 tsp olive oil"
+    ],
+    "steps": [
+      "Whisk the eggs.",
+      "Cook the spinach in olive oil, add the eggs and scramble.",
+      "Spoon into the wrap with feta and roll up."
+    ]
+  },
+  {
+    "id": "mediterranean-chickpea-salad",
+    "image": "kitchen/mediterranean-chickpea-salad.jpg",
+    "credit": "",
+    "name": "Mediterranean Chickpea Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 16,
+    "carbs": 36,
+    "fat": 14,
+    "calories": 334,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "vegetarian",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 can chickpeas, drained",
+      "1 cup cherry tomatoes, halved",
+      "1/2 cucumber, diced",
+      "1/4 red onion, diced",
+      "1/4 cup feta cheese",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice"
+    ],
+    "steps": [
+      "Combine chickpeas, tomatoes, cucumber, onion, and feta in a bowl.",
+      "Drizzle with olive oil and lemon juice.",
+      "Toss and serve."
+    ]
+  },
+  {
+    "id": "tuna-white-bean-salad",
+    "image": "kitchen/tuna-white-bean-salad.jpg",
+    "credit": "",
+    "name": "Tuna & White Bean Salad",
+    "category": "Lunch",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 34,
+    "carbs": 18,
+    "fat": 10,
+    "calories": 298,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 can tuna, drained",
+      "1 can white beans, drained",
+      "1/2 red onion, diced",
+      "1 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1 cup arugula"
+    ],
+    "steps": [
+      "Combine tuna, white beans, and onion in a bowl.",
+      "Drizzle with olive oil and lemon juice.",
+      "Serve over arugula."
+    ]
+  },
+  {
+    "id": "greek-quinoa-bowl",
+    "image": "kitchen/greek-quinoa-bowl.jpg",
+    "credit": "",
+    "name": "Greek Quinoa Bowl",
+    "category": "Lunch",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 20,
+    "carbs": 34,
+    "fat": 12,
+    "calories": 324,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "vegetarian",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 cup cooked quinoa",
+      "1 cup cherry tomatoes, halved",
+      "1/2 cucumber, diced",
+      "1/4 cup feta cheese",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1/4 cup olives"
+    ],
+    "steps": [
+      "Cook the quinoa and let it cool.",
+      "Combine with tomatoes, cucumber, feta, and olives.",
+      "Drizzle with olive oil and lemon juice."
+    ]
+  },
+  {
+    "id": "lentil-salad-with-herbs",
+    "image": "kitchen/lentil-salad-with-herbs.jpg",
+    "credit": "",
+    "name": "Lentil Salad with Herbs",
+    "category": "Lunch",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 20,
+    "carbs": 34,
+    "fat": 12,
+    "calories": 324,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "vegetarian",
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/4 cup cooked lentils",
+      "1 cup mixed greens",
+      "1/2 cucumber, diced",
+      "2 tbsp olive oil",
+      "Lemon juice"
+    ],
+    "steps": [
+      "Toss ingredients together.",
+      "Drizzle with dressing."
+    ]
+  },
+  {
+    "id": "turkey-avocado-wrap",
+    "image": "kitchen/turkey-avocado-wrap.jpg",
+    "credit": "",
+    "name": "Turkey & Avocado Wrap",
+    "category": "Lunch",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 28,
+    "carbs": 26,
+    "fat": 14,
+    "calories": 342,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 whole-grain wrap",
+      "4 oz sliced turkey",
+      "1/2 avocado, sliced",
+      "1 cup lettuce",
+      "2 tbsp hummus"
+    ],
+    "steps": [
+      "Spread hummus on the wrap.",
+      "Layer turkey, avocado, and lettuce.",
+      "Roll up and slice in half."
+    ]
+  },
+  {
+    "id": "caprese-salad-with-beans",
+    "image": "kitchen/caprese-salad-with-beans.jpg",
+    "credit": "",
+    "name": "Caprese Salad with Beans",
+    "category": "Lunch",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 16,
+    "carbs": 20,
+    "fat": 14,
+    "calories": 270,
+    "tags": [
+      "lunch",
+      "vegetarian",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 can white beans, drained",
+      "2 tomatoes, sliced",
+      "1 ball fresh mozzarella, sliced",
+      "1/4 cup basil leaves",
+      "2 tbsp olive oil",
+      "1 tbsp balsamic vinegar"
+    ],
+    "steps": [
+      "Arrange tomato and mozzarella slices on a plate.",
+      "Add white beans and basil.",
+      "Drizzle with olive oil and balsamic vinegar."
+    ]
+  },
+  {
+    "id": "vegetable-farro-bowl",
+    "image": "kitchen/vegetable-farro-bowl.jpg",
+    "credit": "",
+    "name": "Vegetable Farro Bowl",
+    "category": "Lunch",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 18,
+    "carbs": 34,
+    "fat": 12,
+    "calories": 316,
+    "tags": [
+      "lunch",
+      "vegetarian",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 cup cooked farro",
+      "1 cup roasted vegetables",
+      "1/2 cup chickpeas",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1/4 cup feta cheese"
+    ],
+    "steps": [
+      "Cook the farro.",
+      "Roast the vegetables.",
+      "Combine farro, vegetables, and chickpeas.",
+      "Top with feta, olive oil, and lemon juice."
+    ]
+  },
+  {
+    "id": "chicken-roasted-veggies",
+    "image": "kitchen/chicken-roasted-veggies.jpg",
+    "credit": "",
+    "name": "Chicken & Roasted Veggies",
+    "category": "Lunch",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 26,
+    "carbs": 18,
+    "fat": 12,
+    "calories": 284,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 chicken breasts",
+      "2 cups mixed vegetables",
+      "1 tbsp olive oil",
+      "1 tsp herbs",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Season the chicken and vegetables with olive oil and herbs.",
+      "Roast at 400°F for 20 to 25 minutes until the chicken is cooked through.",
+      "Slice and serve."
+    ]
+  },
+  {
+    "id": "mason-jar-salad",
+    "image": "kitchen/mason-jar-salad.jpg",
+    "credit": "",
+    "name": "Mason Jar Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 18,
+    "carbs": 20,
+    "fat": 12,
+    "calories": 260,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "2 tbsp dressing",
+      "1/2 cup chickpeas",
+      "1/2 cup cherry tomatoes, halved",
+      "1/2 cup cucumber, diced",
+      "1 cup greens",
+      "1/4 cup feta cheese"
+    ],
+    "steps": [
+      "Pour dressing into the bottom of a jar.",
+      "Layer chickpeas, tomatoes, cucumber, feta, and greens on top.",
+      "Seal and refrigerate.",
+      "Shake before eating."
+    ]
+  },
+  {
+    "id": "zucchini-noodle-greek-salad",
+    "image": "kitchen/zucchini-noodle-greek-salad.jpg",
+    "credit": "",
+    "name": "Zucchini Noodle Greek Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 16,
+    "carbs": 14,
+    "fat": 12,
+    "calories": 228,
+    "tags": [
+      "lunch",
+      "vegetarian",
+      "gluten-free",
+      "easy-prep",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 zucchini, spiralized",
+      "1 cup cherry tomatoes, halved",
+      "1/2 cucumber, diced",
+      "1/4 cup feta cheese",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1/4 cup olives"
+    ],
+    "steps": [
+      "Spiralize the zucchini into noodles.",
+      "Combine with tomatoes, cucumber, feta, and olives.",
+      "Drizzle with olive oil and lemon juice."
+    ]
+  },
+  {
+    "id": "lemon-herb-salmon",
+    "image": "kitchen/lemon-herb-salmon.jpg",
+    "credit": "",
+    "name": "Lemon Herb Salmon",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 34,
+    "carbs": 20,
+    "fat": 16,
+    "calories": 360,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-carb",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 salmon fillets (4 oz each)",
+      "1 lemon",
+      "2 tbsp olive oil",
+      "2 garlic cloves, minced",
+      "1 tsp herbs",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Season the salmon with lemon juice, garlic, herbs, salt, and pepper.",
+      "Heat olive oil in a pan.",
+      "Cook the salmon 4 to 5 minutes per side until flaky."
+    ]
+  },
+  {
+    "id": "mediterranean-chicken",
+    "image": "kitchen/mediterranean-chicken.jpg",
+    "credit": "",
+    "name": "Mediterranean Chicken",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32,
+    "carbs": 12,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 chicken breasts",
+      "1 cup cherry tomatoes, halved",
+      "1/2 cup olives",
+      "2 tbsp olive oil",
+      "1 tsp oregano",
+      "1 lemon"
+    ],
+    "steps": [
+      "Season the chicken with oregano, salt, and pepper.",
+      "Sear in olive oil until golden.",
+      "Add tomatoes and olives.",
+      "Squeeze lemon over the top and serve."
+    ]
+  },
+  {
+    "id": "turkey-bean-chili",
+    "image": "kitchen/turkey-bean-chili.jpg",
+    "credit": "",
+    "name": "Turkey Bean Chili",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 28,
+    "carbs": 23,
+    "fat": 14,
+    "calories": 330,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 lb ground turkey",
+      "1 can kidney beans, drained",
+      "1 can diced tomatoes",
+      "1 onion, diced",
+      "2 tbsp chili powder",
+      "1 tsp cumin"
+    ],
+    "steps": [
+      "Brown the turkey with the onion.",
+      "Add beans, tomatoes, chili powder, and cumin.",
+      "Simmer 25 minutes."
+    ]
+  },
+  {
+    "id": "baked-cod-with-veggies",
+    "image": "kitchen/baked-cod-with-veggies.jpg",
+    "credit": "",
+    "name": "Baked Cod with Veggies",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32,
+    "carbs": 16,
+    "fat": 12,
+    "calories": 300,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 cod fillets",
+      "2 cups mixed vegetables",
+      "1 tbsp olive oil",
+      "1 lemon",
+      "1 tsp herbs",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Place cod and vegetables on a baking sheet.",
+      "Drizzle with olive oil and lemon.",
+      "Bake at 400°F for 15 to 18 minutes."
+    ]
+  },
+  {
+    "id": "veggie-stir-fry-with-tofu",
+    "image": "kitchen/veggie-stir-fry-with-tofu.jpg",
+    "credit": "",
+    "name": "Veggie Stir-Fry with Tofu",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 16,
+    "carbs": 18,
+    "fat": 16,
+    "calories": 280,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 block firm tofu, cubed",
+      "2 cups mixed vegetables",
+      "1 tbsp olive oil",
+      "1 tbsp low-sodium soy sauce",
+      "1 tsp sesame oil"
+    ],
+    "steps": [
+      "Press and cube the tofu.",
+      "Stir-fry tofu and vegetables in olive oil.",
+      "Add soy sauce and sesame oil.",
+      "Serve warm."
+    ]
+  },
+  {
+    "id": "hearty-lentil-stew",
+    "image": "kitchen/hearty-lentil-stew.jpg",
+    "credit": "",
+    "name": "Hearty Lentil Stew",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 18,
+    "carbs": 26,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 cup lentils",
+      "2 carrots, diced",
+      "1 onion, diced",
+      "2 cups low-sodium broth",
+      "1 tbsp olive oil",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Heat olive oil and cook the onion and carrots.",
+      "Add lentils and broth.",
+      "Simmer 30 minutes until lentils are tender."
+    ]
+  },
+  {
+    "id": "greek-chicken-skewers",
+    "image": "kitchen/greek-chicken-skewers.jpg",
+    "credit": "",
+    "name": "Greek Chicken Skewers",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32,
+    "carbs": 24,
+    "fat": 14,
+    "calories": 350,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 chicken breasts, cut into cubes",
+      "1/2 cup yogurt",
+      "1 tbsp lemon juice",
+      "1 tsp oregano",
+      "1 bell pepper, cut into chunks",
+      "1/2 red onion, cut into chunks"
+    ],
+    "steps": [
+      "Marinate the chicken in yogurt, lemon juice, and oregano for 15 minutes.",
+      "Thread chicken, pepper, and onion onto skewers.",
+      "Grill 10 to 12 minutes, turning once."
+    ]
+  },
+  {
+    "id": "stuffed-peppers-with-quinoa",
+    "image": "kitchen/stuffed-peppers-with-quinoa.jpg",
+    "credit": "",
+    "name": "Stuffed Peppers with Quinoa",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Medium",
+    "servings": 4,
+    "protein": 18,
+    "carbs": 28,
+    "fat": 14,
+    "calories": 310,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "4 bell peppers",
+      "1 cup cooked quinoa",
+      "1 can black beans, drained",
+      "1 cup diced tomatoes",
+      "1/2 cup shredded cheese",
+      "1 tsp cumin"
+    ],
+    "steps": [
+      "Cut the tops off the peppers and remove the seeds.",
+      "Mix quinoa, beans, tomatoes, cheese, and cumin.",
+      "Fill the peppers.",
+      "Bake at 375°F for 25 minutes."
+    ]
+  },
+  {
+    "id": "white-bean-tomato-stew",
+    "image": "kitchen/white-bean-tomato-stew.jpg",
+    "credit": "",
+    "name": "White Bean Tomato Stew",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 20,
+    "carbs": 28,
+    "fat": 12,
+    "calories": 300,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "2 cans white beans, drained",
+      "1 can diced tomatoes",
+      "1 onion, diced",
+      "2 garlic cloves, minced",
+      "2 tbsp olive oil",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Heat olive oil and cook the onion and garlic.",
+      "Add beans and tomatoes.",
+      "Simmer 20 minutes."
+    ]
+  },
+  {
+    "id": "thai-coconut-veggie-curry",
+    "image": "kitchen/thai-coconut-veggie-curry.jpg",
+    "credit": "",
+    "name": "Thai Coconut Veggie Curry",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 18,
+    "carbs": 23,
+    "fat": 14,
+    "calories": 290,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 can coconut milk",
+      "2 cups mixed vegetables",
+      "1 tbsp curry paste",
+      "1 tbsp lime juice",
+      "1 cup chickpeas"
+    ],
+    "steps": [
+      "Heat the coconut milk and stir in the curry paste.",
+      "Add vegetables and chickpeas.",
+      "Simmer 20 minutes.",
+      "Stir in lime juice."
+    ]
+  },
+  {
+    "id": "spanish-chickpea-stew",
+    "image": "kitchen/spanish-chickpea-stew.jpg",
+    "credit": "",
+    "name": "Spanish Chickpea Stew",
+    "category": "Dinner",
+    "time": 35,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 18,
+    "carbs": 26,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "2 cans chickpeas, drained",
+      "1 can diced tomatoes",
+      "1 onion, diced",
+      "2 garlic cloves, minced",
+      "1 tsp smoked paprika",
+      "2 tbsp olive oil"
+    ],
+    "steps": [
+      "Heat olive oil and cook the onion and garlic.",
+      "Add chickpeas, tomatoes, and paprika.",
+      "Simmer 25 minutes."
+    ]
+  },
+  {
+    "id": "grilled-shrimp-with-veggies",
+    "image": "kitchen/grilled-shrimp-with-veggies.jpg",
+    "credit": "",
+    "name": "Grilled Shrimp with Veggies",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 18,
+    "carbs": 26,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/2 lb shrimp",
+      "2 cups mixed vegetables",
+      "1 cup cooked quinoa",
+      "1 tbsp olive oil",
+      "1 lemon",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Season the shrimp.",
+      "Grill shrimp and vegetables 3 to 4 minutes per side.",
+      "Serve over quinoa with lemon."
+    ]
+  },
+  {
+    "id": "vegetable-minestrone",
+    "image": "kitchen/vegetable-minestrone.jpg",
+    "credit": "",
+    "name": "Vegetable Minestrone",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 14,
+    "carbs": 27,
+    "fat": 14,
+    "calories": 290,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 can white beans, drained",
+      "2 carrots, diced",
+      "1 zucchini, diced",
+      "1 can diced tomatoes",
+      "4 cups low-sodium broth",
+      "1/2 cup small pasta",
+      "1 tbsp olive oil"
+    ],
+    "steps": [
+      "Heat olive oil and cook the carrots and zucchini.",
+      "Add beans, tomatoes, and broth.",
+      "Simmer 20 minutes.",
+      "Add pasta and cook 10 minutes more."
+    ]
+  },
+  {
+    "id": "herb-roasted-chicken",
+    "image": "kitchen/herb-roasted-chicken.jpg",
+    "credit": "",
+    "name": "Herb-Roasted Chicken",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 28,
+    "carbs": 16,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "4 chicken thighs",
+      "2 tbsp olive oil",
+      "1 tsp rosemary",
+      "1 tsp thyme",
+      "2 garlic cloves, minced",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Rub the chicken with olive oil, herbs, and garlic.",
+      "Roast at 400°F for 30 to 35 minutes until cooked through."
+    ]
+  },
+  {
+    "id": "tuna-nicoise-bowl",
+    "image": "kitchen/tuna-nicoise-bowl.jpg",
+    "credit": "",
+    "name": "Tuna Nicoise Bowl",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 28,
+    "carbs": 16,
+    "fat": 16,
+    "calories": 320,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 tuna steaks",
+      "2 cups greens",
+      "1/2 cup green beans",
+      "1 egg, hard-boiled",
+      "1/4 cup olives",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice"
+    ],
+    "steps": [
+      "Sear the tuna 2 to 3 minutes per side.",
+      "Arrange greens, green beans, egg, and olives in a bowl.",
+      "Top with sliced tuna.",
+      "Drizzle with olive oil and lemon juice."
+    ]
+  },
+  {
+    "id": "sheet-pan-salmon-asparagus",
+    "image": "kitchen/sheet-pan-salmon-asparagus.jpg",
+    "credit": "",
+    "name": "Sheet Pan Salmon & Asparagus",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 34,
+    "carbs": 14,
+    "fat": 12,
+    "calories": 300,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 salmon fillets",
+      "1 bunch asparagus",
+      "1 tbsp olive oil",
+      "1 lemon",
+      "1 tsp herbs",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Place salmon and asparagus on a sheet pan.",
+      "Drizzle with olive oil and lemon.",
+      "Bake at 400°F for 12 to 15 minutes."
+    ]
+  },
+  {
+    "id": "eggplant-parmesan",
+    "image": "kitchen/eggplant-parmesan.jpg",
+    "credit": "",
+    "name": "Eggplant Parmesan",
+    "category": "Dinner",
+    "time": 45,
+    "difficulty": "Medium",
+    "servings": 4,
+    "protein": 16,
+    "carbs": 25,
+    "fat": 14,
+    "calories": 290,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 eggplant, sliced",
+      "1 cup marinara sauce",
+      "1 cup shredded mozzarella",
+      "1/4 cup parmesan",
+      "1 tbsp olive oil",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Brush eggplant slices with olive oil and bake at 400°F for 15 minutes.",
+      "Layer eggplant, marinara, and cheese in a baking dish.",
+      "Bake 20 minutes until bubbly."
+    ]
+  },
+  {
+    "id": "mediterranean-lentil-bowl",
+    "image": "kitchen/mediterranean-lentil-bowl.jpg",
+    "credit": "",
+    "name": "Mediterranean Lentil Bowl",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 18,
+    "carbs": 28,
+    "fat": 14,
+    "calories": 310,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "vegan",
+      "dairy-free",
+      "gluten-free",
+      "easy-prep",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 cup cooked lentils",
+      "1 cup roasted vegetables",
+      "1/2 cup cherry tomatoes, halved",
+      "2 tbsp tahini",
+      "1 tbsp lemon juice"
+    ],
+    "steps": [
+      "Cook the lentils.",
+      "Roast the vegetables.",
+      "Combine in a bowl with tomatoes.",
+      "Drizzle with tahini and lemon juice."
+    ]
+  },
+  {
+    "id": "chicken-quinoa-stir-fry",
+    "image": "kitchen/chicken-quinoa-stir-fry.jpg",
+    "credit": "",
+    "name": "Chicken & Quinoa Stir-Fry",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 26,
+    "carbs": 25,
+    "fat": 14,
+    "calories": 330,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 chicken breasts, sliced",
+      "1 cup cooked quinoa",
+      "2 cups mixed vegetables",
+      "1 tbsp olive oil",
+      "1 tbsp low-sodium soy sauce"
+    ],
+    "steps": [
+      "Cook the chicken in olive oil.",
+      "Add vegetables and stir-fry.",
+      "Stir in quinoa and soy sauce.",
+      "Serve warm."
+    ]
+  },
+  {
+    "id": "broiled-tilapia-with-tomato-salsa",
+    "image": "kitchen/broiled-tilapia-with-tomato-salsa.jpg",
+    "credit": "",
+    "name": "Broiled Tilapia with Tomato Salsa",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 28,
+    "carbs": 20,
+    "fat": 12,
+    "calories": 300,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 tilapia fillets",
+      "1 cup diced tomatoes",
+      "1/4 red onion, diced",
+      "1 tbsp lime juice",
+      "1 tbsp olive oil",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Mix tomatoes, onion, and lime juice for the salsa.",
+      "Broil the tilapia 4 to 5 minutes per side.",
+      "Top with salsa."
+    ]
+  },
+  {
+    "id": "mixed-nuts-seeds",
+    "image": "kitchen/mixed-nuts-seeds.jpg",
+    "credit": "",
+    "name": "Mixed Nuts & Seeds",
+    "category": "Snacks",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 6,
+    "carbs": 6,
+    "fat": 14,
+    "calories": 174,
+    "tags": [
+      "snacks-smoothies",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "2 tbsp almonds",
+      "2 tbsp walnuts",
+      "1 tbsp pumpkin seeds",
+      "1 tbsp sunflower seeds"
+    ],
+    "steps": [
+      "Combine all nuts and seeds in a small bowl.",
+      "Serve."
+    ]
+  },
+  {
+    "id": "greek-yogurt-with-honey",
+    "image": "kitchen/greek-yogurt-with-honey.jpg",
+    "credit": "",
+    "name": "Greek Yogurt with Honey",
+    "category": "Snacks",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 12,
+    "carbs": 14,
+    "fat": 2,
+    "calories": 122,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "3/4 cup plain Greek yogurt",
+      "1 tsp honey",
+      "1/2 cup berries"
+    ],
+    "steps": [
+      "Spoon yogurt into a bowl.",
+      "Top with berries.",
+      "Drizzle with honey."
+    ]
+  },
+  {
+    "id": "veggie-sticks-with-hummus",
+    "image": "kitchen/veggie-sticks-with-hummus.jpg",
+    "credit": "",
+    "name": "Veggie Sticks with Hummus",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 4,
+    "carbs": 10,
+    "fat": 6,
+    "calories": 110,
+    "tags": [
+      "snacks-smoothies",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1/2 cup carrot sticks",
+      "1/2 cup cucumber sticks",
+      "1/2 cup bell pepper strips",
+      "1/4 cup hummus"
+    ],
+    "steps": [
+      "Cut the vegetables into sticks.",
+      "Serve with hummus for dipping."
+    ]
+  },
+  {
+    "id": "apple-with-almond-butter",
+    "image": "kitchen/apple-with-almond-butter.jpg",
+    "credit": "",
+    "name": "Apple with Almond Butter",
+    "category": "Snacks",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 4,
+    "carbs": 20,
+    "fat": 8,
+    "calories": 168,
+    "tags": [
+      "snacks-smoothies",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 apple, sliced",
+      "2 tbsp almond butter"
+    ],
+    "steps": [
+      "Slice the apple.",
+      "Serve with almond butter for dipping."
+    ]
+  },
+  {
+    "id": "edamame-with-sea-salt",
+    "image": "kitchen/edamame-with-sea-salt.jpg",
+    "credit": "",
+    "name": "Edamame with Sea Salt",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 9,
+    "carbs": 8,
+    "fat": 5,
+    "calories": 113,
+    "tags": [
+      "snacks-smoothies",
+      "high-protein",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 cup edamame in pods",
+      "1/2 tsp sea salt"
+    ],
+    "steps": [
+      "Boil or steam the edamame for 5 minutes.",
+      "Drain and sprinkle with sea salt."
+    ]
+  },
+  {
+    "id": "clear-vegetable-soup",
+    "image": "kitchen/clear-vegetable-soup.jpg",
+    "credit": "",
+    "name": "Clear Vegetable Soup",
+    "category": "Light Meals",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 6,
+    "carbs": 12,
+    "fat": 1,
+    "calories": 81,
+    "tags": [
+      "small-portions",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 carrots, diced",
+      "2 celery stalks, diced",
+      "1 onion, diced",
+      "4 cups low-sodium broth",
+      "1 tsp herbs"
+    ],
+    "steps": [
+      "Combine all ingredients in a pot.",
+      "Simmer 20 minutes until vegetables are tender."
+    ]
+  },
+  {
+    "id": "miso-tofu-soup",
+    "image": "kitchen/miso-tofu-soup.jpg",
+    "credit": "",
+    "name": "Miso Tofu Soup",
+    "category": "Light Meals",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 8,
+    "carbs": 10,
+    "fat": 3,
+    "calories": 99,
+    "tags": [
+      "small-portions",
+      "easy-prep",
+      "vegan",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "1 cup low-sodium broth",
+      "1/2 cup tofu cubes",
+      "2 cups greens",
+      "1 tsp miso paste"
+    ],
+    "steps": [
+      "Heat broth, add tofu and greens.",
+      "Stir in miso before serving."
+    ]
+  },
+  {
+    "id": "gazpacho-soup",
+    "image": "kitchen/gazpacho-soup.jpg",
+    "credit": "",
+    "name": "Gazpacho Soup",
+    "category": "Light Meals",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 4,
+    "carbs": 12,
+    "fat": 2,
+    "calories": 82,
+    "tags": [
+      "small-portions",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "ingredients": [
+      "4 tomatoes",
+      "1 cucumber",
+      "1 bell pepper",
+      "1 tsp olive oil",
+      "1 tbsp lemon juice",
+      "Salt to taste"
+    ],
+    "steps": [
+      "Blend tomatoes, cucumber, and bell pepper until smooth.",
+      "Stir in olive oil and lemon juice.",
+      "Chill and serve."
+    ]
+  },
+  {
+    "id": "cucumber-salad",
+    "image": "kitchen/cucumber-salad.jpg",
+    "credit": "",
+    "name": "Cucumber Salad",
+    "category": "Light Meals",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 2,
+    "carbs": 8,
+    "fat": 1,
+    "calories": 49,
+    "tags": [
+      "small-portions",
+      "easy-prep",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free",
+      "low-carb"
+    ],
+    "ingredients": [
+      "2 cucumbers, sliced",
+      "1 tbsp rice vinegar",
+      "Salt to taste"
+    ],
+    "steps": [
+      "Slice the cucumbers.",
+      "Toss with rice vinegar and salt.",
+      "Serve chilled."
+    ]
+  },
+  {
+    "id": "fruit-cottage-cheese-bowl",
+    "image": "kitchen/fruit-cottage-cheese-bowl.jpg",
+    "credit": "",
+    "name": "Fruit & Cottage Cheese Bowl",
+    "category": "Light Meals",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 14,
+    "carbs": 14,
+    "fat": 2,
+    "calories": 130,
+    "tags": [
+      "small-portions",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "3/4 cup cottage cheese",
+      "1/2 cup mixed berries",
+      "1/2 peach, sliced"
+    ],
+    "steps": [
+      "Spoon cottage cheese into a bowl.",
+      "Top with berries and peach slices."
+    ]
+  }
+];
 let kitchenFilter = "all";
 let kitchenSearch = ""; // v053: text typed in the Kitchen search box
 const kitchenServings = {}; // recipe id -> servings to add (default 1)
