@@ -119,14 +119,8 @@ h1, h2, h3 {
   max-width: 100%;
 }
 
-/* v168 header: the real gold lotus above the title, tagline in gold. */
-.app-header .header-lotus {
-  display: block;
-  margin: 0 auto 8px;
-  height: 48px;
-  width: auto;
-  position: relative;
-}
+/* v063: the header lotus is out (her call: it competed with the bloom).
+   The title and tagline carry the brand now. */
 
 .app-header .tagline {
   margin: 0;
@@ -752,18 +746,8 @@ label textarea {
   padding: 24px 12px;
 }
 
-/* v052: every empty state carries the small flat gold lotus, so an
-   empty list still looks like the product. The lotus is the brand
-   mark, on white, with clear space. */
-.empty-state::before {
-  content: "";
-  display: block;
-  width: 40px;
-  height: 31px;
-  margin: 0 auto 10px;
-  background: url("icons/lotus-gold-only-transparent.png") center / contain no-repeat;
-  opacity: 0.9;
-}
+/* v063: the small lotus is out of the empty states (her call: it was
+   taking up space). The text stays; the icon is gone. */
 
 @media (min-width: 480px) {
   .tab-label {
@@ -1851,7 +1835,6 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
    shortly after the text. */
 #strength-saved-msg:empty { display: none; }
 #strength-list .empty-state { margin: 0; padding: 4px 12px 6px; }
-#strength-list .empty-state::before { width: 32px; height: 25px; margin: 0 auto 4px; }
 #strength-saved-msg { margin: 6px 0 0; }
 
 /* The lotus bloom. The lotus opens a little more with each logged

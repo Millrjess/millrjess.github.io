@@ -40,14 +40,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=062">
+<link rel="stylesheet" href="styles.css?v=063">
 </head>
 <body>
 
 
 <a class="skip-link" href="#app-main">Skip to main content</a>
 <header class="app-header" aria-label="App header">
-  <img class="header-lotus" src="icons/lotus-gold-only-transparent.png" alt="New Chapter gold lotus logo" width="63" height="48">
   <h1>New Chapter: GLP-1 Tracker™</h1>
   <p class="tagline">Stay strong while the medicine works.</p>
 </header>
@@ -790,6 +789,7 @@
   <!-- SIDE EFFECTS TAB -->
   <section id="tab-side-effects" class="tab-panel" role="tabpanel" aria-label="Side effects">
     <h2>Side Effects</h2>
+    <p class="muted">Always share symptoms and side effects with your prescribing doctor. This app does not give medical advice.</p>
     <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
 
     <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
@@ -1173,7 +1173,7 @@
         </div>
       </details>
 
-      <details class="card">
+      <details class="card" id="settings-your-companion-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your Companion</h3></summary>
         <div style="margin-top:12px">
         <p class="muted">Give your AI Wellness Companion a name and a look.</p>
@@ -1202,7 +1202,7 @@
         </div>
       </details>
 
-      <details class="card">
+      <details class="card" id="settings-appearance-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Appearance</h3></summary>
         <div style="margin-top:12px">
         <p class="muted">Change how the app looks. The lotus stays gold.</p>
@@ -1261,6 +1261,23 @@
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
       <p class="muted" style="margin-top:14px;font-size:.9rem">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
+    </div>
+
+    <div class="card" id="reset-lotus-card">
+      <h3>Reset my lotus</h3>
+      <p class="muted">Taking a break, or starting fresh? Resetting closes your lotus back to a bud and clears your log, so you can start again from the beginning.</p>
+      <button type="button" class="btn" id="reset-lotus-start">Reset my lotus</button>
+      <div id="reset-lotus-confirm" class="hidden" style="margin-top:12px">
+        <p style="margin:0 0 8px"><strong>This clears:</strong> your lotus, and your whole log. Water, protein, movement, strength, injections, weight, measurements, photos, journal, moods, and side effects.</p>
+        <p class="muted" style="margin:0 0 8px"><strong>This stays:</strong> your settings and goals, and your Companion memory.</p>
+        <p class="muted" style="margin:0 0 10px">Back up first if you want to keep a copy. You can restore it later from Backup &amp; restore.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="reset-lotus-backup">Download backup first</button>
+          <button type="button" class="btn" id="reset-lotus-confirm-btn">Yes, reset my lotus</button>
+          <button type="button" class="btn" id="reset-lotus-cancel">Keep my log</button>
+        </div>
+      </div>
+      <p class="code-msg" id="reset-lotus-msg" role="status" style="min-height:1.2em"></p>
     </div>
 
     <div class="card">
@@ -1506,7 +1523,7 @@
     </div>
   </div>
 
-<script src="app.js?v=062"></script>
+<script src="app.js?v=063"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

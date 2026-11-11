@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v062";
+const APP_VERSION = "v063";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -994,7 +994,8 @@ function renderCoachInsight() {
   if (!insight) { card.classList.add("hidden"); return; }
   document.getElementById("coach-insight-text").textContent = insight;
   card.classList.remove("hidden");
-  card.open = true;
+  // v063: an insight opens the card, unless she closed it herself.
+  if (!sectionPersistedClosed("coach-insight-card")) card.open = true;
 }
 
 /* ---------- Monthly review story ---------- */
@@ -1085,13 +1086,26 @@ document.getElementById("review-next").addEventListener("click", () => {
   renderMonthlyReview();
 });
 
-/* Long Today sections start collapsed on load, like Movement. The
-   details elements carry no open attribute, and this closes them
-   explicitly so they always start collapsed on first view. Tapping a
-   summary still slides the section open. */
-["review-details"].forEach((id) => {
-  const el = document.getElementById(id);
-  if (el) el.open = false;
+/* v063: collapsible section state persists on this device. When she
+   opens a section it stays open, and when she closes one it stays
+   closed, until she changes it again. One localStorage key per
+   section id ("nct-section-<id>": "open" or "closed"). First use
+   keeps the HTML default (the open attribute, or closed). The small
+   chat-privacy disclosure is not a section and is left alone; the
+   Backup and About cards keep their HTML defaults. Sections that do
+   not exist in a copy are skipped. */
+const SECTION_STATE_PREFIX = "nct-section-";
+function sectionPersistedClosed(id) {
+  try { return localStorage.getItem(SECTION_STATE_PREFIX + id) === "closed"; } catch { return false; }
+}
+document.querySelectorAll("details.card[id]").forEach((el) => {
+  let saved = null;
+  try { saved = localStorage.getItem(SECTION_STATE_PREFIX + el.id); } catch {}
+  if (saved === "open") el.open = true;
+  else if (saved === "closed") el.open = false;
+  el.addEventListener("toggle", () => {
+    try { localStorage.setItem(SECTION_STATE_PREFIX + el.id, el.open ? "open" : "closed"); } catch {}
+  });
 });
 
 /* ---------- Progress view (v038) ---------- */
@@ -2980,7 +2994,7 @@ document.getElementById("strength-form").addEventListener("submit", (ev) => {
   const weightRaw = document.getElementById("strength-weight").value;
   const weight = weightRaw === "" ? "" : Number(weightRaw);
   const msg = document.getElementById("strength-saved-msg");
-  if (!name) { setFormStatus(msg, "Enter an exercise name.", true); return; }
+  if (!name) { setFormStatus(msg, "Give your exercise a name first.", true); return; }
   if (!Number.isFinite(sets) || sets < 1) { setFormStatus(msg, "Sets must be at least 1.", true); return; }
   if (!Number.isFinite(reps) || reps < 1) { setFormStatus(msg, "Reps must be at least 1.", true); return; }
   if (weight !== "" && (!Number.isFinite(weight) || weight < 0)) { setFormStatus(msg, "Weight must be 0 or more, or left blank.", true); return; }
@@ -4506,7 +4520,7 @@ measForm.addEventListener("submit", (e) => {
     return;
   }
   if (!entry.waist && !entry.hips && !entry.chest && !entry.arm && !entry.thigh && !entry.neck) {
-    setFormStatus(document.getElementById("meas-msg"), "Enter at least one measurement.", true);
+    setFormStatus(document.getElementById("meas-msg"), "Add at least one measurement first.", true);
     document.getElementById("meas-waist").focus();
     return;
   }
@@ -6827,7 +6841,7 @@ document.getElementById("set-macro-pct-btn").addEventListener("click", () => {
   const cal = Number(document.getElementById("set-calorie-target").value);
   const p = macroPctValues();
   if (!(cal > 0)) { msg.textContent = "Enter your daily calorie target above first."; return; }
-  if (![p.protein, p.carbs, p.fat].every((n) => Number.isFinite(n) && n >= 0)) { msg.textContent = "Enter a percentage for protein, carbs, and fat."; return; }
+  if (![p.protein, p.carbs, p.fat].every((n) => Number.isFinite(n) && n >= 0)) { msg.textContent = "Add a percentage for protein, carbs, and fat."; return; }
   const sum = p.protein + p.carbs + p.fat;
   if (sum !== 100) { msg.textContent = "Percentages must add up to 100. Yours add up to " + sum + "."; return; }
   fillMacroGramsFromPct();
@@ -7563,8 +7577,10 @@ function maybeRestoreFromSnapshot() {
   const snaps = loadSnapshots();
   for (const sn of snaps) {
     // A safety copy kept when data was deleted on purpose must never
-    // bring that data back on its own.
-    if (sn.label === "Before delete") continue;
+    // bring that data back on its own. The same holds for a reset:
+    // the "Before reset" copy is there to restore by hand, not to
+    // undo the reset on its own.
+    if (sn.label === "Before delete" || sn.label === "Before reset") continue;
     let snapStore = null;
     try { snapStore = validateStore(JSON.parse(sn.data)); } catch { continue; }
     if (!snapStore || countStoreEntries(snapStore) === 0) continue;
@@ -7971,6 +7987,60 @@ document.getElementById("date-tap").addEventListener("keydown", (e) => {
   } catch {}
   localStorage.setItem("demo-nct-setup-done", "1");
 })();
+
+/* v063: Reset my lotus. Clears the lotus and the log only: the eleven
+   log collections. Settings (goals, targets, companion name/avatar,
+   theme) and Companion Memory (server-side, with its own Forget me
+   control) stay untouched. The lotus is computed from logged dates
+   (bloomProgress / loggedDates), so clearing the log closes it back
+   to a closed bud automatically; nothing about the bloom is stored
+   separately. Two steps in the page: the first tap shows exactly what
+   clears and offers a backup first; only the second tap clears. A
+   "Before reset" snapshot is kept in Backup & restore, so the reset
+   can be undone by restoring it. The "ever had entries" marker is
+   cleared with the log, the same as a deliberate delete. */
+const RESET_LOG_KEYS = ["water", "protein", "exercise", "strength", "injections", "weight", "measurements", "photos", "journal", "sideEffects", "moods"];
+function resetLotusLog() {
+  let preResetSnap = null;
+  try {
+    if (countStoreEntries(store) > 0) {
+      const built = buildSnapshotRaw(store);
+      preResetSnap = { at: new Date().toISOString(), data: built.raw, label: "Before reset" };
+    }
+  } catch {}
+  RESET_LOG_KEYS.forEach((k) => { store[k] = Array.isArray(store[k]) ? [] : {}; });
+  saveStore();
+  try { localStorage.removeItem("nct-ever-had-entries"); } catch {}
+  try {
+    if (preResetSnap) {
+      const snaps = loadSnapshots();
+      snaps.unshift(preResetSnap);
+      localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+    }
+  } catch {}
+  renderToday();
+  renderSnapshots();
+}
+document.getElementById("reset-lotus-start").addEventListener("click", () => {
+  document.getElementById("reset-lotus-confirm").classList.remove("hidden");
+  document.getElementById("reset-lotus-start").classList.add("hidden");
+});
+document.getElementById("reset-lotus-cancel").addEventListener("click", () => {
+  document.getElementById("reset-lotus-confirm").classList.add("hidden");
+  document.getElementById("reset-lotus-start").classList.remove("hidden");
+  const msg = document.getElementById("reset-lotus-msg");
+  if (msg) msg.textContent = "";
+});
+document.getElementById("reset-lotus-backup").addEventListener("click", () => {
+  document.getElementById("backup-data").click();
+});
+document.getElementById("reset-lotus-confirm-btn").addEventListener("click", () => {
+  resetLotusLog();
+  document.getElementById("reset-lotus-confirm").classList.add("hidden");
+  document.getElementById("reset-lotus-start").classList.remove("hidden");
+  const msg = document.getElementById("reset-lotus-msg");
+  if (msg) { msg.textContent = "Your lotus is a bud again, and your log is empty. Start fresh whenever you are ready."; msg.classList.add("success"); }
+});
 
 document.getElementById("clear-all-data").addEventListener("click", () => {
   if (!confirm("Delete all your data? Your entries will be gone. A safety copy stays in Backup & restore.")) return;
