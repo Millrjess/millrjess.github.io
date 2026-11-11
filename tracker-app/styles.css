@@ -1856,3 +1856,17 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
 .bloom-stage-5 .bloom-lotus { opacity: 1; transform: scale(1); }
 .welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
 .welcome-card .bloom-stage-line { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 2px 0 0; }
+
+/* Shopping list, pantry staples, and copy recipe (v069) */
+.kitchen-card-actions { display: flex; gap: 8px; padding: 8px 10px 10px; }
+.kitchen-card-actions .btn { flex: 1; }
+.shopping-list { display: grid; gap: 6px; }
+.shopping-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
+.shopping-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; }
+.shopping-text { flex: 1; }
+.shopping-done { text-decoration: line-through; color: var(--muted); }
+.shopping-remove, .pantry-remove { border: none; background: none; font-size: 1.1rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 6px; flex: none; }
+.pantry-list { display: grid; gap: 6px; }
+.pantry-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
+.pantry-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; }
+.pantry-row span { flex: 1; }

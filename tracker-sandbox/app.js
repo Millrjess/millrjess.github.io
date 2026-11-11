@@ -8279,6 +8279,10 @@ function kitchenPhotoCardHtml(r) {
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
+    <div class="kitchen-card-actions">
+      <button type="button" class="btn btn-small" data-kitchen-shop="${r.id}">Shopping list</button>
+      <button type="button" class="btn btn-small" data-kitchen-copy="${r.id}">Copy recipe</button>
+    </div>
   </article>`;
 }
 function toggleKitchenSave(id) {
@@ -8296,6 +8300,8 @@ function bindKitchenCards(root) {
   if (!root) return;
   root.querySelectorAll("[data-kitchen-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.kitchenOpen)));
   root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
+  root.querySelectorAll("[data-kitchen-shop]").forEach((btn) => btn.addEventListener("click", () => { addRecipeToShoppingList(btn.dataset.kitchenShop); flashButton(btn, "Added to list ✓"); }));
+  root.querySelectorAll("[data-kitchen-copy]").forEach((btn) => btn.addEventListener("click", () => copyRecipe(btn.dataset.kitchenCopy, btn)));
 }
 
 /* The Kitchen is one library (v049, R-07): one filter row and one
@@ -8343,6 +8349,198 @@ if (kitchenSearchInput) kitchenSearchInput.addEventListener("input", () => {
 
 
 
+/* Shopping list, pantry staples, and copy recipe (v069). The shopping
+   list and pantry live in their own localStorage keys, namespaced by
+   the store key so the app, demo, and sandbox each keep their own. */
+const SHOPPING_KEY = LS_KEY + ".shopping-list";
+const PANTRY_KEY = LS_KEY + ".pantry-staples";
+const PANTRY_DEFAULTS = ["olive oil", "salt", "black pepper", "soy sauce", "rice", "garlic", "onions", "vinegar", "honey", "chili flakes", "sesame oil", "fish sauce", "canned tomatoes", "dried herbs", "flour", "sugar", "cooking oil", "butter"];
+function loadShoppingList() {
+  try {
+    const v = JSON.parse(localStorage.getItem(SHOPPING_KEY));
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveShoppingList(list) {
+  try { localStorage.setItem(SHOPPING_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function loadPantryStaples() {
+  try {
+    const v = JSON.parse(localStorage.getItem(PANTRY_KEY));
+    if (Array.isArray(v) && v.length) return v.filter((s) => s && s.name).map((s) => ({ name: String(s.name), have: s.have !== false }));
+  } catch (e) {}
+  return PANTRY_DEFAULTS.map((name) => ({ name, have: true }));
+}
+function savePantryStaples(list) {
+  try { localStorage.setItem(PANTRY_KEY, JSON.stringify(list)); } catch (e) {}
+}
+/* Does this ingredient name a pantry staple the user keeps on hand?
+   Word-boundary match, case-insensitive, so "salt" does not match
+   "unsalted butter". Only staples marked as kept count. */
+function pantryMatch(text) {
+  const lower = String(text || "").toLowerCase();
+  const staples = loadPantryStaples();
+  for (const s of staples) {
+    if (!s.have) continue;
+    const name = String(s.name || "").toLowerCase().trim();
+    if (!name) continue;
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    if (new RegExp("\\b" + esc + "\\b").test(lower)) return s;
+  }
+  return null;
+}
+function addRecipeToShoppingList(id) {
+  const r = KITCHEN_RECIPES.find((x) => x.id === id);
+  if (!r || !Array.isArray(r.ingredients)) return 0;
+  const list = loadShoppingList();
+  r.ingredients.forEach((ing) => {
+    list.push({ id: uid(), text: String(ing), recipe: r.name, pantry: !!pantryMatch(ing), checked: false });
+  });
+  saveShoppingList(list);
+  renderShoppingList();
+  return r.ingredients.length;
+}
+/* Brief confirmation on a button, then back to its normal label. */
+function flashButton(btn, text) {
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = text;
+  setTimeout(() => { if (btn.isConnected) btn.textContent = orig; }, 2000);
+}
+/* Copy a recipe as plain text: name, category, time, servings,
+   macros, ingredients, steps. Clipboard API with a textarea
+   fallback, so it works in older browsers too. */
+function recipeText(r) {
+  const lines = [];
+  lines.push(r.name);
+  lines.push(r.category + " · " + r.time + " minutes · Serves " + r.servings);
+  lines.push("Protein " + r.protein + "g · Carbs " + r.carbs + "g · Fat " + r.fat + "g · " + r.calories + " calories (per serving)");
+  lines.push("");
+  lines.push("Ingredients:");
+  (r.ingredients || []).forEach((i) => lines.push("- " + i));
+  lines.push("");
+  lines.push("Steps:");
+  (r.steps || []).forEach((s, i) => lines.push((i + 1) + ". " + s));
+  return lines.join("\n");
+}
+function copyRecipeFallback(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+  if (done) done();
+}
+function copyRecipe(id, btn) {
+  const r = KITCHEN_RECIPES.find((x) => x.id === id);
+  if (!r) return;
+  const text = recipeText(r);
+  const done = () => flashButton(btn, "Copied ✓");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
+  } else {
+    copyRecipeFallback(text, done);
+  }
+}
+/* The shopping list section in the Kitchen. "To buy" is the fresh
+   items and the staples you do not have. "Check your pantry" is the
+   staples you keep on hand, so you can skip them if already stocked.
+   The pantry grouping is re-derived at render time from the current
+   pantry checklist, so unchecking a staple moves its items to To buy. */
+function shoppingGroupHtml(title, items) {
+  if (!items.length) return "";
+  return '<h4 style="margin:12px 0 4px">' + title + " (" + items.length + ")</h4>"
+    + '<div class="shopping-list">' + items.map((x) =>
+      '<label class="shopping-row"><input type="checkbox" data-shop-check="' + x.id + '"' + (x.checked ? " checked" : "") + '> <span class="shopping-text' + (x.checked ? " shopping-done" : "") + '">' + escapeHtml(x.text) + ' <span class="muted" style="font-size:.85em">· ' + escapeHtml(x.recipe) + "</span></span>"
+      + ' <button type="button" class="shopping-remove" data-shop-remove="' + x.id + '" aria-label="Remove ' + escapeHtml(x.text) + '">×</button></label>'
+    ).join("") + "</div>";
+}
+function renderShoppingList() {
+  const box = document.getElementById("shopping-list-section");
+  if (!box) return;
+  const prevInput = box.querySelector("#pantry-add-input");
+  const prevVal = prevInput ? prevInput.value : "";
+  const list = loadShoppingList();
+  const staples = loadPantryStaples();
+  const toBuy = [];
+  const checkPantry = [];
+  list.forEach((x) => (pantryMatch(x.text) ? checkPantry : toBuy).push(x));
+  let html = '<h3 style="margin-top:18px">Shopping list</h3>';
+  if (!list.length) {
+    html += '<p class="muted" style="font-size:.9rem">Your shopping list is empty. Add ingredients from a recipe.</p>';
+  } else {
+    html += shoppingGroupHtml("To buy", toBuy);
+    if (checkPantry.length) {
+      html += '<p class="muted" style="font-size:.85rem;margin:10px 0 2px">Check your pantry. You keep these on hand, so check before you shop.</p>';
+      html += shoppingGroupHtml("Check your pantry", checkPantry);
+    }
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+      + '<button type="button" class="btn btn-small" data-shop-clear-checked>Clear checked</button>'
+      + '<button type="button" class="btn btn-small" data-shop-clear-all>Clear all</button></div>';
+  }
+  html += '<h3 style="margin-top:18px">Pantry staples</h3>'
+    + '<p class="muted" style="font-size:.9rem">Tick what you keep on hand. Staples you have go under "Check your pantry" on the shopping list.</p>'
+    + '<div class="pantry-list">' + staples.map((s, i) =>
+      '<label class="pantry-row"><input type="checkbox" data-pantry-have="' + i + '"' + (s.have ? " checked" : "") + '> <span>' + escapeHtml(s.name) + "</span>"
+      + ' <button type="button" class="pantry-remove" data-pantry-remove="' + i + '" aria-label="Remove ' + escapeHtml(s.name) + '">×</button></label>'
+    ).join("") + "</div>"
+    + '<div style="display:flex;gap:8px;margin-top:8px">'
+    + '<input type="text" id="pantry-add-input" maxlength="60" placeholder="Add a staple" aria-label="Add a pantry staple" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:15px">'
+    + '<button type="button" class="btn btn-small" data-pantry-add>Add</button></div>';
+  box.innerHTML = html;
+  const input = box.querySelector("#pantry-add-input");
+  if (input) input.value = prevVal;
+  bindShoppingList(box);
+}
+function bindShoppingList(box) {
+  if (!box) return;
+  box.querySelectorAll("[data-shop-check]").forEach((cb) => cb.addEventListener("change", () => {
+    const list = loadShoppingList();
+    const item = list.find((x) => x.id === cb.dataset.shopCheck);
+    if (item) { item.checked = cb.checked; saveShoppingList(list); renderShoppingList(); }
+  }));
+  box.querySelectorAll("[data-shop-remove]").forEach((btn) => btn.addEventListener("click", () => {
+    saveShoppingList(loadShoppingList().filter((x) => x.id !== btn.dataset.shopRemove));
+    renderShoppingList();
+  }));
+  const clearChecked = box.querySelector("[data-shop-clear-checked]");
+  if (clearChecked) clearChecked.addEventListener("click", () => {
+    saveShoppingList(loadShoppingList().filter((x) => !x.checked));
+    renderShoppingList();
+  });
+  const clearAll = box.querySelector("[data-shop-clear-all]");
+  if (clearAll) clearAll.addEventListener("click", () => { saveShoppingList([]); renderShoppingList(); });
+  box.querySelectorAll("[data-pantry-have]").forEach((cb) => cb.addEventListener("change", () => {
+    const staples = loadPantryStaples();
+    const s = staples[Number(cb.dataset.pantryHave)];
+    if (s) { s.have = cb.checked; savePantryStaples(staples); renderShoppingList(); }
+  }));
+  box.querySelectorAll("[data-pantry-remove]").forEach((btn) => btn.addEventListener("click", () => {
+    const staples = loadPantryStaples();
+    staples.splice(Number(btn.dataset.pantryRemove), 1);
+    savePantryStaples(staples);
+    renderShoppingList();
+  }));
+  const addBtn = box.querySelector("[data-pantry-add]");
+  const addInput = box.querySelector("#pantry-add-input");
+  if (addBtn && addInput) {
+    const addStaple = () => {
+      const name = addInput.value.trim();
+      if (!name) return;
+      const staples = loadPantryStaples();
+      staples.push({ name, have: true });
+      savePantryStaples(staples);
+      renderShoppingList();
+    };
+    addBtn.addEventListener("click", addStaple);
+    addInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addStaple(); } });
+  }
+}
+renderShoppingList();
+
 /* Recipe detail (v039): tap a card to see the full recipe, with the
    photo, ingredients, steps, nutrition, servings, Save, and Add to
    Today's Nutrition. Saved recipes open the same way, with their own
@@ -8384,6 +8582,8 @@ function openRecipeModal(id) {
           <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="1" aria-label="One more serving">+</button>
         </span>
         <button type="button" class="btn btn-small btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
+        <button type="button" class="btn btn-small" data-modal-kitchen-shop="${kr.id}">Add to shopping list</button>
+        <button type="button" class="btn btn-small" data-modal-kitchen-copy="${kr.id}">Copy recipe</button>
       </div>
       <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat.</p>
       ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}`;
@@ -8434,6 +8634,11 @@ function bindRecipeModalButtons() {
       if (modal && !modal.classList.contains("hidden") && recipeModalId === id) openRecipeModal(id);
     }, 2600);
   }));
+  body.querySelectorAll("[data-modal-kitchen-shop]").forEach((btn) => btn.addEventListener("click", () => {
+    addRecipeToShoppingList(btn.dataset.modalKitchenShop);
+    flashButton(btn, "Added to list ✓");
+  }));
+  body.querySelectorAll("[data-modal-kitchen-copy]").forEach((btn) => btn.addEventListener("click", () => copyRecipe(btn.dataset.modalKitchenCopy, btn)));
 }
 function closeRecipeModal() {
   recipeModalId = null;
