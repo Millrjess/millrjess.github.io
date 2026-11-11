@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=070">
+<link rel="stylesheet" href="styles.css?v=071">
 </head>
 <body>
 
@@ -273,6 +273,10 @@
         </form>
         <p class="code-msg" id="strength-saved-msg" role="status"></p>
         <div id="strength-list"></div>
+        <div style="margin-top:12px">
+          <button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button>
+          <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
+        </div>
       </div>
     </div>
 
@@ -383,7 +387,7 @@
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
-          <input type="text" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
+          <input type="text" enterkeyhint="search" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
         </label>
         <label>Meal
           <select id="macro-food-meal">
@@ -393,6 +397,9 @@
             <option>Dinner</option>
             <option>Snacks</option>
           </select>
+        </label>
+        <label>Serving size
+          <input type="text" id="macro-food-serving" maxlength="80" placeholder="e.g. 1 cup or 100 g" autocomplete="off">
         </label>
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
@@ -417,6 +424,10 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
+      <div style="margin-top:12px">
+        <button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button>
+        <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
+      </div>
       <div id="food-list"></div>
     </div>
 
@@ -839,27 +850,38 @@
     <p class="muted" style="font-size:.9rem">Nourishment that supports your next chapter.</p>
     <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
     <div style="margin:0 0 10px">
-      <input type="search" id="kitchen-search-input" placeholder="Search recipes" aria-label="Search recipes in the Kitchen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:16px">
+      <input type="search" enterkeyhint="search" id="kitchen-search-input" placeholder="Search recipes" aria-label="Search recipes in the Kitchen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:16px">
     </div>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
-      <button type="button" class="kitchen-chip active" data-filter="all">All</button>
-      <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
-      <button type="button" class="kitchen-chip" data-filter="quick-and-easy">Quick and easy</button>
-      <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
-      <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
-      <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
-      <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
-      <button type="button" class="kitchen-chip" data-filter="snacks">Snacks</button>
-      <button type="button" class="kitchen-chip" data-filter="light-meals">Light Meals</button>
-      <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
-      <button type="button" class="kitchen-chip" data-filter="vegan">Vegan</button>
-      <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
-      <button type="button" class="kitchen-chip" data-filter="dairy-free">Dairy-free</button>
-      <button type="button" class="kitchen-chip" data-filter="low-sodium">Low-sodium</button>
-      <button type="button" class="kitchen-chip" data-filter="nut-free">Nut-free</button>
-      <button type="button" class="kitchen-chip" data-filter="egg-free">Egg-free</button>
+      <div class="kitchen-filter-group">
+        <p class="kitchen-filter-label" id="kitchen-filter-meal-label">Meal</p>
+        <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-meal-label">
+          <button type="button" class="kitchen-chip active" data-filter="all">All</button>
+          <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
+          <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
+          <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
+          <button type="button" class="kitchen-chip" data-filter="snacks">Snacks</button>
+          <button type="button" class="kitchen-chip" data-filter="light-meals">Light Meals</button>
+        </div>
+      </div>
+      <div class="kitchen-filter-group">
+        <p class="kitchen-filter-label" id="kitchen-filter-dietary-label">Dietary</p>
+        <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-dietary-label">
+          <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
+          <button type="button" class="kitchen-chip" data-filter="quick-and-easy">Quick and easy</button>
+          <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
+          <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
+          <button type="button" class="kitchen-chip" data-filter="vegan">Vegan</button>
+          <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
+          <button type="button" class="kitchen-chip" data-filter="dairy-free">Dairy-free</button>
+          <button type="button" class="kitchen-chip" data-filter="low-sodium">Low-sodium</button>
+          <button type="button" class="kitchen-chip" data-filter="nut-free">Nut-free</button>
+          <button type="button" class="kitchen-chip" data-filter="egg-free">Egg-free</button>
+        </div>
+      </div>
     </div>
     <div id="kitchen-list" class="kitchen-list"></div>
+    <div id="kitchen-hidden"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
     <div id="shopping-list-section" style="margin-top:18px"></div>
 <div id="meal-ideas" class="card" style="margin-top:16px"></div>
@@ -1536,7 +1558,7 @@
     </div>
   </div>
 
-<script src="app.js?v=070"></script>
+<script src="app.js?v=071"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

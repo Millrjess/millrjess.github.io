@@ -1594,7 +1594,10 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .theme-swatch-cream { background: #FFFDF8; }
 
 /* New Chapter Kitchen: filter chips and recipe cards. */
-.kitchen-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.kitchen-filters { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+.kitchen-filter-group { display: flex; flex-direction: column; gap: 4px; }
+.kitchen-filter-label { margin: 0; font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.kitchen-filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .kitchen-chip {
   font: inherit;
   font-size: .9rem;
@@ -1755,6 +1758,8 @@ canvas { max-width: 100%; height: auto; display: block; }
 .kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
 .kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kitchen-hide { display: block; width: 100%; padding: 6px 12px 10px; background: none; border: none; color: inherit; opacity: .7; font-size: .85rem; text-align: center; cursor: pointer; }
+.kitchen-hide:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
 .kitchen-card-del { position: absolute; top: 8px; right: 8px; }
 .recipe-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 180px; background: var(--sage); border-radius: var(--radius-sm); }
 .recipe-placeholder img { width: 72px; height: 55px; object-fit: contain; }
@@ -1860,11 +1865,11 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
 /* Shopping list, pantry staples, and copy recipe (v069) */
 .shopping-list { display: grid; gap: 6px; }
 .shopping-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
-.shopping-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; accent-color: var(--sage); }
+.shopping-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; accent-color: var(--sage); }
 .shopping-text { flex: 1; }
 .shopping-done { text-decoration: line-through; color: var(--muted); }
 .shopping-remove, .pantry-remove { border: none; background: none; font-size: 1.1rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 2px 6px; flex: none; }
 .pantry-list { display: grid; gap: 6px; }
 .pantry-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
-.pantry-row input[type="checkbox"] { width: 18px; height: 18px; flex: none; accent-color: var(--sage); }
+.pantry-row input[type="checkbox"] { width: 22px; height: 22px; flex: none; accent-color: var(--sage); }
 .pantry-row span { flex: 1; }

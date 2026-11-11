@@ -95,6 +95,7 @@ const DEFAULTS = {
   moods: {},        // { "YYYY-MM-DD": "Good" }
   movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
   recipes: [],      // sandbox: { id, title, body, date } saved recipes
+  hiddenKitchen: [],  // [recipe id] built-in Kitchen recipes this user hid; ids only, never the recipes themselves
   foodLibrary: {},   // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
   foodArchive: {}    // v031: archived foods, same entry shape as foodLibrary. Archiving never deletes a food.
 };
@@ -368,6 +369,17 @@ function validateStore(parsed, strict) {
     }
     out.foodArchive = cleanArch;
   }
+  // Hidden Kitchen recipes: ids only, kept as a deduped list of
+  // non-empty strings, at most 200. An id that no longer exists in
+  // KITCHEN_RECIPES is harmless and is ignored at render time, never
+  // an error. Not in COLLECTION_KEYS: that loop drops entries
+  // without a valid date, and these are plain strings.
+  if (parsed.hiddenKitchen !== undefined && !Array.isArray(parsed.hiddenKitchen)) {
+    lastValidateDropped.push("hiddenKitchen");
+  } else if (Array.isArray(parsed.hiddenKitchen)) {
+    const seen = new Set();
+    out.hiddenKitchen = parsed.hiddenKitchen.filter((id) => typeof id === "string" && id.trim() !== "" && !seen.has(id) && seen.add(id)).slice(0, 200);
+  }
   return out;
 }
 
@@ -492,6 +504,9 @@ function mergeStores(persisted, local) {
   out.foodLibrary = Object.assign({}, local.foodLibrary || {}, persisted.foodLibrary || {});
   // v031: food archive merges the same way as the library.
   out.foodArchive = Object.assign({}, local.foodArchive || {}, persisted.foodArchive || {});
+  // Hidden Kitchen recipes merge as a union: a hide made in either
+  // copy stays hidden.
+  out.hiddenKitchen = Array.from(new Set([...(persisted.hiddenKitchen || []), ...(local.hiddenKitchen || [])].filter((id) => typeof id === "string" && id !== "")));
   return out;
 }
 
@@ -2216,19 +2231,21 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
     setFormStatus(msg, "Add at least one macro above zero first.", true);
     return;
   }
+  const servingInput = document.getElementById("macro-food-serving");
+  const serving = servingInput ? servingInput.value.trim().slice(0, 80) : "";
   const food = document.getElementById("macro-food-name").value.trim().slice(0, 120) || "Logged food";
   const mealSel = document.getElementById("macro-food-meal");
   const meal = mealSel && MEALS.includes(mealSel.value) ? mealSel.value : "";
   if (editingFoodId) {
     const i = (store.protein || []).findIndex((x) => x.id === editingFoodId);
     if (i !== -1) {
-      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food, meal, calories };
+      const updated = { id: editingFoodId, date: viewedDateStr(), grams, carbs, fat, food, meal, calories, serving };
       if (pendingFoodPhoto) updated.photo = pendingFoodPhoto;
       store.protein[i] = updated;
     }
     editingFoodId = null;
   } else {
-    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food, meal, calories };
+    const entry = { id: uid(), date: viewedDateStr(), grams, carbs, fat, food, meal, calories, serving };
     if (pendingFoodPhoto) entry.photo = pendingFoodPhoto;
     store.protein.push(entry);
   }
@@ -2245,6 +2262,37 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   sr2.innerHTML = "";
   clearFoodPhoto();
 });
+
+/* ---------- Copy yesterday (v071) ---------- */
+/* Copy yesterday's food into the day being viewed, as new entries.
+   Tapping twice does not duplicate: a food already copied today with
+   the same name and protein grams is skipped. */
+function copyYesterdayFoods() {
+  const msg = document.getElementById("copy-yesterday-food-msg");
+  const target = viewedDateStr();
+  const source = todayStr(viewOffset - 1);
+  const yesterdays = (store.protein || []).filter((e) => e.date === source);
+  if (!yesterdays.length) {
+    if (msg) msg.textContent = "Nothing logged yesterday.";
+    return;
+  }
+  const todays = (store.protein || []).filter((e) => e.date === target);
+  let copied = 0;
+  yesterdays.forEach((e) => {
+    const already = todays.some((x) => (x.food || "").trim().toLowerCase() === (e.food || "").trim().toLowerCase() && Number(x.grams) === Number(e.grams));
+    if (already) return;
+    store.protein.push({ id: uid(), date: target, grams: e.grams, carbs: e.carbs, fat: e.fat, food: e.food, meal: e.meal, calories: e.calories, ...(e.serving ? { serving: e.serving } : {}) });
+    copied++;
+  });
+  if (!copied) {
+    if (msg) msg.textContent = "Already copied. Nothing new to add.";
+    return;
+  }
+  saveStore();
+  renderToday();
+  if (msg) msg.textContent = "Copied " + copied + (copied === 1 ? " food" : " foods") + " from yesterday.";
+}
+document.getElementById("copy-yesterday-food").addEventListener("click", copyYesterdayFoods);
 
 /* ---------- Food library (v028) ---------- */
 /* Foods already logged, saved on this device only and reused instantly.
@@ -2364,7 +2412,7 @@ function libraryFoodLabel(f) {
   const cals = Math.round((f.protein || 0) * 4 + (f.carbs || 0) * 4 + (f.fat || 0) * 9);
   return f.name + (cals > 0 ? "  ·  " + cals + " cal" : "") + "  ·  P " + (f.protein || 0) + "g  C " + (f.carbs || 0) + "g  F " + (f.fat || 0) + "g";
 }
-function fillFoodForm(name, protein, carbs, fat, note, calories) {
+function fillFoodForm(name, protein, carbs, fat, note, calories, serving) {
   document.getElementById("macro-food-name").value = String(name || "").slice(0, 120);
   document.getElementById("macro-food-protein").value = protein || "";
   document.getElementById("macro-food-carbs").value = carbs || "";
@@ -2375,6 +2423,8 @@ function fillFoodForm(name, protein, carbs, fat, note, calories) {
     calEl.value = Number.isFinite(own) && own > 0 ? Math.round(own)
       : ((protein || carbs || fat) ? Math.round((Number(protein) || 0) * 4 + (Number(carbs) || 0) * 4 + (Number(fat) || 0) * 9) : "");
   }
+  const servingEl = document.getElementById("macro-food-serving");
+  if (servingEl) servingEl.value = String(serving || "").slice(0, 80);
   const status = document.getElementById("macro-food-search-status");
   if (status && note) status.textContent = note;
 }
@@ -2556,28 +2606,79 @@ function openFoodLibrary() {
   if (list.classList.contains("hidden")) { renderFoodLibrary(); list.classList.remove("hidden"); }
 }
 
+/* Food search results (v064): how many database results to show before
+   "Show more", and the ranked list from the last search, so Show more
+   can reveal the rest without fetching again. Reset on every new search. */
+const FOOD_SEARCH_FIRST_SHOWN = 10;
+let lastFoodSearchResults = [];
 /* Food search ranking: Open Food Facts returns branded products above
    plain foods, so a "potato" search shows chips before a potato. Re-sort
    before display: plain foods first (name equals or starts with the
-   search term, no brand), then names containing the term, then the rest
-   in the order the database returned. Branded results stay, only the
-   order changes. */
+   search term, no brand), then plain foods containing the term, then
+   branded foods the same way, then the rest in the order the database
+   returned. Within a rank, a food with nutrition values sorts before
+   one without, so a tap always has something to fill. Branded results
+   stay, only the order changes. */
 function rankFoodSearchResults(products, query) {
   const q = (query || "").trim().toLowerCase();
   if (!q) return products.slice();
+  const hasNutrition = (p) => {
+    const n = (p && p.nutriments) || {};
+    return (Number(n.proteins_100g) || 0) > 0
+      || (Number(n.carbohydrates_100g) || 0) > 0
+      || (Number(n.fat_100g) || 0) > 0
+      || (Number(n.proteins_serving) || 0) > 0
+      || (Number(n.carbohydrates_serving) || 0) > 0
+      || (Number(n.fat_serving) || 0) > 0;
+  };
   const rankOf = (p) => {
     const name = ((p && p.product_name) || "").trim().toLowerCase();
     const brand = ((p && p.brands) || "").trim();
-    if (name && !brand && (name === q || name.indexOf(q) === 0)) return 0;
-    if (name && name.indexOf(q) !== -1) return 1;
-    return 2;
+    const starts = name && name.indexOf(q) === 0;
+    const contains = name && name.indexOf(q) !== -1;
+    if (!brand && starts) return 0;
+    if (!brand && contains) return 1;
+    if (brand && starts) return 2;
+    if (brand && contains) return 3;
+    return 4;
   };
   return products
-    .map((p, i) => ({ p, i, rank: rankOf(p) }))
-    .sort((a, b) => (a.rank - b.rank) || (a.i - b.i))
+    .map((p, i) => ({ p, i, rank: rankOf(p), fed: hasNutrition(p) ? 0 : 1 }))
+    .sort((a, b) => (a.rank - b.rank) || (a.fed - b.fed) || (a.i - b.i))
     .map((x) => x.p);
 }
 
+/* One food search result button: the name, calories, and macros, and a
+   tap fills the Log food form. Shared by the first results and by
+   Show more, so both build the same button. Fills through
+   fillFoodForm, so the serving size from the label rides along (v071). */
+function appendFoodSearchResult(p) {
+  const results = document.getElementById("macro-food-search-results");
+  if (!results) return;
+  const n = p.nutriments || {};
+  const pick = (servingKey, hundredKey) => {
+    if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
+    if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
+    return 0;
+  };
+  const protein = pick("proteins_serving", "proteins_100g");
+  const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
+  const fat = pick("fat_serving", "fat_100g");
+  const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
+  const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
+  const cals = Math.round(protein * 4 + carbs * 4 + fat * 9);
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "btn btn-small";
+  b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
+  b.textContent = name + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
+  b.addEventListener("click", () => {
+    fillFoodForm(name, protein, carbs, fat, hasServing ? "Filled from the label. Check and edit before saving." : "Filled per 100 g. Scale to your portion before saving.", cals > 0 ? cals : "", typeof p.serving_size === "string" ? p.serving_size : "");
+    results.classList.add("hidden");
+    results.innerHTML = "";
+  });
+  results.appendChild(b);
+}
 async function searchFoodByName() {
   const nameInput = document.getElementById("macro-food-name");
   const status = document.getElementById("macro-food-search-status");
@@ -2621,36 +2722,21 @@ async function searchFoodByName() {
       return;
     }
     if (!mine.length) status.textContent = "Pick a food.";
-    products.forEach((p) => {
-      const n = p.nutriments || {};
-      const pick = (servingKey, hundredKey) => {
-        if (n[servingKey] !== undefined && n[servingKey] !== null) return Number(n[servingKey]);
-        if (n[hundredKey] !== undefined && n[hundredKey] !== null) return Number(n[hundredKey]);
-        return 0;
-      };
-      const protein = pick("proteins_serving", "proteins_100g");
-      const carbs = pick("carbohydrates_serving", "carbohydrates_100g");
-      const fat = pick("fat_serving", "fat_100g");
-      const hasServing = n.proteins_serving !== undefined || n.carbohydrates_serving !== undefined || n.fat_serving !== undefined;
-      const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Food";
-      const cals = Math.round(protein * 4 + carbs * 4 + fat * 9);
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "btn btn-small";
-      b.style.cssText = "display:block;width:100%;text-align:left;margin-bottom:6px;white-space:normal";
-      b.textContent = name + "  ·  P " + protein + "g  C " + carbs + "g  F " + fat + "g" + (hasServing ? "" : " (per 100 g)");
-      b.addEventListener("click", () => {
-        nameInput.value = name.slice(0, 120);
-        document.getElementById("macro-food-protein").value = protein || "";
-        document.getElementById("macro-food-carbs").value = carbs || "";
-        document.getElementById("macro-food-fat").value = fat || "";
-        document.getElementById("macro-food-calories").value = cals > 0 ? cals : "";
-        status.textContent = hasServing ? "Filled from the label. Check and edit before saving." : "Filled per 100 g. Scale to your portion before saving.";
-        results.classList.add("hidden");
-        results.innerHTML = "";
+    if (!mine.length) status.textContent = "Pick a food.";
+    lastFoodSearchResults = products;
+    products.slice(0, FOOD_SEARCH_FIRST_SHOWN).forEach((p) => appendFoodSearchResult(p));
+    if (products.length > FOOD_SEARCH_FIRST_SHOWN) {
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "btn btn-small";
+      more.style.cssText = "display:block;width:100%;text-align:center;margin-bottom:6px";
+      more.textContent = "Show more (" + (products.length - FOOD_SEARCH_FIRST_SHOWN) + " more)";
+      more.addEventListener("click", () => {
+        lastFoodSearchResults.slice(FOOD_SEARCH_FIRST_SHOWN).forEach((p) => appendFoodSearchResult(p));
+        more.remove();
       });
-      results.appendChild(b);
-    });
+      results.appendChild(more);
+    }
     results.classList.remove("hidden");
   } catch (e) {
     status.textContent = "The food database is temporarily unavailable. Try again in a moment, or enter the grams by hand.";
@@ -2789,7 +2875,7 @@ function renderFoodLog() {
   const itemHtml = (e) => `
     <div class="today-entry" style="display:flex;align-items:center;gap:10px;margin:6px 0">
       ${e.photo ? `<button type="button" class="food-photo-thumb" data-photo="${e.id}" aria-label="View photo for ${escapeHtml(e.food || "Logged food")}" style="padding:0;border:1px solid var(--sage-border);border-radius:10px;overflow:hidden;flex:none;background:none;cursor:pointer"><img src="${e.photo}" alt="" style="width:48px;height:48px;object-fit:cover;display:block"></button>` : ""}
-      <span style="flex:1">${escapeHtml(e.food || "Logged food")} &middot; ${escapeHtml(e.grams)} g protein${(Number(e.carbs) || 0) || (Number(e.fat) || 0) ? ` &middot; ${Number(e.carbs) || 0}g carbs &middot; ${Number(e.fat) || 0}g fat` : ""}${foodNote(e) ? `<div class="food-note">${foodNote(e)}</div>` : ""}</span>
+      <span style="flex:1">${escapeHtml(e.food || "Logged food")}${e.serving ? ` &middot; ${escapeHtml(String(e.serving).slice(0, 80))}` : ""} &middot; ${escapeHtml(e.grams)} g protein${(Number(e.carbs) || 0) || (Number(e.fat) || 0) ? ` &middot; ${Number(e.carbs) || 0}g carbs &middot; ${Number(e.fat) || 0}g fat` : ""}${foodNote(e) ? `<div class="food-note">${foodNote(e)}</div>` : ""}</span>
       <button type="button" class="btn btn-small" data-edit-food="${e.id}" aria-label="Edit food entry: ${escapeHtml(e.food || "Logged food")}">Edit</button>
       <button type="button" class="btn btn-small btn-danger" data-del-food="${e.id}" aria-label="Remove food entry: ${escapeHtml(e.food || "Logged food")}">Remove</button>
     </div>`;
@@ -2825,6 +2911,8 @@ function renderFoodLog() {
     document.getElementById("macro-food-carbs").value = Number(entry.carbs) || "";
     document.getElementById("macro-food-fat").value = Number(entry.fat) || "";
     document.getElementById("macro-food-calories").value = entryCalories(entry) || "";
+    const servingInput = document.getElementById("macro-food-serving");
+    if (servingInput) servingInput.value = entry.serving || "";
     const mealSel = document.getElementById("macro-food-meal");
     if (mealSel) mealSel.value = mealOf(entry);
     document.getElementById("macro-food-form").classList.remove("hidden");
@@ -2867,6 +2955,9 @@ document.getElementById("food-photo-modal").addEventListener("click", (e) => {
 let scanStream = null;
 let scanZxingReader = null;
 let scanHtml5 = null;
+/* Serving size from the last barcode lookup (v071): filled into the
+   logged entry when the scan is saved. Blank when the label has none. */
+let scanServing = "";
 async function stopScanCamera() {
   try { if (scanHtml5) { await scanHtml5.stop(); scanHtml5.clear(); scanHtml5 = null; } } catch {}
   try { if (scanZxingReader) scanZxingReader.reset(); } catch {}
@@ -2892,6 +2983,7 @@ function openScanModal() {
 }
 function closeScanModal() {
   stopScanCamera();
+  scanServing = "";
   const m = document.getElementById("scan-modal");
   if (m) { m.classList.add("hidden"); m.style.display = "none"; }
 }
@@ -2906,6 +2998,7 @@ async function lookupBarcode(code) {
     const name = saved.brand ? saved.name + " - " + saved.brand : saved.name;
     document.getElementById("scan-product-name").textContent = name;
     document.getElementById("scan-product-serving").textContent = "From your foods. Check the label and edit the grams before logging.";
+    scanServing = typeof saved.serving === "string" ? saved.serving : "";
     document.getElementById("scan-food").value = name;
     document.getElementById("scan-protein").value = saved.protein || "";
     document.getElementById("scan-carbs").value = saved.carbs || "";
@@ -2931,6 +3024,7 @@ async function lookupBarcode(code) {
     const fat = pick("fat_serving", "fat_100g");
     const name = [p.product_name, p.brands].filter(Boolean).join(" - ") || "Scanned food";
     const scanCals = Math.round(protein * 4 + carbs * 4 + fat * 9);
+    scanServing = typeof p.serving_size === "string" ? p.serving_size : "";
     // Saved to your foods on its own, so the next scan is instant.
     saveFoodToLibrary(code, { name: p.product_name || "Scanned food", brand: p.brands || "", protein, carbs, fat, calories: scanCals });
     document.getElementById("scan-product-name").textContent = name;
@@ -3113,7 +3207,7 @@ document.getElementById("scan-log-btn").addEventListener("click", () => {
     document.getElementById("scan-status").textContent = "Add at least one macro above zero first.";
     return;
   }
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9) });
+  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9), ...(scanServing ? { serving: scanServing } : {}) });
   // Save the logged values to Your foods, so an edit made here wins
   // over the lookup values saved earlier. Uses the barcode when there
   // is one, otherwise saves by name.
@@ -3434,6 +3528,45 @@ document.getElementById("strength-form").addEventListener("submit", (ev) => {
   renderStrength();
   setStrengthFormOpen(false);
 });
+
+/* ---------- Copy yesterday for exercises (v071) ---------- */
+/* Copy yesterday's movement minutes and strength entries into the day
+   being viewed, as new entries. Same duplicate rule as foods: an entry
+   already copied today is skipped, so a second tap adds nothing. */
+function copyYesterdayExercises() {
+  const msg = document.getElementById("copy-yesterday-exercise-msg");
+  const target = viewedDateStr();
+  const source = todayStr(viewOffset - 1);
+  const yesterdaysEx = (store.exercise || []).filter((e) => e.date === source);
+  const yesterdaysSt = (store.strength || []).filter((e) => e.date === source);
+  if (!yesterdaysEx.length && !yesterdaysSt.length) {
+    if (msg) msg.textContent = "Nothing logged yesterday.";
+    return;
+  }
+  const todaysEx = (store.exercise || []).filter((e) => e.date === target);
+  const todaysSt = (store.strength || []).filter((e) => e.date === target);
+  let copied = 0;
+  yesterdaysEx.forEach((e) => {
+    const already = todaysEx.some((x) => (x.label || "") === (e.label || "") && Number(x.minutes) === Number(e.minutes));
+    if (already) return;
+    store.exercise.push({ id: uid(), date: target, minutes: e.minutes, label: e.label });
+    copied++;
+  });
+  yesterdaysSt.forEach((e) => {
+    const already = todaysSt.some((x) => (x.name || "") === (e.name || "") && Number(x.sets) === Number(e.sets) && Number(x.reps) === Number(e.reps) && String(x.weight) === String(e.weight));
+    if (already) return;
+    store.strength.push({ id: uid(), date: target, name: e.name, sets: e.sets, reps: e.reps, weight: e.weight });
+    copied++;
+  });
+  if (!copied) {
+    if (msg) msg.textContent = "Already copied. Nothing new to add.";
+    return;
+  }
+  saveStore();
+  renderToday();
+  if (msg) msg.textContent = "Copied " + copied + (copied === 1 ? " entry" : " entries") + " from yesterday.";
+}
+document.getElementById("copy-yesterday-exercise").addEventListener("click", copyYesterdayExercises);
 
 function toggleMove(name) {
   const date = viewedDateStr();
@@ -7990,10 +8123,10 @@ const KITCHEN_RECIPES = [
     "difficulty": "Easy",
     "servings": 2,
     "protein": 14,
-    "carbs": 14,
+    "carbs": 18,
     "fat": 8,
     "saturatedFat": 0.8,
-    "calories": 184,
+    "calories": 200,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -8005,14 +8138,15 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 cucumbers, sliced thin",
       "1 cup shelled edamame",
-      "1 tbsp rice vinegar",
+      "1 tbsp sweet rice vinegar",
+      "1 tsp sugar",
       "1 tsp sesame oil",
       "1 tsp sesame seeds",
       "Pinch of salt"
     ],
     "steps": [
       "Toss the cucumber and edamame in a bowl.",
-      "Whisk the vinegar, sesame oil and salt and pour over the salad.",
+      "Whisk the vinegar, sugar, sesame oil and salt until the sugar dissolves, and pour over the salad.",
       "Chill 10 minutes, then sprinkle with sesame seeds."
     ]
   },
@@ -9164,7 +9298,7 @@ function renderMealIdeas() {
       html = "<h3>Meal ideas for today</h3>"
         + "<p class=\"muted\" style=\"font-size:.9em\">Goals met for today. Nice work.</p>";
     } else {
-      const fits = KITCHEN_RECIPES.filter((r) => r.protein <= pLeft && r.carbs <= cLeft && r.fat <= fLeft)
+      const fits = kitchenVisibleRecipes().filter((r) => r.protein <= pLeft && r.carbs <= cLeft && r.fat <= fLeft)
         .sort((a, b) => b.protein - a.protein).slice(0, 3);
       if (!fits.length) {
         html = "<h3>Meal ideas for today</h3>"
@@ -9179,7 +9313,7 @@ function renderMealIdeas() {
             const added = kitchenAddedAt[r.id] && Date.now() - kitchenAddedAt[r.id] < 2500;
             return "<div class=\"entry-row\" data-meal-idea=\"" + r.id + "\">"
               + "<div style=\"flex:1\"><strong>" + escapeHtml(r.name) + "</strong>"
-              + " <span class=\"muted\" style=\"font-size:.85em\">" + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat</span></div>"
+              + " <span class=\"muted\" style=\"font-size:.85em\">" + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat, " + r.calories + " cal</span></div>"
               + "<button type=\"button\" class=\"btn btn-small btn-primary\" data-kitchen-add=\"" + r.id + "\">" + (added ? "Added to today \u2713" : "Add to Today's Nutrition") + "</button>"
               + "</div>";
           }).join("")
@@ -9196,7 +9330,7 @@ function renderMealIdeas() {
 /* Quick and easy pool (v049, R-07): recipes ready in 15 minutes or
    less, or tagged Easy Prep. The Quick and easy filter shows this pool. */
 function kitchenQuickPool() {
-  return KITCHEN_RECIPES.filter((r) => r.time <= 15 || r.tags.includes("easy-prep"));
+  return kitchenVisibleRecipes().filter((r) => r.time <= 15 || r.tags.includes("easy-prep"));
 }
 
 /* One photo card (v039): photo, category chip, name, and calories, with
@@ -9218,7 +9352,7 @@ function recipeSourceHtml(r) {
   if (idx === -1) return `<p class="kitchen-source">${escapeHtml(text)} (<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Source</a>)</p>`;
   return `<p class="kitchen-source">${escapeHtml(text.slice(0, idx))}<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${name}</a>${escapeHtml(text.slice(idx + name.length))}</p>`;
 }
-function kitchenPhotoCardHtml(r) {
+function kitchenPhotoCardHtml(r, hidden) {
   const saved = kitchenIsSaved(r.id);
   const photo = r.image
     ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="" loading="lazy">`
@@ -9230,6 +9364,9 @@ function kitchenPhotoCardHtml(r) {
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
+    ${hidden
+      ? `<button type="button" class="btn btn-small kitchen-hide" data-kitchen-unhide="${r.id}" aria-label="Unhide ${escapeHtml(r.name)}">Unhide</button>`
+      : `<button type="button" class="btn btn-small kitchen-hide" data-kitchen-hide="${r.id}" aria-label="Hide ${escapeHtml(r.name)}">Hide</button>`}
   </article>`;
 }
 function toggleKitchenSave(id) {
@@ -9243,10 +9380,34 @@ function toggleKitchenSave(id) {
   saveStore();
   renderRecipes();
 }
+/* Hidden built-in Kitchen recipes: ids only, stored on this device in
+   store.hiddenKitchen. Hiding removes a recipe from this user's Kitchen
+   view only. The recipe is not deleted and still exists for everyone
+   else; a copy already saved to My recipes is untouched. */
+function kitchenIsHidden(id) {
+  return (store.hiddenKitchen || []).includes(id);
+}
+function kitchenVisibleRecipes() {
+  return KITCHEN_RECIPES.filter((r) => !kitchenIsHidden(r.id));
+}
+function hideKitchenRecipe(id) {
+  if (!KITCHEN_RECIPES.some((r) => r.id === id)) return;
+  if (!kitchenIsHidden(id)) store.hiddenKitchen.push(id);
+  saveStore();
+  closeRecipeModal();
+  renderKitchen();
+}
+function unhideKitchenRecipe(id) {
+  store.hiddenKitchen = (store.hiddenKitchen || []).filter((x) => x !== id);
+  saveStore();
+  renderKitchen();
+}
 function bindKitchenCards(root) {
   if (!root) return;
   root.querySelectorAll("[data-kitchen-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.kitchenOpen)));
   root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
+  root.querySelectorAll("[data-kitchen-hide]").forEach((btn) => btn.addEventListener("click", () => hideKitchenRecipe(btn.dataset.kitchenHide)));
+  root.querySelectorAll("[data-kitchen-unhide]").forEach((btn) => btn.addEventListener("click", () => unhideKitchenRecipe(btn.dataset.kitchenUnhide)));
 }
 
 /* The Kitchen is one library (v049, R-07): one filter row and one
@@ -9257,29 +9418,74 @@ function bindKitchenCards(root) {
    The chip picks the pool, the search text narrows it by recipe name,
    so the two combine. Tags are the verified table from
    kitchen-dietary-tags-2026-11-09.md, plus the two v051 recipes. */
+/* Dietary search (v053): one filter chip plus the Kitchen search box.
+   The chip picks the pool, the search text narrows it by name,
+   ingredients, or tags, so the two combine. Name matches come first,
+   then ingredient matches, then tag matches, each in Kitchen order.
+   Hidden recipes are filtered out first, so a hidden recipe never
+   appears under any filter or search. Category is not searched, the
+   chips already filter by category, and steps are not searched,
+   because they mention ingredients incidentally and would add noise.
+   Hyphens count as spaces, so "high protein" finds the
+   "high-protein" tag. Tags are the verified table from
+   kitchen-dietary-tags-2026-11-09.md, plus the two v051 recipes. */
 function kitchenFiltered() {
   let pool;
-  if (kitchenFilter === "all") pool = KITCHEN_RECIPES.slice();
-  else if (kitchenFilter === "fresh-picks") pool = KITCHEN_RECIPES.slice(0, 6);
+  const visible = kitchenVisibleRecipes();
+  if (kitchenFilter === "all") pool = visible.slice();
+  else if (kitchenFilter === "fresh-picks") pool = visible.slice(0, 6);
   else if (kitchenFilter === "quick-and-easy") pool = kitchenQuickPool();
-  else pool = KITCHEN_RECIPES.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
+  else pool = visible.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
   const q = kitchenSearch.trim().toLowerCase();
   if (!q) return pool;
-  return pool.filter((r) => r.name.toLowerCase().includes(q));
+  const norm = (s) => String(s || "").toLowerCase().replace(/-/g, " ");
+  const nq = norm(q);
+  const rankOf = (r) => {
+    if (norm(r.name).includes(nq)) return 0;
+    if ((r.ingredients || []).some((ing) => norm(ing).includes(nq))) return 1;
+    if ((r.tags || []).some((t) => norm(t).includes(nq))) return 2;
+    return -1;
+  };
+  return pool
+    .map((r, i) => ({ r, i, rank: rankOf(r) }))
+    .filter((x) => x.rank >= 0)
+    .sort((a, b) => (a.rank - b.rank) || (a.i - b.i))
+    .map((x) => x.r);
 }
+let showHiddenKitchen = false; // module-level, next to kitchenFilter / kitchenSearch
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
   if (!list) return;
   renderMealIdeas();
+  renderHiddenKitchen();
   const shown = kitchenFiltered();
   if (!shown.length) {
     const q = kitchenSearch.trim();
-    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : "No recipes match this filter.";
+    const hiddenCount = (store.hiddenKitchen || []).length;
+    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : kitchenFilter !== "all" ? "No recipes match this filter." : hiddenCount ? "You have hidden every recipe in the Kitchen. Show hidden recipes below to bring one back." : "No recipes match this filter.";
     list.innerHTML = '<p class="empty-state">' + msg + '</p>';
     return;
   }
   list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
   bindKitchenCards(list);
+}
+/* The hidden-recipes toggle under the Kitchen list. Shows nothing
+   when nothing is hidden. When expanded, the hidden cards render
+   through the same card HTML, with Unhide in place of Hide. */
+function renderHiddenKitchen() {
+  const box = document.getElementById("kitchen-hidden");
+  if (!box) return;
+  const hidden = KITCHEN_RECIPES.filter((r) => kitchenIsHidden(r.id));
+  if (!hidden.length) { box.innerHTML = ""; return; }
+  const open = showHiddenKitchen;
+  const cards = open
+    ? `<p class="muted" style="font-size:.9em;margin:8px 0">These recipes are hidden from your Kitchen. They are not deleted, and they still exist for everyone else. Unhide one to bring it back.</p>`
+      + `<div class="kitchen-list">` + hidden.map((r) => kitchenPhotoCardHtml(r, true)).join("") + `</div>`
+    : "";
+  box.innerHTML = `<button type="button" class="btn btn-small" id="kitchen-hidden-toggle" aria-expanded="${open ? "true" : "false"}">${open ? "Hide hidden recipes" : "Show hidden recipes (" + hidden.length + ")"}</button>` + cards;
+  const toggle = document.getElementById("kitchen-hidden-toggle");
+  if (toggle) toggle.addEventListener("click", () => { showHiddenKitchen = !showHiddenKitchen; renderKitchen(); });
+  if (open) bindKitchenCards(box);
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
@@ -9622,6 +9828,7 @@ function openRecipeModal(id) {
       <ol style="margin:0;padding-left:24px">${kr.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
       <div class="kitchen-actions">
         <button type="button" class="btn btn-small" data-modal-kitchen-save="${kr.id}">${saved ? "Saved ✓" : "Save"}</button>
+        <button type="button" class="btn btn-small" data-modal-kitchen-hide="${kr.id}">Hide this recipe</button>
         <span class="kitchen-stepper">
           <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="-1" aria-label="One fewer serving">−</button>
           <span aria-live="polite">Servings: ${n}</span>
@@ -9631,7 +9838,7 @@ function openRecipeModal(id) {
         <button type="button" class="btn btn-small" data-modal-kitchen-shop="${kr.id}">Add to shopping list</button>
         <button type="button" class="btn btn-small" data-modal-kitchen-copy="${kr.id}">Copy recipe</button>
       </div>
-      <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat.</p>
+      <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat, ${kr.calories * n} cal.</p>
       ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}`;
   } else {
     const r = (store.recipes || []).find((x) => x.id === id);
@@ -9657,6 +9864,7 @@ function bindRecipeModalButtons() {
     toggleKitchenSave(id);
     openRecipeModal(id);
   }));
+  body.querySelectorAll("[data-modal-kitchen-hide]").forEach((btn) => btn.addEventListener("click", () => hideKitchenRecipe(btn.dataset.modalKitchenHide)));
   body.querySelectorAll("[data-modal-kitchen-serv]").forEach((btn) => btn.addEventListener("click", () => {
     const id = btn.dataset.modalKitchenServ;
     kitchenServings[id] = Math.max(1, (kitchenServings[id] || 1) + Number(btn.dataset.dir));
