@@ -12203,6 +12203,8 @@ document.getElementById("memory-save").addEventListener("click", async () => {
    view so the whole detail shows inside the visible area instead of
    running under the keyboard. */
 document.getElementById("memory-optin-card").addEventListener("toggle", (e) => {
+  const summary = e.target.querySelector("summary");
+  if (summary) summary.setAttribute("aria-expanded", String(e.target.open));
   if (e.target.open) e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
@@ -12412,7 +12414,7 @@ function renderChat() {
     headerAvatar.replaceWith(fresh);
   }
   const input = document.getElementById("chat-input");
-  if (input) input.placeholder = "Ask " + companionDisplayName() + "...";
+  if (input) input.placeholder = "Ask " + (companionDisplayName() === COMPANION_DEFAULT_NAME ? "the Companion" : companionDisplayName()) + "...";
   growChatInput();
   const box = document.getElementById("chat-messages");
   if (!box) return;

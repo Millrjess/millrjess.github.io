@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=076">
+<link rel="stylesheet" href="styles.css?v=077">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -943,15 +943,15 @@
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <p class="muted" id="chat-availability-note" style="font-size:.9rem;margin:0 0 6px">Trial: 3 sample replies left. Sample replies, not the live AI. The live Companion is part of the full app.</p>
     <form id="chat-form" class="chat-form">
-      <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
+      <textarea id="chat-input" rows="1" placeholder="Ask the Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
     <p style="margin:4px 0 0"><button type="button" class="btn-link" id="chat-clear-btn">Clear chat history</button></p>
 
-    <details class="card" style="margin-top:16px" id="memory-optin-card">
-      <summary style="cursor:pointer;font-weight:700;font-size:1.2rem">Companion memory</summary>
+    <details class="card memory-compact" id="memory-optin-card">
+      <summary aria-expanded="false">Companion memory</summary>
       <div style="margin-top:12px">
       <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
@@ -1375,7 +1375,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=076"></script>
+<script src="demo-seed.js?v=077"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1401,7 +1401,7 @@
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=076"></script>
+<script src="app.js?v=077"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

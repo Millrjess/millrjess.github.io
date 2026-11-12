@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v076";
+const APP_VERSION = "v077";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -11564,6 +11564,8 @@ document.getElementById("memory-save").addEventListener("click", async () => {
    view so the whole detail shows inside the visible area instead of
    running under the keyboard. */
 document.getElementById("memory-optin-card").addEventListener("toggle", (e) => {
+  const summary = e.target.querySelector("summary");
+  if (summary) summary.setAttribute("aria-expanded", String(e.target.open));
   if (e.target.open) e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
@@ -11886,9 +11888,9 @@ function pickTrialReply(text) {
   return TRIAL_FALLBACK;
 }
 function chatInputPlaceholder(connected) {
-  if (connected) return "Ask " + companionDisplayName() + "...";
+  if (connected) return "Ask " + (companionDisplayName() === COMPANION_DEFAULT_NAME ? "the Companion" : companionDisplayName()) + "...";
   const left = trialLeft();
-  if (left > 0) return "Try the Companion: trial, " + left + (left === 1 ? " message" : " messages") + " left";
+  if (left > 0) return left + " trial message" + (left === 1 ? "" : "s") + " left";
   return "Chat is not available in the demo";
 }
 

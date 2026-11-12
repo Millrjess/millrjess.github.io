@@ -889,6 +889,7 @@ label textarea {
 }
 .chat-form textarea {
   flex: 1;
+  min-height: 48px;
   padding: 12px;
   border: 1px solid var(--border, #ddd);
   border-radius: 12px;
@@ -898,6 +899,14 @@ label textarea {
   resize: none;
   max-height: 204px;
   overflow-y: auto;
+}
+
+/* v077: mic and Send match the single-line input height, so the row
+   reads as one clean baseline. The container's align-items: flex-end
+   keeps them pinned to the bottom as the input grows. */
+.chat-form .btn {
+  height: 48px;
+  flex: none;
 }
 
 
@@ -1064,6 +1073,24 @@ details.card summary {
   list-style: none;
   padding: 4px 0;
   font-size: 1.05rem;
+}
+
+/* Companion memory (v077): a quiet one-line row, not a big card. The
+   section stays fully functional; only its closed size shrinks. */
+details.card.memory-compact {
+  padding: 10px 14px;
+  margin: 12px 0;
+  border-radius: 14px;
+}
+details.card.memory-compact summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted, #6E6A5E);
+  padding: 2px 0;
+}
+details.card.memory-compact summary::before {
+  margin-right: 8px;
 }
 
 /* WCAG 1.4.10: at 320px the 6 bottom tabs must fit without horizontal scrolling.

@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v076";
+const APP_VERSION = "v077";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -12392,6 +12392,8 @@ document.getElementById("memory-save").addEventListener("click", async () => {
    view so the whole detail shows inside the visible area instead of
    running under the keyboard. */
 document.getElementById("memory-optin-card").addEventListener("toggle", (e) => {
+  const summary = e.target.querySelector("summary");
+  if (summary) summary.setAttribute("aria-expanded", String(e.target.open));
   if (e.target.open) e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
@@ -12709,7 +12711,7 @@ function renderChat() {
     headerAvatar.replaceWith(fresh);
   }
   const input = document.getElementById("chat-input");
-  if (input) input.placeholder = "Ask " + companionDisplayName() + "...";
+  if (input) input.placeholder = "Ask " + (companionDisplayName() === COMPANION_DEFAULT_NAME ? "the Companion" : companionDisplayName()) + "...";
   growChatInput();
   const box = document.getElementById("chat-messages");
   if (!box) return;

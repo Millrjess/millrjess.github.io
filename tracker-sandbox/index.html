@@ -955,15 +955,15 @@
     </div>
     <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
     <form id="chat-form" class="chat-form">
-      <textarea id="chat-input" rows="1" placeholder="Ask your AI Wellness Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
+      <textarea id="chat-input" rows="1" placeholder="Ask the Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
     <p style="margin:4px 0 0"><button type="button" class="btn-link" id="chat-clear-btn">Clear chat history</button></p>
 
-    <details class="card" style="margin-top:16px" id="memory-optin-card">
-      <summary style="cursor:pointer;font-weight:700;font-size:1.2rem">Companion memory</summary>
+    <details class="card memory-compact" id="memory-optin-card">
+      <summary aria-expanded="false">Companion memory</summary>
       <div style="margin-top:12px">
       <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
