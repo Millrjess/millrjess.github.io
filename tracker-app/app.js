@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v071";
+const APP_VERSION = "v072";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1027,6 +1027,10 @@ document.addEventListener("keydown", (e) => {
     if (inlineAddKey) { e.preventDefault(); closeInlineAdd(); return; }
     const recipeModalEsc = document.getElementById("recipe-modal");
     if (recipeModalEsc && !recipeModalEsc.classList.contains("hidden")) { e.preventDefault(); closeRecipeModal(); return; }
+    const scanModalEsc = document.getElementById("scan-modal");
+    if (scanModalEsc && !scanModalEsc.classList.contains("hidden")) { e.preventDefault(); closeScanModal(); return; }
+    const plateModalEsc = document.getElementById("plate-modal");
+    if (plateModalEsc && !plateModalEsc.classList.contains("hidden")) { e.preventDefault(); closePlateModal(); return; }
     const progressPanel = document.getElementById("tab-progress");
     if (progressPanel && progressPanel.classList.contains("active")) { e.preventDefault(); showTab("today"); return; }
   }
@@ -2351,10 +2355,22 @@ function bindMacroSlide(key) {
     renderToday();
   });
   bar.addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    /* APG slider keys: Up and Right increase, Down and Left decrease,
+       PageUp and PageDown step by 10, Home sets 0, End sets the target.
+       aria-valuenow and aria-valuetext keep updating through
+       adjustMacroBy and renderToday, as before. */
+    const cur = macroTotals(viewedDateStr())[key];
+    let delta = null;
+    if (e.key === "ArrowUp" || e.key === "ArrowRight") delta = 1;
+    else if (e.key === "ArrowDown" || e.key === "ArrowLeft") delta = -1;
+    else if (e.key === "PageUp") delta = 10;
+    else if (e.key === "PageDown") delta = -10;
+    else if (e.key === "Home") delta = -cur;
+    else if (e.key === "End") delta = (macroTargets()[key] || 0) - cur;
+    if (delta === null || delta === 0) return;
     e.preventDefault();
     e.stopPropagation();
-    adjustMacroBy(key, e.key === "ArrowRight" ? 1 : -1);
+    adjustMacroBy(key, delta);
   });
 }
 MACRO_KEYS.forEach(bindMacroSlide);
@@ -2979,9 +2995,12 @@ function setScanView(which) {
 function openScanModal() {
   const m = document.getElementById("scan-modal");
   if (!m) return;
+  recordDialogOpener("scan-modal");
   m.classList.remove("hidden");
   m.style.display = "flex";
   document.getElementById("scan-status").textContent = "Starting camera...";
+  const closeBtn = document.getElementById("scan-close-btn");
+  if (closeBtn) closeBtn.focus();
   startScanCamera();
 }
 function closeScanModal() {
@@ -2989,6 +3008,7 @@ function closeScanModal() {
   scanServing = "";
   const m = document.getElementById("scan-modal");
   if (m) { m.classList.add("hidden"); m.style.display = "none"; }
+  returnDialogFocus("scan-modal", "macro-scan-food");
 }
 async function lookupBarcode(code) {
   const status = document.getElementById("scan-status");
@@ -3252,10 +3272,13 @@ let platePhotoDataUrl = "";
 function openPlateModal() {
   const m = document.getElementById("plate-modal");
   if (!m) return;
+  recordDialogOpener("plate-modal");
   m.classList.remove("hidden");
   m.style.display = "flex";
   document.getElementById("plate-status").textContent = "";
   document.getElementById("plate-result").classList.add("hidden");
+  const closeBtn = document.getElementById("plate-close-btn");
+  if (closeBtn) closeBtn.focus();
 }
 function closePlateModal() {
   const m = document.getElementById("plate-modal");
@@ -3263,6 +3286,7 @@ function closePlateModal() {
   document.getElementById("plate-photo-preview").classList.add("hidden");
   document.getElementById("plate-photo-preview").src = "";
   platePhotoDataUrl = "";
+  returnDialogFocus("plate-modal", "macro-plate-food");
 }
 async function recognizePlate(dataUrl) {
   const status = document.getElementById("plate-status");
@@ -4732,6 +4756,7 @@ function openDoctorModal() {
   if (toEl && !toEl.value) toEl.value = todayStr();
   rebuildDoctorText();
   document.getElementById("doctor-msg").textContent = "";
+  recordDialogOpener("doctor-modal");
   modal.classList.remove("hidden");
   const copyBtn = document.getElementById("doctor-copy");
   if (copyBtn) copyBtn.focus();
@@ -4746,8 +4771,7 @@ function rebuildDoctorText() {
 }
 function closeDoctorModal() {
   document.getElementById("doctor-modal").classList.add("hidden");
-  const btn = document.getElementById("doctor-summary-btn");
-  if (btn) btn.focus();
+  returnDialogFocus("doctor-modal", "doctor-summary-btn");
 }
 document.getElementById("doctor-summary-btn").addEventListener("click", openDoctorModal);
 document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
@@ -5714,6 +5738,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 18,
     "fat": 7,
+    "saturatedFat": 2,
     "calories": 215,
     "tags": [
       "breakfast",
@@ -5745,6 +5770,7 @@ const KITCHEN_RECIPES = [
     "protein": 14,
     "carbs": 6,
     "fat": 10,
+    "saturatedFat": 4,
     "calories": 170,
     "tags": [
       "breakfast",
@@ -5775,6 +5801,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 32,
     "fat": 8,
+    "saturatedFat": 1,
     "calories": 272,
     "tags": [
       "breakfast",
@@ -5804,6 +5831,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 24,
     "fat": 14,
+    "saturatedFat": 5,
     "calories": 286,
     "tags": [
       "breakfast",
@@ -5837,6 +5865,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 28,
     "fat": 12,
+    "saturatedFat": 4,
     "calories": 300,
     "tags": [
       "breakfast",
@@ -5868,6 +5897,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 6,
     "fat": 14,
+    "saturatedFat": 5,
     "calories": 230,
     "tags": [
       "breakfast",
@@ -5900,6 +5930,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 20,
     "fat": 9,
+    "saturatedFat": 1,
     "calories": 233,
     "tags": [
       "breakfast",
@@ -5934,6 +5965,7 @@ const KITCHEN_RECIPES = [
     "protein": 24,
     "carbs": 12,
     "fat": 8,
+    "saturatedFat": 3,
     "calories": 216,
     "tags": [
       "breakfast",
@@ -5966,6 +5998,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 16,
     "fat": 8,
+    "saturatedFat": 3,
     "calories": 200,
     "tags": [
       "breakfast",
@@ -5998,6 +6031,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 20,
     "fat": 12,
+    "saturatedFat": 5,
     "calories": 260,
     "tags": [
       "breakfast",
@@ -6030,6 +6064,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 36,
     "fat": 14,
+    "saturatedFat": 4,
     "calories": 334,
     "tags": [
       "lunch",
@@ -6065,6 +6100,7 @@ const KITCHEN_RECIPES = [
     "protein": 34,
     "carbs": 18,
     "fat": 10,
+    "saturatedFat": 3,
     "calories": 298,
     "tags": [
       "lunch",
@@ -6099,6 +6135,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 34,
     "fat": 12,
+    "saturatedFat": 4,
     "calories": 324,
     "tags": [
       "lunch",
@@ -6134,6 +6171,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 34,
     "fat": 12,
+    "saturatedFat": 4,
     "calories": 324,
     "tags": [
       "lunch",
@@ -6168,6 +6206,7 @@ const KITCHEN_RECIPES = [
     "protein": 28,
     "carbs": 26,
     "fat": 14,
+    "saturatedFat": 4,
     "calories": 342,
     "tags": [
       "lunch",
@@ -6199,6 +6238,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 20,
     "fat": 14,
+    "saturatedFat": 5,
     "calories": 270,
     "tags": [
       "lunch",
@@ -6232,6 +6272,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 34,
     "fat": 12,
+    "saturatedFat": 5,
     "calories": 316,
     "tags": [
       "lunch",
@@ -6265,6 +6306,7 @@ const KITCHEN_RECIPES = [
     "protein": 26,
     "carbs": 18,
     "fat": 12,
+    "saturatedFat": 3,
     "calories": 284,
     "tags": [
       "lunch",
@@ -6298,6 +6340,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 20,
     "fat": 12,
+    "saturatedFat": 5,
     "calories": 260,
     "tags": [
       "lunch",
@@ -6333,6 +6376,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 14,
     "fat": 12,
+    "saturatedFat": 4,
     "calories": 228,
     "tags": [
       "lunch",
@@ -6368,6 +6412,7 @@ const KITCHEN_RECIPES = [
     "protein": 34,
     "carbs": 20,
     "fat": 16,
+    "saturatedFat": 5,
     "calories": 360,
     "tags": [
       "dinner",
@@ -6403,6 +6448,7 @@ const KITCHEN_RECIPES = [
     "protein": 32,
     "carbs": 12,
     "fat": 16,
+    "saturatedFat": 3,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6438,6 +6484,7 @@ const KITCHEN_RECIPES = [
     "protein": 28,
     "carbs": 23,
     "fat": 14,
+    "saturatedFat": 2,
     "calories": 330,
     "tags": [
       "dinner",
@@ -6473,6 +6520,7 @@ const KITCHEN_RECIPES = [
     "protein": 32,
     "carbs": 16,
     "fat": 12,
+    "saturatedFat": 3,
     "calories": 300,
     "tags": [
       "dinner",
@@ -6508,6 +6556,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 18,
     "fat": 16,
+    "saturatedFat": 2,
     "calories": 280,
     "tags": [
       "dinner",
@@ -6543,6 +6592,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 26,
     "fat": 16,
+    "saturatedFat": 1,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6579,6 +6629,7 @@ const KITCHEN_RECIPES = [
     "protein": 32,
     "carbs": 24,
     "fat": 14,
+    "saturatedFat": 2,
     "calories": 350,
     "tags": [
       "dinner",
@@ -6613,6 +6664,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 28,
     "fat": 14,
+    "saturatedFat": 3,
     "calories": 310,
     "tags": [
       "dinner",
@@ -6647,6 +6699,7 @@ const KITCHEN_RECIPES = [
     "protein": 20,
     "carbs": 28,
     "fat": 12,
+    "saturatedFat": 2,
     "calories": 300,
     "tags": [
       "dinner",
@@ -6683,6 +6736,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 23,
     "fat": 14,
+    "saturatedFat": 3,
     "calories": 290,
     "tags": [
       "dinner",
@@ -6718,6 +6772,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 26,
     "fat": 16,
+    "saturatedFat": 2,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6754,6 +6809,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 26,
     "fat": 16,
+    "saturatedFat": 2,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6788,6 +6844,7 @@ const KITCHEN_RECIPES = [
     "protein": 14,
     "carbs": 27,
     "fat": 14,
+    "saturatedFat": 2,
     "calories": 290,
     "tags": [
       "dinner",
@@ -6825,6 +6882,7 @@ const KITCHEN_RECIPES = [
     "protein": 28,
     "carbs": 16,
     "fat": 16,
+    "saturatedFat": 3,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6858,6 +6916,7 @@ const KITCHEN_RECIPES = [
     "protein": 28,
     "carbs": 16,
     "fat": 16,
+    "saturatedFat": 4,
     "calories": 320,
     "tags": [
       "dinner",
@@ -6894,6 +6953,7 @@ const KITCHEN_RECIPES = [
     "protein": 34,
     "carbs": 14,
     "fat": 12,
+    "saturatedFat": 4,
     "calories": 300,
     "tags": [
       "dinner",
@@ -6929,6 +6989,7 @@ const KITCHEN_RECIPES = [
     "protein": 16,
     "carbs": 25,
     "fat": 14,
+    "saturatedFat": 4,
     "calories": 290,
     "tags": [
       "dinner",
@@ -6961,6 +7022,7 @@ const KITCHEN_RECIPES = [
     "protein": 18,
     "carbs": 28,
     "fat": 14,
+    "saturatedFat": 3,
     "calories": 310,
     "tags": [
       "dinner",
@@ -6997,6 +7059,7 @@ const KITCHEN_RECIPES = [
     "protein": 26,
     "carbs": 25,
     "fat": 14,
+    "saturatedFat": 2,
     "calories": 330,
     "tags": [
       "dinner",
@@ -7031,6 +7094,7 @@ const KITCHEN_RECIPES = [
     "protein": 28,
     "carbs": 20,
     "fat": 12,
+    "saturatedFat": 2,
     "calories": 300,
     "tags": [
       "dinner",
@@ -7066,6 +7130,7 @@ const KITCHEN_RECIPES = [
     "protein": 6,
     "carbs": 6,
     "fat": 14,
+    "saturatedFat": 2,
     "calories": 174,
     "tags": [
       "snacks-smoothies",
@@ -7098,6 +7163,7 @@ const KITCHEN_RECIPES = [
     "protein": 12,
     "carbs": 14,
     "fat": 2,
+    "saturatedFat": 0,
     "calories": 122,
     "tags": [
       "snacks-smoothies",
@@ -7129,6 +7195,7 @@ const KITCHEN_RECIPES = [
     "protein": 4,
     "carbs": 10,
     "fat": 6,
+    "saturatedFat": 2,
     "calories": 110,
     "tags": [
       "snacks-smoothies",
@@ -7161,6 +7228,7 @@ const KITCHEN_RECIPES = [
     "protein": 4,
     "carbs": 20,
     "fat": 8,
+    "saturatedFat": 1,
     "calories": 168,
     "tags": [
       "snacks-smoothies",
@@ -7191,6 +7259,7 @@ const KITCHEN_RECIPES = [
     "protein": 9,
     "carbs": 8,
     "fat": 5,
+    "saturatedFat": 1,
     "calories": 113,
     "tags": [
       "snacks-smoothies",
@@ -7222,6 +7291,7 @@ const KITCHEN_RECIPES = [
     "protein": 6,
     "carbs": 12,
     "fat": 1,
+    "saturatedFat": 2,
     "calories": 81,
     "tags": [
       "small-portions",
@@ -7256,6 +7326,7 @@ const KITCHEN_RECIPES = [
     "protein": 8,
     "carbs": 10,
     "fat": 3,
+    "saturatedFat": 1,
     "calories": 99,
     "tags": [
       "small-portions",
@@ -7286,6 +7357,7 @@ const KITCHEN_RECIPES = [
     "protein": 4,
     "carbs": 12,
     "fat": 2,
+    "saturatedFat": 0,
     "calories": 82,
     "tags": [
       "small-portions",
@@ -7321,6 +7393,7 @@ const KITCHEN_RECIPES = [
     "protein": 2,
     "carbs": 8,
     "fat": 1,
+    "saturatedFat": 0,
     "calories": 49,
     "tags": [
       "small-portions",
@@ -7354,6 +7427,7 @@ const KITCHEN_RECIPES = [
     "protein": 14,
     "carbs": 14,
     "fat": 2,
+    "saturatedFat": 1,
     "calories": 130,
     "tags": [
       "small-portions",
@@ -9367,10 +9441,29 @@ function kitchenVisibleRecipes() {
 }
 function hideKitchenRecipe(id) {
   if (!KITCHEN_RECIPES.some((r) => r.id === id)) return;
+  /* Focus must not drop to the body when the Hide button (on a card or
+     in the recipe modal) is removed by the re-render below. Remember
+     the next visible recipe first, so focus can move to its card. */
+  const hideHadFocus = document.activeElement && document.activeElement.closest
+    ? !!document.activeElement.closest("[data-kitchen-hide], [data-modal-kitchen-hide]")
+    : false;
+  const visibleBefore = kitchenVisibleRecipes();
+  const hideIdx = visibleBefore.findIndex((r) => r.id === id);
+  const nextVisible = visibleBefore.filter((r) => r.id !== id)[Math.min(hideIdx, visibleBefore.length - 2)];
   if (!kitchenIsHidden(id)) store.hiddenKitchen.push(id);
   saveStore();
   closeRecipeModal();
   renderKitchen();
+  if (hideHadFocus) {
+    const nextBtn = nextVisible
+      ? document.querySelector('[data-kitchen-open="' + nextVisible.id + '"]')
+      : null;
+    if (nextBtn) nextBtn.focus();
+    else {
+      const searchInput = document.getElementById("kitchen-search-input");
+      if (searchInput) searchInput.focus();
+    }
+  }
 }
 function unhideKitchenRecipe(id) {
   store.hiddenKitchen = (store.hiddenKitchen || []).filter((x) => x !== id);
@@ -9464,7 +9557,10 @@ function renderHiddenKitchen() {
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
-  document.querySelectorAll("#kitchen-filters [data-filter]").forEach((c) => c.classList.toggle("active", c === chip));
+  document.querySelectorAll("#kitchen-filters [data-filter]").forEach((c) => {
+    c.classList.toggle("active", c === chip);
+    c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+  });
   renderKitchen();
 }));
 const kitchenSearchInput = document.getElementById("kitchen-search-input");
@@ -9564,7 +9660,11 @@ function copyRecipe(id, btn) {
   const r = KITCHEN_RECIPES.find((x) => x.id === id);
   if (!r) return;
   const text = recipeText(r);
-  const done = () => flashButton(btn, "Copied ✓");
+  const done = () => {
+    flashButton(btn, "Copied ✓");
+    const statusEl = document.getElementById("recipe-copy-status");
+    if (statusEl) setFormStatus(statusEl, "Copied.", false);
+  };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
   } else {
@@ -9595,7 +9695,11 @@ function shoppingListText() {
 function copyShoppingList(btn) {
   const text = shoppingListText();
   if (!text) return;
-  const done = () => flashButton(btn, "Copied ✓");
+  const done = () => {
+    flashButton(btn, "Copied ✓");
+    const statusEl = document.getElementById("shop-copy-status");
+    if (statusEl) setFormStatus(statusEl, "Copied.", false);
+  };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
   } else {
@@ -9638,7 +9742,11 @@ function pantryText() {
 function copyPantry(btn) {
   const text = pantryText();
   if (!text) return;
-  const done = () => flashButton(btn, "Copied ✓");
+  const done = () => {
+    flashButton(btn, "Copied ✓");
+    const statusEl = document.getElementById("pantry-copy-status");
+    if (statusEl) setFormStatus(statusEl, "Copied.", false);
+  };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(() => copyRecipeFallback(text, done));
   } else {
@@ -9695,7 +9803,8 @@ function renderShoppingList() {
       + '<button type="button" class="btn btn-small" data-shop-copy-list>Copy list</button>'
       + '<button type="button" class="btn btn-small" data-shop-print-list>Print list</button>'
       + '<button type="button" class="btn btn-small" data-shop-clear-checked>Clear checked</button>'
-      + '<button type="button" class="btn btn-small" data-shop-clear-all>Clear all</button></div>';
+      + '<button type="button" class="btn btn-small" data-shop-clear-all>Clear all</button></div>'
+      + '<p class="muted" id="shop-copy-status" role="status" style="font-size:.9rem;margin:6px 0 0"></p>';
   }
   html += '<h3 style="margin-top:18px">Pantry staples</h3>'
     + '<p class="muted" style="font-size:.9rem">Tick what you keep on hand. Staples you have go under "Check your pantry" on the shopping list.</p>'
@@ -9705,7 +9814,8 @@ function renderShoppingList() {
     ).join("") + "</div>"
     + (staples.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'
       + '<button type="button" class="btn btn-small" data-pantry-copy>Copy pantry</button>'
-      + '<button type="button" class="btn btn-small" data-pantry-print>Print pantry</button></div>' : "")
+      + '<button type="button" class="btn btn-small" data-pantry-print>Print pantry</button></div>'
+      + '<p class="muted" id="pantry-copy-status" role="status" style="font-size:.9rem;margin:6px 0 0"></p>' : "")
     + '<div style="display:flex;gap:8px;margin-top:8px">'
     + '<input type="text" id="pantry-add-input" maxlength="60" placeholder="Add a staple" aria-label="Add a pantry staple" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:15px">'
     + '<button type="button" class="btn btn-small" data-pantry-add>Add</button></div>';
@@ -9781,6 +9891,7 @@ function openRecipeModal(id) {
   if (!modal || !body) return;
   recipeModalId = id;
   const wasHidden = modal.classList.contains("hidden");
+  if (wasHidden) recordDialogOpener("recipe-modal");
   const kr = KITCHEN_RECIPES.find((x) => x.id === id);
   if (kr) {
     const n = kitchenServings[kr.id] || 1;
@@ -9813,6 +9924,7 @@ function openRecipeModal(id) {
         <button type="button" class="btn btn-small" data-modal-kitchen-shop="${kr.id}">Add to shopping list</button>
         <button type="button" class="btn btn-small" data-modal-kitchen-copy="${kr.id}">Copy recipe</button>
       </div>
+      <p class="muted" id="recipe-copy-status" role="status" style="font-size:.85em;margin:6px 0 0"></p>
       <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat, ${kr.calories * n} cal.</p>
       ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}`;
   } else {
@@ -9873,6 +9985,7 @@ function closeRecipeModal() {
   recipeModalId = null;
   const modal = document.getElementById("recipe-modal");
   if (modal) modal.classList.add("hidden");
+  returnDialogFocus("recipe-modal");
 }
 const recipeModalX = document.getElementById("recipe-modal-x");
 if (recipeModalX) recipeModalX.addEventListener("click", closeRecipeModal);
@@ -11695,6 +11808,53 @@ document.addEventListener("keydown", (e) => {
     closeDayCalModal();
   }
 });
+
+/* ---------- Shared dialog focus handling (WCAG 2.4.3, 2.1.1) ----------
+   The date picker dialog is the pattern to copy: record the opener,
+   move focus into the dialog, trap Tab inside it, return focus to the
+   opener on close, and close on Escape. The trap binds to the dialog
+   container, so it survives the recipe modal body being re-rendered.
+   Note: the setup overlay gets the trap and the focus move and return,
+   but no Escape dismissal. It has no dismiss control, and closing it
+   on Escape would mark first-run setup done without saving anything
+   and would bypass the Terms check that Finish and Skip both enforce. */
+const dialogOpeners = {};
+function recordDialogOpener(id) {
+  dialogOpeners[id] = document.activeElement && document.activeElement !== document.body
+    ? document.activeElement
+    : null;
+}
+function returnDialogFocus(id, fallbackId) {
+  const opener = dialogOpeners[id];
+  dialogOpeners[id] = null;
+  if (opener && document.contains(opener)) { opener.focus(); return; }
+  if (fallbackId) {
+    const fb = document.getElementById(fallbackId);
+    if (fb) fb.focus();
+  }
+}
+function dialogFocusables(modal) {
+  return [...modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]")]
+    .filter((el) => !el.disabled && el.tabIndex >= 0 && el.getClientRects().length > 0);
+}
+function trapTabInDialog(modal, e) {
+  if (e.key !== "Tab") return;
+  const focusables = dialogFocusables(modal);
+  if (!focusables.length) return;
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+function bindDialogFocusTrap(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.addEventListener("keydown", (e) => trapTabInDialog(modal, e));
+}
+bindDialogFocusTrap("recipe-modal");
+bindDialogFocusTrap("doctor-modal");
+bindDialogFocusTrap("scan-modal");
+bindDialogFocusTrap("plate-modal");
+bindDialogFocusTrap("setup-overlay");
 document.getElementById("day-cal").addEventListener("click", openDayPicker);
 // Tapping the date heading itself also opens the picker
 document.getElementById("date-tap").addEventListener("click", openDayPicker);
@@ -11724,7 +11884,9 @@ function setupTermsChecked() {
 }
 function setupTermsMsg(text) {
   const msg = document.getElementById("setup-terms-msg");
-  if (msg) msg.textContent = text || "";
+  /* Route through setFormStatus so the error gets role="alert" and is
+     announced, like every other form message in the app. */
+  if (msg) setFormStatus(msg, text || "", !!text);
 }
 
 /* ---------- First-run setup wizard ---------- */
@@ -11793,6 +11955,7 @@ function finishSetup(save) {
   }
   try { localStorage.setItem("nct-setup-done", "1"); } catch {}
   document.getElementById("setup-overlay").classList.add("hidden");
+  returnDialogFocus("setup-overlay", "app-main");
   renderToday();
 }
 const setupNextBtn = document.getElementById("setup-next");
@@ -11824,17 +11987,23 @@ if (setupFillPctBtn) setupFillPctBtn.addEventListener("click", () => {
   const note = document.getElementById("setup-percent-note");
   const cal = Number(document.getElementById("setup-calorie-target").value);
   if (!(cal > 0)) {
-    if (note) note.textContent = "Enter your daily calorie target first.";
+    if (note) setFormStatus(note, "Enter your daily calorie target first.", true);
     return;
   }
   document.getElementById("setup-protein-goal").value = Math.round(cal * 32 / 100 / 4);
   document.getElementById("setup-carb-goal").value = Math.round(cal * 35 / 100 / 4);
   document.getElementById("setup-fat-goal").value = Math.round(cal * 33 / 100 / 9);
-  if (note) note.textContent = "Filled from your calorie target. You can change any number.";
+  if (note) setFormStatus(note, "Filled from your calorie target. You can change any number.", false);
 });
 if (!localStorage.getItem("nct-setup-done") && setupOverlayEl) {
+  recordDialogOpener("setup-overlay");
   showSetupStep(1);
   setupOverlayEl.classList.remove("hidden");
+  /* H1: move focus into the dialog on open, so a keyboard user does not
+     have to Tab through the whole Today tab behind the modal first.
+     Tab is trapped inside by the shared dialog trap bound above. */
+  const setupName = document.getElementById("setup-name");
+  if (setupName) setupName.focus();
 }
 
 /* v063: Reset my lotus. Clears the lotus and the log only: the eleven

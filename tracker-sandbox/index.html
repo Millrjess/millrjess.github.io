@@ -403,7 +403,7 @@
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-search-btn">Search foods</button>
           <button type="button" class="btn btn-small hidden" id="macro-food-voice-btn" aria-label="Speak the food name">🎤 Speak</button>
-          <span class="muted" id="macro-food-search-status" style="font-size:.9rem"></span>
+          <span class="muted" id="macro-food-search-status" role="status" style="font-size:.9rem"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
         <p class="muted" style="font-size:.9rem;margin-top:8px">A bigger food database is coming soon.</p>
@@ -855,27 +855,27 @@
       <div class="kitchen-filter-group">
         <p class="kitchen-filter-label" id="kitchen-filter-meal-label">Meal</p>
         <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-meal-label">
-          <button type="button" class="kitchen-chip active" data-filter="all">All</button>
-          <button type="button" class="kitchen-chip" data-filter="breakfast">Breakfast</button>
-          <button type="button" class="kitchen-chip" data-filter="lunch">Lunch</button>
-          <button type="button" class="kitchen-chip" data-filter="dinner">Dinner</button>
-          <button type="button" class="kitchen-chip" data-filter="snacks">Snacks</button>
-          <button type="button" class="kitchen-chip" data-filter="light-meals">Light Meals</button>
+          <button type="button" class="kitchen-chip active" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="kitchen-chip" data-filter="breakfast" aria-pressed="false">Breakfast</button>
+          <button type="button" class="kitchen-chip" data-filter="lunch" aria-pressed="false">Lunch</button>
+          <button type="button" class="kitchen-chip" data-filter="dinner" aria-pressed="false">Dinner</button>
+          <button type="button" class="kitchen-chip" data-filter="snacks" aria-pressed="false">Snacks</button>
+          <button type="button" class="kitchen-chip" data-filter="light-meals" aria-pressed="false">Light Meals</button>
         </div>
       </div>
       <div class="kitchen-filter-group">
         <p class="kitchen-filter-label" id="kitchen-filter-dietary-label">Dietary</p>
         <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-dietary-label">
-          <button type="button" class="kitchen-chip" data-filter="fresh-picks">Fresh picks</button>
-          <button type="button" class="kitchen-chip" data-filter="quick-and-easy">Quick and easy</button>
-          <button type="button" class="kitchen-chip" data-filter="high-protein">High Protein</button>
-          <button type="button" class="kitchen-chip" data-filter="vegetarian">Vegetarian</button>
-          <button type="button" class="kitchen-chip" data-filter="vegan">Vegan</button>
-          <button type="button" class="kitchen-chip" data-filter="gluten-free">Gluten-free</button>
-          <button type="button" class="kitchen-chip" data-filter="dairy-free">Dairy-free</button>
-          <button type="button" class="kitchen-chip" data-filter="low-sodium">Low-sodium</button>
-          <button type="button" class="kitchen-chip" data-filter="nut-free">Nut-free</button>
-          <button type="button" class="kitchen-chip" data-filter="egg-free">Egg-free</button>
+          <button type="button" class="kitchen-chip" data-filter="fresh-picks" aria-pressed="false">Fresh picks</button>
+          <button type="button" class="kitchen-chip" data-filter="quick-and-easy" aria-pressed="false">Quick and easy</button>
+          <button type="button" class="kitchen-chip" data-filter="high-protein" aria-pressed="false">High Protein</button>
+          <button type="button" class="kitchen-chip" data-filter="vegetarian" aria-pressed="false">Vegetarian</button>
+          <button type="button" class="kitchen-chip" data-filter="vegan" aria-pressed="false">Vegan</button>
+          <button type="button" class="kitchen-chip" data-filter="gluten-free" aria-pressed="false">Gluten-free</button>
+          <button type="button" class="kitchen-chip" data-filter="dairy-free" aria-pressed="false">Dairy-free</button>
+          <button type="button" class="kitchen-chip" data-filter="low-sodium" aria-pressed="false">Low-sodium</button>
+          <button type="button" class="kitchen-chip" data-filter="nut-free" aria-pressed="false">Nut-free</button>
+          <button type="button" class="kitchen-chip" data-filter="egg-free" aria-pressed="false">Egg-free</button>
         </div>
       </div>
     </div>
@@ -967,7 +967,7 @@
       <div style="margin-top:12px">
       <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
       <label style="display:flex;align-items:center;gap:10px;font-weight:600">
-        <input type="checkbox" id="memory-toggle" style="width:22px;height:22px">
+        <input type="checkbox" id="memory-toggle" style="width:24px;height:24px">
         Remember me
       </label>
       <div id="memory-fields" class="hidden" style="margin-top:12px">
@@ -1181,7 +1181,7 @@
           <label class="picker-option"><input type="radio" name="companion-avatar" value="sage-tile"><span class="avatar-thumb"><img src="icons/lotus-gold-only-transparent.png" alt="" class="avatar-tile"></span>Gold lotus on sage</label>
         </fieldset>
         <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin-top:12px">
-          <input type="checkbox" id="set-read-aloud" style="width:22px;height:22px">
+          <input type="checkbox" id="set-read-aloud" style="width:24px;height:24px">
           Read Companion replies aloud
         </label>
         <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
@@ -1420,7 +1420,7 @@
 <div id="setup-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
   <div class="modal-card" style="max-width:420px">
     <h2 id="setup-title" style="margin-top:0">Welcome to New Chapter</h2>
-    <p class="muted" id="setup-step-label" style="margin:0 0 12px">Step 1 of 5</p>
+    <p class="muted" id="setup-step-label" aria-live="polite" style="margin:0 0 12px">Step 1 of 5</p>
 
     <div class="setup-step" data-step="1">
       <p style="margin:0 0 12px">What should I call you?</p>
@@ -1493,7 +1493,7 @@
 
     <label style="display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:.9rem;text-align:left">
       <input type="checkbox" id="setup-terms" style="margin-top:2px">
-      <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a>.</span>
+      <span>I agree to the <a href="terms.html" target="_blank" rel="noopener" aria-label="Terms, opens in new tab">Terms</a>.</span>
     </label>
     <p class="code-msg" id="setup-terms-msg" style="min-height:1.2em"></p>
 
