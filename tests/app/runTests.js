@@ -1118,7 +1118,7 @@ async function main() {
       waterLabel: (document.getElementById("water-num-btn") || {}).getAttribute("aria-label") || "",
       moveLabel: (document.getElementById("exercise-num-btn") || {}).getAttribute("aria-label") || ""
     }));
-    check("V169 ring numbers are buttons with a type-in hint", ringBtns.waterIsButton && ringBtns.moveIsButton && ringBtns.waterLabel.indexOf("Tap to type an amount to add") !== -1 && ringBtns.moveLabel.indexOf("Tap to type an amount to add") !== -1 && ringBtns.waterLabel.indexOf("43 of 92 ounces") !== -1, JSON.stringify(ringBtns));
+    check("V169 ring numbers are buttons with a type-in hint", ringBtns.waterIsButton && ringBtns.moveIsButton && ringBtns.waterLabel.indexOf("Tap to type an amount to add") !== -1 && ringBtns.moveLabel.indexOf("Tap to type an amount to add") !== -1 && ringBtns.waterLabel.indexOf("43 of 92 oz") !== -1, JSON.stringify(ringBtns));
     await t.page.click("#water-num-btn");
     await t.page.waitForTimeout(300);
     const rowOpen = await t.page.evaluate(() => ({

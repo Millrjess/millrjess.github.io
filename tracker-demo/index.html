@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=074">
+<link rel="stylesheet" href="styles.css?v=075">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -85,7 +85,7 @@
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn btn-small" aria-label="Previous day">←</button>
-      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Change the date shown" tabindex="0">
+      <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Today. Change the date shown." tabindex="0">
         <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
@@ -143,7 +143,7 @@
     <div class="card" id="water-card" role="group" aria-label="Water">
       <h2 class="card-title">Water</h2>
       <div class="slider-row">
-        <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 ounces. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
+        <button type="button" class="slider-amount" id="water-num-btn" aria-label="Water, 0 of 92 oz. Tap to type an amount to add."><span class="big-number" id="water-today">0</span> <span class="slider-goal">of <span id="water-goal-display">92</span> oz</span></button>
       </div>
       <div class="slider-stepper-row">
         <button type="button" class="stepper-btn" id="water-minus-btn" aria-label="Remove 1 ounce of water">−</button>
@@ -172,7 +172,7 @@
           <button class="btn btn-small" id="movement-customize" style="flex:none" aria-expanded="false" aria-controls="movement-plan-editor">Customize</button>
         </div>
         <div class="slider-row">
-          <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 minutes. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
+          <button type="button" class="slider-amount" id="exercise-num-btn" aria-label="Movement, 0 of 30 min. Tap to type an amount to add."><span class="big-number" id="exercise-today">0</span> <span class="slider-goal">of <span id="exercise-goal-display">30</span> min</span></button>
         </div>
         <div class="slider-stepper-row">
           <button type="button" class="stepper-btn" id="exercise-minus-btn" aria-label="Remove 1 minute of movement">−</button>
@@ -290,7 +290,7 @@
           <text id="seg-label-fat" class="donut-label" x="108" y="108" text-anchor="middle" dominant-baseline="middle"></text>
         </svg>
         <div class="donut-center">
-          <button type="button" id="macro-center-btn" aria-label="Add protein logged today. Tap to add more.">
+          <button type="button" id="macro-center-btn" aria-label="0 grams protein logged today. Tap to add more.">
             <span class="big"><span id="macro-center-grams">0</span><small> grams</small></span>
             <span class="cap" id="macro-center-label">protein logged today</span>
           </button>
@@ -302,7 +302,7 @@
       <div class="macro-rows">
         <div class="macro-row selected" data-macro="protein">
           <button type="button" class="macro-name" aria-label="Show protein in the center of the chart">Protein</button>
-          <button type="button" class="macro-vals" id="logged-protein-btn" aria-label="Protein logged today. Tap to add more."><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">grams</span></button>
+          <button type="button" class="macro-vals" id="logged-protein-btn" aria-label="Protein logged today, 0 of 90 grams. Tap to add more."><strong id="logged-protein">0</strong> <span class="of">of</span> <span id="target-protein-label">90</span> <span class="of">grams</span></button>
           <div class="macro-stepper-row">
             <button type="button" class="stepper-btn stepper-protein" id="protein-minus-btn" aria-label="Remove 1 gram of protein">−</button>
             <span class="macro-bar" id="macro-bar-protein" tabindex="0" role="slider" aria-label="Adjust protein logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-protein" style="background:#E8B54A"></i></span>
@@ -320,7 +320,7 @@
         </div>
         <div class="macro-row" data-macro="carbs">
           <button type="button" class="macro-name" aria-label="Show carbs in the center of the chart">Carbs</button>
-          <button type="button" class="macro-vals" id="logged-carbs-btn" aria-label="Carbs logged today. Tap to add more."><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">grams</span></button>
+          <button type="button" class="macro-vals" id="logged-carbs-btn" aria-label="Carbs logged today, 0 of 150 grams. Tap to add more."><strong id="logged-carbs">0</strong> <span class="of">of</span> <span id="target-carbs-label">150</span> <span class="of">grams</span></button>
           <div class="macro-stepper-row">
             <button type="button" class="stepper-btn stepper-carbs" id="carbs-minus-btn" aria-label="Remove 1 gram of carbs">−</button>
             <span class="macro-bar" id="macro-bar-carbs" tabindex="0" role="slider" aria-label="Adjust carbs logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-carbs" style="background:#5A6B52"></i></span>
@@ -338,7 +338,7 @@
         </div>
         <div class="macro-row" data-macro="fat">
           <button type="button" class="macro-name" aria-label="Show fat in the center of the chart">Fat</button>
-          <button type="button" class="macro-vals" id="logged-fat-btn" aria-label="Fat logged today. Tap to add more."><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">grams</span></button>
+          <button type="button" class="macro-vals" id="logged-fat-btn" aria-label="Fat logged today, 0 of 60 grams. Tap to add more."><strong id="logged-fat">0</strong> <span class="of">of</span> <span id="target-fat-label">60</span> <span class="of">grams</span></button>
           <div class="macro-stepper-row">
             <button type="button" class="stepper-btn stepper-fat" id="fat-minus-btn" aria-label="Remove 1 gram of fat">−</button>
             <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
@@ -1375,7 +1375,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=074"></script>
+<script src="demo-seed.js?v=075"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1401,7 +1401,7 @@
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=074"></script>
+<script src="app.js?v=075"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

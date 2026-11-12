@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v074";
+const APP_VERSION = "v075";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1351,7 +1351,7 @@ function renderWeekStrip() {
     const isViewed = iso === viewed;
     const isToday = iso === todayS;
     const isFuture = iso > todayS;
-    html += '<button type="button" class="week-day' + (isViewed ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-day="' + iso + '"' + (isFuture ? " disabled" : "") + ' aria-label="' + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + '"' + (isViewed ? ' aria-current="date"' : "") + '><span class="week-letter">' + letters[i] + '</span><span class="week-num">' + d.getDate() + "</span>" + (logged.has(iso) ? '<span class="week-fill" aria-hidden="true"></span>' : "") + "</button>";
+    html += '<button type="button" class="week-day' + (isViewed ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-day="' + iso + '"' + (isFuture ? " disabled" : "") + ' aria-label="' + letters[i] + d.getDate() + ", " + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + '"' + (isViewed ? ' aria-current="date"' : "") + '><span class="week-letter">' + letters[i] + '</span><span class="week-num">' + d.getDate() + "</span>" + (logged.has(iso) ? '<span class="week-fill" aria-hidden="true"></span>' : "") + "</button>";
   }
   strip.innerHTML = html;
   strip.classList.remove("filled");
@@ -1412,6 +1412,8 @@ function renderToday() {
     : viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   document.getElementById("today-heading").textContent = label;
   dateEl.textContent = viewDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const dateTap = document.getElementById("date-tap");
+  if (dateTap) dateTap.setAttribute("aria-label", label + ", " + dateEl.textContent + ". Change the date shown.");
 
   // Show/hide nav arrows
   document.getElementById("day-prev").style.visibility = "";
@@ -1652,7 +1654,8 @@ function syncGoalSlider(sliderId, numId, btnId, label, unitWord, value, goal) {
     slider.setAttribute("aria-valuetext", value + " of " + goal + " " + unitWord);
   }
   const btn = document.getElementById(btnId);
-  if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + unitWord + ". Tap to type an amount to add.");
+  const shortUnit = unitWord === "ounces" ? "oz" : unitWord === "minutes" ? "min" : unitWord;
+  if (btn) btn.setAttribute("aria-label", label + ", " + value + " of " + goal + " " + shortUnit + ". Tap to type an amount to add.");
 }
 function bindGoalSlider(sliderId, numId, key, field, extra, goalFor) {
   const slider = document.getElementById(sliderId);
@@ -1893,14 +1896,12 @@ function syncMacroAddLabels(totals, targets) {
   MACRO_KEYS.forEach((key) => {
     const btn = document.getElementById("logged-" + key + "-btn");
     if (btn) {
-      const targetPart = targets[key] > 0
-        ? totals[key] + " of " + targets[key] + " grams"
-        : totals[key] + " grams, no target set";
+      const targetPart = totals[key] + " of " + (targets[key] > 0 ? targets[key] : "—") + " grams";
       btn.setAttribute("aria-label", names[key] + " logged today, " + targetPart + ". Tap to add more.");
     }
   });
   const centerBtn = document.getElementById("macro-center-btn");
-  if (centerBtn) centerBtn.setAttribute("aria-label", "Add " + selectedMacro + " logged today, " + totals[selectedMacro] + " grams. Tap to add more.");
+  if (centerBtn) centerBtn.setAttribute("aria-label", totals[selectedMacro] + " grams " + selectedMacro + " logged today. Tap to add more.");
 }
 function renderMacros() {
   const card = document.getElementById("macros-card");
@@ -8899,9 +8900,9 @@ function kitchenPhotoCardHtml(r, hidden) {
     ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="" loading="lazy">`
     : `<span class="recipe-placeholder"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>`;
   return `<article class="kitchen-photo-card">
-    <button type="button" class="kitchen-photo-open" data-kitchen-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.name)}">
+    <button type="button" class="kitchen-photo-open" data-kitchen-open="${r.id}" aria-label="${escapeHtml(r.category)} ${escapeHtml(r.name)} ${r.calories} cal${r.source ? " " + escapeHtml(r.source) : ""}. See recipe.">
       <span class="kitchen-photo-wrap">${photo}<span class="kitchen-chip-tag">${escapeHtml(r.category)}</span></span>
-      <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong><span class="muted">${r.calories} cal</span></span>
+      <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong> <span class="muted">${r.calories} cal</span></span>
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
@@ -9554,9 +9555,9 @@ function renderRecipes() {
       ? `<img class="kitchen-photo" src="${escapeHtml(r.photo || r.image)}" alt="" loading="lazy">`
       : `<span class="recipe-placeholder"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>`;
     return `<article class="kitchen-photo-card">
-      <button type="button" class="kitchen-photo-open" data-recipe-open="${r.id}" aria-label="See recipe: ${escapeHtml(r.title)}">
+      <button type="button" class="kitchen-photo-open" data-recipe-open="${r.id}" aria-label="${escapeHtml(r.title)}${calories ? " " + calories + " cal" : ""}${r.source ? " " + escapeHtml(r.source) : ""}. See recipe.">
         <span class="kitchen-photo-wrap">${photo}</span>
-        <span class="kitchen-photo-body"><strong>${escapeHtml(r.title)}</strong>${calories ? `<span class="muted">${calories} cal</span>` : ""}</span>
+        <span class="kitchen-photo-body"><strong>${escapeHtml(r.title)}</strong>${calories ? ` <span class="muted">${calories} cal</span>` : ""}</span>
         ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
       </button>
       <button type="button" class="btn btn-small btn-danger kitchen-card-del" data-recipe-del="${r.id}" aria-label="Delete ${escapeHtml(r.title)}">Delete</button>
