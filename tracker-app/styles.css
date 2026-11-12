@@ -1636,6 +1636,31 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .kitchen-stepper { display: inline-flex; align-items: center; gap: 8px; }
 
+/* Recipe detail tag chips (v076): rounded pills under the title. */
+.recipe-tag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+.recipe-tag-chip { font-size: .85rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--sage-border); background: var(--card-bg); color: var(--ink); }
+/* Recipe calorie ring (v076): SVG ring with calories in the center and
+   the macro split below. Brand colors only: sage, bright gold, sage-light. */
+.recipe-ring-wrap { display: flex; align-items: center; gap: 16px; margin: 4px 0 8px; }
+.recipe-ring { position: relative; width: 120px; height: 120px; flex: none; }
+.recipe-ring svg { display: block; }
+.recipe-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.recipe-ring-center b { font-size: 1.5rem; line-height: 1; color: var(--ink); }
+.recipe-ring-center span { font-size: .85rem; color: var(--muted); }
+.recipe-ring-macros { display: flex; flex-direction: column; gap: 8px; }
+.recipe-ring-macro { display: flex; align-items: baseline; gap: 6px; }
+.recipe-ring-macro b { font-size: 1.05em; }
+.recipe-ring-macro span { font-size: .9rem; color: var(--muted); }
+.recipe-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; align-self: center; }
+/* Recipe nutrition details (v076): expandable saturated fat and
+   per-serving note. The ring and macro summary stay visible. */
+.kitchen-nutrition { margin: 4px 0 0; font-size: .9rem; }
+.kitchen-nutrition summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+/* Sticky Add to Today (v076): the primary action pins to the bottom of
+   the scrolling recipe modal, above the fixed Close footer. */
+.kitchen-sticky-add { position: sticky; bottom: 0; margin: 16px 0 0; padding: 12px 0 4px; background: var(--card-bg); border-top: 1px solid var(--border); }
+.kitchen-sticky-add .btn { margin: 0; }
+
 /* Charts: the 600px canvas must shrink to fit a phone screen, or the
    right side of the chart (and the latest point) is cut off. */
 canvas { max-width: 100%; height: auto; display: block; }

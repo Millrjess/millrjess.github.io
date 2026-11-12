@@ -9779,6 +9779,90 @@ function bindShoppingList(box) {
 }
 renderShoppingList();
 
+/* Recipe detail tag chips (v076): the category, a calories chip, and up
+   to three meaningful tags from the recipe, as rounded pills. The labels
+   are our own words; the tag slugs come from the recipe data. */
+const RECIPE_TAG_LABELS = {
+  "low-sodium": "Low sodium",
+  "high-protein": "High protein",
+  "gluten-free": "Gluten free",
+  "dairy-free": "Dairy free",
+  "low-carb": "Low carb",
+  "high-fiber": "High fiber",
+  "nut-free": "Nut free",
+  "one-pot": "One pot",
+  "easy-prep": "Easy prep",
+  "kid-friendly": "Kid friendly",
+  "vegetarian": "Vegetarian",
+  "vegan": "Vegan",
+  "spicy": "Spicy",
+  "quick": "Quick"
+};
+function recipeTagLabel(tag) {
+  if (RECIPE_TAG_LABELS[tag]) return RECIPE_TAG_LABELS[tag];
+  return tag.split("-").map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(" ");
+}
+function recipeTagChipsHtml(kr) {
+  const chips = [escapeHtml(kr.category)];
+  chips.push(kr.calories < 500 ? "Under 500 Calories" : kr.calories + " cal");
+  const picked = [];
+  const preferred = ["low-sodium", "high-protein", "gluten-free", "vegetarian", "vegan", "dairy-free"];
+  const tags = kr.tags || [];
+  for (const t of preferred) {
+    if (picked.length >= 3) break;
+    if (tags.includes(t)) picked.push(t);
+  }
+  for (const t of tags) {
+    if (picked.length >= 3) break;
+    if (picked.includes(t)) continue;
+    if (recipeTagLabel(t).toLowerCase() === kr.category.toLowerCase()) continue;
+    picked.push(t);
+  }
+  for (const t of picked) chips.push(escapeHtml(recipeTagLabel(t)));
+  return `<div class="recipe-tag-chips" aria-label="Recipe tags">${chips.map((c) => `<span class="recipe-tag-chip">${c}</span>`).join("")}</div>`;
+}
+/* Recipe calorie ring (v076): an SVG ring with calories in the center and
+   the macro split as shares of macro calories (4 cal per gram of protein
+   or carbs, 9 per gram of fat), rounded to whole numbers that sum to 100.
+   Colors are brand only: sage for protein, bright gold for carbs,
+   sage-light for fat. The ring stays per serving, as the old macro grid
+   did; the "Adds N servings" line below still shows the scaled totals. */
+function recipeRingHtml(kr) {
+  const pCal = kr.protein * 4, cCal = kr.carbs * 4, fCal = kr.fat * 9;
+  const total = pCal + cCal + fCal;
+  let pPct = 0, cPct = 0, fPct = 0;
+  if (total > 0) {
+    pPct = Math.round((pCal / total) * 100);
+    cPct = Math.round((cCal / total) * 100);
+    fPct = Math.round((fCal / total) * 100);
+    const diff = 100 - (pPct + cPct + fPct);
+    if (diff !== 0) {
+      if (pPct >= cPct && pPct >= fPct) pPct += diff;
+      else if (cPct >= fPct) cPct += diff;
+      else fPct += diff;
+    }
+  }
+  const C = 2 * Math.PI * 52;
+  const denom = total > 0 ? total : 1;
+  const pLen = (pCal / denom) * C, cLen = (cCal / denom) * C, fLen = (fCal / denom) * C;
+  const label = kr.calories + " calories per serving: " + pPct + " percent protein, " + cPct + " percent carbs, " + fPct + " percent fat";
+  return `<div class="recipe-ring-wrap">
+    <div class="recipe-ring" role="img" aria-label="${escapeHtml(label)}">
+      <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+        <circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--sage-tint)" stroke-width="12"></circle>
+        <circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--sage)" stroke-width="12" stroke-dasharray="${(pLen + 1).toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="0" transform="rotate(-90 60 60)"></circle>
+        <circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--gold)" stroke-width="12" stroke-dasharray="${(cLen + 1).toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-pLen).toFixed(1)}" transform="rotate(-90 60 60)"></circle>
+        <circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--sage-light)" stroke-width="12" stroke-dasharray="${(fLen + 1).toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-pLen - cLen).toFixed(1)}" transform="rotate(-90 60 60)"></circle>
+      </svg>
+      <div class="recipe-ring-center"><b>${kr.calories}</b><span>cal</span></div>
+    </div>
+    <div class="recipe-ring-macros">
+      <div class="recipe-ring-macro"><i class="recipe-dot" style="background:var(--sage)"></i><b>${kr.protein}g</b><span>Protein ${pPct}%</span></div>
+      <div class="recipe-ring-macro"><i class="recipe-dot" style="background:var(--gold)"></i><b>${kr.carbs}g</b><span>Carbs ${cPct}%</span></div>
+      <div class="recipe-ring-macro"><i class="recipe-dot" style="background:var(--sage-light)"></i><b>${kr.fat}g</b><span>Fat ${fPct}%</span></div>
+    </div>
+  </div>`;
+}
 /* Recipe detail (v039): tap a card to see the full recipe, with the
    photo, ingredients, steps, nutrition, servings, Save, and Add to
    Today's Nutrition. Saved recipes open the same way, with their own
@@ -9786,6 +9870,7 @@ renderShoppingList();
 /* The recipe the modal is showing now, so a delayed refresh after
    Add to Today never yanks the modal back to a different recipe. */
 let recipeModalId = null;
+let recipeNutritionOpen = false;
 function openRecipeModal(id) {
   const modal = document.getElementById("recipe-modal");
   const body = document.getElementById("recipe-modal-body");
@@ -9802,13 +9887,13 @@ function openRecipeModal(id) {
       ${kr.image ? `<img class="kitchen-photo" src="${escapeHtml(kr.image)}" alt="${escapeHtml(kr.name)}" style="height:200px">` : ""}
       <h2 id="recipe-modal-title" style="margin:12px 0 4px">${escapeHtml(kr.name)}</h2>
       <p class="muted" style="font-size:.9em;margin:0 0 8px">${escapeHtml(kr.category)} · ${kr.time} minutes · ${escapeHtml(kr.difficulty)} · Serves ${kr.servings}</p>
-      <div class="kitchen-macros">
-        <div class="kitchen-macro"><b>${kr.protein}g</b><span>Protein</span></div>
-        <div class="kitchen-macro"><b>${kr.carbs}g</b><span>Carbs</span></div>
-        <div class="kitchen-macro"><b>${kr.fat}g</b><span>Fat</span></div>
-        <div class="kitchen-macro"><b>${kr.calories}</b><span>Calories</span></div>
-      </div>
-      <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving</p>
+      ${recipeTagChipsHtml(kr)}
+      ${recipeRingHtml(kr)}
+      <details class="kitchen-nutrition"${recipeNutritionOpen ? " open" : ""}>
+        <summary>${recipeNutritionOpen ? "Hide nutrition" : "Show nutrition"}</summary>
+        ${kr.saturatedFat != null ? `<p style="margin:8px 0 0">Saturated fat: ${kr.saturatedFat}g per serving.</p>` : ""}
+        <p class="muted" style="font-size:.85em;margin:4px 0 0">Values are per serving.</p>
+      </details>
       <h3 style="margin:14px 0 4px">Ingredients</h3>
       <ul style="margin:0;padding-left:24px">${kr.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
       <h3 style="margin:14px 0 4px">Steps</h3>
@@ -9821,13 +9906,15 @@ function openRecipeModal(id) {
           <span aria-live="polite">Servings: ${n}</span>
           <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="1" aria-label="One more serving">+</button>
         </span>
-        <button type="button" class="btn btn-small btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
         <button type="button" class="btn btn-small" data-modal-kitchen-shop="${kr.id}">Add to shopping list</button>
         <button type="button" class="btn btn-small" data-modal-kitchen-copy="${kr.id}">Copy recipe</button>
       </div>
       <p class="muted" id="recipe-copy-status" role="status" style="font-size:.85em;margin:6px 0 0"></p>
       <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat, ${kr.calories * n} cal.</p>
-      ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}`;
+      ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}
+      <div class="kitchen-sticky-add">
+        <button type="button" class="btn btn-block btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
+      </div>`;
   } else {
     const r = (store.recipes || []).find((x) => x.id === id);
     if (!r) return;
@@ -9847,6 +9934,11 @@ function openRecipeModal(id) {
 function bindRecipeModalButtons() {
   const body = document.getElementById("recipe-modal-body");
   if (!body) return;
+  body.querySelectorAll(".kitchen-nutrition").forEach((d) => d.addEventListener("toggle", () => {
+    recipeNutritionOpen = d.open;
+    const s = d.querySelector("summary");
+    if (s) s.textContent = d.open ? "Hide nutrition" : "Show nutrition";
+  }));
   body.querySelectorAll("[data-modal-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => {
     const id = btn.dataset.modalKitchenSave;
     toggleKitchenSave(id);
