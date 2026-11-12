@@ -1093,6 +1093,33 @@ details.card.memory-compact summary::before {
   margin-right: 8px;
 }
 
+/* Hidden recipes (v078): a quiet one-line row under the Kitchen
+   search and filters, only when a recipe is hidden. Closed by
+   default; inside, one row per hidden recipe with a Show button. */
+details.card.kitchen-hidden-compact {
+  padding: 8px 14px;
+  margin: 0 0 12px;
+  border-radius: 14px;
+}
+details.card.kitchen-hidden-compact summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted, #6E6A5E);
+  padding: 2px 0;
+}
+details.card.kitchen-hidden-compact summary::before {
+  margin-right: 8px;
+}
+.kitchen-hidden-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--sage-border, #DEE1DC);
+}
+
 /* WCAG 1.4.10: at 320px the 6 bottom tabs must fit without horizontal scrolling.
    Allow tabs to shrink below 44px and use smaller labels at narrow widths, so all 6 fit in 320px. */
 @media (max-width: 400px) {

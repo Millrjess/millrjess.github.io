@@ -9367,9 +9367,23 @@ function hideKitchenRecipe(id) {
   }
 }
 function unhideKitchenRecipe(id) {
+  /* Focus must not drop to the body when the Show button is removed
+     by the re-render below. Move focus to the recipe's card in the
+     Kitchen list, or to the Hidden recipes summary when it is still
+     there, or to the Kitchen search box. */
+  const showHadFocus = document.activeElement && document.activeElement.closest
+    ? !!document.activeElement.closest("[data-kitchen-unhide]")
+    : false;
   store.hiddenKitchen = (store.hiddenKitchen || []).filter((x) => x !== id);
   saveStore();
   renderKitchen();
+  if (!showHadFocus) return;
+  const cardBtn = document.querySelector('[data-kitchen-open="' + id + '"]');
+  if (cardBtn) { cardBtn.focus(); return; }
+  const summary = document.querySelector("#kitchen-hidden summary");
+  if (summary) { summary.focus(); return; }
+  const searchInput = document.getElementById("kitchen-search-input");
+  if (searchInput) searchInput.focus();
 }
 function bindKitchenCards(root) {
   if (!root) return;
@@ -9421,7 +9435,7 @@ function kitchenFiltered() {
     .sort((a, b) => (a.rank - b.rank) || (a.i - b.i))
     .map((x) => x.r);
 }
-let showHiddenKitchen = false; // module-level, next to kitchenFilter / kitchenSearch
+let hiddenRecipesOpen = false; // module-level, keeps the Hidden recipes details open across re-renders
 function renderKitchen() {
   const list = document.getElementById("kitchen-list");
   if (!list) return;
@@ -9431,30 +9445,42 @@ function renderKitchen() {
   if (!shown.length) {
     const q = kitchenSearch.trim();
     const hiddenCount = (store.hiddenKitchen || []).length;
-    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : kitchenFilter !== "all" ? "No recipes match this filter." : hiddenCount ? "You have hidden every recipe in the Kitchen. Show hidden recipes below to bring one back." : "No recipes match this filter.";
+    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : kitchenFilter !== "all" ? "No recipes match this filter." : hiddenCount ? "You have hidden every recipe in the Kitchen. Show hidden recipes above to bring one back." : "No recipes match this filter.";
     list.innerHTML = '<p class="empty-state">' + msg + '</p>';
     return;
   }
   list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
   bindKitchenCards(list);
 }
-/* The hidden-recipes toggle under the Kitchen list. Shows nothing
-   when nothing is hidden. When expanded, the hidden cards render
-   through the same card HTML, with Unhide in place of Hide. */
+/* Hidden recipes (v078): a compact collapsible row under the Kitchen
+   search and filters, so it is visible without scrolling past the
+   recipe list. It renders only when at least one recipe is hidden.
+   Each hidden recipe is one line with its name and a Show button;
+   showing it puts the recipe straight back in the Kitchen list, and
+   the section disappears when the last hidden recipe is shown. */
 function renderHiddenKitchen() {
   const box = document.getElementById("kitchen-hidden");
   if (!box) return;
   const hidden = KITCHEN_RECIPES.filter((r) => kitchenIsHidden(r.id));
-  if (!hidden.length) { box.innerHTML = ""; return; }
-  const open = showHiddenKitchen;
-  const cards = open
-    ? `<p class="muted" style="font-size:.9em;margin:8px 0">These recipes are hidden from your Kitchen. They are not deleted, and they still exist for everyone else. Unhide one to bring it back.</p>`
-      + `<div class="kitchen-list">` + hidden.map((r) => kitchenPhotoCardHtml(r, true)).join("") + `</div>`
-    : "";
-  box.innerHTML = `<button type="button" class="btn btn-small" id="kitchen-hidden-toggle" aria-expanded="${open ? "true" : "false"}">${open ? "Hide hidden recipes" : "Show hidden recipes (" + hidden.length + ")"}</button>` + cards;
-  const toggle = document.getElementById("kitchen-hidden-toggle");
-  if (toggle) toggle.addEventListener("click", () => { showHiddenKitchen = !showHiddenKitchen; renderKitchen(); });
-  if (open) bindKitchenCards(box);
+  if (!hidden.length) { hiddenRecipesOpen = false; box.innerHTML = ""; return; }
+  const open = hiddenRecipesOpen;
+  const rows = hidden.map((r) =>
+    `<div class="kitchen-hidden-row"><span>${escapeHtml(r.name)}</span>` +
+    `<button type="button" class="btn btn-small" data-kitchen-unhide="${r.id}" aria-label="Show ${escapeHtml(r.name)}">Show</button></div>`
+  ).join("");
+  box.innerHTML =
+    `<details class="card kitchen-hidden-compact"${open ? " open" : ""}>` +
+    `<summary aria-expanded="${open ? "true" : "false"}">Hidden recipes (${hidden.length})</summary>` +
+    `<p class="muted" style="font-size:.9em;margin:8px 0">These recipes are hidden from your Kitchen. They are not deleted. Show one to bring it back.</p>` +
+    rows +
+    `</details>`;
+  const details = box.querySelector("details");
+  if (details) details.addEventListener("toggle", () => {
+    hiddenRecipesOpen = details.open;
+    const summary = details.querySelector("summary");
+    if (summary) summary.setAttribute("aria-expanded", details.open ? "true" : "false");
+  });
+  bindKitchenCards(box);
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
