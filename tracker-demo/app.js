@@ -5262,17 +5262,14 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20,
-    "carbs": 18,
-    "fat": 7,
-    "saturatedFat": 2,
-    "calories": 215,
+    "protein": 20, "carbs": 18, "fat": 7, "saturatedFat": 2, "calories": 215,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup plain Greek yogurt",
@@ -5294,17 +5291,14 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 6,
-    "protein": 14,
-    "carbs": 6,
-    "fat": 10,
-    "saturatedFat": 4,
-    "calories": 170,
+    "protein": 20, "carbs": 6, "fat": 11, "saturatedFat": 4, "calories": 203,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "6 eggs",
@@ -5325,15 +5319,12 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 18,
-    "carbs": 32,
-    "fat": 8,
-    "saturatedFat": 1,
-    "calories": 272,
+    "protein": 21, "carbs": 19, "fat": 8, "saturatedFat": 1, "calories": 232,
     "tags": [
       "breakfast",
       "easy-prep",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "1/2 cup rolled oats",
@@ -5355,16 +5346,13 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 16,
-    "carbs": 24,
-    "fat": 14,
-    "saturatedFat": 5,
-    "calories": 286,
+    "protein": 22, "carbs": 15, "fat": 12, "saturatedFat": 5, "calories": 256,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "1 slice whole-grain bread",
@@ -5389,16 +5377,13 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20,
-    "carbs": 28,
-    "fat": 12,
-    "saturatedFat": 4,
-    "calories": 300,
+    "protein": 22, "carbs": 20, "fat": 13, "saturatedFat": 4, "calories": 285,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
-      "gluten-free"
+      "gluten-free",
+      "low-sodium"
     ],
     "ingredients": [
       "2 eggs",
@@ -5421,17 +5406,14 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20,
-    "carbs": 6,
-    "fat": 14,
-    "saturatedFat": 5,
-    "calories": 230,
+    "protein": 20, "carbs": 6, "fat": 14, "saturatedFat": 5, "calories": 230,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "2 eggs",
@@ -5454,18 +5436,15 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 18,
-    "carbs": 20,
-    "fat": 9,
-    "saturatedFat": 1,
-    "calories": 233,
+    "protein": 25, "carbs": 15, "fat": 9, "saturatedFat": 1, "calories": 241,
     "tags": [
       "breakfast",
       "snacks-smoothies",
       "high-protein",
       "easy-prep",
       "vegetarian",
-      "gluten-free"
+      "gluten-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup plain Greek yogurt",
@@ -5489,28 +5468,23 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24,
-    "carbs": 12,
-    "fat": 8,
-    "saturatedFat": 3,
-    "calories": 216,
+    "protein": 24, "carbs": 6, "fat": 8, "saturatedFat": 3, "calories": 192,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup cottage cheese",
       "1/2 cup mixed berries",
-      "1 tbsp chopped walnuts",
-      "1 tsp honey"
+      "1 tbsp chopped walnuts"
     ],
     "steps": [
       "Spoon the cottage cheese into a bowl.",
-      "Top with berries and walnuts.",
-      "Drizzle with honey."
+      "Top with berries and walnuts."
     ]
   },
   {
@@ -5522,17 +5496,14 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 16,
-    "carbs": 16,
-    "fat": 8,
-    "saturatedFat": 3,
-    "calories": 200,
+    "protein": 25, "carbs": 18, "fat": 8, "saturatedFat": 3, "calories": 244,
     "tags": [
       "breakfast",
       "easy-prep",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1/4 cup chia seeds",
@@ -5555,16 +5526,13 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 18,
-    "carbs": 20,
-    "fat": 12,
-    "saturatedFat": 5,
-    "calories": 260,
+    "protein": 24, "carbs": 17, "fat": 13, "saturatedFat": 5, "calories": 281,
     "tags": [
       "breakfast",
       "high-protein",
       "easy-prep",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "1 whole-grain wrap",
@@ -5588,17 +5556,14 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 16,
-    "carbs": 36,
-    "fat": 14,
-    "saturatedFat": 4,
-    "calories": 334,
+    "protein": 24, "carbs": 19, "fat": 14, "saturatedFat": 4, "calories": 298,
     "tags": [
       "lunch",
       "high-protein",
       "vegetarian",
       "gluten-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 can chickpeas, drained",
@@ -5624,17 +5589,14 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34,
-    "carbs": 18,
-    "fat": 10,
-    "saturatedFat": 3,
-    "calories": 298,
+    "protein": 34, "carbs": 18, "fat": 10, "saturatedFat": 3, "calories": 298,
     "tags": [
       "lunch",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1 can tuna, drained",
@@ -5659,17 +5621,14 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 20,
-    "carbs": 34,
-    "fat": 12,
-    "saturatedFat": 4,
-    "calories": 324,
+    "protein": 24, "carbs": 19, "fat": 10, "saturatedFat": 4, "calories": 262,
     "tags": [
       "lunch",
       "high-protein",
       "vegetarian",
       "gluten-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup cooked quinoa",
@@ -5695,11 +5654,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 20,
-    "carbs": 34,
-    "fat": 12,
-    "saturatedFat": 4,
-    "calories": 324,
+    "protein": 26, "carbs": 15, "fat": 14, "saturatedFat": 4, "calories": 290,
     "tags": [
       "lunch",
       "high-protein",
@@ -5707,7 +5662,8 @@ const KITCHEN_RECIPES = [
       "vegan",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1/4 cup cooked lentils",
@@ -5730,15 +5686,12 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 28,
-    "carbs": 26,
-    "fat": 14,
-    "saturatedFat": 4,
-    "calories": 342,
+    "protein": 28, "carbs": 20, "fat": 14, "saturatedFat": 4, "calories": 318,
     "tags": [
       "lunch",
       "high-protein",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 whole-grain wrap",
@@ -5762,16 +5715,13 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 16,
-    "carbs": 20,
-    "fat": 14,
-    "saturatedFat": 5,
-    "calories": 270,
+    "protein": 22, "carbs": 20, "fat": 12, "saturatedFat": 5, "calories": 276,
     "tags": [
       "lunch",
       "vegetarian",
       "gluten-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 can white beans, drained",
@@ -5796,15 +5746,12 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 18,
-    "carbs": 34,
-    "fat": 12,
-    "saturatedFat": 5,
-    "calories": 316,
+    "protein": 21, "carbs": 19, "fat": 10, "saturatedFat": 5, "calories": 250,
     "tags": [
       "lunch",
       "vegetarian",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup cooked farro",
@@ -5830,17 +5777,14 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26,
-    "carbs": 18,
-    "fat": 12,
-    "saturatedFat": 3,
-    "calories": 284,
+    "protein": 26, "carbs": 18, "fat": 12, "saturatedFat": 3, "calories": 284,
     "tags": [
       "lunch",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "2 chicken breasts",
@@ -5864,17 +5808,14 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 18,
-    "carbs": 20,
-    "fat": 12,
-    "saturatedFat": 5,
-    "calories": 260,
+    "protein": 23, "carbs": 20, "fat": 15, "saturatedFat": 5, "calories": 307,
     "tags": [
       "lunch",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "2 tbsp dressing",
@@ -5900,17 +5841,14 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 16,
-    "carbs": 14,
-    "fat": 12,
-    "saturatedFat": 4,
-    "calories": 228,
+    "protein": 23, "carbs": 16, "fat": 13, "saturatedFat": 4, "calories": 273,
     "tags": [
       "lunch",
       "vegetarian",
       "gluten-free",
       "easy-prep",
-      "low-carb"
+      "low-carb",
+      "low-sodium"
     ],
     "ingredients": [
       "2 zucchini, spiralized",
@@ -5936,18 +5874,15 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34,
-    "carbs": 20,
-    "fat": 16,
-    "saturatedFat": 5,
-    "calories": 360,
+    "protein": 34, "carbs": 20, "fat": 16, "saturatedFat": 5, "calories": 360,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
       "low-carb",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "2 salmon fillets (4 oz each)",
@@ -5972,17 +5907,14 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32,
-    "carbs": 12,
-    "fat": 16,
-    "saturatedFat": 3,
-    "calories": 320,
+    "protein": 32, "carbs": 12, "fat": 16, "saturatedFat": 3, "calories": 320,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "2 chicken breasts",
@@ -6008,18 +5940,15 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 28,
-    "carbs": 23,
-    "fat": 14,
-    "saturatedFat": 2,
-    "calories": 330,
+    "protein": 25, "carbs": 16, "fat": 14, "saturatedFat": 2, "calories": 290,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
       "easy-prep",
-      "budget-friendly"
+      "budget-friendly",
+      "low-sodium"
     ],
     "ingredients": [
       "1 lb ground turkey",
@@ -6044,18 +5973,15 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32,
-    "carbs": 16,
-    "fat": 12,
-    "saturatedFat": 3,
-    "calories": 300,
+    "protein": 32, "carbs": 16, "fat": 12, "saturatedFat": 3, "calories": 300,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
       "easy-prep",
-      "low-carb"
+      "low-carb",
+      "low-sodium"
     ],
     "ingredients": [
       "2 cod fillets",
@@ -6080,11 +6006,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 16,
-    "carbs": 18,
-    "fat": 16,
-    "saturatedFat": 2,
-    "calories": 280,
+    "protein": 26, "carbs": 20, "fat": 12, "saturatedFat": 2, "calories": 292,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6116,11 +6038,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 18,
-    "carbs": 26,
-    "fat": 16,
-    "saturatedFat": 1,
-    "calories": 320,
+    "protein": 24, "carbs": 18, "fat": 12, "saturatedFat": 1, "calories": 276,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6153,17 +6071,14 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32,
-    "carbs": 24,
-    "fat": 14,
-    "saturatedFat": 2,
-    "calories": 350,
+    "protein": 32, "carbs": 19, "fat": 14, "saturatedFat": 2, "calories": 330,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "2 chicken breasts, cut into cubes",
@@ -6188,16 +6103,13 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 18,
-    "carbs": 28,
-    "fat": 14,
-    "saturatedFat": 3,
-    "calories": 310,
+    "protein": 23, "carbs": 20, "fat": 15, "saturatedFat": 3, "calories": 307,
     "tags": [
       "dinner",
       "vegetarian",
       "gluten-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "4 bell peppers",
@@ -6223,11 +6135,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 20,
-    "carbs": 28,
-    "fat": 12,
-    "saturatedFat": 2,
-    "calories": 300,
+    "protein": 23, "carbs": 15, "fat": 10, "saturatedFat": 2, "calories": 242,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6235,7 +6143,8 @@ const KITCHEN_RECIPES = [
       "dairy-free",
       "gluten-free",
       "easy-prep",
-      "budget-friendly"
+      "budget-friendly",
+      "low-sodium"
     ],
     "ingredients": [
       "2 cans white beans, drained",
@@ -6260,18 +6169,15 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 18,
-    "carbs": 23,
-    "fat": 14,
-    "saturatedFat": 3,
-    "calories": 290,
+    "protein": 24, "carbs": 15, "fat": 13, "saturatedFat": 3, "calories": 273,
     "tags": [
       "dinner",
       "vegetarian",
       "vegan",
       "dairy-free",
       "gluten-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 can coconut milk",
@@ -6296,11 +6202,7 @@ const KITCHEN_RECIPES = [
     "time": 35,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 18,
-    "carbs": 26,
-    "fat": 16,
-    "saturatedFat": 2,
-    "calories": 320,
+    "protein": 21, "carbs": 13, "fat": 14, "saturatedFat": 2, "calories": 262,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6308,7 +6210,8 @@ const KITCHEN_RECIPES = [
       "dairy-free",
       "gluten-free",
       "easy-prep",
-      "budget-friendly"
+      "budget-friendly",
+      "low-sodium"
     ],
     "ingredients": [
       "2 cans chickpeas, drained",
@@ -6333,17 +6236,14 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 18,
-    "carbs": 26,
-    "fat": 16,
-    "saturatedFat": 2,
-    "calories": 320,
+    "protein": 28, "carbs": 16, "fat": 12, "saturatedFat": 2, "calories": 284,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1/2 lb shrimp",
@@ -6368,11 +6268,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 14,
-    "carbs": 27,
-    "fat": 14,
-    "saturatedFat": 2,
-    "calories": 290,
+    "protein": 20, "carbs": 17, "fat": 17, "saturatedFat": 2, "calories": 301,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6406,17 +6302,14 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 28,
-    "carbs": 16,
-    "fat": 16,
-    "saturatedFat": 3,
-    "calories": 320,
+    "protein": 28, "carbs": 16, "fat": 16, "saturatedFat": 3, "calories": 320,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "4 chicken thighs",
@@ -6440,17 +6333,14 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28,
-    "carbs": 16,
-    "fat": 16,
-    "saturatedFat": 4,
-    "calories": 320,
+    "protein": 28, "carbs": 16, "fat": 16, "saturatedFat": 4, "calories": 320,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "2 tuna steaks",
@@ -6477,18 +6367,15 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34,
-    "carbs": 14,
-    "fat": 12,
-    "saturatedFat": 4,
-    "calories": 300,
+    "protein": 34, "carbs": 14, "fat": 12, "saturatedFat": 4, "calories": 300,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
       "easy-prep",
-      "low-carb"
+      "low-carb",
+      "low-sodium"
     ],
     "ingredients": [
       "2 salmon fillets",
@@ -6513,15 +6400,12 @@ const KITCHEN_RECIPES = [
     "time": 45,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 16,
-    "carbs": 25,
-    "fat": 14,
-    "saturatedFat": 4,
-    "calories": 290,
+    "protein": 22, "carbs": 16, "fat": 9, "saturatedFat": 4, "calories": 233,
     "tags": [
       "dinner",
       "vegetarian",
-      "easy-prep"
+      "easy-prep",
+      "low-sodium"
     ],
     "ingredients": [
       "1 eggplant, sliced",
@@ -6546,11 +6430,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 18,
-    "carbs": 28,
-    "fat": 14,
-    "saturatedFat": 3,
-    "calories": 310,
+    "protein": 24, "carbs": 18, "fat": 15, "saturatedFat": 3, "calories": 303,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6558,7 +6438,8 @@ const KITCHEN_RECIPES = [
       "dairy-free",
       "gluten-free",
       "easy-prep",
-      "budget-friendly"
+      "budget-friendly",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup cooked lentils",
@@ -6583,11 +6464,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26,
-    "carbs": 25,
-    "fat": 14,
-    "saturatedFat": 2,
-    "calories": 330,
+    "protein": 24, "carbs": 15, "fat": 14, "saturatedFat": 2, "calories": 282,
     "tags": [
       "dinner",
       "high-protein",
@@ -6618,18 +6495,15 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28,
-    "carbs": 20,
-    "fat": 12,
-    "saturatedFat": 2,
-    "calories": 300,
+    "protein": 28, "carbs": 20, "fat": 12, "saturatedFat": 2, "calories": 300,
     "tags": [
       "dinner",
       "high-protein",
       "gluten-free",
       "dairy-free",
       "easy-prep",
-      "low-carb"
+      "low-carb",
+      "low-sodium"
     ],
     "ingredients": [
       "2 tilapia fillets",
@@ -6654,18 +6528,15 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 6,
-    "carbs": 6,
-    "fat": 14,
-    "saturatedFat": 2,
-    "calories": 174,
+    "protein": 15, "carbs": 8, "fat": 14, "saturatedFat": 2, "calories": 218,
     "tags": [
       "snacks-smoothies",
       "easy-prep",
       "vegan",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "2 tbsp almonds",
@@ -6687,17 +6558,14 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 12,
-    "carbs": 14,
-    "fat": 2,
-    "saturatedFat": 0,
-    "calories": 122,
+    "protein": 12, "carbs": 14, "fat": 2, "saturatedFat": 0, "calories": 122,
     "tags": [
       "snacks-smoothies",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "3/4 cup plain Greek yogurt",
@@ -6719,18 +6587,15 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 4,
-    "carbs": 10,
-    "fat": 6,
-    "saturatedFat": 2,
-    "calories": 110,
+    "protein": 12, "carbs": 15, "fat": 14, "saturatedFat": 2, "calories": 234,
     "tags": [
       "snacks-smoothies",
       "easy-prep",
       "vegan",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1/2 cup carrot sticks",
@@ -6752,18 +6617,15 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 4,
-    "carbs": 20,
-    "fat": 8,
-    "saturatedFat": 1,
-    "calories": 168,
+    "protein": 13, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 172,
     "tags": [
       "snacks-smoothies",
       "easy-prep",
       "vegan",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1 apple, sliced",
@@ -6783,11 +6645,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 9,
-    "carbs": 8,
-    "fat": 5,
-    "saturatedFat": 1,
-    "calories": 113,
+    "protein": 14, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 176,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -6795,7 +6653,8 @@ const KITCHEN_RECIPES = [
       "vegan",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "1 cup edamame in pods",
@@ -6815,11 +6674,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 6,
-    "carbs": 12,
-    "fat": 1,
-    "saturatedFat": 2,
-    "calories": 81,
+    "protein": 12, "carbs": 12, "fat": 6, "saturatedFat": 2, "calories": 150,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -6850,11 +6705,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 8,
-    "carbs": 10,
-    "fat": 3,
-    "saturatedFat": 1,
-    "calories": 99,
+    "protein": 13, "carbs": 12, "fat": 5, "saturatedFat": 1, "calories": 145,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -6881,18 +6732,15 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 4,
-    "carbs": 12,
-    "fat": 2,
-    "saturatedFat": 0,
-    "calories": 82,
+    "protein": 13, "carbs": 14, "fat": 2, "saturatedFat": 0, "calories": 126,
     "tags": [
       "small-portions",
       "easy-prep",
       "vegan",
       "vegetarian",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "low-sodium"
     ],
     "ingredients": [
       "4 tomatoes",
@@ -6917,11 +6765,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 2,
-    "carbs": 8,
-    "fat": 1,
-    "saturatedFat": 0,
-    "calories": 49,
+    "protein": 11, "carbs": 10, "fat": 1, "saturatedFat": 0, "calories": 93,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -6929,7 +6773,8 @@ const KITCHEN_RECIPES = [
       "vegetarian",
       "gluten-free",
       "dairy-free",
-      "low-carb"
+      "low-carb",
+      "low-sodium"
     ],
     "ingredients": [
       "2 cucumbers, sliced",
@@ -6951,17 +6796,14 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 14,
-    "carbs": 14,
-    "fat": 2,
-    "saturatedFat": 1,
-    "calories": 130,
+    "protein": 14, "carbs": 14, "fat": 2, "saturatedFat": 1, "calories": 130,
     "tags": [
       "small-portions",
       "high-protein",
       "easy-prep",
       "gluten-free",
-      "vegetarian"
+      "vegetarian",
+      "low-sodium"
     ],
     "ingredients": [
       "3/4 cup cottage cheese",
