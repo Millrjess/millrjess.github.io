@@ -895,11 +895,16 @@ function renderEncouragement() {
 /* ---------- Tab navigation (v168: five tabs; Effects, Companion and
    Settings live under More) ---------- */
 
-const tabButtons = document.querySelectorAll(".tab-btn");
+/* v079: only the real tabs are in this list. More is a plain button
+   (role button, not tab) that opens a dialog, so it is selected by
+   [role='tab'] and excluded here; arrow keys move among the five real
+   tabs only, and More is reached by Tab. */
+const tabButtons = document.querySelectorAll(".tab-btn[role='tab']");
 const panels = document.querySelectorAll(".tab-panel");
 /* Panels that live under the More button: when one of them is showing,
-   More is the active tab. */
-const MORE_TABS = ["side-effects", "settings", "recipes"];
+   More is the active tab. Kitchen is a direct tab now (v079), so
+   "recipes" is not here; Journal moved under More (v079). */
+const MORE_TABS = ["side-effects", "settings", "journal", "help"];
 
 function showTab(name) {
   // v049: Settings autosaves, so leaving the tab flushes any change
@@ -916,13 +921,18 @@ function showTab(name) {
   // v000: navigating away from the Companion stops any reply being
   // read aloud.
   if (name !== "chat") stopSpeaking();
-  const activeTab = MORE_TABS.includes(name) ? "more" : name;
+  /* v079: "progress" (Your week) is a Today sub-view, so Today stays
+     the active tab while viewing it. A More panel lights up More. */
+  const activeTab = name === "progress" ? "today" : (MORE_TABS.includes(name) ? "more" : name);
   tabButtons.forEach((b) => {
     const active = b.dataset.tab === activeTab;
     b.classList.toggle("active", active);
     b.setAttribute("aria-selected", active ? "true" : "false");
-    if (b.dataset.tab === "more") b.setAttribute("aria-expanded", "false");
   });
+  /* v079: More is a plain button, not a tab, so it is not in tabButtons.
+     Light it up here when a More panel is showing. */
+  const moreBtn = document.querySelector('.tab-btn[data-tab="more"]');
+  if (moreBtn) moreBtn.classList.toggle("active", MORE_TABS.includes(name));
   panels.forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
   /* v052: cards fade in gently when a tab opens. The class goes on in
      the same frame the panel appears, so the cards start at opacity 0
@@ -939,7 +949,7 @@ function showTab(name) {
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
   if (name === "journal") renderMood();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
-  if (name === "settings") renderPlaySubscription();
+  if (name === "settings") { renderPlaySubscription(); loadCoachMemory(); }
   if (name === "recipes") renderRecipes();
   try {
     gtag("event", "page_view", {
@@ -953,6 +963,9 @@ function showTab(name) {
 }
 
 tabButtons.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+/* v079: the More button is not a tab; it opens the More sheet directly. */
+const moreTabBtn = document.querySelector('.tab-btn[data-tab="more"]');
+if (moreTabBtn) moreTabBtn.addEventListener("click", openMoreSheet);
 tabButtons.forEach((b, i) => b.addEventListener("keydown", (e) => {
   let next = null;
   if (e.key === "ArrowRight") next = (i + 1) % tabButtons.length;
@@ -979,10 +992,11 @@ function openSettingsAt(cardId) {
   setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
 }
 
-/* More sheet (v168, Companion moved to the main nav in v169): Effects
-   and Settings, and Recipes live here. Opens from the More tab; picking one shows
-   its panel and closes the sheet. Escape or the backdrop closes it
-   without changing tabs. */
+/* More sheet (v168, Companion moved to the main nav in v169; v079:
+   Journal moved here and Kitchen became a direct tab): Effects,
+   Settings, Journal, and Help live here. Opens from the More button;
+   picking one shows its panel and closes the sheet. Escape or the
+   backdrop closes it without changing tabs. */
 let moreSheetOpener = null;
 function openMoreSheet() {
   const sheet = document.getElementById("more-sheet");
@@ -1378,8 +1392,8 @@ function renderMacroStack(dates) {
   }
 }
 /* Progress entry point (v049, R-15): Progress is a real tab, so it
-   opens through showTab like every other tab. No nav tab stays active
-   while viewing it. */
+   opens through showTab like every other tab. v079: it is a Today
+   sub-view, so Today stays the active tab while viewing it. */
 function openProgress() {
   showTab("progress");
   renderProgress();
@@ -2597,13 +2611,19 @@ function renderFoodArchive() {
 
 /* Fetch JSON from the food database, with one retry. Open Food Facts
    sometimes answers with an error page instead of JSON, so check
-   res.ok before parsing. Returns the parsed JSON, or null when the
+   res.ok before parsing. A missing product answers 404 with a JSON
+   body ({status: 0, status_verbose: "product not found"}), so return
+   that instead of null: the caller then says "not found" rather than
+   "temporarily unavailable". Returns the parsed JSON, or null when the
    database is down or unreachable after one retry. */
 async function fetchFoodJson(url) {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch(url);
       if (res.ok) return await res.json();
+      if (res.status === 404) {
+        try { return await res.json(); } catch { return { status: 0 }; }
+      }
     } catch {}
     if (attempt === 0) await new Promise((r) => setTimeout(r, 1000));
   }
@@ -3069,18 +3089,28 @@ async function lookupBarcode(code) {
    precached by the service worker, so the scanner works offline and
    when the CDN is unreachable. The CDN stays as a fallback if the
    local file fails to load. */
+/* Load a reader library, local file first, CDN fallback. v080: stronger
+   loading. The reader failed to load on iPhone (v078), so retry the
+   whole local-then-CDN sequence once after a short wait instead of
+   giving up after a single pass. */
 function loadScriptLocalFirst(localSrc, cdnSrc) {
-  return new Promise((resolve, reject) => {
+  const loadOne = (src) => new Promise((resolve, reject) => {
     const s = document.createElement("script");
-    s.src = localSrc;
+    s.src = src;
     s.onload = resolve;
-    s.onerror = () => {
-      const f = document.createElement("script");
-      f.src = cdnSrc;
-      f.onload = resolve; f.onerror = reject; document.head.appendChild(f);
-    };
+    s.onerror = reject;
     document.head.appendChild(s);
   });
+  const trySequence = async () => {
+    try { await loadOne(localSrc); }
+    catch { await loadOne(cdnSrc); }
+  };
+  return (async () => {
+    try { await trySequence(); return; }
+    catch {}
+    await new Promise((r) => setTimeout(r, 1500));
+    await trySequence();
+  })();
 }
 async function startScanCamera() {
   const status = document.getElementById("scan-status");
@@ -3284,7 +3314,7 @@ function closePlateModal() {
 }
 async function recognizePlate(dataUrl) {
   const status = document.getElementById("plate-status");
-  status.textContent = "Scan my plate is coming soon. Take a photo of your plate, and the app identifies the food and fills in the macros for you. No typing. For now, name the food and enter the macros below.";
+  status.textContent = "Scan my plate is coming soon. For now, name the food and enter the macros below.";
   document.getElementById("plate-result").classList.remove("hidden");
   // Post-November 30: send dataUrl to the Worker vision endpoint and
   // fill plate-food, plate-protein, plate-carbs, plate-fat from the
@@ -4229,14 +4259,14 @@ injForm.addEventListener("submit", (e) => {
     notes: document.getElementById("inj-notes").value.trim().slice(0, 2000)
   };
   const injMsg = document.getElementById("inj-saved-msg");
-  if (!entry.date) { setFormStatus(injMsg, "Add a date first.", true); return; }
-  if (!entry.medication) { setFormStatus(injMsg, "Add the medication name first.", true); return; }
+  if (!entry.date) { setFormStatus(injMsg, "Add a date first.", true); document.getElementById("inj-date").focus(); return; }
+  if (!entry.medication) { setFormStatus(injMsg, "Add the medication name first.", true); document.getElementById("inj-med").focus(); return; }
   if (!entry.dose || entry.dose <= 0) {
     setFormStatus(injMsg, "Add a dose above zero first.", true);
     document.getElementById("inj-dose").focus();
     return;
   }
-  if (!entry.site) { setFormStatus(injMsg, "Choose an injection site first.", true); return; }
+  if (!entry.site) { setFormStatus(injMsg, "Choose an injection site first.", true); document.getElementById("inj-site").focus(); return; }
   if (editingInjectionId) {
     const i = store.injections.findIndex((x) => x.id === editingInjectionId);
     if (i === -1) {
@@ -4742,7 +4772,11 @@ function closeDoctorModal() {
   document.getElementById("doctor-modal").classList.add("hidden");
   returnDialogFocus("doctor-modal", "doctor-summary-btn");
 }
-document.getElementById("doctor-summary-btn").addEventListener("click", openDoctorModal);
+/* v079: the summary button appears on Weight, Shots, and Side Effects,
+   so bind all of them by class. Focus returns to the button that
+   opened the modal (recordDialogOpener); the Weight button id is the
+   fallback only. */
+document.querySelectorAll(".doctor-summary-btn").forEach((b) => b.addEventListener("click", openDoctorModal));
 document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
 document.getElementById("doctor-modal").addEventListener("click", (e) => {
   if (e.target.id === "doctor-modal") closeDoctorModal();
@@ -9194,6 +9228,7 @@ const KITCHEN_RECIPES = [
 ];
 let kitchenFilter = "all";
 let kitchenSearch = ""; // v053: text typed in the Kitchen search box
+let kitchenLimit = 30; // recipes shown; "Show more" loads the next 30
 const kitchenServings = {}; // recipe id -> servings to add (default 1)
 const kitchenAddedAt = {}; // recipe id -> timestamp of last Add to Today
 
@@ -9449,8 +9484,16 @@ function renderKitchen() {
     list.innerHTML = '<p class="empty-state">' + msg + '</p>';
     return;
   }
-  list.innerHTML = shown.map((r) => kitchenPhotoCardHtml(r)).join("");
+  const visible = shown.slice(0, kitchenLimit);
+  const remaining = shown.length - visible.length;
+  list.innerHTML = visible.map((r) => kitchenPhotoCardHtml(r)).join("")
+    + (remaining > 0 ? `<button class="btn" id="more-kitchen" style="width:100%;margin-top:8px">Show more (${remaining} more)</button>` : "");
   bindKitchenCards(list);
+  const moreBtn = document.getElementById("more-kitchen");
+  if (moreBtn) moreBtn.addEventListener("click", () => {
+    kitchenLimit += 30;
+    renderKitchen();
+  });
 }
 /* Hidden recipes (v078): a compact collapsible row under the Kitchen
    search and filters, so it is visible without scrolling past the
@@ -9484,6 +9527,7 @@ function renderHiddenKitchen() {
 }
 document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => chip.addEventListener("click", () => {
   kitchenFilter = chip.dataset.filter;
+  kitchenLimit = 30;
   document.querySelectorAll("#kitchen-filters [data-filter]").forEach((c) => {
     c.classList.toggle("active", c === chip);
     c.setAttribute("aria-pressed", c === chip ? "true" : "false");
@@ -9493,6 +9537,7 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
 const kitchenSearchInput = document.getElementById("kitchen-search-input");
 if (kitchenSearchInput) kitchenSearchInput.addEventListener("input", () => {
   kitchenSearch = kitchenSearchInput.value;
+  kitchenLimit = 30;
   renderKitchen();
 });
 
@@ -9904,6 +9949,17 @@ function openRecipeModal(id) {
   recipeModalId = id;
   const wasHidden = modal.classList.contains("hidden");
   if (wasHidden) recordDialogOpener("recipe-modal");
+  /* Focus must not drop when the modal body is rebuilt by a servings
+     tap or an Add tap. Remember which control had focus, so it can be
+     put back after the rebuild (same pattern as Hide/Unhide recipes). */
+  const modalActive = document.activeElement;
+  let modalFocusSel = null;
+  if (modalActive && body.contains(modalActive)) {
+    if (modalActive.hasAttribute("data-modal-kitchen-serv")) modalFocusSel = '[data-modal-kitchen-serv="' + id + '"][data-dir="' + modalActive.dataset.dir + '"]';
+    else if (modalActive.hasAttribute("data-modal-kitchen-add")) modalFocusSel = '[data-modal-kitchen-add="' + id + '"]';
+    else if (modalActive.hasAttribute("data-recipe-add")) modalFocusSel = '[data-recipe-add="' + id + '"]';
+    else if (modalActive.hasAttribute("data-modal-kitchen-save")) modalFocusSel = '[data-modal-kitchen-save="' + id + '"]';
+  }
   const kr = KITCHEN_RECIPES.find((x) => x.id === id);
   if (kr) {
     const n = kitchenServings[kr.id] || 1;
@@ -9955,6 +10011,9 @@ function openRecipeModal(id) {
   if (wasHidden) {
     const x = document.getElementById("recipe-modal-x");
     if (x) x.focus();
+  } else if (modalFocusSel) {
+    const btn = body.querySelector(modalFocusSel);
+    if (btn) btn.focus();
   }
 }
 function bindRecipeModalButtons() {
@@ -10765,6 +10824,7 @@ async function redeemAccessCode() {
       if (input) input.setAttribute("aria-invalid", "false");
       input.value = "";
       updateCoachStatus();
+      showGettingStartedVideo();
     } else {
       setCodeError(data.error || "That code did not work. Try again.");
       const m = document.getElementById("code-msg");
@@ -10782,6 +10842,75 @@ async function redeemAccessCode() {
 }
 
 document.getElementById("redeem-code-btn").addEventListener("click", redeemAccessCode);
+
+/* ---------- Getting Started video: first launch (v079) ----------
+   After a successful code redemption, show the Getting Started video
+   once. It never shows again (localStorage flag), and it never blocks:
+   the Close button, Escape, or the backdrop dismiss it and pause the
+   video. The redeem click is a user gesture, so sound is attempted
+   first; if the browser blocks it, the video plays muted with a
+   Tap for sound button. */
+const GETTING_STARTED_SEEN_KEY = "newChapterTracker.sandbox.gettingStartedSeen.v1";
+function showGettingStartedVideo() {
+  const overlay = document.getElementById("getting-started-overlay");
+  const video = document.getElementById("getting-started-video");
+  if (!overlay || !video) return;
+  try { if (localStorage.getItem(GETTING_STARTED_SEEN_KEY) === "1") return; } catch {}
+  try { localStorage.setItem(GETTING_STARTED_SEEN_KEY, "1"); } catch {}
+  recordDialogOpener("getting-started-overlay");
+  overlay.classList.remove("hidden");
+  document.getElementById("getting-started-close").focus();
+  const soundBtn = document.getElementById("getting-started-sound");
+  video.muted = false;
+  const p = video.play();
+  if (p && typeof p.catch === "function") {
+    p.catch(() => {
+      video.muted = true;
+      if (soundBtn) soundBtn.hidden = false;
+      const p2 = video.play();
+      if (p2 && typeof p2.catch === "function") p2.catch(() => {});
+    });
+  }
+}
+function closeGettingStartedVideo() {
+  const overlay = document.getElementById("getting-started-overlay");
+  const video = document.getElementById("getting-started-video");
+  if (!overlay || overlay.classList.contains("hidden")) return;
+  if (video) video.pause();
+  overlay.classList.add("hidden");
+  returnDialogFocus("getting-started-overlay", "redeem-code-btn");
+}
+document.getElementById("getting-started-close").addEventListener("click", closeGettingStartedVideo);
+document.getElementById("getting-started-overlay").addEventListener("click", (e) => {
+  if (e.target.id === "getting-started-overlay") closeGettingStartedVideo();
+});
+document.getElementById("getting-started-sound").addEventListener("click", () => {
+  const video = document.getElementById("getting-started-video");
+  const soundBtn = document.getElementById("getting-started-sound");
+  if (!video) return;
+  video.muted = false;
+  const p = video.play();
+  if (p && typeof p.catch === "function") p.catch(() => {});
+  if (soundBtn) soundBtn.hidden = true;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("getting-started-overlay").classList.contains("hidden")) {
+    e.preventDefault();
+    closeGettingStartedVideo();
+  }
+});
+bindDialogFocusTrap("getting-started-overlay");
+
+/* ---------- Help videos: aria-expanded on details toggles (v079) ----------
+   Native <details> toggles are keyboard accessible, but the expanded state
+   is not exposed as aria-expanded in every browser, so sync it here. The
+   toggle event does not bubble, so listen in the capture phase. */
+document.addEventListener("toggle", (e) => {
+  const d = e.target;
+  if (!d || d.tagName !== "DETAILS" || !d.closest || !d.closest("#help-videos")) return;
+  const s = d.querySelector(":scope > summary");
+  if (s) s.setAttribute("aria-expanded", d.open ? "true" : "false");
+}, true);
 document.getElementById("set-access-code").addEventListener("input", () => {
   const input = document.getElementById("set-access-code");
   const msg = document.getElementById("code-msg");
@@ -11749,9 +11878,8 @@ document.addEventListener("keydown", (e) => {
    opener on close, and close on Escape. The trap binds to the dialog
    container, so it survives the recipe modal body being re-rendered.
    Note: the setup overlay gets the trap and the focus move and return,
-   but no Escape dismissal. It has no dismiss control, and closing it
-   on Escape would mark first-run setup done without saving anything
-   and would bypass the Terms check that Finish and Skip both enforce. */
+   and Escape acts as Skip. Escape triggers the Skip button, so the
+   Terms check still applies and nothing is marked done without it. */
 const dialogOpeners = {};
 function recordDialogOpener(id) {
   dialogOpeners[id] = document.activeElement && document.activeElement !== document.body
@@ -11789,6 +11917,7 @@ bindDialogFocusTrap("doctor-modal");
 bindDialogFocusTrap("scan-modal");
 bindDialogFocusTrap("plate-modal");
 bindDialogFocusTrap("setup-overlay");
+bindDialogFocusTrap("more-sheet");
 document.getElementById("day-cal").addEventListener("click", openDayPicker);
 // Tapping the date heading itself also opens the picker
 document.getElementById("date-tap").addEventListener("click", openDayPicker);
@@ -11913,6 +12042,11 @@ if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => {
   setupTermsMsg("");
   logTermsAcceptance();
   finishSetup(false);
+});
+/* Escape acts as Skip: it triggers the Skip button, so the Terms
+   check still applies and nothing is marked done without it. */
+if (setupOverlayEl) setupOverlayEl.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { e.preventDefault(); if (setupSkipBtn) setupSkipBtn.click(); }
 });
 /* Setup step 5: fill macro grams from the calorie target at the
    decided split, 35% carbs, 33% fat, 32% protein. */

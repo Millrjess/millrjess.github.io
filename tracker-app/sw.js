@@ -31,7 +31,7 @@
  *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v078";
+const CACHE_NAME = "new-chapter-tracker-v079";
 const ASSETS = [
   "./",
   "./index.html",
@@ -48,7 +48,27 @@ const ASSETS = [
   "./icons/lotus-open-1.png",
   "./icons/lotus-open-2.png",
   "./icons/lotus-open-3.png",
-  "./icons/lotus-open-4.png"
+  "./icons/lotus-open-4.png",
+  "./assets/videos/getting-started.mp4",
+  "./assets/videos/getting-started-poster.jpg",
+  "./assets/videos/entering-your-code.mp4",
+  "./assets/videos/entering-your-code-poster.jpg",
+  "./assets/videos/today.mp4",
+  "./assets/videos/today-poster.jpg",
+  "./assets/videos/shots.mp4",
+  "./assets/videos/shots-poster.jpg",
+  "./assets/videos/weight.mp4",
+  "./assets/videos/weight-poster.jpg",
+  "./assets/videos/journal.mp4",
+  "./assets/videos/journal-poster.jpg",
+  "./assets/videos/companion.mp4",
+  "./assets/videos/companion-poster.jpg",
+  "./assets/videos/kitchen.mp4",
+  "./assets/videos/kitchen-poster.jpg",
+  "./assets/videos/settings.mp4",
+  "./assets/videos/settings-poster.jpg",
+  "./assets/videos/side-effects.mp4",
+  "./assets/videos/side-effects-poster.jpg",
 ];
 
 /* App shell: always try the network first so updates reach the user. */

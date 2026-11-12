@@ -482,7 +482,7 @@ async function main() {
       { id: "j2", date: lastMonth + "-15", mood: "Okay", notes: "A slow week." }
     ] })) });
     await page.reload();
-    await page.click('[data-tab="journal"]');
+    await clickMoreTab(page, "journal");
     await page.waitForTimeout(400);
     const chapters = await page.evaluate(() => [...document.querySelectorAll(".journal-chapter")].map((el) => el.textContent));
     const thisName = new Date(thisMonth + "-01T00:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
@@ -792,14 +792,14 @@ async function main() {
       labels: [...document.querySelectorAll(".tab-btn .tab-label")].map((el) => el.textContent),
       dots: document.querySelectorAll(".tab-btn .tab-dot").length
     }));
-    check("V168 nav: six tabs, each with a gold dot", nav.labels.join(",") === "Today,Shots,Weight,Journal,Companion,More" && nav.dots === 6, JSON.stringify(nav));
+    check("V168 nav: five tabs plus More, each with a gold dot", nav.labels.join(",") === "Today,Shots,Weight,Kitchen,Companion,More" && nav.dots === 6, JSON.stringify(nav));
     await page.click('.tab-btn[data-tab="more"]');
     await page.waitForTimeout(300);
     const sheet = await page.evaluate(() => ({
       open: !document.getElementById("more-sheet").classList.contains("hidden"),
       items: [...document.querySelectorAll(".more-item[data-more-goto]")].map((el) => el.dataset.moreGoto)
     }));
-    check("V004 More sheet: opens with Effects, Settings, Recipes", sheet.open && sheet.items.join(",") === "side-effects,settings,recipes", JSON.stringify(sheet));
+    check("V004 More sheet: opens with Effects, Settings, Journal, Help", sheet.open && sheet.items.join(",") === "side-effects,settings,journal,help", JSON.stringify(sheet));
     await page.click('.more-item[data-more-goto="settings"]');
     await page.waitForTimeout(300);
     const afterSettings = await page.evaluate(() => ({
@@ -1313,7 +1313,7 @@ async function main() {
       ]
     })) });
     await page.reload();
-    await clickTab(page, "journal");
+    await clickMoreTab(page, "journal");
     await page.waitForTimeout(400);
     const journalSe = await page.evaluate(() => {
       const items = [...document.querySelectorAll("#journal-se-list .se-timeline-item")];
@@ -1352,7 +1352,7 @@ async function main() {
       ]
     })) });
     await page.reload();
-    await clickTab(page, "journal");
+    await clickMoreTab(page, "journal");
     await page.waitForTimeout(400);
     await page.click('#journal-se-list [data-del-se="s1"]');
     await page.waitForTimeout(400);
@@ -1396,8 +1396,8 @@ async function main() {
     // Pick a different avatar in Settings: the header avatar follows.
     await clickMoreTab(t.page, "settings");
     await t.page.waitForTimeout(300);
-    // v057: "Your Companion" is a closed <details>; open it first.
-    await openSettingsCard(t.page, "Your Companion");
+    // v057: "Companion name and look" is a closed <details>; open it first.
+    await openSettingsCard(t.page, "Companion name and look");
     await t.page.click('input[name="companion-avatar"][value="deep-gold"]');
     await t.page.waitForTimeout(300);
     const deepGold = await t.page.evaluate(() => (document.getElementById("chat-header-avatar") || { classList: { contains: () => false } }).classList.contains("avatar-deep-gold"));

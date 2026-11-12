@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=078">
+<link rel="stylesheet" href="styles.css?v=079">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -46,6 +46,39 @@
   <h1>New Chapter: GLP-1 Tracker™</h1>
   <p class="tagline">Stay strong while the medicine works.</p>
 </header>
+
+<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
+  <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Today</title><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg></span>
+    <span class="tab-label">Today</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="shots" role="tab" aria-selected="false" aria-controls="tab-shots">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Shots</title><g transform="rotate(45 12 12)"><rect x="9" y="5" width="6" height="11" rx="1"/><path d="M12 16v4"/><path d="M12 5V3"/><path d="M9.5 3h5"/><path d="M10 9.5h4"/></g></svg></span>
+    <span class="tab-label">Shots</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Weight</title><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-4.5"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg></span>
+    <span class="tab-label">Weight</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="recipes" role="tab" aria-selected="false" aria-controls="tab-recipes">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Kitchen</title><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M9 8.5c0-1.5 1-1.5 1-3"/><path d="M14 8.5c0-1.5 1-1.5 1-3"/><path d="M9 21h6"/></svg></span>
+    <span class="tab-label">Kitchen</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+    <span class="tab-label">Companion</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+  <button class="tab-btn" data-tab="more" aria-haspopup="dialog" aria-expanded="false" aria-controls="more-sheet">
+    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><title>More</title><circle cx="6" cy="6" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="18" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/><circle cx="6" cy="18" r="1.8"/><circle cx="12" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/></svg></span>
+    <span class="tab-label">More</span>
+    <span class="tab-dot" aria-hidden="true"></span>
+  </button>
+</div></nav>
 
 <main id="app-main" tabindex="-1">
 
@@ -371,6 +404,7 @@
     <div class="card" id="foods-card" role="group" aria-label="Today's food">
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
+      <div style="margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button></div>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
           <input type="text" enterkeyhint="search" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
@@ -393,7 +427,7 @@
           <span class="muted" id="macro-food-search-status" role="status" style="font-size:.9rem"></span>
         </div>
         <div id="macro-food-search-results" class="hidden" style="margin-top:8px"></div>
-        <p class="muted" style="font-size:.9rem;margin-top:8px">A bigger food database is coming soon.</p>
+        <p class="muted" style="font-size:.9rem;margin-top:8px">A bigger food database (FatSecret) arrives in December.</p>
         <div style="margin-top:8px">
           <button type="button" class="btn btn-small" id="macro-food-library-btn">Your foods</button>
         </div>
@@ -472,9 +506,10 @@
   <!-- INJECTIONS TAB -->
   <section id="tab-shots" class="tab-panel" role="tabpanel" aria-label="Shots">
     <h2>Shots</h2>
-    <div class="shots-actions">
+    <div class="shots-actions" style="flex-wrap:wrap">
       <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
       <button class="btn" id="add-shot-reminder">🔔 Shot reminder</button>
+      <button class="btn doctor-summary-btn" type="button">Doctor visit summary</button>
     </div>
     <p class="muted" style="font-size:.9rem;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
     <p class="muted hidden" id="shot-reminder-note" style="font-size:.9rem;margin:6px 0 0"></p>
@@ -570,7 +605,7 @@
     <h2>My Body Profile</h2>
     <div class="weight-actions">
       <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
-      <button class="btn" id="doctor-summary-btn">Doctor visit summary</button>
+      <button class="btn doctor-summary-btn" id="doctor-summary-btn">Doctor visit summary</button>
     </div>
 
     <div class="weight-hero">
@@ -693,12 +728,12 @@
       <div class="modal-card">
         <h2 style="margin-top:0">Doctor visit summary</h2>
         <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-          <label style="flex:1;min-width:140px">From
-            <input type="date" id="doctor-from" aria-label="Summary from date">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <label style="flex:1 1 0;min-width:0">From
+            <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 8px">
           </label>
-          <label style="flex:1;min-width:140px">To
-            <input type="date" id="doctor-to" aria-label="Summary to date">
+          <label style="flex:1 1 0;min-width:0">To
+            <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 8px">
           </label>
         </div>
         <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
@@ -787,7 +822,10 @@
   <section id="tab-side-effects" class="tab-panel" role="tabpanel" aria-label="Side effects">
     <h2>Side Effects</h2>
     <p class="muted">Always share symptoms and side effects with your prescribing doctor. This app does not give medical advice.</p>
-    <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px">
+      <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+      <button class="btn doctor-summary-btn" type="button">Doctor visit summary</button>
+    </div>
 
     <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
       <h3>Log Side Effect</h3>
@@ -900,16 +938,16 @@
       <p class="code-msg" id="recipe-msg" style="min-height:1.2em"></p>
     </form>
     <div id="recipe-list" class="entry-list"></div>
-<h3 style="margin-top:18px">Search recipes online</h3>
-    <p class="muted" style="font-size:.9rem">Search the recipe database for a dish.</p>
-    <form id="recipe-search-form" aria-label="Search recipes online" novalidate>
+<h3 class="hidden" style="margin-top:18px">Search recipes online</h3>
+    <p class="muted hidden" style="font-size:.9rem">Search the recipe database for a dish.</p>
+    <form id="recipe-search-form" class="hidden" aria-label="Search recipes online" novalidate>
       <div style="display:flex;gap:8px">
         <input type="search" id="recipe-search-input" placeholder="e.g. lemon chicken (coming soon)" aria-label="Search recipes, coming soon" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:10px">
         <button type="submit" class="btn btn-primary">Search (coming soon)</button>
       </div>
       <p class="code-msg" id="recipe-search-msg" style="min-height:1.2em"></p>
     </form>
-    <div id="recipe-search-results" class="entry-list"></div>
+    <div id="recipe-search-results" class="entry-list hidden"></div>
 <div id="recipe-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Recipe">
       <div class="modal-card recipe-modal-card">
         <button type="button" class="modal-x" id="recipe-modal-x" aria-label="Close recipe">×</button>
@@ -949,43 +987,6 @@
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
     <p style="margin:4px 0 0"><button type="button" class="btn-link" id="chat-clear-btn">Clear chat history</button></p>
-
-    <details class="card memory-compact" id="memory-optin-card">
-      <summary aria-expanded="false">Companion memory</summary>
-      <div style="margin-top:12px">
-      <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
-      <label style="display:flex;align-items:center;gap:10px;font-weight:600">
-        <input type="checkbox" id="memory-toggle" style="width:24px;height:24px">
-        Remember me
-      </label>
-      <div id="memory-fields" class="hidden" style="margin-top:12px">
-        <label>Your name
-          <input type="text" id="memory-name" maxlength="60" placeholder="What should your companion call you?">
-        </label>
-        <label>Your goals
-          <input type="text" id="memory-goals" maxlength="500" placeholder="e.g. Protect muscle, steady energy">
-        </label>
-        <label>Preferences
-          <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
-        </label>
-        <label>Your GLP-1 medication
-          <input type="text" id="memory-medication" maxlength="60" placeholder="e.g. Zepbound">
-        </label>
-        <label>Dose
-          <input type="text" id="memory-dose" maxlength="20" placeholder="e.g. 5 mg">
-        </label>
-        <label>Shot day
-          <input type="text" id="memory-shot-day" maxlength="20" placeholder="e.g. Wednesday">
-        </label>
-        <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
-      </div>
-      <p class="muted hidden" id="memory-saved-msg" style="font-size:.9rem;margin-top:8px">Your companion will remember you now.</p>
-      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
-        <p class="muted" style="font-size:.9rem;margin:0 0 8px">Want your companion to forget everything it remembers about you?</p>
-        <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
-      </div>
-      </div>
-    </details>
   </section>
 
   <!-- SETTINGS TAB -->
@@ -1166,7 +1167,7 @@
 
             <h2 class="settings-group">Your Companion</h2>
 <details class="card" id="settings-your-companion-card">
-        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your Companion</h3></summary>
+        <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Companion name and look</h3></summary>
         <div style="margin-top:12px">
         <p class="muted">Give your AI Wellness Companion a name and a look.</p>
         <label>Companion name
@@ -1194,6 +1195,43 @@
         </div>
       </details>
 
+      <details class="card memory-compact" id="memory-optin-card">
+        <summary aria-expanded="false">Companion memory</summary>
+        <div style="margin-top:12px">
+        <p class="muted" style="font-size:.9rem">Your companion will remember your name, goals, and preferences. Off by default. <a href="privacy.html">Privacy Policy</a></p>
+        <label style="display:flex;align-items:center;gap:10px;font-weight:600">
+          <input type="checkbox" id="memory-toggle" style="width:24px;height:24px">
+          Remember me
+        </label>
+        <div id="memory-fields" class="hidden" style="margin-top:12px">
+          <label>Your name
+            <input type="text" id="memory-name" maxlength="60" placeholder="What should your companion call you?">
+          </label>
+          <label>Your goals
+            <input type="text" id="memory-goals" maxlength="500" placeholder="e.g. Protect muscle, steady energy">
+          </label>
+          <label>Preferences
+            <input type="text" id="memory-preferences" maxlength="500" placeholder="e.g. Vegetarian, early riser">
+          </label>
+          <label>Your GLP-1 medication
+            <input type="text" id="memory-medication" maxlength="60" placeholder="e.g. Zepbound">
+          </label>
+          <label>Dose
+            <input type="text" id="memory-dose" maxlength="20" placeholder="e.g. 5 mg">
+          </label>
+          <label>Shot day
+            <input type="text" id="memory-shot-day" maxlength="20" placeholder="e.g. Wednesday">
+          </label>
+          <button class="btn btn-primary btn-small" id="memory-save" style="margin-top:8px">Save</button>
+        </div>
+        <p class="muted hidden" id="memory-saved-msg" style="font-size:.9rem;margin-top:8px">Your companion will remember you now.</p>
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+          <p class="muted" style="font-size:.9rem;margin:0 0 8px">Want your companion to forget everything it remembers about you?</p>
+          <button type="button" class="btn btn-small" id="forget-me">Forget me (delete companion memory)</button>
+        </div>
+        </div>
+      </details>
+
       <details class="card" id="settings-appearance-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Appearance</h3></summary>
         <div style="margin-top:12px">
@@ -1218,6 +1256,7 @@
 
       <button type="submit" class="btn btn-primary btn-block">Save changes</button>
       <p class="muted" style="margin:6px 0 0;font-size:.9rem">Changes save as you type.</p>
+      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Save changes is for your companion key.</p>
       <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
     </form>
 
@@ -1271,17 +1310,6 @@
       <p class="code-msg" id="reset-lotus-msg" role="status" style="min-height:1.2em"></p>
     </div>
 
-    <div class="card">
-      <h3>Help</h3>
-      <h4 style="margin:12px 0 4px">Your code</h4>
-      <p class="muted" style="margin:0 0 10px">In the full app, your Companion code comes from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> after you subscribe, and you enter the 6-digit code in Settings under AI Wellness Companion access. A code works for one hour, on the device that first uses it. The demo does not connect to the Companion.</p>
-      <h4 style="margin:12px 0 4px">Back up</h4>
-      <p class="muted" style="margin:0 0 10px">Tap Download backup above. The demo also keeps a copy inside it, and makes automatic copies.</p>
-      <h4 style="margin:12px 0 4px">Restore</h4>
-      <p class="muted" style="margin:0 0 10px">Tap Restore backup above, then pick On My iPhone or Downloads. Or restore from a copy inside the demo.</p>
-      <h4 style="margin:12px 0 4px">Archive</h4>
-      <p class="muted" style="margin:0">In Your foods, tap Archive to move a food out of the list. Tap Archived foods to see them, Restore to bring one back, or the x to remove one. Archiving never deletes a food.</p>
-    </div>
 
       </div>
     </details>
@@ -1304,7 +1332,7 @@
       <h4 style="margin:16px 0 8px">Privacy</h4>
       <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.</p>
       <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your message and a short summary of today leave this device and are processed by Cloudflare to generate a reply. The summary is not your full log. Messages are not stored on our servers afterward. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
-      <p><strong>Companion memory (optional, off by default):</strong> Companion Memory is different. It is optional, and it is off by default. If you turn it on, it stores your name, goals, preferences, medication, dose, and shot day, so the Companion can personalize its replies. That saved memory is kept until you delete it with Forget me on the Companion tab.</p>
+      <p><strong>Companion memory (optional, off by default):</strong> Companion Memory is different. It is optional, and it is off by default. If you turn it on, it stores your name, goals, preferences, medication, dose, and shot day, so the Companion can personalize its replies. That saved memory is kept until you delete it with Forget me in Settings.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
         <a class="btn btn-small" href="terms.html" style="text-decoration:none;display:inline-flex;align-items:center">Terms of Service</a>
@@ -1315,6 +1343,137 @@
       </div>
     </details>
   </section>
+  <section id="tab-help" class="tab-panel" role="tabpanel" aria-label="Help">
+    <h2>Help</h2>
+    <p class="muted">Short videos that show you how, step by step, and answers to common questions.</p>
+    <div class="card">
+      <h3>Help videos</h3>
+      <p class="muted" style="margin:0 0 10px">Tap a title to watch.</p>
+      <div id="help-videos">
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Getting started</summary>
+        <video id="help-video-getting-started" controls playsinline preload="metadata" title="Getting started: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/getting-started-poster.jpg">
+          <source src="assets/videos/getting-started.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Getting started</summary>
+          <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. It is three ninety-nine a month, or twenty-nine ninety-nine a year. Cancel anytime. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Entering your code</summary>
+        <video id="help-video-entering-your-code" controls playsinline preload="metadata" title="Entering your code: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/entering-your-code-poster.jpg">
+          <source src="assets/videos/entering-your-code.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Entering your code</summary>
+          <p>Get your code from the welcome page with your purchase email. Then enter it here in Settings. Type in the 6-digit code, and tap Connect My Companion. Once it connects, your companion is ready to chat. A code works for one hour on the device you enter it on. If it expires, request a fresh one from the welcome page.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Today</summary>
+        <video id="help-video-today" controls playsinline preload="metadata" title="Today: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/today-poster.jpg">
+          <source src="assets/videos/today.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Today</summary>
+          <p>This is Today, your home screen. Your lotus opens a little more each day you log. Tap Log shot to log your shot. Then water and movement. Your weight, and your food, by meal. That is Today. One day at a time.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Shots</summary>
+        <video id="help-video-shots" controls playsinline preload="metadata" title="Shots: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/shots-poster.jpg">
+          <source src="assets/videos/shots.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Shots</summary>
+          <p>Log your shot in seconds, the dose is already filled in. Tap Log Shot, check the details, and save. Your history stays right here, and a weekly reminder keeps your shot day on track.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Weight</summary>
+        <video id="help-video-weight" controls playsinline preload="metadata" title="Weight: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/weight-poster.jpg">
+          <source src="assets/videos/weight.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Weight</summary>
+          <p>Open the Weight tab to see your current weight, then tap Log weigh-in. Enter your weight and tap Save. Your chart shows the trend over time, from your starting weight to today.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Journal</summary>
+        <video id="help-video-journal" controls playsinline preload="metadata" title="Journal: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/journal-poster.jpg">
+          <source src="assets/videos/journal.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Journal</summary>
+          <p>Tap More, then Journal, then New Entry. Pick a mood, and write a few words about how the day felt. Save it, and it is there in your list, ready to look back on. Your entries stay grouped by month, so you can look back any time.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Companion</summary>
+        <video id="help-video-companion" controls playsinline preload="metadata" title="Companion: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/companion-poster.jpg">
+          <source src="assets/videos/companion.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Companion</summary>
+          <p>Your Companion is your personal AI coach, right inside the tracker. Ask a question in your own words. It answers in plain language, with encouragement, never medical advice. 40 messages a day, right where you already log.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Kitchen</summary>
+        <video id="help-video-kitchen" controls playsinline preload="metadata" title="Kitchen: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/kitchen-poster.jpg">
+          <source src="assets/videos/kitchen.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Kitchen</summary>
+          <p>Open the Kitchen tab to find a recipe. Tap a recipe to see it. The Greek Yogurt Berry Bowl is two hundred fifteen calories, with twenty grams of protein. Save it for later, and add the ingredients to your shopping list. Your shopping list is ready in the Kitchen, with everything you need.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Settings</summary>
+        <video id="help-video-settings" controls playsinline preload="metadata" title="Settings: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/settings-poster.jpg">
+          <source src="assets/videos/settings.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Settings</summary>
+          <p>In Settings, set your medication, dose, and shot day, so Today counts down to your next shot. Set your goals too: water, protein and movement, and your goal weight. Turn on Companion Memory here in Settings, so your Companion remembers your goals and your shot day. Changes save as you type. Set it once, and the app does the rest.</p>
+        </details>
+      </details>
+      <details class="help-video" style="margin:0 0 8px">
+        <summary aria-expanded="false">Side Effects</summary>
+        <video id="help-video-side-effects" controls playsinline preload="metadata" title="Side Effects: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/side-effects-poster.jpg">
+          <source src="assets/videos/side-effects.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <details class="help-video-transcript" style="margin:0 0 8px">
+          <summary aria-expanded="false">Video transcript: Side Effects</summary>
+          <p>If something feels off, log it on the side effects tab. Tap log effect, add the symptom, and the severity, then save. Your notes stay in one list, share them with your prescribing doctor.</p>
+        </details>
+      </details>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin:12px 0 4px">Your code</h3>
+      <p class="muted" style="margin:0 0 10px">In the full app, your Companion code comes from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> after you subscribe, and you enter the 6-digit code in Settings under AI Wellness Companion access. A code works for one hour, on the device that first uses it. The demo does not connect to the Companion.</p>
+      <h3 style="margin:12px 0 4px">Back up</h3>
+      <p class="muted" style="margin:0 0 10px">In Settings, under Backup &amp; restore, tap Download backup. The demo also keeps a copy inside it, and makes automatic copies.</p>
+      <h3 style="margin:12px 0 4px">Restore</h3>
+      <p class="muted" style="margin:0 0 10px">In Settings, under Backup &amp; restore, tap Restore backup, then pick On My iPhone or Downloads. Or restore from a copy inside the demo.</p>
+      <h3 style="margin:12px 0 4px">Archive</h3>
+      <p class="muted" style="margin:0">In Your foods, tap Archive to move a food out of the list. Tap Archived foods to see them, Restore to bring one back, or the x to remove one. Archiving never deletes a food.</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-goto="today" style="width:100%">Back to Today</button>
+  </section>
 
 </main>
 
@@ -1323,70 +1482,41 @@
   <p class="footer-copy">&copy; 2026 Jessica A. Miller. All rights reserved.</p>
 </footer>
 
-<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
-  <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Today</title><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg></span>
-    <span class="tab-label">Today</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-  <button class="tab-btn" data-tab="shots" role="tab" aria-selected="false" aria-controls="tab-shots">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Shots</title><g transform="rotate(45 12 12)"><rect x="9" y="5" width="6" height="11" rx="1"/><path d="M12 16v4"/><path d="M12 5V3"/><path d="M9.5 3h5"/><path d="M10 9.5h4"/></g></svg></span>
-    <span class="tab-label">Shots</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-  <button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="tab-weight">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Weight</title><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-4.5"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg></span>
-    <span class="tab-label">Weight</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-  <button class="tab-btn" data-tab="journal" role="tab" aria-selected="false" aria-controls="tab-journal">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Journal</title><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
-    <span class="tab-label">Journal</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-  <button class="tab-btn" data-tab="chat" role="tab" aria-selected="false" aria-controls="tab-chat">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Companion</title><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-    <span class="tab-label">Companion</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-  <button class="tab-btn" data-tab="more" role="tab" aria-selected="false" aria-haspopup="true" aria-expanded="false" aria-controls="more-sheet">
-    <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><title>More</title><circle cx="6" cy="6" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="18" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/><circle cx="6" cy="18" r="1.8"/><circle cx="12" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/></svg></span>
-    <span class="tab-label">More</span>
-    <span class="tab-dot" aria-hidden="true"></span>
-  </button>
-</div></nav>
-
 <div id="more-sheet-backdrop" class="sheet-backdrop hidden"></div>
 <div id="more-sheet" class="more-sheet hidden" role="dialog" aria-modal="true" aria-label="More">
   <div class="more-sheet-handle" aria-hidden="true"></div>
   <p class="more-sheet-title">More</p>
   <button type="button" class="more-item" data-more-goto="side-effects">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 17H2L12 3z"/><path d="M12 10v4"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg></span>
-    <span class="more-item-label">Effects</span><span class="more-item-chevron" aria-hidden="true">›</span>
+    <span class="more-item-label">Side effects</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
   <button type="button" class="more-item" data-more-goto="settings">
     <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="more-item-label">Settings</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
-  <button type="button" class="more-item" data-more-goto="recipes">
-    <span class="more-item-icon" aria-hidden="true">🍲</span>
-    <span class="more-item-label">Recipes</span><span class="more-item-chevron" aria-hidden="true">›</span>
+  <button type="button" class="more-item" data-more-goto="journal">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg></span>
+    <span class="more-item-label">Journal</span><span class="more-item-chevron" aria-hidden="true">›</span>
+  </button>
+  <button type="button" class="more-item" data-more-goto="help">
+    <span class="more-item-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.4c-.8.35-1 .8-1 1.6"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg></span>
+    <span class="more-item-label">Help</span><span class="more-item-chevron" aria-hidden="true">›</span>
   </button>
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=078"></script>
+<script src="demo-seed.js?v=079"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
-      <p class="muted">Scan my plate is coming soon. Take a photo of your plate, and the app will identify the food and fill in the macros for you. No typing.</p>
+      <p class="muted">Scan my plate is coming soon. For now, name the food and enter the macros below.</p>
       <img id="plate-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
       <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
       <input type="file" id="plate-upload-input" accept="image/*" class="hidden" aria-label="Upload a photo of your plate">
       <p id="plate-status" class="muted" role="status"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-        <button type="button" class="btn btn-primary" id="plate-take-btn">Take photo</button>
-        <button type="button" class="btn btn-small" id="plate-upload-btn">Upload photo</button>
+        <button type="button" class="btn btn-primary hidden" id="plate-take-btn">Take photo</button>
+        <button type="button" class="btn btn-small hidden" id="plate-upload-btn">Upload photo</button>
         <button type="button" class="btn btn-small" id="plate-close-btn">Close</button>
       </div>
       <div id="plate-result" class="hidden" style="border-top:1px solid #ddd;padding-top:12px">
@@ -1400,8 +1530,21 @@
     </div>
   </div>
 
+<div id="getting-started-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="getting-started-title">
+  <div class="modal-card" style="max-width:440px">
+    <button type="button" class="modal-x" id="getting-started-close" aria-label="Close Getting started video">×</button>
+    <h2 id="getting-started-title" style="margin-top:0">Getting started</h2>
+    <video id="getting-started-video" controls playsinline preload="metadata" title="Getting started: New Chapter: GLP-1 Tracker™" style="display:block;margin:0 auto;max-width:100%;max-height:60vh;border-radius:12px;background:#000" poster="assets/videos/getting-started-poster.jpg">
+      <source src="assets/videos/getting-started.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <p class="muted" style="margin:10px 0 0">A quick tour of the app.</p>
+    <button type="button" class="btn" id="getting-started-sound" hidden style="margin-top:10px">Tap for sound</button>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=078"></script>
+<script src="app.js?v=079"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
