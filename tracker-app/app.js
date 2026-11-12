@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v072";
+const APP_VERSION = "v073";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -3818,6 +3818,29 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
 
 /* Next injection countdown */
 
+/* v073 Phase 1 ticket 1: missed-dose flag for the never-logged case.
+   When a shot day is set but no shot has ever been taken, nextShotDue()
+   points at the NEXT occurrence of the shot weekday, so a shot day that
+   already passed this week looks like a future shot. This returns the
+   local YYYY-MM-DD date of this week's shot day when it is strictly
+   before today, otherwise null. A shot day still ahead this week (or
+   today itself) is not a miss, and a shot day that passed last week is
+   not this week's dose. Local dates only, never toISOString(). A
+   "Missed" entry is not a taken shot, so it does not clear the flag;
+   once any shot is taken, lastInjection() is set and this returns null. */
+function missedThisWeekShotDateStr() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
+  if (lastInjection()) return null;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  if (target < 0) return null;
+  const now = new Date();
+  if (target >= now.getDay()) return null;
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (now.getDay() - target));
+  return localDateStr(d);
+}
+
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
@@ -3837,6 +3860,16 @@ function renderNextInjection() {
   }
   if (!shotDay) {
     el.textContent = "Set your shot day in Settings.";
+    return;
+  }
+  // v073 Phase 1 ticket 1: this week's shot day passed with no shot
+  // ever logged. Flag it gently, name the date, point to the Shots
+  // tab, and suggest the prescribing doctor if unsure. Never dose
+  // advice: nothing here says when or how much to take.
+  const missedDate = missedThisWeekShotDateStr();
+  if (missedDate) {
+    el.textContent = "It looks like this week's shot was missed. It was due " + formatDateShort(missedDate) + ". That happens, no judgment. You can log it on the Shots tab, and if you're unsure, check with your prescribing doctor.";
+    gotoBtn.textContent = "Log shot";
     return;
   }
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -4804,6 +4837,96 @@ document.getElementById("doctor-download").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   setFormStatus(document.getElementById("doctor-msg"), "Downloaded as a text file.", false);
 });
+
+/* PDF doctor export (v073, moved from the sandbox). Uses jsPDF from CDN. If the
+   library did not load, falls back to the browser print dialog with a
+   print stylesheet that shows only the summary. */
+function downloadDoctorPdf() {
+  const msg = document.getElementById("doctor-msg");
+  const jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+  if (!jsPDFLib) {
+    setFormStatus(msg, "The PDF library did not load. Opening the print view instead; choose Save as PDF.", false);
+    window.print();
+    return;
+  }
+  try {
+    const doc = new jsPDFLib({ unit: "pt", format: "letter" });
+    const margin = 48;
+    const width = doc.internal.pageSize.getWidth() - margin * 2;
+    let y = 56;
+    const line = (text, opts) => {
+      const size = (opts && opts.size) || 11;
+      const bold = opts && opts.bold;
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      const lines = doc.splitTextToSize(text, width);
+      lines.forEach((l) => {
+        if (y > doc.internal.pageSize.getHeight() - 48) { doc.addPage(); y = 56; }
+        doc.text(l, margin, y);
+        y += size + 5;
+      });
+      y += (opts && opts.gap) || 2;
+    };
+    line("New Chapter: GLP-1 Tracker", { size: 16, bold: true });
+    line("Doctor visit summary", { size: 13, bold: true });
+    line("Prepared " + formatDate(todayStr()) + ".", { size: 11 });
+    line("", { size: 11 });
+    const sortedW = [...(store.weight || [])].sort(byDate);
+    const latest = sortedW[sortedW.length - 1];
+    const start = getStartingWeight();
+    const bmi = calcBMI();
+    line("Weight", { size: 12, bold: true });
+    if (latest) {
+      line("Latest: " + Number(latest.value).toFixed(1) + " lbs on " + formatDate(latest.date) + ".");
+      if (start) line("Starting: " + Number(start.value).toFixed(1) + " lbs on " + formatDate(start.date) + ".");
+      if (start) {
+        const change = Number(start.value) - Number(latest.value);
+        line("Change: " + (change >= 0 ? "-" : "+") + Math.abs(change).toFixed(1) + " lbs since starting.");
+      }
+      if (store.settings && store.settings.goalWeight) line("Goal weight: " + Number(store.settings.goalWeight).toFixed(1) + " lbs.");
+      if (bmi) line("BMI: " + bmi.value.toFixed(1) + " (" + bmiCategory(bmi.value) + ").");
+    } else {
+      line("No weigh-ins logged yet.");
+    }
+    line("", { size: 11 });
+    const sortedI = [...(store.injections || [])].sort(byDateDesc);
+    line("Shots", { size: 12, bold: true });
+    if (sortedI.length) {
+      const last = sortedI[0];
+      line("Last shot: " + formatDate(last.date) + " (" + (last.site || "site not recorded") + ", " + (last.medication || "medication not recorded") + (last.dose ? ", " + last.dose : "") + ").");
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      const recent = sortedI.filter((s) => s.date >= localDateStr(ninetyDaysAgo));
+      line("Shots in the last 90 days: " + recent.length + ".");
+      const missed = sortedI.filter((s) => s.status === "Missed").length;
+      if (missed) line("Missed shots on record: " + missed + ".");
+    } else {
+      line("No shots logged yet.");
+    }
+    line("", { size: 11 });
+    const sortedE = [...(store.sideEffects || [])].sort(byDateDesc);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentE = sortedE.filter((s) => s.date >= localDateStr(thirtyDaysAgo));
+    line("Side effects (last 30 days)", { size: 12, bold: true });
+    if (recentE.length) {
+      recentE.forEach((s) => {
+        line("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " — " + s.notes : ""));
+      });
+    } else {
+      line("None logged in the last 30 days.");
+    }
+    line("", { size: 11 });
+    line("This summary is from your own log. It is not medical advice.", { size: 10 });
+    line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.", { size: 10 });
+    doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
+    setFormStatus(msg, "Downloaded as a PDF.", false);
+  } catch (e) {
+    setFormStatus(msg, "The PDF could not be built. Opening the print view instead; choose Save as PDF.", true);
+    window.print();
+  }
+}
+document.getElementById("doctor-pdf").addEventListener("click", downloadDoctorPdf);
 const doctorFromEl = document.getElementById("doctor-from");
 if (doctorFromEl) doctorFromEl.addEventListener("change", rebuildDoctorText);
 const doctorToEl = document.getElementById("doctor-to");

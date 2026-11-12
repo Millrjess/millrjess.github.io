@@ -1391,7 +1391,7 @@ async function main() {
       headerAvatarSage: (document.getElementById("chat-header-avatar") || { classList: { contains: () => false } }).classList.contains("avatar-sage"),
       rowAvatarSage: !!(document.querySelector("#chat-messages .chat-row.assistant .chat-lotus.avatar-sage"))
     }));
-    check("V000 companion name shows in header and welcome; input says chat is not available", named.title === "Your Nova" && named.welcome.indexOf("Hi, I am Nova.") === 0 && named.placeholder === "Chat is not available in the demo", JSON.stringify(named));
+    check("V000 companion name shows in header and welcome; input offers the trial", named.title === "Your Nova" && named.welcome.indexOf("Hi, I am Nova.") === 0 && named.placeholder.indexOf("trial") !== -1, JSON.stringify(named));
     check("V000 companion avatar shows beside messages and in header", named.headerAvatarSage && named.rowAvatarSage, JSON.stringify(named));
     // Pick a different avatar in Settings: the header avatar follows.
     await clickMoreTab(t.page, "settings");
@@ -1417,10 +1417,11 @@ async function main() {
   } catch (e) { check("V000 companion name and avatar", false, "error: " + e.message); }
 
   try {
-    // The demo no longer accepts messages when not connected (Nov 8
-    // fix): the input and send button are disabled and the placeholder
-    // says chat is not available. The seeded sample conversation still
-    // renders, so visitors can see how the Companion works.
+    // The demo offers a 3-message Companion trial when not connected
+    // (v073): the input and send button are enabled while trial
+    // messages remain, and the placeholder names the trial. The seeded
+    // sample conversation still renders, so visitors can see how the
+    // Companion works.
     const t = await newPage(browser, url);
     await setStorage(t.page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({
       settings: { medication: "Zepbound", dose: "", shotDay: "", waterGoal: 92, proteinGoal: 90, movementGoal: 30, carbGoal: 150, fatGoal: 60, calorieTarget: "", heightFt: "", heightIn: "", movementPlan: null, customExercises: [], refillDate: "", goalWeight: "", startingWeight: null, companionName: "Nova", companionAvatar: "gold", theme: "sage", textSize: "normal", readAloud: false }
@@ -1443,7 +1444,7 @@ async function main() {
         sampleReply: msgs.some((m) => m.indexOf("Sample reply:") !== -1)
       };
     });
-    check("V000 demo chat is disabled when not connected", chatState.inputDisabled === true && chatState.sendDisabled === true && chatState.placeholder === "Chat is not available in the demo", JSON.stringify(chatState));
+    check("V000 demo chat trial is enabled when not connected", chatState.inputDisabled === false && chatState.sendDisabled === false && chatState.placeholder.indexOf("trial") !== -1, JSON.stringify(chatState));
     check("V000 demo sample conversation renders", chatState.sampleReply === true, JSON.stringify(chatState));
     await t.ctx.close();
   } catch (e) { check("V000 companion name in chat request", false, "error: " + e.message); }

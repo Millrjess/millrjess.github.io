@@ -3760,6 +3760,29 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
 
 /* Next injection countdown */
 
+/* v073 Phase 1 ticket 1: missed-dose flag for the never-logged case.
+   When a shot day is set but no shot has ever been taken, nextShotDue()
+   points at the NEXT occurrence of the shot weekday, so a shot day that
+   already passed this week looks like a future shot. This returns the
+   local YYYY-MM-DD date of this week's shot day when it is strictly
+   before today, otherwise null. A shot day still ahead this week (or
+   today itself) is not a miss, and a shot day that passed last week is
+   not this week's dose. Local dates only, never toISOString(). A
+   "Missed" entry is not a taken shot, so it does not clear the flag;
+   once any shot is taken, lastInjection() is set and this returns null. */
+function missedThisWeekShotDateStr() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
+  if (lastInjection()) return null;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  if (target < 0) return null;
+  const now = new Date();
+  if (target >= now.getDay()) return null;
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (now.getDay() - target));
+  return localDateStr(d);
+}
+
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
@@ -3797,6 +3820,16 @@ function renderNextInjection() {
   gotoBtn.style.display = alreadyLogged ? "none" : "";
   const shotDayBtn = document.getElementById("goto-shot-day-btn");
   if (shotDayBtn) shotDayBtn.classList.toggle("hidden", alreadyLogged || !!shotDay);
+  // v073 Phase 1 ticket 1: this week's shot day passed with no shot
+  // ever logged. Flag it gently, name the date, point to the Shots
+  // tab, and suggest the prescribing doctor if unsure. Never dose
+  // advice: nothing here says when or how much to take.
+  const missedDate = missedThisWeekShotDateStr();
+  if (missedDate) {
+    el.textContent = "It looks like this week's shot was missed. It was due " + formatDateShort(missedDate) + ". That happens, no judgment. You can log it on the Shots tab, and if you're unsure, check with your prescribing doctor.";
+    gotoBtn.textContent = "Log shot";
+    return;
+  }
   // The Today card never logs a shot. It only takes you to the Shots
   // tab, where the shot is logged deliberately with the site and dose.
   gotoBtn.textContent = "Log shot";

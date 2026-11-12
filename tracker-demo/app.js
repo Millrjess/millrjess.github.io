@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v072";
+const APP_VERSION = "v073";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -3344,6 +3344,29 @@ function loadCustomActivities() {
 
 /* Next injection countdown */
 
+/* v073 Phase 1 ticket 1: missed-dose flag for the never-logged case.
+   When a shot day is set but no shot has ever been taken, nextShotDue()
+   points at the NEXT occurrence of the shot weekday, so a shot day that
+   already passed this week looks like a future shot. This returns the
+   local YYYY-MM-DD date of this week's shot day when it is strictly
+   before today, otherwise null. A shot day still ahead this week (or
+   today itself) is not a miss, and a shot day that passed last week is
+   not this week's dose. Local dates only, never toISOString(). A
+   "Missed" entry is not a taken shot, so it does not clear the flag;
+   once any shot is taken, lastInjection() is set and this returns null. */
+function missedThisWeekShotDateStr() {
+  const shotDay = store.settings.shotDay;
+  if (!shotDay) return null;
+  if (lastInjection()) return null;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const target = days.indexOf(shotDay);
+  if (target < 0) return null;
+  const now = new Date();
+  if (target >= now.getDay()) return null;
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (now.getDay() - target));
+  return localDateStr(d);
+}
+
 function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
@@ -3363,6 +3386,16 @@ function renderNextInjection() {
   }
   if (!shotDay) {
     el.textContent = "Set your shot day in Settings.";
+    return;
+  }
+  // v073 Phase 1 ticket 1: this week's shot day passed with no shot
+  // ever logged. Flag it gently, name the date, point to the Shots
+  // tab, and suggest the prescribing doctor if unsure. Never dose
+  // advice: nothing here says when or how much to take.
+  const missedDate = missedThisWeekShotDateStr();
+  if (missedDate) {
+    el.textContent = "It looks like this week's shot was missed. It was due " + formatDateShort(missedDate) + ". That happens, no judgment. You can log it on the Shots tab, and if you're unsure, check with your prescribing doctor.";
+    gotoBtn.textContent = "Log shot";
     return;
   }
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -4329,6 +4362,96 @@ document.getElementById("doctor-download").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   setFormStatus(document.getElementById("doctor-msg"), "Downloaded as a text file.", false);
 });
+
+/* PDF doctor export (v073, moved from the sandbox). Uses jsPDF from CDN. If the
+   library did not load, falls back to the browser print dialog with a
+   print stylesheet that shows only the summary. */
+function downloadDoctorPdf() {
+  const msg = document.getElementById("doctor-msg");
+  const jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+  if (!jsPDFLib) {
+    setFormStatus(msg, "The PDF library did not load. Opening the print view instead; choose Save as PDF.", false);
+    window.print();
+    return;
+  }
+  try {
+    const doc = new jsPDFLib({ unit: "pt", format: "letter" });
+    const margin = 48;
+    const width = doc.internal.pageSize.getWidth() - margin * 2;
+    let y = 56;
+    const line = (text, opts) => {
+      const size = (opts && opts.size) || 11;
+      const bold = opts && opts.bold;
+      doc.setFont("helvetica", bold ? "bold" : "normal");
+      doc.setFontSize(size);
+      const lines = doc.splitTextToSize(text, width);
+      lines.forEach((l) => {
+        if (y > doc.internal.pageSize.getHeight() - 48) { doc.addPage(); y = 56; }
+        doc.text(l, margin, y);
+        y += size + 5;
+      });
+      y += (opts && opts.gap) || 2;
+    };
+    line("New Chapter: GLP-1 Tracker", { size: 16, bold: true });
+    line("Doctor visit summary", { size: 13, bold: true });
+    line("Prepared " + formatDate(todayStr()) + ".", { size: 11 });
+    line("", { size: 11 });
+    const sortedW = [...(store.weight || [])].sort(byDate);
+    const latest = sortedW[sortedW.length - 1];
+    const start = getStartingWeight();
+    const bmi = calcBMI();
+    line("Weight", { size: 12, bold: true });
+    if (latest) {
+      line("Latest: " + Number(latest.value).toFixed(1) + " lbs on " + formatDate(latest.date) + ".");
+      if (start) line("Starting: " + Number(start.value).toFixed(1) + " lbs on " + formatDate(start.date) + ".");
+      if (start) {
+        const change = Number(start.value) - Number(latest.value);
+        line("Change: " + (change >= 0 ? "-" : "+") + Math.abs(change).toFixed(1) + " lbs since starting.");
+      }
+      if (store.settings && store.settings.goalWeight) line("Goal weight: " + Number(store.settings.goalWeight).toFixed(1) + " lbs.");
+      if (bmi) line("BMI: " + bmi.value.toFixed(1) + " (" + bmiCategory(bmi.value) + ").");
+    } else {
+      line("No weigh-ins logged yet.");
+    }
+    line("", { size: 11 });
+    const sortedI = [...(store.injections || [])].sort(byDateDesc);
+    line("Shots", { size: 12, bold: true });
+    if (sortedI.length) {
+      const last = sortedI[0];
+      line("Last shot: " + formatDate(last.date) + " (" + (last.site || "site not recorded") + ", " + (last.medication || "medication not recorded") + (last.dose ? ", " + last.dose : "") + ").");
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      const recent = sortedI.filter((s) => s.date >= localDateStr(ninetyDaysAgo));
+      line("Shots in the last 90 days: " + recent.length + ".");
+      const missed = sortedI.filter((s) => s.status === "Missed").length;
+      if (missed) line("Missed shots on record: " + missed + ".");
+    } else {
+      line("No shots logged yet.");
+    }
+    line("", { size: 11 });
+    const sortedE = [...(store.sideEffects || [])].sort(byDateDesc);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentE = sortedE.filter((s) => s.date >= localDateStr(thirtyDaysAgo));
+    line("Side effects (last 30 days)", { size: 12, bold: true });
+    if (recentE.length) {
+      recentE.forEach((s) => {
+        line("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " — " + s.notes : ""));
+      });
+    } else {
+      line("None logged in the last 30 days.");
+    }
+    line("", { size: 11 });
+    line("This summary is from your own log. It is not medical advice.", { size: 10 });
+    line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.", { size: 10 });
+    doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
+    setFormStatus(msg, "Downloaded as a PDF.", false);
+  } catch (e) {
+    setFormStatus(msg, "The PDF could not be built. Opening the print view instead; choose Save as PDF.", true);
+    window.print();
+  }
+}
+document.getElementById("doctor-pdf").addEventListener("click", downloadDoctorPdf);
 const doctorFromEl = document.getElementById("doctor-from");
 if (doctorFromEl) doctorFromEl.addEventListener("change", rebuildDoctorText);
 const doctorToEl = document.getElementById("doctor-to");
@@ -11474,10 +11597,11 @@ function renderMorningCheckin() {
   const q = MORNING_CHECKIN_QUESTIONS[dayOfYear % MORNING_CHECKIN_QUESTIONS.length];
   document.getElementById("morning-checkin-q").textContent = q;
   const connected = !!getAuthToken();
+  const canChat = connected || trialLeft() > 0;
   const replyBtn = document.getElementById("morning-checkin-reply");
-  if (replyBtn) replyBtn.classList.toggle("hidden", !connected);
+  if (replyBtn) replyBtn.classList.toggle("hidden", !canChat);
   const connectLine = document.getElementById("morning-checkin-connect");
-  if (connectLine) connectLine.classList.toggle("hidden", connected);
+  if (connectLine) connectLine.classList.toggle("hidden", canChat);
   card.classList.remove("hidden");
   // v000: when read-aloud is on, the morning question is read aloud
   // once per day, using the phone's own voice.
@@ -11621,11 +11745,65 @@ function maybeReadAloud() {
   }
 }
 
+/* v073: Companion trial in the demo only. The demo never has a live
+   Companion connection and the Worker cannot be reached from here, so
+   visitors get up to 3 pre-written sample replies. No token, no
+   Worker call, no network. The count lives in demo localStorage only
+   (newChapterTracker.demo.trial.v1) and is never reset by clearing
+   chat history. When the trial is used up, chat returns to the
+   not-available state. */
+const TRIAL_LIMIT = 3;
+const TRIAL_KEY = "newChapterTracker.demo.trial.v1";
+function trialUsed() {
+  try {
+    const n = parseInt(localStorage.getItem(TRIAL_KEY) || "0", 10);
+    if (isNaN(n) || n < 0) return 0;
+    return Math.min(n, TRIAL_LIMIT);
+  } catch { return 0; }
+}
+function trialLeft() { return TRIAL_LIMIT - trialUsed(); }
+function useTrialMessage() {
+  try { localStorage.setItem(TRIAL_KEY, String(trialUsed() + 1)); } catch {}
+}
+/* Sample trial replies, matched loosely by keyword. Short, human,
+   compassionate, and non-shaming. Never medical advice, never a
+   dose, never a medication change. Anything about medication, doses,
+   or side effects is answered by sending the person to their
+   prescribing doctor. */
+const TRIAL_REPLIES = [
+  { match: ["dose", "dosage", "mg", "shot", "injection", "medicine", "medication", "zepbound", "mounjaro", "wegovy", "ozempic", "semaglutide", "tirzepatide", "side effect", "nausea", "nauseous", "vomit", "diarrhea", "constipation", "reflux", "heartburn", "missed dose", "missed my", "stop taking", "increase", "decrease"],
+    reply: "That is a question for your prescribing doctor. I cannot advise on doses, medication changes, or side effects. If something feels wrong, please reach out to your doctor or care team. You are doing the right thing by asking." },
+  { match: ["protein"],
+    reply: "Protein helps protect your strength while the medicine works. A simple start is a little protein at each meal, like eggs, Greek yogurt, or chicken. Small steps count." },
+  { match: ["water", "drink", "thirsty", "hydrat"],
+    reply: "A few sips often is easier than a big glass all at once. Keep water nearby and take small sips through the day. You are doing well by noticing it." },
+  { match: ["walk", "walking", "movement", "move", "exercise", "stretch", "steps"],
+    reply: "Gentle movement counts. A short walk, a few sit-to-stands, or a stretch all help. Go at your own pace, and rest when you need to." },
+  { match: ["weight", "weigh", "scale", "pounds", "lbs"],
+    reply: "Weight moves up and down from day to day, and that is normal. What matters is the steady trend over weeks. Keep logging, one day at a time." },
+  { match: ["mood", "sad", "tired", "sleep", "anxious", "worried", "stressed", "energy"],
+    reply: "Thank you for telling me. Rest matters, and so do you. A small kind thing for yourself today, even a quiet few minutes, is enough." },
+];
+const TRIAL_FALLBACK = "Thank you for sharing that. Small steps, one day at a time, is how this works. I am here to cheer you on. What is one small thing that would help today?";
+function pickTrialReply(text) {
+  const lower = String(text || "").toLowerCase();
+  for (const entry of TRIAL_REPLIES) {
+    if (entry.match.some((word) => lower.includes(word))) return entry.reply;
+  }
+  return TRIAL_FALLBACK;
+}
+function chatInputPlaceholder(connected) {
+  if (connected) return "Ask " + companionDisplayName() + "...";
+  const left = trialLeft();
+  if (left > 0) return "Try the Companion: trial, " + left + (left === 1 ? " message" : " messages") + " left";
+  return "Chat is not available in the demo";
+}
+
 /* The demo never has a live Companion connection, so when no code
-   has been entered the chat input is disabled: the demo must not
-   accept a message and answer it with a canned reply. The sample
-   conversation above stays visible to show how it works. Play
-   subscribers without a token see the Play-specific text. */
+   has been entered the chat input is disabled, unless the visitor
+   still has trial messages left (v073). The sample conversation
+   stays visible to show how it works. Play subscribers without a
+   token see the Play-specific text. */
 function renderChatGate() {
   const banner = document.getElementById("chat-not-connected");
   if (!banner) return;
@@ -11636,15 +11814,38 @@ function renderChatGate() {
   const playBlocked = !connected && isPlayEntitled();
   if (playMsg) playMsg.classList.toggle("hidden", !playBlocked);
   if (webMsg) webMsg.classList.toggle("hidden", playBlocked);
+  const trialAvailable = !connected && !playBlocked && trialLeft() > 0;
+  const trialNote = document.getElementById("chat-trial-note");
+  if (trialNote) {
+    trialNote.classList.toggle("hidden", connected || playBlocked);
+    if (!connected && !playBlocked) {
+      const left = trialLeft();
+      trialNote.textContent = left > 0
+        ? "Trial: try the Companion with " + left + (left === 1 ? " sample reply" : " sample replies") + " left. These are sample replies, not the live AI. The live Companion is part of the full app."
+        : "Your trial is used up. The live Companion is part of the full app.";
+    }
+  }
+  const availNote = document.getElementById("chat-availability-note");
+  if (availNote) {
+    if (connected) {
+      availNote.classList.add("hidden");
+    } else {
+      availNote.classList.remove("hidden");
+      const left = trialLeft();
+      availNote.textContent = left > 0
+        ? "Trial: " + left + (left === 1 ? " sample reply" : " sample replies") + " left. Sample replies, not the live AI. The live Companion is part of the full app."
+        : "Your trial is used up. The live Companion is part of the full app.";
+    }
+  }
   const input = document.getElementById("chat-input");
   const sendBtn = document.getElementById("chat-send");
   const micBtn = document.getElementById("chat-mic");
   if (input) {
-    input.disabled = !connected;
-    input.placeholder = connected ? "Ask " + companionDisplayName() + "..." : "Chat is not available in the demo";
+    input.disabled = !connected && !trialAvailable;
+    input.placeholder = chatInputPlaceholder(connected);
   }
-  if (sendBtn) sendBtn.disabled = !connected;
-  if (micBtn) micBtn.disabled = !connected;
+  if (sendBtn) sendBtn.disabled = !connected && !trialAvailable;
+  if (micBtn) micBtn.disabled = !connected && !trialAvailable;
 }
 
 function renderChat() {
@@ -11660,7 +11861,7 @@ function renderChat() {
     headerAvatar.replaceWith(fresh);
   }
   const input = document.getElementById("chat-input");
-  if (input && !input.disabled) input.placeholder = "Ask " + companionDisplayName() + "...";
+  if (input && !input.disabled) input.placeholder = chatInputPlaceholder(!!getAuthToken());
   growChatInput();
   const box = document.getElementById("chat-messages");
   if (!box) return;
@@ -11718,6 +11919,15 @@ function renderChat() {
       div.className = "chat-msg assistant";
       div.innerHTML = renderMarkdown(m.content);
       wrap.appendChild(div);
+      // v073: a trial reply is labelled as a sample, so nobody
+      // mistakes it for the live AI.
+      if (m.trial) {
+        const note = document.createElement("div");
+        note.className = "muted";
+        note.style.cssText = "font-size:.8rem;margin-top:2px;color:#5A6B52";
+        note.textContent = "Trial reply (sample)";
+        wrap.appendChild(note);
+      }
       wrap.appendChild(listenBtn(m.content));
       row.appendChild(wrap);
     } else {
@@ -11771,11 +11981,39 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   input.value = "";
   growChatInput();
 
-  // The demo never has a live Companion connection. If somehow a
-  // message is submitted while not connected, do not send it and do
-  // not answer it: show the not-available state instead.
+  // The demo never has a live Companion connection. If a message is
+  // submitted while not connected, the v073 trial answers it with a
+  // pre-written sample reply (no token, no Worker call, no network)
+  // while trial messages remain. Play subscribers keep their
+  // Play-specific message and do not use the trial. Once the trial
+  // is used up, show the not-available state instead.
   if (!getAuthToken()) {
-    setFormStatus(document.getElementById("chat-msg"), "Chat with your AI Wellness Companion is not available in the demo. It is part of the full app.", true);
+    if (playChatBlocked()) {
+      chatHistory.push({ role: "user", content: text });
+      saveChatHistory();
+      renderChat();
+      chatHistory.push({
+        role: "assistant",
+        content: "Your Play subscription is active, but companion chat for Play subscribers is still being connected. You can enter a companion key in Settings if you have one from the website.",
+      });
+      saveChatHistory();
+      renderChat();
+      maybeReadAloud();
+      return;
+    }
+    if (trialLeft() > 0) {
+      useTrialMessage();
+      chatHistory.push({ role: "user", content: text });
+      chatHistory.push({ role: "assistant", content: pickTrialReply(text), trial: true });
+      saveChatHistory();
+      renderChat();
+      maybeReadAloud();
+      if (trialLeft() === 0) {
+        setFormStatus(document.getElementById("chat-msg"), "That was your last trial message. The live Companion is part of the full app.", false);
+      }
+      return;
+    }
+    setFormStatus(document.getElementById("chat-msg"), "Your trial is used up. Chat with your AI Wellness Companion is part of the full app.", true);
     renderChatGate();
     return;
   }
