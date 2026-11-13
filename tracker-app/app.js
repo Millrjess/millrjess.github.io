@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v080";
+const APP_VERSION = "v081";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -5830,7 +5830,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20, "carbs": 18, "fat": 7, "saturatedFat": 2, "calories": 215,
+    "protein": 20, "carbs": 18, "fat": 7, "saturatedFat": 2, "calories": 215, "sodium": 70,
     "tags": [
       "breakfast",
       "high-protein",
@@ -5843,11 +5843,13 @@ const KITCHEN_RECIPES = [
       "1 cup plain Greek yogurt",
       "1/2 cup mixed berries",
       "1 tbsp chia seeds",
-      "1 tbsp chopped nuts"
+      "1 tbsp chopped pistachios",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Scoop yogurt into a bowl.",
-      "Top with berries, chia seeds and nuts."
+      "Top with berries, chia seeds and pistachios.",
+      "Finish with lemon zest."
     ]
   },
   {
@@ -5859,7 +5861,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 6,
-    "protein": 20, "carbs": 6, "fat": 11, "saturatedFat": 4, "calories": 203,
+    "protein": 21, "carbs": 8, "fat": 11, "saturatedFat": 4, "calories": 215, "sodium": 230,
     "tags": [
       "breakfast",
       "high-protein",
@@ -5870,12 +5872,17 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "6 eggs",
-      "1/2 cup chopped vegetables (spinach, peppers, onion)",
-      "1/4 cup feta cheese"
+      "1 cup chopped vegetables (kale, peppers, onion, broccoli)",
+      "1 garlic clove, minced",
+      "1/4 cup feta cheese",
+      "1 tsp dried oregano",
+      "1 tsp lemon zest",
+      "1/4 tsp turmeric"
     ],
     "steps": [
-      "Whisk eggs and mix in veggies.",
-      "Pour into muffin tin, bake at 350°F for 18-20 min."
+      "Whisk the eggs with the oregano, lemon zest, garlic and turmeric.",
+      "Mix in the kale, peppers, onion and broccoli.",
+      "Pour into a muffin tin and bake at 350°F for 18–20 min, until set."
     ]
   },
   {
@@ -5887,7 +5894,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 21, "carbs": 19, "fat": 8, "saturatedFat": 1, "calories": 232,
+    "protein": 22, "carbs": 21, "fat": 12, "saturatedFat": 1, "calories": 269, "sodium": 120,
     "tags": [
       "breakfast",
       "easy-prep",
@@ -5896,13 +5903,17 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1/2 cup rolled oats",
-      "1/2 cup unsweetened almond milk",
+      "1/2 cup oat milk (or low-fat milk)",
       "1/4 cup Greek yogurt",
-      "1/2 cup blueberries"
+      "1/2 cup blueberries",
+      "1 tbsp ground flaxseed",
+      "1/2 tsp cinnamon",
+      "1/4 tsp vanilla extract",
+      "1 tsp lemon zest"
     ],
     "steps": [
-      "Mix ingredients in a jar.",
-      "Refrigerate overnight."
+      "Mix the oats, oat milk, yogurt, flaxseed, cinnamon, vanilla and lemon zest in a jar.",
+      "Stir in the blueberries and refrigerate overnight."
     ]
   },
   {
@@ -5914,7 +5925,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 22, "carbs": 15, "fat": 12, "saturatedFat": 5, "calories": 256,
+    "protein": 22, "carbs": 16, "fat": 14, "saturatedFat": 5, "calories": 270, "sodium": 150,
     "tags": [
       "breakfast",
       "high-protein",
@@ -5924,19 +5935,20 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 slice whole-grain bread",
-      "1/2 avocado",
+      "1/3 avocado",
+      "1 tbsp ground flaxseed",
       "1 egg",
       "1 tsp lemon juice",
       "Salt and pepper to taste"
     ],
     "steps": [
       "Toast the bread.",
-      "Mash the avocado with lemon juice and spread it on the toast.",
+      "Mash the avocado with lemon juice and the ground flaxseed and spread it on the toast.",
       "Cook the egg as you like and place it on top.",
       "Season with salt and pepper."
     ]
   },
-  {
+{
     "id": "costa-rican-breakfast-bowl",
     "image": "kitchen/costa-rican-breakfast-bowl.jpg",
     "credit": "",
@@ -5974,7 +5986,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20, "carbs": 6, "fat": 14, "saturatedFat": 5, "calories": 230,
+    "protein": 21, "carbs": 9, "fat": 13, "saturatedFat": 4, "calories": 235, "sodium": 300,
     "tags": [
       "breakfast",
       "high-protein",
@@ -5985,14 +5997,19 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 eggs",
-      "1/2 cup spinach",
-      "1/2 cup tomatoes",
-      "2 tbsp feta cheese",
-      "1 tsp olive oil"
+      "1/2 cup kale, chopped",
+      "1/2 cup broccoli, chopped",
+      "1/2 cup tomatoes, diced",
+      "1 tbsp feta cheese",
+      "1 tsp olive oil",
+      "1 tsp lemon zest",
+      "1 tbsp fresh dill, chopped",
+      "1/4 tsp turmeric"
     ],
     "steps": [
-      "Whisk eggs, add veggies.",
-      "Cook in olive oil until set."
+      "Whisk the eggs with the lemon zest and turmeric.",
+      "Cook the kale, broccoli and tomatoes in olive oil for 2 minutes, until the kale wilts.",
+      "Pour in the eggs and cook until set, then top with feta and dill and serve."
     ]
   },
   {
@@ -6004,7 +6021,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 25, "carbs": 15, "fat": 9, "saturatedFat": 1, "calories": 241,
+    "protein": 25, "carbs": 16, "fat": 9, "saturatedFat": 1, "calories": 235, "sodium": 70,
     "tags": [
       "breakfast",
       "snacks-smoothies",
@@ -6017,12 +6034,12 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 cup plain Greek yogurt",
       "1/2 cup frozen berries",
+      "1/2 cup blueberries",
       "1 tbsp hemp seeds",
-      "1/2 banana",
       "1 tbsp chia seeds"
     ],
     "steps": [
-      "Blend the yogurt, berries, and banana until smooth.",
+      "Blend the yogurt, berries and blueberries until smooth.",
       "Pour into a bowl.",
       "Top with hemp seeds and chia seeds."
     ]
@@ -6036,7 +6053,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24, "carbs": 6, "fat": 8, "saturatedFat": 3, "calories": 192,
+    "protein": 25, "carbs": 8, "fat": 12, "saturatedFat": 3, "calories": 229, "sodium": 380,
     "tags": [
       "breakfast",
       "high-protein",
@@ -6048,11 +6065,15 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 cup cottage cheese",
       "1/2 cup mixed berries",
-      "1 tbsp chopped walnuts"
+      "1 tbsp chopped walnuts",
+      "1 tbsp ground flaxseed",
+      "1/2 tsp cinnamon",
+      "1 tsp lime zest"
     ],
     "steps": [
       "Spoon the cottage cheese into a bowl.",
-      "Top with berries and walnuts."
+      "Top with berries, walnuts and flaxseed.",
+      "Finish with cinnamon and lime zest."
     ]
   },
   {
@@ -6064,7 +6085,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 25, "carbs": 18, "fat": 8, "saturatedFat": 3, "calories": 244,
+    "protein": 21, "carbs": 20, "fat": 11, "saturatedFat": 2, "calories": 262, "sodium": 70,
     "tags": [
       "breakfast",
       "easy-prep",
@@ -6075,12 +6096,16 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1/4 cup chia seeds",
-      "1 cup coconut milk",
+      "1/2 cup light coconut milk",
+      "1/2 cup plain Greek yogurt",
       "1 tbsp shredded coconut",
-      "1/2 cup berries"
+      "1/2 cup berries",
+      "1 tbsp ground flaxseed",
+      "1/4 tsp vanilla extract",
+      "1/2 tsp cinnamon"
     ],
     "steps": [
-      "Stir chia seeds into coconut milk.",
+      "Stir the chia seeds and flaxseed into the light coconut milk, yogurt, vanilla and cinnamon.",
       "Refrigerate overnight.",
       "Top with shredded coconut and berries."
     ]
@@ -6089,12 +6114,12 @@ const KITCHEN_RECIPES = [
     "id": "spinach-feta-breakfast-wrap",
     "image": "kitchen/spinach-feta-breakfast-wrap.jpg",
     "credit": "",
-    "name": "Spinach & Feta Breakfast Wrap",
+    "name": "Kale & Feta Breakfast Wrap",
     "category": "Breakfast",
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24, "carbs": 17, "fat": 13, "saturatedFat": 5, "calories": 281,
+    "protein": 24, "carbs": 17, "fat": 13, "saturatedFat": 5, "calories": 281, "sodium": 320,
     "tags": [
       "breakfast",
       "high-protein",
@@ -6105,17 +6130,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 whole-grain wrap",
       "2 eggs",
-      "1 cup spinach",
+      "1 cup kale, chopped",
       "2 tbsp feta cheese",
       "1 tsp olive oil"
     ],
     "steps": [
       "Whisk the eggs.",
-      "Cook the spinach in olive oil, add the eggs and scramble.",
+      "Cook the kale in olive oil until wilted, add the eggs and scramble.",
       "Spoon into the wrap with feta and roll up."
     ]
   },
-  {
+{
     "id": "mediterranean-chickpea-salad",
     "image": "kitchen/mediterranean-chickpea-salad.jpg",
     "credit": "",
@@ -6157,7 +6182,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34, "carbs": 18, "fat": 10, "saturatedFat": 3, "calories": 298,
+    "protein": 35, "carbs": 20, "fat": 14, "saturatedFat": 3, "calories": 335, "sodium": 250,
     "tags": [
       "lunch",
       "high-protein",
@@ -6172,11 +6197,12 @@ const KITCHEN_RECIPES = [
       "1/2 red onion, diced",
       "1 tbsp olive oil",
       "1 tbsp lemon juice",
+      "1 tbsp ground flaxseed",
       "1 cup arugula"
     ],
     "steps": [
       "Combine tuna, white beans, and onion in a bowl.",
-      "Drizzle with olive oil and lemon juice.",
+      "Whisk the olive oil, lemon juice and flaxseed and drizzle over the salad.",
       "Serve over arugula."
     ]
   },
@@ -6189,7 +6215,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 24, "carbs": 19, "fat": 10, "saturatedFat": 4, "calories": 262,
+    "protein": 25, "carbs": 22, "fat": 10, "saturatedFat": 4, "calories": 277, "sodium": 280,
     "tags": [
       "lunch",
       "high-protein",
@@ -6202,6 +6228,7 @@ const KITCHEN_RECIPES = [
       "1 cup cooked quinoa",
       "1 cup cherry tomatoes, halved",
       "1/2 cucumber, diced",
+      "1/2 cup broccoli, chopped",
       "1/4 cup feta cheese",
       "2 tbsp olive oil",
       "1 tbsp lemon juice",
@@ -6209,7 +6236,7 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Cook the quinoa and let it cool.",
-      "Combine with tomatoes, cucumber, feta, and olives.",
+      "Combine with tomatoes, cucumber, broccoli, feta, and olives.",
       "Drizzle with olive oil and lemon juice."
     ]
   },
@@ -6222,7 +6249,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26, "carbs": 15, "fat": 14, "saturatedFat": 4, "calories": 290,
+    "protein": 17, "carbs": 22, "fat": 14, "saturatedFat": 3, "calories": 290, "sodium": 200,
     "tags": [
       "lunch",
       "high-protein",
@@ -6234,15 +6261,19 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "1/4 cup cooked lentils",
+      "1 cup cooked lentils",
       "1 cup mixed greens",
+      "1/2 cup cherry tomatoes, halved",
       "1/2 cucumber, diced",
+      "2 hard-boiled eggs, halved",
       "2 tbsp olive oil",
-      "Lemon juice"
+      "1 tbsp lemon juice",
+      "1/4 cup chopped fresh herbs (parsley, mint, basil)"
     ],
     "steps": [
-      "Toss ingredients together.",
-      "Drizzle with dressing."
+      "Toss the lentils, greens, tomatoes, cucumber and herbs together.",
+      "Top with the egg halves.",
+      "Drizzle with olive oil and lemon juice and serve."
     ]
   },
   {
@@ -6254,7 +6285,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 28, "carbs": 20, "fat": 14, "saturatedFat": 4, "calories": 318,
+    "protein": 28, "carbs": 20, "fat": 14, "saturatedFat": 4, "calories": 318, "sodium": 250,
     "tags": [
       "lunch",
       "high-protein",
@@ -6263,7 +6294,7 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 whole-grain wrap",
-      "4 oz sliced turkey",
+      "4 oz fresh cooked turkey breast, sliced",
       "1/2 avocado, sliced",
       "1 cup lettuce",
       "2 tbsp hummus"
@@ -6283,7 +6314,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 22, "carbs": 20, "fat": 12, "saturatedFat": 5, "calories": 276,
+    "protein": 22, "carbs": 21, "fat": 14, "saturatedFat": 3, "calories": 295, "sodium": 280,
     "tags": [
       "lunch",
       "vegetarian",
@@ -6294,15 +6325,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 can white beans, drained",
       "2 tomatoes, sliced",
-      "1 ball fresh mozzarella, sliced",
+      "1/2 ball fresh mozzarella, sliced",
       "1/4 cup basil leaves",
       "2 tbsp olive oil",
-      "1 tbsp balsamic vinegar"
+      "1 tbsp balsamic vinegar",
+      "1 tsp lemon zest",
+      "1 tbsp pumpkin seeds"
     ],
     "steps": [
       "Arrange tomato and mozzarella slices on a plate.",
       "Add white beans and basil.",
-      "Drizzle with olive oil and balsamic vinegar."
+      "Drizzle with olive oil and balsamic vinegar, finish with lemon zest and pumpkin seeds."
     ]
   },
   {
@@ -6314,7 +6347,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 21, "carbs": 19, "fat": 10, "saturatedFat": 5, "calories": 250,
+    "protein": 22, "carbs": 24, "fat": 9, "saturatedFat": 4, "calories": 268, "sodium": 280,
     "tags": [
       "lunch",
       "vegetarian",
@@ -6324,16 +6357,20 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 cup cooked farro",
       "1 cup roasted vegetables",
+      "1/2 cup Brussels sprouts, halved",
       "1/2 cup chickpeas",
       "2 tbsp olive oil",
       "1 tbsp lemon juice",
-      "1/4 cup feta cheese"
+      "2 tbsp feta cheese",
+      "1 tsp dried oregano",
+      "1 garlic clove, minced",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Cook the farro.",
-      "Roast the vegetables.",
+      "Toss the vegetables and Brussels sprouts with half the olive oil, oregano and garlic, and roast at 400°F until golden at the edges.",
       "Combine farro, vegetables, and chickpeas.",
-      "Top with feta, olive oil, and lemon juice."
+      "Top with feta, remaining olive oil, lemon juice and lemon zest."
     ]
   },
   {
@@ -6345,7 +6382,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26, "carbs": 18, "fat": 12, "saturatedFat": 3, "calories": 284,
+    "protein": 28, "carbs": 23, "fat": 12, "saturatedFat": 3, "calories": 312, "sodium": 250,
     "tags": [
       "lunch",
       "high-protein",
@@ -6357,14 +6394,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 chicken breasts",
       "2 cups mixed vegetables",
+      "1/2 cup Brussels sprouts, halved",
       "1 tbsp olive oil",
       "1 tsp herbs",
+      "1/2 tsp turmeric",
+      "1 lemon, half juiced and half zested",
       "Salt and pepper"
     ],
     "steps": [
-      "Season the chicken and vegetables with olive oil and herbs.",
-      "Roast at 400°F for 20 to 25 minutes until the chicken is cooked through.",
-      "Slice and serve."
+      "Pat the chicken dry, season with olive oil, herbs, turmeric, salt and pepper.",
+      "Roast chicken, vegetables and Brussels sprouts at 400°F for 20 to 25 minutes until the chicken is cooked through and golden.",
+      "Slice, squeeze lemon juice over the top and finish with lemon zest."
     ]
   },
   {
@@ -6376,7 +6416,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 23, "carbs": 20, "fat": 15, "saturatedFat": 5, "calories": 307,
+    "protein": 23, "carbs": 20, "fat": 13, "saturatedFat": 4, "calories": 285, "sodium": 300,
     "tags": [
       "lunch",
       "high-protein",
@@ -6386,12 +6426,12 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "2 tbsp dressing",
+      "2 tbsp lemon-olive oil dressing (1 tbsp olive oil, 1 tbsp lemon juice, 1 tsp chopped parsley)",
       "1/2 cup chickpeas",
       "1/2 cup cherry tomatoes, halved",
       "1/2 cup cucumber, diced",
       "1 cup greens",
-      "1/4 cup feta cheese"
+      "2 tbsp feta cheese"
     ],
     "steps": [
       "Pour dressing into the bottom of a jar.",
@@ -6409,7 +6449,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 23, "carbs": 16, "fat": 13, "saturatedFat": 4, "calories": 273,
+    "protein": 26, "carbs": 22, "fat": 14, "saturatedFat": 4, "calories": 328, "sodium": 280,
     "tags": [
       "lunch",
       "vegetarian",
@@ -6422,6 +6462,7 @@ const KITCHEN_RECIPES = [
       "2 zucchini, spiralized",
       "1 cup cherry tomatoes, halved",
       "1/2 cucumber, diced",
+      "1/2 cup chickpeas",
       "1/4 cup feta cheese",
       "2 tbsp olive oil",
       "1 tbsp lemon juice",
@@ -6429,7 +6470,7 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Spiralize the zucchini into noodles.",
-      "Combine with tomatoes, cucumber, feta, and olives.",
+      "Combine with tomatoes, cucumber, chickpeas, feta, and olives.",
       "Drizzle with olive oil and lemon juice."
     ]
   },
@@ -6442,7 +6483,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34, "carbs": 20, "fat": 16, "saturatedFat": 5, "calories": 360,
+    "protein": 36, "carbs": 26, "fat": 13, "saturatedFat": 4, "calories": 360, "sodium": 200,
     "tags": [
       "dinner",
       "high-protein",
@@ -6454,16 +6495,17 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 salmon fillets (4 oz each)",
-      "1 lemon",
-      "2 tbsp olive oil",
+      "1 lemon, half juiced and half zested",
+      "1 tbsp olive oil",
       "2 garlic cloves, minced",
       "1 tsp herbs",
+      "1 cup steamed broccoli, for serving",
       "Salt and pepper"
     ],
     "steps": [
-      "Season the salmon with lemon juice, garlic, herbs, salt, and pepper.",
+      "Season the salmon with lemon juice, lemon zest, garlic, herbs, salt, and pepper.",
       "Heat olive oil in a pan.",
-      "Cook the salmon 4 to 5 minutes per side until flaky."
+      "Cook the salmon 4 to 5 minutes per side until flaky, rest 3 minutes, then serve with pan juices spooned over and the broccoli on the side."
     ]
   },
   {
@@ -6475,7 +6517,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32, "carbs": 12, "fat": 16, "saturatedFat": 3, "calories": 320,
+    "protein": 34, "carbs": 18, "fat": 12, "saturatedFat": 2, "calories": 290, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -6487,15 +6529,16 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 chicken breasts",
       "1 cup cherry tomatoes, halved",
+      "1 cup broccoli florets",
       "1/2 cup olives",
-      "2 tbsp olive oil",
+      "1 tbsp olive oil",
       "1 tsp oregano",
       "1 lemon"
     ],
     "steps": [
       "Season the chicken with oregano, salt, and pepper.",
       "Sear in olive oil until golden.",
-      "Add tomatoes and olives.",
+      "Add tomatoes, broccoli and olives and cook 5 minutes more, until the broccoli is just tender.",
       "Squeeze lemon over the top and serve."
     ]
   },
@@ -6508,7 +6551,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 25, "carbs": 16, "fat": 14, "saturatedFat": 2, "calories": 290,
+    "protein": 26, "carbs": 18, "fat": 14, "saturatedFat": 2, "calories": 300, "sodium": 350,
     "tags": [
       "dinner",
       "high-protein",
@@ -6520,16 +6563,18 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 lb ground turkey",
-      "1 can kidney beans, drained",
-      "1 can diced tomatoes",
+      "1 can kidney beans, drained, no salt added",
+      "1 can diced tomatoes, no salt added",
+      "1 cup chopped kale",
       "1 onion, diced",
-      "2 tbsp chili powder",
-      "1 tsp cumin"
+      "2 tbsp mild chili powder",
+      "1 tsp cumin",
+      "Juice of 1 lime"
     ],
     "steps": [
       "Brown the turkey with the onion.",
       "Add beans, tomatoes, chili powder, and cumin.",
-      "Simmer 25 minutes."
+      "Simmer 25 minutes, stir in the kale and lime juice and cook 5 minutes more, then serve."
     ]
   },
   {
@@ -6541,7 +6586,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32, "carbs": 16, "fat": 12, "saturatedFat": 3, "calories": 300,
+    "protein": 33, "carbs": 18, "fat": 16, "saturatedFat": 3, "calories": 337, "sodium": 250,
     "tags": [
       "dinner",
       "high-protein",
@@ -6554,6 +6599,7 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 cod fillets",
       "2 cups mixed vegetables",
+      "1 tbsp ground flaxseed",
       "1 tbsp olive oil",
       "1 lemon",
       "1 tsp herbs",
@@ -6561,7 +6607,7 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Place cod and vegetables on a baking sheet.",
-      "Drizzle with olive oil and lemon.",
+      "Sprinkle the flaxseed over the vegetables, drizzle with olive oil and lemon.",
       "Bake at 400°F for 15 to 18 minutes."
     ]
   },
@@ -6574,7 +6620,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26, "carbs": 20, "fat": 12, "saturatedFat": 2, "calories": 292,
+    "protein": 28, "carbs": 26, "fat": 12, "saturatedFat": 2, "calories": 322, "sodium": 300,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6586,13 +6632,15 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 block firm tofu, cubed",
       "2 cups mixed vegetables",
+      "1 cup broccoli florets",
       "1 tbsp olive oil",
       "1 tbsp low-sodium soy sauce",
-      "1 tsp sesame oil"
+      "1 tsp sesame oil",
+      "1/2 tsp turmeric"
     ],
     "steps": [
       "Press and cube the tofu.",
-      "Stir-fry tofu and vegetables in olive oil.",
+      "Stir-fry tofu, vegetables and broccoli in olive oil with the turmeric.",
       "Add soy sauce and sesame oil.",
       "Serve warm."
     ]
@@ -6606,7 +6654,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 24, "carbs": 18, "fat": 12, "saturatedFat": 1, "calories": 276,
+    "protein": 25, "carbs": 20, "fat": 12, "saturatedFat": 1, "calories": 284, "sodium": 250,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6620,13 +6668,15 @@ const KITCHEN_RECIPES = [
       "1 cup lentils",
       "2 carrots, diced",
       "1 onion, diced",
+      "1 cup chopped kale",
       "2 cups low-sodium broth",
       "1 tbsp olive oil",
-      "1 tsp herbs"
+      "1 tsp herbs",
+      "1/2 tsp turmeric"
     ],
     "steps": [
       "Heat olive oil and cook the onion and carrots.",
-      "Add lentils and broth.",
+      "Add lentils, kale, turmeric and broth.",
       "Simmer 30 minutes until lentils are tender."
     ]
   },
@@ -6639,7 +6689,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32, "carbs": 19, "fat": 14, "saturatedFat": 2, "calories": 330,
+    "protein": 32, "carbs": 19, "fat": 14, "saturatedFat": 2, "calories": 330, "sodium": 200,
     "tags": [
       "dinner",
       "high-protein",
@@ -6653,11 +6703,13 @@ const KITCHEN_RECIPES = [
       "1/2 cup yogurt",
       "1 tbsp lemon juice",
       "1 tsp oregano",
+      "1/2 tsp turmeric",
+      "1 tsp grated ginger",
       "1 bell pepper, cut into chunks",
       "1/2 red onion, cut into chunks"
     ],
     "steps": [
-      "Marinate the chicken in yogurt, lemon juice, and oregano for 15 minutes.",
+      "Marinate the chicken in yogurt, lemon juice, oregano, turmeric and ginger for 15 minutes.",
       "Thread chicken, pepper, and onion onto skewers.",
       "Grill 10 to 12 minutes, turning once."
     ]
@@ -6671,7 +6723,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 23, "carbs": 20, "fat": 15, "saturatedFat": 3, "calories": 307,
+    "protein": 23, "carbs": 20, "fat": 13, "saturatedFat": 3, "calories": 290, "sodium": 300,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6684,12 +6736,15 @@ const KITCHEN_RECIPES = [
       "1 cup cooked quinoa",
       "1 can black beans, drained",
       "1 cup diced tomatoes",
-      "1/2 cup shredded cheese",
-      "1 tsp cumin"
+      "1/4 cup shredded part-skim mozzarella",
+      "1 tsp cumin",
+      "1 garlic clove, minced",
+      "1 tsp dried oregano",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Cut the tops off the peppers and remove the seeds.",
-      "Mix quinoa, beans, tomatoes, cheese, and cumin.",
+      "Mix quinoa, beans, tomatoes, cheese, cumin, garlic, oregano and lemon zest.",
       "Fill the peppers.",
       "Bake at 375°F for 25 minutes."
     ]
@@ -6703,7 +6758,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 23, "carbs": 15, "fat": 10, "saturatedFat": 2, "calories": 242,
+    "protein": 23, "carbs": 15, "fat": 10, "saturatedFat": 2, "calories": 242, "sodium": 250,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6719,13 +6774,16 @@ const KITCHEN_RECIPES = [
       "1 can diced tomatoes",
       "1 onion, diced",
       "2 garlic cloves, minced",
+      "1 tbsp tomato paste",
       "2 tbsp olive oil",
-      "1 tsp herbs"
+      "1 tsp herbs",
+      "1 tbsp lemon juice",
+      "1/4 cup fresh basil leaves"
     ],
     "steps": [
-      "Heat olive oil and cook the onion and garlic.",
+      "Heat olive oil and cook the onion and garlic, then stir in the tomato paste and cook 2 minutes until brick red.",
       "Add beans and tomatoes.",
-      "Simmer 20 minutes."
+      "Simmer 20 minutes, stir in lemon juice and basil, and serve."
     ]
   },
   {
@@ -6737,7 +6795,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 24, "carbs": 15, "fat": 13, "saturatedFat": 3, "calories": 273,
+    "protein": 24, "carbs": 15, "fat": 9, "saturatedFat": 2, "calories": 250, "sodium": 300,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6748,17 +6806,19 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "1 can coconut milk",
+      "1/2 can light coconut milk",
+      "1 cup low-sodium vegetable broth",
       "2 cups mixed vegetables",
       "1 tbsp curry paste",
       "1 tbsp lime juice",
+      "1 tsp lime zest",
       "1 cup chickpeas"
     ],
     "steps": [
-      "Heat the coconut milk and stir in the curry paste.",
+      "Heat the light coconut milk and broth and stir in the curry paste.",
       "Add vegetables and chickpeas.",
       "Simmer 20 minutes.",
-      "Stir in lime juice."
+      "Stir in lime juice and lime zest."
     ]
   },
   {
@@ -6770,7 +6830,7 @@ const KITCHEN_RECIPES = [
     "time": 35,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 21, "carbs": 13, "fat": 14, "saturatedFat": 2, "calories": 262,
+    "protein": 21, "carbs": 13, "fat": 14, "saturatedFat": 2, "calories": 262, "sodium": 280,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6787,12 +6847,14 @@ const KITCHEN_RECIPES = [
       "1 onion, diced",
       "2 garlic cloves, minced",
       "1 tsp smoked paprika",
-      "2 tbsp olive oil"
+      "2 tbsp olive oil",
+      "1 tbsp sherry vinegar",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Heat olive oil and cook the onion and garlic.",
       "Add chickpeas, tomatoes, and paprika.",
-      "Simmer 25 minutes."
+      "Simmer 25 minutes, stir in sherry vinegar and lemon zest, and serve."
     ]
   },
   {
@@ -6804,7 +6866,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28, "carbs": 16, "fat": 12, "saturatedFat": 2, "calories": 284,
+    "protein": 29, "carbs": 18, "fat": 16, "saturatedFat": 2, "calories": 321, "sodium": 250,
     "tags": [
       "dinner",
       "high-protein",
@@ -6817,12 +6879,14 @@ const KITCHEN_RECIPES = [
       "1/2 lb shrimp",
       "2 cups mixed vegetables",
       "1 cup cooked quinoa",
+      "1 tbsp ground flaxseed",
       "1 tbsp olive oil",
       "1 lemon",
       "1 tsp herbs"
     ],
     "steps": [
       "Season the shrimp.",
+      "Sprinkle the flaxseed over the vegetables.",
       "Grill shrimp and vegetables 3 to 4 minutes per side.",
       "Serve over quinoa with lemon."
     ]
@@ -6836,7 +6900,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 20, "carbs": 17, "fat": 17, "saturatedFat": 2, "calories": 301,
+    "protein": 10, "carbs": 24, "fat": 7, "saturatedFat": 1, "calories": 205, "sodium": 300,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6851,14 +6915,16 @@ const KITCHEN_RECIPES = [
       "1 zucchini, diced",
       "1 can diced tomatoes",
       "4 cups low-sodium broth",
-      "1/2 cup small pasta",
-      "1 tbsp olive oil"
+      "1/2 cup whole-grain small pasta",
+      "1 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1/4 cup fresh basil leaves"
     ],
     "steps": [
       "Heat olive oil and cook the carrots and zucchini.",
       "Add beans, tomatoes, and broth.",
       "Simmer 20 minutes.",
-      "Add pasta and cook 10 minutes more."
+      "Add pasta and cook 10 minutes more, then stir in lemon juice and basil."
     ]
   },
   {
@@ -6870,7 +6936,7 @@ const KITCHEN_RECIPES = [
     "time": 40,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 28, "carbs": 16, "fat": 16, "saturatedFat": 3, "calories": 320,
+    "protein": 28, "carbs": 16, "fat": 12, "saturatedFat": 2, "calories": 285, "sodium": 280,
     "tags": [
       "dinner",
       "high-protein",
@@ -6880,16 +6946,18 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "4 chicken thighs",
+      "4 chicken thighs, skinless",
       "2 tbsp olive oil",
       "1 tsp rosemary",
       "1 tsp thyme",
       "2 garlic cloves, minced",
+      "1 lemon, sliced",
       "Salt and pepper"
     ],
     "steps": [
       "Rub the chicken with olive oil, herbs, and garlic.",
-      "Roast at 400°F for 30 to 35 minutes until cooked through."
+      "Roast at 400°F for 30 to 35 minutes with the lemon slices until cooked through and golden.",
+      "Rest 5 minutes, squeeze lemon over the top and serve."
     ]
   },
   {
@@ -6901,7 +6969,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28, "carbs": 16, "fat": 16, "saturatedFat": 4, "calories": 320,
+    "protein": 29, "carbs": 18, "fat": 12, "saturatedFat": 3.5, "calories": 295, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -6913,15 +6981,16 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 tuna steaks",
       "2 cups greens",
+      "1 cup chopped kale",
       "1/2 cup green beans",
       "1 egg, hard-boiled",
       "1/4 cup olives",
-      "2 tbsp olive oil",
+      "1 tbsp olive oil",
       "1 tbsp lemon juice"
     ],
     "steps": [
       "Sear the tuna 2 to 3 minutes per side.",
-      "Arrange greens, green beans, egg, and olives in a bowl.",
+      "Arrange greens, kale, green beans, egg, and olives in a bowl.",
       "Top with sliced tuna.",
       "Drizzle with olive oil and lemon juice."
     ]
@@ -6935,7 +7004,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34, "carbs": 14, "fat": 12, "saturatedFat": 4, "calories": 300,
+    "protein": 36, "carbs": 19, "fat": 12, "saturatedFat": 4, "calories": 328, "sodium": 200,
     "tags": [
       "dinner",
       "high-protein",
@@ -6948,13 +7017,14 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 salmon fillets",
       "1 bunch asparagus",
+      "1/2 cup Brussels sprouts, halved",
       "1 tbsp olive oil",
       "1 lemon",
       "1 tsp herbs",
       "Salt and pepper"
     ],
     "steps": [
-      "Place salmon and asparagus on a sheet pan.",
+      "Place salmon, asparagus and Brussels sprouts on a sheet pan.",
       "Drizzle with olive oil and lemon.",
       "Bake at 400°F for 12 to 15 minutes."
     ]
@@ -6968,7 +7038,7 @@ const KITCHEN_RECIPES = [
     "time": 45,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 22, "carbs": 16, "fat": 9, "saturatedFat": 4, "calories": 233,
+    "protein": 20, "carbs": 16, "fat": 8, "saturatedFat": 3, "calories": 220, "sodium": 380,
     "tags": [
       "dinner",
       "vegetarian",
@@ -6978,18 +7048,20 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 eggplant, sliced",
       "1 cup marinara sauce",
-      "1 cup shredded mozzarella",
-      "1/4 cup parmesan",
+      "3/4 cup shredded part-skim mozzarella",
+      "2 tbsp Parmesan",
       "1 tbsp olive oil",
-      "1 tsp herbs"
+      "1 tsp herbs",
+      "1/4 cup fresh basil leaves",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Brush eggplant slices with olive oil and bake at 400°F for 15 minutes.",
       "Layer eggplant, marinara, and cheese in a baking dish.",
-      "Bake 20 minutes until bubbly."
+      "Bake 20 minutes until bubbly, then top with basil and lemon zest."
     ]
   },
-  {
+{
     "id": "mediterranean-lentil-bowl",
     "image": "kitchen/mediterranean-lentil-bowl.jpg",
     "credit": "",
@@ -7032,7 +7104,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 24, "carbs": 15, "fat": 14, "saturatedFat": 2, "calories": 282,
+    "protein": 26, "carbs": 21, "fat": 14, "saturatedFat": 2, "calories": 312, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -7044,12 +7116,14 @@ const KITCHEN_RECIPES = [
       "2 chicken breasts, sliced",
       "1 cup cooked quinoa",
       "2 cups mixed vegetables",
+      "1/2 cup broccoli florets",
       "1 tbsp olive oil",
-      "1 tbsp low-sodium soy sauce"
+      "1 tbsp low-sodium soy sauce",
+      "1/2 tsp turmeric"
     ],
     "steps": [
-      "Cook the chicken in olive oil.",
-      "Add vegetables and stir-fry.",
+      "Cook the chicken in olive oil with the turmeric.",
+      "Add vegetables and broccoli and stir-fry.",
       "Stir in quinoa and soy sauce.",
       "Serve warm."
     ]
@@ -7063,7 +7137,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28, "carbs": 20, "fat": 12, "saturatedFat": 2, "calories": 300,
+    "protein": 30, "carbs": 21, "fat": 16, "saturatedFat": 2, "calories": 345, "sodium": 200,
     "tags": [
       "dinner",
       "high-protein",
@@ -7079,10 +7153,11 @@ const KITCHEN_RECIPES = [
       "1/4 red onion, diced",
       "1 tbsp lime juice",
       "1 tbsp olive oil",
-      "1 tsp herbs"
+      "1 tsp herbs",
+      "1 tbsp pumpkin seeds"
     ],
     "steps": [
-      "Mix tomatoes, onion, and lime juice for the salsa.",
+      "Mix tomatoes, onion, lime juice and pumpkin seeds for the salsa.",
       "Broil the tilapia 4 to 5 minutes per side.",
       "Top with salsa."
     ]
@@ -7096,7 +7171,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 15, "carbs": 8, "fat": 14, "saturatedFat": 2, "calories": 218,
+    "protein": 15, "carbs": 13, "fat": 14, "saturatedFat": 2, "calories": 239, "sodium": 5,
     "tags": [
       "snacks-smoothies",
       "easy-prep",
@@ -7107,14 +7182,15 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "2 tbsp almonds",
+      "2 tbsp pistachios",
       "2 tbsp walnuts",
       "1 tbsp pumpkin seeds",
-      "1 tbsp sunflower seeds"
+      "1 tbsp sunflower seeds",
+      "1/4 cup blueberries"
     ],
     "steps": [
       "Combine all nuts and seeds in a small bowl.",
-      "Serve."
+      "Scatter the blueberries over the top and serve."
     ]
   },
   {
@@ -7126,7 +7202,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 12, "carbs": 14, "fat": 2, "saturatedFat": 0, "calories": 122,
+    "protein": 13, "carbs": 16, "fat": 6, "saturatedFat": 0, "calories": 159, "sodium": 60,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -7138,15 +7214,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "3/4 cup plain Greek yogurt",
       "1 tsp honey",
-      "1/2 cup berries"
+      "1/2 cup berries",
+      "1 tbsp ground flaxseed"
     ],
     "steps": [
       "Spoon yogurt into a bowl.",
+      "Stir in the flaxseed.",
       "Top with berries.",
       "Drizzle with honey."
     ]
   },
-  {
+{
     "id": "veggie-sticks-with-hummus",
     "image": "kitchen/veggie-sticks-with-hummus.jpg",
     "credit": "",
@@ -7180,12 +7258,12 @@ const KITCHEN_RECIPES = [
     "id": "apple-with-almond-butter",
     "image": "kitchen/apple-with-almond-butter.jpg",
     "credit": "",
-    "name": "Apple with Almond Butter",
+    "name": "Apple with Sunflower-Seed Butter",
     "category": "Snacks",
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 13, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 172,
+    "protein": 11, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 170, "sodium": 40,
     "tags": [
       "snacks-smoothies",
       "easy-prep",
@@ -7197,11 +7275,11 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 apple, sliced",
-      "2 tbsp almond butter"
+      "2 tbsp sunflower-seed butter"
     ],
     "steps": [
       "Slice the apple.",
-      "Serve with almond butter for dipping."
+      "Serve with sunflower-seed butter for dipping."
     ]
   },
   {
@@ -7213,7 +7291,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 14, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 176,
+    "protein": 14, "carbs": 12, "fat": 8, "saturatedFat": 1, "calories": 176, "sodium": 300,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -7226,11 +7304,12 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 cup edamame in pods",
-      "1/2 tsp sea salt"
+      "1/8 tsp sea salt",
+      "1 tsp lemon zest"
     ],
     "steps": [
       "Boil or steam the edamame for 5 minutes.",
-      "Drain and sprinkle with sea salt."
+      "Drain, sprinkle with sea salt and lemon zest, and toss."
     ]
   },
   {
@@ -7242,7 +7321,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 12, "carbs": 12, "fat": 6, "saturatedFat": 2, "calories": 150,
+    "protein": 18, "carbs": 20, "fat": 6, "saturatedFat": 2, "calories": 210, "sodium": 300,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -7256,12 +7335,16 @@ const KITCHEN_RECIPES = [
       "2 carrots, diced",
       "2 celery stalks, diced",
       "1 onion, diced",
+      "1 can white beans, drained and rinsed",
       "4 cups low-sodium broth",
-      "1 tsp herbs"
+      "1 tbsp olive oil",
+      "1 tsp herbs",
+      "1 tbsp lemon juice"
     ],
     "steps": [
-      "Combine all ingredients in a pot.",
-      "Simmer 20 minutes until vegetables are tender."
+      "Warm the olive oil and cook the onion, carrots and celery for 5 minutes until softened.",
+      "Add the beans and broth and simmer 20 minutes until vegetables are tender.",
+      "Stir in lemon juice and herbs and serve."
     ]
   },
   {
@@ -7273,7 +7356,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 13, "carbs": 12, "fat": 5, "saturatedFat": 1, "calories": 145,
+    "protein": 14, "carbs": 15, "fat": 5, "saturatedFat": 1, "calories": 160, "sodium": 300,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -7283,12 +7366,16 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 cup low-sodium broth",
       "1/2 cup tofu cubes",
-      "2 cups greens",
-      "1 tsp miso paste"
+      "2 cups kale or bok choy, chopped",
+      "1/2 cup shredded carrots",
+      "1 tsp miso paste",
+      "1 tsp grated ginger",
+      "1 tsp lemon juice",
+      "1/2 tsp turmeric"
     ],
     "steps": [
-      "Heat broth, add tofu and greens.",
-      "Stir in miso before serving."
+      "Heat broth, add tofu, greens, carrots, ginger and turmeric, and simmer 3 minutes.",
+      "Stir in miso and lemon juice before serving."
     ]
   },
   {
@@ -7300,7 +7387,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 13, "carbs": 14, "fat": 2, "saturatedFat": 0, "calories": 126,
+    "protein": 17, "carbs": 15, "fat": 5, "saturatedFat": 1, "calories": 165, "sodium": 200,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -7316,12 +7403,15 @@ const KITCHEN_RECIPES = [
       "1 bell pepper",
       "1 tsp olive oil",
       "1 tbsp lemon juice",
+      "1 tbsp sherry vinegar",
+      "1/2 cup plain Greek yogurt, for serving",
+      "2 tbsp pumpkin seeds",
       "Salt to taste"
     ],
     "steps": [
       "Blend tomatoes, cucumber, and bell pepper until smooth.",
-      "Stir in olive oil and lemon juice.",
-      "Chill and serve."
+      "Stir in olive oil, lemon juice and sherry vinegar.",
+      "Chill and serve topped with a dollop of yogurt and pumpkin seeds."
     ]
   },
   {
@@ -7333,7 +7423,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 11, "carbs": 10, "fat": 1, "saturatedFat": 0, "calories": 93,
+    "protein": 17, "carbs": 13, "fat": 7, "saturatedFat": 1, "calories": 175, "sodium": 200,
     "tags": [
       "small-portions",
       "easy-prep",
@@ -7346,13 +7436,18 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 cucumbers, sliced",
+      "1/2 cup cherry tomatoes, halved",
+      "1/2 cup plain Greek yogurt",
       "1 tbsp rice vinegar",
+      "1 tbsp chopped fresh dill",
+      "1 tbsp lemon juice",
+      "1 tbsp pumpkin seeds",
       "Salt to taste"
     ],
     "steps": [
-      "Slice the cucumbers.",
-      "Toss with rice vinegar and salt.",
-      "Serve chilled."
+      "Slice the cucumbers and halve the tomatoes.",
+      "Whisk the yogurt, vinegar, dill and lemon juice with salt.",
+      "Toss with the cucumbers and tomatoes, sprinkle with pumpkin seeds and serve chilled."
     ]
   },
   {
@@ -7364,7 +7459,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 14, "carbs": 14, "fat": 2, "saturatedFat": 1, "calories": 130,
+    "protein": 14, "carbs": 14, "fat": 2, "saturatedFat": 1, "calories": 130, "sodium": 350,
     "tags": [
       "small-portions",
       "high-protein",
@@ -7376,27 +7471,26 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "3/4 cup cottage cheese",
       "1/2 cup mixed berries",
-      "1/2 peach, sliced"
+      "1/2 peach, sliced",
+      "1/2 tsp cinnamon",
+      "1 tsp lime zest"
     ],
     "steps": [
       "Spoon cottage cheese into a bowl.",
-      "Top with berries and peach slices."
+      "Top with berries and peach slices.",
+      "Finish with cinnamon and lime zest."
     ]
   },
   {
     "id": "tamagoyaki-with-spinach",
     "image": "kitchen/tamagoyaki-with-spinach.jpg",
     "credit": "",
-    "name": "Japanese Tamagoyaki with Spinach",
+    "name": "Japanese Tamagoyaki with Kale",
     "category": "Breakfast",
     "time": 15,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 25,
-    "carbs": 5,
-    "fat": 12,
-    "saturatedFat": 5.0,
-    "calories": 228,
+    "protein": 25, "carbs": 5, "fat": 12, "saturatedFat": 5, "calories": 228, "sodium": 250,
     "tags": [
       "breakfast",
       "high-protein",
@@ -7407,15 +7501,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "3 eggs",
       "2 egg whites",
-      "1 cup fresh spinach",
+      "1 cup fresh kale, finely chopped",
       "1 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1/2 tsp olive oil",
+      "1/4 tsp turmeric",
+      "1 tsp grated ginger",
       "Pinch of salt"
     ],
     "steps": [
-      "Whisk the eggs and egg whites with the soy sauce and salt.",
-      "Cook the spinach in a pan with the oil until wilted, then set aside.",
-      "Pour a thin layer of egg into the pan, add some spinach, and roll it up as it sets. Repeat with the rest of the egg and spinach, then slice."
+      "Whisk the eggs and egg whites with the soy sauce, turmeric, ginger and salt.",
+      "Cook the kale in a pan with the oil until wilted, then set aside.",
+      "Pour a thin layer of egg into the pan, add some kale, and roll it up as it sets. Repeat with the rest of the egg and kale, then slice."
     ]
   },
   {
@@ -7427,11 +7523,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 27,
-    "carbs": 16,
-    "fat": 8,
-    "saturatedFat": 3.4,
-    "calories": 244,
+    "protein": 28, "carbs": 20, "fat": 8, "saturatedFat": 3.4, "calories": 265, "sodium": 300,
     "tags": [
       "breakfast",
       "high-protein",
@@ -7440,18 +7532,21 @@ const KITCHEN_RECIPES = [
       "budget-friendly"
     ],
     "ingredients": [
-      "1/4 cup white rice",
+      "1/4 cup brown rice",
       "4 cups low-sodium chicken broth",
       "1 chicken breast, diced",
       "3 eggs",
       "1 cup sliced mushrooms",
+      "1 cup chopped kale",
       "2 green onions, sliced",
-      "1 tsp grated ginger"
+      "1 tsp grated ginger",
+      "1/2 tsp turmeric",
+      "1 tbsp lemon juice"
     ],
     "steps": [
-      "Simmer the rice and broth in a pot for 20 minutes, stirring often, until thick and creamy.",
-      "Add the chicken, mushrooms and ginger and cook 8 minutes more, until the chicken is done.",
-      "Stir in the eggs off the heat, then top with green onions and serve."
+      "Simmer the brown rice and broth in a pot for 35 minutes, stirring often, until thick and creamy.",
+      "Add the chicken, mushrooms, kale and ginger and cook 8 minutes more, until the chicken is done.",
+      "Stir in the eggs off the heat, then top with green onions, turmeric and lemon juice and serve."
     ]
   },
   {
@@ -7463,11 +7558,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 23,
-    "carbs": 8,
-    "fat": 12,
-    "saturatedFat": 3.8,
-    "calories": 232,
+    "protein": 23, "carbs": 8, "fat": 12, "saturatedFat": 3.8, "calories": 232, "sodium": 340,
     "tags": [
       "breakfast",
       "high-protein",
@@ -7480,11 +7571,13 @@ const KITCHEN_RECIPES = [
       "3 egg whites",
       "1/4 cup kimchi, chopped and rinsed",
       "1 tsp sesame oil",
+      "1/2 tsp turmeric",
+      "1 tsp grated ginger",
       "1 green onion, sliced"
     ],
     "steps": [
       "Heat the sesame oil in a pan and cook the kimchi for 2 minutes.",
-      "Whisk the eggs and egg whites and pour them into the pan.",
+      "Whisk the eggs and egg whites with the turmeric and ginger and pour them into the pan.",
       "Stir gently until the eggs are just set, then top with green onion."
     ]
   },
@@ -7497,11 +7590,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24,
-    "carbs": 13,
-    "fat": 8,
-    "saturatedFat": 2.7,
-    "calories": 220,
+    "protein": 24, "carbs": 12, "fat": 8, "saturatedFat": 2.7, "calories": 205, "sodium": 60,
     "tags": [
       "breakfast",
       "high-protein",
@@ -7514,13 +7603,13 @@ const KITCHEN_RECIPES = [
       "3 tbsp chia seeds",
       "6 tbsp light coconut milk",
       "1 cup plain Greek yogurt",
-      "1/2 cup mango, diced",
+      "1/2 cup blueberries, diced",
       "2 tbsp water"
     ],
     "steps": [
       "Stir the chia seeds, coconut milk, water and yogurt together in a jar.",
       "Chill in the fridge for at least 4 hours or overnight.",
-      "Top with mango and serve."
+      "Top with blueberries and serve."
     ]
   },
   {
@@ -7532,11 +7621,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24,
-    "carbs": 4,
-    "fat": 12,
-    "saturatedFat": 4.5,
-    "calories": 220,
+    "protein": 25, "carbs": 7, "fat": 12, "saturatedFat": 4.5, "calories": 235, "sodium": 300,
     "tags": [
       "breakfast",
       "high-protein",
@@ -7547,13 +7632,14 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 eggs",
       "1/2 cup cooked chicken, shredded",
+      "1/2 cup broccoli, chopped",
       "1/4 cup chopped fresh herbs (cilantro, mint, basil)",
       "1 tsp fish sauce",
       "1 tsp olive oil"
     ],
     "steps": [
       "Whisk the eggs with the fish sauce.",
-      "Cook the chicken and herbs in a pan with the oil for 1 minute.",
+      "Cook the chicken, broccoli and herbs in a pan with the oil for 2 minutes.",
       "Pour in the eggs and cook until set, then fold in half and serve."
     ]
   },
@@ -7566,11 +7652,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 32,
-    "carbs": 18,
-    "fat": 12,
-    "saturatedFat": 2.5,
-    "calories": 308,
+    "protein": 32, "carbs": 20, "fat": 12, "saturatedFat": 2.5, "calories": 315, "sodium": 450,
     "tags": [
       "lunch",
       "high-protein",
@@ -7580,17 +7662,18 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 salmon fillet",
-      "1 tbsp white miso paste",
-      "1/2 cup cooked rice",
+      "1/2 tbsp white miso paste",
+      "1 tbsp lemon juice",
+      "1/2 cup cooked brown rice",
       "1/2 cup shelled edamame",
       "1 cup steamed broccoli",
       "1 green onion, sliced",
       "1 tsp sesame seeds"
     ],
     "steps": [
-      "Spread the miso over the salmon and bake at 400°F for 12 minutes.",
-      "Spoon the rice into a bowl and top with the edamame and broccoli.",
-      "Flake the salmon over the bowl and finish with green onion and sesame seeds."
+      "Mix the miso with half the lemon juice, spread over the salmon and bake at 400°F for 12 minutes.",
+      "Spoon the brown rice into a bowl and top with the edamame and broccoli.",
+      "Flake the salmon over the bowl and finish with green onion, sesame seeds and remaining lemon juice."
     ]
   },
   {
@@ -7602,11 +7685,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 30,
-    "carbs": 8,
-    "fat": 12,
-    "saturatedFat": 2.5,
-    "calories": 260,
+    "protein": 30, "carbs": 11, "fat": 12, "saturatedFat": 2.5, "calories": 275, "sodium": 250,
     "tags": [
       "lunch",
       "high-protein",
@@ -7617,13 +7696,14 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 cups cooked chicken, shredded",
       "2 cucumbers, sliced thin",
+      "1 carrot, grated",
       "1 tbsp rice vinegar",
       "1 tbsp sesame oil",
       "1 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tsp sesame seeds"
     ],
     "steps": [
-      "Toss the chicken and cucumber together in a bowl.",
+      "Toss the chicken, cucumber and carrot together in a bowl.",
       "Whisk the vinegar, sesame oil and soy sauce, then pour over the salad.",
       "Sprinkle with sesame seeds and serve chilled."
     ]
@@ -7637,11 +7717,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28,
-    "carbs": 11,
-    "fat": 10,
-    "saturatedFat": 1.5,
-    "calories": 246,
+    "protein": 28, "carbs": 14, "fat": 10, "saturatedFat": 1.5, "calories": 261, "sodium": 350,
     "tags": [
       "lunch",
       "high-protein",
@@ -7653,12 +7729,13 @@ const KITCHEN_RECIPES = [
       "2 cups shredded green papaya",
       "2 cups cooked chicken, shredded",
       "1 carrot, grated",
+      "1/2 cup cherry tomatoes, halved",
       "Juice of 1 lime",
       "1 tbsp fish sauce",
       "1/4 cup fresh cilantro"
     ],
     "steps": [
-      "Toss the papaya, chicken and carrot in a large bowl.",
+      "Toss the papaya, chicken, carrot and tomatoes in a large bowl.",
       "Whisk the lime juice and fish sauce and pour over the salad.",
       "Top with cilantro and serve."
     ]
@@ -7672,11 +7749,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 30,
-    "carbs": 14,
-    "fat": 6,
-    "saturatedFat": 1.0,
-    "calories": 230,
+    "protein": 31, "carbs": 21, "fat": 6, "saturatedFat": 1, "calories": 265, "sodium": 520,
     "tags": [
       "lunch",
       "high-protein",
@@ -7686,17 +7759,19 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 chicken breasts",
-      "6 cups low-sodium chicken broth",
-      "2 oz rice noodles",
+      "4 cups low-sodium chicken broth",
+      "2 cups water",
+      "2 oz brown-rice noodles",
       "1 onion, halved",
-      "1 tbsp fish sauce",
+      "1 cup shredded carrots",
+      "2 tsp fish sauce",
       "2 cups bean sprouts",
       "1/4 cup fresh cilantro and basil",
       "1 lime, cut into wedges"
     ],
     "steps": [
-      "Simmer the broth with the onion and chicken for 20 minutes, then lift out the chicken and slice it.",
-      "Cook the noodles in the broth as directed, then return the chicken to the pot with the fish sauce.",
+      "Simmer the broth and water with the onion and chicken for 20 minutes, then lift out the chicken and slice it.",
+      "Cook the noodles in the broth as directed, then return the chicken to the pot with the fish sauce and carrots.",
       "Ladle into bowls and top with bean sprouts, herbs and lime."
     ]
   },
@@ -7709,11 +7784,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Medium",
     "servings": 2,
-    "protein": 30,
-    "carbs": 16,
-    "fat": 12,
-    "saturatedFat": 3.0,
-    "calories": 292,
+    "protein": 30, "carbs": 18, "fat": 12, "saturatedFat": 3, "calories": 300, "sodium": 400,
     "tags": [
       "lunch",
       "high-protein",
@@ -7723,19 +7794,20 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 chicken breasts, sliced thin",
-      "1 cup cooked rice",
+      "1 cup cooked brown rice",
       "2 eggs",
       "1 cup shredded carrots",
       "1 cup shredded zucchini",
-      "1 cup spinach",
+      "1 cup kale, chopped",
       "1/2 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tsp sesame oil",
-      "1 tbsp gluten-free gochujang"
+      "1/2 tsp smoked paprika",
+      "2 tsp gluten-free gochujang, on the side"
     ],
     "steps": [
-      "Cook the chicken in a pan with the soy sauce and sesame oil until done, about 8 minutes.",
-      "Wilt the spinach, cook the carrots and zucchini for 2 minutes, and fry the eggs.",
-      "Build each bowl with rice, chicken, vegetables and a fried egg, and serve with gochujang on the side."
+      "Cook the chicken in a pan with the soy sauce, sesame oil and smoked paprika until done, about 8 minutes.",
+      "Wilt the kale, cook the carrots and zucchini for 2 minutes, and fry the eggs.",
+      "Build each bowl with brown rice, chicken, vegetables and a fried egg, and serve with gochujang on the side."
     ]
   },
   {
@@ -7747,11 +7819,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 32,
-    "carbs": 7,
-    "fat": 14,
-    "saturatedFat": 2.0,
-    "calories": 282,
+    "protein": 32, "carbs": 12, "fat": 14, "saturatedFat": 2, "calories": 300, "sodium": 350,
     "tags": [
       "dinner",
       "high-protein",
@@ -7765,13 +7833,13 @@ const KITCHEN_RECIPES = [
       "1 tsp grated ginger",
       "2 cloves garlic, minced",
       "Juice of 1 lime",
-      "1/2 cup cooked rice",
+      "1/2 cup cooked brown rice",
       "2 cups steamed broccoli"
     ],
     "steps": [
       "Mix the soy sauce, ginger, garlic and lime juice, and brush it over the salmon.",
       "Pan-sear the salmon 4 minutes per side, brushing with more sauce as it cooks.",
-      "Serve with rice and broccoli."
+      "Serve with brown rice and broccoli."
     ]
   },
   {
@@ -7783,11 +7851,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Medium",
     "servings": 2,
-    "protein": 30,
-    "carbs": 1,
-    "fat": 10,
-    "saturatedFat": 2.0,
-    "calories": 214,
+    "protein": 32, "carbs": 7, "fat": 10, "saturatedFat": 2, "calories": 244, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -7802,12 +7866,13 @@ const KITCHEN_RECIPES = [
       "2 cloves garlic, minced",
       "Juice of 1 lime",
       "4 green onions, cut into pieces",
+      "1 cup broccoli florets",
       "Wooden skewers, soaked in water"
     ],
     "steps": [
       "Mix the soy sauce, ginger, garlic and lime juice, and marinate the chicken for 15 minutes.",
       "Thread the chicken and green onion pieces onto the skewers.",
-      "Grill or broil 10 to 12 minutes, turning and brushing with the marinade, until cooked through."
+      "Grill or broil 10 to 12 minutes, turning and brushing with the marinade, until cooked through. Grill the broccoli alongside for the last 6 minutes."
     ]
   },
   {
@@ -7819,11 +7884,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 28,
-    "carbs": 10,
-    "fat": 10,
-    "saturatedFat": 1.3,
-    "calories": 242,
+    "protein": 30, "carbs": 16, "fat": 10, "saturatedFat": 1.3, "calories": 272, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -7835,13 +7896,14 @@ const KITCHEN_RECIPES = [
       "1 lb shrimp, peeled",
       "4 cloves garlic, minced",
       "2 cups snap peas",
+      "1 cup broccoli florets",
       "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tbsp sesame oil",
       "1 tsp grated ginger"
     ],
     "steps": [
       "Heat the sesame oil in a large pan and cook the garlic and ginger for 1 minute.",
-      "Add the shrimp and snap peas and cook 4 minutes, until the shrimp turn pink.",
+      "Add the shrimp, snap peas and broccoli and cook 4 minutes, until the shrimp turn pink.",
       "Stir in the soy sauce and serve."
     ]
   },
@@ -7854,11 +7916,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 30,
-    "carbs": 14,
-    "fat": 12,
-    "saturatedFat": 4.1,
-    "calories": 284,
+    "protein": 30, "carbs": 13, "fat": 12, "saturatedFat": 4.1, "calories": 275, "sodium": 480,
     "tags": [
       "dinner",
       "high-protein",
@@ -7869,8 +7927,8 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "3/4 lb flank steak, sliced thin",
       "3 cups broccoli florets",
+      "1 cup sliced mushrooms",
       "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
-      "1 tbsp gluten-free oyster sauce",
       "1 tsp sesame oil",
       "2 cloves garlic, minced",
       "Juice of 1 lime",
@@ -7878,8 +7936,8 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Sear the beef in a hot pan with the sesame oil for 3 minutes, then set aside.",
-      "Cook the broccoli and garlic in the same pan for 4 minutes.",
-      "Return the beef to the pan, add the soy sauce, oyster sauce, lime juice and ginger, and toss for 1 minute."
+      "Cook the mushrooms until golden, then the broccoli and garlic in the same pan for 4 minutes.",
+      "Return the beef to the pan, add the soy sauce, lime juice and ginger, and toss for 1 minute."
     ]
   },
   {
@@ -7891,11 +7949,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 30,
-    "carbs": 12,
-    "fat": 12,
-    "saturatedFat": 2.0,
-    "calories": 276,
+    "protein": 31, "carbs": 15, "fat": 12, "saturatedFat": 2, "calories": 296, "sodium": 350,
     "tags": [
       "dinner",
       "high-protein",
@@ -7906,6 +7960,7 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 lb chicken breast, sliced thin",
       "2 bell peppers, sliced",
+      "1/2 cup broccoli florets",
       "1 cup fresh basil leaves",
       "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tsp fish sauce",
@@ -7914,7 +7969,7 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Heat the oil in a pan and cook the garlic for 1 minute.",
-      "Add the chicken and peppers and cook 8 minutes, until the chicken is done.",
+      "Add the chicken, peppers and broccoli and cook 8 minutes, until the chicken is done.",
       "Stir in the soy sauce, fish sauce and basil until the basil wilts, then serve."
     ]
   },
@@ -7927,11 +7982,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 27,
-    "carbs": 16,
-    "fat": 15,
-    "saturatedFat": 4.4,
-    "calories": 307,
+    "protein": 28, "carbs": 21, "fat": 11, "saturatedFat": 2.5, "calories": 280, "sodium": 380,
     "tags": [
       "dinner",
       "high-protein",
@@ -7942,17 +7993,19 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 1/2 blocks firm tofu, cubed",
-      "1/2 can light coconut milk",
-      "1 cup low-sodium vegetable broth",
-      "2 tbsp red curry paste",
+      "1/4 can light coconut milk",
+      "2 cups low-sodium vegetable broth",
+      "1 tbsp red curry paste",
       "2 cups mixed vegetables (bell pepper, zucchini, green beans)",
+      "1 cup cauliflower florets",
       "1 tbsp fish sauce or gluten-free low-sodium soy sauce (low-sodium tamari)",
-      "1/4 cup fresh basil"
+      "1/4 cup fresh basil",
+      "1 tbsp lime juice"
     ],
     "steps": [
       "Simmer the coconut milk, broth and curry paste in a pot for 2 minutes.",
-      "Add the tofu and vegetables and cook 10 minutes, until tender.",
-      "Stir in the sauce and basil, then serve."
+      "Add the tofu, vegetables and cauliflower and cook 10 minutes, until tender.",
+      "Stir in the sauce, lime juice and basil, then serve."
     ]
   },
   {
@@ -7964,11 +8017,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Medium",
     "servings": 2,
-    "protein": 30,
-    "carbs": 1,
-    "fat": 12,
-    "saturatedFat": 3.0,
-    "calories": 232,
+    "protein": 32, "carbs": 14, "fat": 12, "saturatedFat": 3, "calories": 285, "sodium": 400,
     "tags": [
       "dinner",
       "high-protein",
@@ -7982,12 +8031,13 @@ const KITCHEN_RECIPES = [
       "1 tbsp fish sauce",
       "2 cloves garlic, minced",
       "1 tbsp olive oil",
-      "1 cup cooked rice"
+      "1 cup cooked brown rice",
+      "1 cup steamed broccoli, for serving"
     ],
     "steps": [
       "Mix the lemongrass, fish sauce and garlic, and marinate the chicken for 15 minutes.",
       "Cook the chicken in a pan with the oil for 10 minutes, until browned and cooked through.",
-      "Serve over rice."
+      "Serve over brown rice with the broccoli on the side."
     ]
   },
   {
@@ -7999,11 +8049,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 26,
-    "carbs": 12,
-    "fat": 10,
-    "saturatedFat": 1.3,
-    "calories": 242,
+    "protein": 27, "carbs": 14, "fat": 14, "saturatedFat": 1.3, "calories": 279, "sodium": 520,
     "tags": [
       "dinner",
       "high-protein",
@@ -8014,15 +8060,16 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 lb shrimp, peeled",
       "2 cups mixed vegetables (carrots, bell pepper, snap peas)",
-      "1 tbsp fish sauce",
-      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "2 tsp fish sauce",
+      "2 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tbsp sesame oil",
-      "Juice of 1/2 lime"
+      "1 tbsp ground flaxseed",
+      "Juice of 1 lime"
     ],
     "steps": [
       "Heat the sesame oil in a large pan and cook the vegetables for 3 minutes.",
       "Add the shrimp and cook 4 minutes, until pink.",
-      "Stir in the fish sauce, soy sauce and lime juice, then serve."
+      "Stir in the fish sauce, soy sauce, lime juice and flaxseed, then serve."
     ]
   },
   {
@@ -8034,11 +8081,7 @@ const KITCHEN_RECIPES = [
     "time": 25,
     "difficulty": "Medium",
     "servings": 2,
-    "protein": 30,
-    "carbs": 7,
-    "fat": 9,
-    "saturatedFat": 4.0,
-    "calories": 229,
+    "protein": 32, "carbs": 18, "fat": 9, "saturatedFat": 4, "calories": 280, "sodium": 350,
     "tags": [
       "dinner",
       "high-protein",
@@ -8055,12 +8098,13 @@ const KITCHEN_RECIPES = [
       "Juice of 1 lime",
       "1/2 onion, sliced thin",
       "1 tsp sesame seeds",
-      "1 cup cooked rice"
+      "1 cup cooked brown rice",
+      "1 cup steamed broccoli, for serving"
     ],
     "steps": [
       "Mix the soy sauce, sesame oil, garlic, ginger and lime juice, and marinate the beef and onion for 15 minutes.",
       "Cook in a hot pan for 5 minutes, until browned.",
-      "Sprinkle with sesame seeds and serve over rice."
+      "Sprinkle with sesame seeds and serve over brown rice with the broccoli on the side."
     ]
   },
   {
@@ -8072,11 +8116,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 20,
-    "carbs": 10,
-    "fat": 12,
-    "saturatedFat": 3.2,
-    "calories": 228,
+    "protein": 21, "carbs": 12, "fat": 12, "saturatedFat": 3.2, "calories": 238, "sodium": 400,
     "tags": [
       "dinner",
       "high-protein",
@@ -8088,14 +8128,16 @@ const KITCHEN_RECIPES = [
       "1 block soft tofu",
       "2 cups low-sodium vegetable broth",
       "1/4 cup kimchi, chopped and rinsed",
+      "1 cup chopped kale",
       "2 eggs",
-      "1 tbsp gluten-free gochujang",
+      "2 tsp gluten-free gochujang",
+      "1/2 tsp smoked paprika",
       "1 tsp sesame oil",
       "1 green onion, sliced"
     ],
     "steps": [
-      "Simmer the broth, kimchi and gochujang in a pot for 5 minutes.",
-      "Gently add the tofu in large spoonfuls and cook 5 minutes more.",
+      "Simmer the broth, kimchi, gochujang and smoked paprika in a pot for 5 minutes.",
+      "Gently add the tofu in large spoonfuls and the kale and cook 5 minutes more.",
       "Crack the eggs into the stew, cover for 2 minutes, then top with sesame oil and green onion."
     ]
   },
@@ -8108,11 +8150,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 14,
-    "carbs": 18,
-    "fat": 8,
-    "saturatedFat": 0.8,
-    "calories": 200,
+    "protein": 16, "carbs": 19, "fat": 12, "saturatedFat": 0.8, "calories": 235, "sodium": 200,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -8124,19 +8162,21 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 cucumbers, sliced thin",
       "1 cup shelled edamame",
-      "1 tbsp sweet rice vinegar",
-      "1 tsp sugar",
+      "1/2 cup cherry tomatoes, halved",
+      "1 tbsp sweet rice vinegar (unsweetened)",
+      "1 tsp grated carrot",
       "1 tsp sesame oil",
       "1 tsp sesame seeds",
+      "1 tbsp pumpkin seeds",
       "Pinch of salt"
     ],
     "steps": [
-      "Toss the cucumber and edamame in a bowl.",
-      "Whisk the vinegar, sugar, sesame oil and salt until the sugar dissolves, and pour over the salad.",
-      "Chill 10 minutes, then sprinkle with sesame seeds."
+      "Toss the cucumber, edamame and tomatoes in a bowl.",
+      "Whisk the vinegar, carrot, sesame oil and salt, and pour over the salad.",
+      "Chill 10 minutes, then sprinkle with sesame seeds and pumpkin seeds."
     ]
   },
-  {
+{
     "id": "kimchi-tofu-bites",
     "image": "kitchen/kimchi-tofu-bites.jpg",
     "credit": "",
@@ -8179,11 +8219,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 12,
-    "carbs": 8,
-    "fat": 6,
-    "saturatedFat": 0.6,
-    "calories": 134,
+    "protein": 13, "carbs": 10, "fat": 6, "saturatedFat": 0.6, "calories": 144, "sodium": 440,
     "tags": [
       "small-portions",
       "high-protein",
@@ -8194,15 +8230,18 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 cups sliced mushrooms",
       "1/2 block firm tofu, cubed",
-      "4 cups low-sodium vegetable broth",
-      "2 tbsp white miso paste",
+      "1 cup chopped kale",
+      "2 cups low-sodium vegetable broth",
+      "2 cups water",
+      "1 tbsp white miso paste",
       "1 green onion, sliced",
-      "1 tsp grated ginger"
+      "1 tsp grated ginger",
+      "1 tsp lemon juice"
     ],
     "steps": [
-      "Simmer the mushrooms and ginger in the broth for 10 minutes.",
+      "Simmer the mushrooms, kale and ginger in the broth and water for 10 minutes.",
       "Add the tofu and cook 3 minutes more.",
-      "Stir in the miso until dissolved, then top with green onion."
+      "Stir in the miso and lemon juice until dissolved, then top with green onion."
     ]
   },
   {
@@ -8214,11 +8253,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 10,
-    "carbs": 6,
-    "fat": 5,
-    "saturatedFat": 2.0,
-    "calories": 109,
+    "protein": 17, "carbs": 9, "fat": 7, "saturatedFat": 2, "calories": 165, "sodium": 450,
     "tags": [
       "small-portions",
       "high-protein",
@@ -8227,15 +8262,20 @@ const KITCHEN_RECIPES = [
       "dairy-free"
     ],
     "ingredients": [
-      "4 cups low-sodium chicken broth",
+      "3 cups low-sodium chicken broth",
+      "1 cup water",
       "2 eggs, beaten",
-      "1 tbsp gluten-free low-sodium soy sauce (low-sodium tamari)",
+      "1/2 block firm tofu, cubed",
+      "1/2 cup shredded carrots",
+      "2 tsp gluten-free low-sodium soy sauce (low-sodium tamari)",
       "1 tsp sesame oil",
+      "1 tsp grated ginger",
+      "1/2 tsp turmeric",
       "1 green onion, sliced",
       "1 tsp cornstarch mixed with 2 tbsp water"
     ],
     "steps": [
-      "Bring the broth to a gentle simmer and stir in the soy sauce and cornstarch mixture.",
+      "Bring the broth and water to a gentle simmer and stir in the soy sauce, tofu, carrots, ginger, turmeric and cornstarch mixture.",
       "Slowly pour in the beaten eggs while stirring, so they form thin ribbons.",
       "Finish with sesame oil and green onion."
     ]
@@ -8249,11 +8289,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 22,
-    "carbs": 8,
-    "fat": 7,
-    "saturatedFat": 3.5,
-    "calories": 183,
+    "protein": 23, "carbs": 13, "fat": 7, "saturatedFat": 3.5, "calories": 208, "sodium": 480,
     "tags": [
       "small-portions",
       "high-protein",
@@ -8264,15 +8300,17 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "2 chicken breasts, sliced thin",
       "1/2 can light coconut milk",
-      "3 cups low-sodium chicken broth",
+      "2 cups low-sodium chicken broth",
+      "1 cup water",
       "1 cup sliced mushrooms",
+      "1 cup cauliflower florets",
       "Juice of 1 lime",
-      "1 tbsp fish sauce",
+      "2 tsp fish sauce",
       "1/4 cup fresh cilantro"
     ],
     "steps": [
-      "Simmer the coconut milk and broth in a pot for 5 minutes.",
-      "Add the chicken and mushrooms and cook 8 minutes, until the chicken is done.",
+      "Simmer the coconut milk, broth and water in a pot for 5 minutes.",
+      "Add the chicken, mushrooms and cauliflower and cook 8 minutes, until the chicken is done.",
       "Stir in the lime juice and fish sauce, then top with cilantro."
     ]
   },
@@ -8285,11 +8323,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 21,
-    "carbs": 4,
-    "fat": 10,
-    "saturatedFat": 4.6,
-    "calories": 190,
+    "protein": 22, "carbs": 7, "fat": 10, "saturatedFat": 4.6, "calories": 205, "sodium": 200,
     "tags": [
       "breakfast",
       "high-protein",
@@ -8301,6 +8335,7 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 large egg plus 2 egg whites",
+      "1/2 cup broccoli, chopped",
       "1 tbsp chopped fresh herbs (parsley, chives, tarragon)",
       "1/2 oz goat cheese, crumbled",
       "1 tsp olive oil",
@@ -8308,7 +8343,7 @@ const KITCHEN_RECIPES = [
     ],
     "steps": [
       "Whisk the egg and egg whites with the herbs, salt, and pepper.",
-      "Warm the olive oil in a small pan over medium heat.",
+      "Warm the olive oil in a small pan over medium heat and soften the broccoli for 2 minutes.",
       "Pour in the eggs and cook gently, lifting the edges as they set.",
       "Sprinkle the goat cheese over the top and fold the omelet in half.",
       "Slide onto a plate and serve right away."
@@ -8323,11 +8358,7 @@ const KITCHEN_RECIPES = [
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 20,
-    "carbs": 16,
-    "fat": 6,
-    "saturatedFat": 1.5,
-    "calories": 198,
+    "protein": 21, "carbs": 20, "fat": 10, "saturatedFat": 1.5, "calories": 242, "sodium": 70,
     "tags": [
       "breakfast",
       "high-protein",
@@ -8340,12 +8371,15 @@ const KITCHEN_RECIPES = [
     "ingredients": [
       "1 cup plain Greek yogurt",
       "1/2 cup mixed berries",
-      "1 tbsp sliced almonds"
+      "1 tbsp sliced pistachios",
+      "1 tbsp ground flaxseed",
+      "1 tsp honey",
+      "1 pinch dried culinary lavender"
     ],
     "steps": [
       "Scoop the yogurt into a bowl.",
       "Top with the berries.",
-      "Sprinkle the almonds over the top."
+      "Drizzle with honey, sprinkle the pistachios, flaxseed and lavender over the top."
     ]
   },
   {
@@ -8357,11 +8391,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24,
-    "carbs": 18,
-    "fat": 14,
-    "saturatedFat": 3.7,
-    "calories": 294,
+    "protein": 25, "carbs": 19, "fat": 17, "saturatedFat": 3.9, "calories": 320, "sodium": 300,
     "tags": [
       "breakfast",
       "high-protein",
@@ -8374,6 +8404,7 @@ const KITCHEN_RECIPES = [
       "1 small slice whole-grain bread",
       "1 tbsp olive tapenade",
       "2 hard-boiled eggs, sliced",
+      "2 tsp ground flaxseed",
       "2 tomato slices",
       "2 fresh basil leaves"
     ],
@@ -8381,7 +8412,7 @@ const KITCHEN_RECIPES = [
       "Toast the bread until golden.",
       "Spread the tapenade over the toast.",
       "Lay the egg slices and tomato on top.",
-      "Tear the basil over the top and serve."
+      "Sprinkle the flaxseed over the eggs, tear the basil over the top and serve."
     ]
   },
   {
@@ -8393,11 +8424,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 21,
-    "carbs": 6,
-    "fat": 11,
-    "saturatedFat": 4.2,
-    "calories": 207,
+    "protein": 22, "carbs": 9, "fat": 11, "saturatedFat": 4.2, "calories": 222, "sodium": 200,
     "tags": [
       "breakfast",
       "high-protein",
@@ -8411,12 +8438,13 @@ const KITCHEN_RECIPES = [
       "2 large eggs",
       "1 tbsp basil pistou",
       "1/2 cup cherry tomatoes, halved",
+      "1/2 cup broccoli, chopped",
       "1 tsp olive oil",
       "Salt and black pepper"
     ],
     "steps": [
       "Whisk the eggs with the pistou, salt, and pepper.",
-      "Warm the olive oil in a pan over medium heat and soften the tomatoes for 1 minute.",
+      "Warm the olive oil in a pan over medium heat and soften the tomatoes and broccoli for 2 minutes.",
       "Pour in the eggs and scramble gently until just set.",
       "Serve right away."
     ]
@@ -8425,16 +8453,12 @@ const KITCHEN_RECIPES = [
     "id": "fig-almond-overnight-oats",
     "image": "kitchen/fig-almond-overnight-oats.jpg",
     "credit": "",
-    "name": "Fig and Almond Overnight Oats",
+    "name": "Fig & Pistachio Overnight Oats",
     "category": "Breakfast",
     "time": 5,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 23,
-    "carbs": 14,
-    "fat": 10,
-    "saturatedFat": 1.5,
-    "calories": 238,
+    "protein": 24, "carbs": 16, "fat": 14, "saturatedFat": 1.5, "calories": 275, "sodium": 90,
     "tags": [
       "breakfast",
       "high-protein",
@@ -8446,14 +8470,16 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1/3 cup rolled oats",
-      "1/2 cup milk or almond milk",
+      "1/2 cup milk or oat milk",
       "1 dried fig, chopped",
       "1/2 cup plain Greek yogurt",
-      "1 tbsp sliced almonds"
+      "1 tbsp sliced pistachios",
+      "1 tsp pumpkin seeds",
+      "1 tbsp ground flaxseed"
     ],
     "steps": [
-      "Stir the oats, milk, and yogurt together in a jar or bowl.",
-      "Stir in the fig and almonds.",
+      "Stir the oats, milk, yogurt and flaxseed together in a jar or bowl.",
+      "Stir in the fig, pistachios and pumpkin seeds.",
       "Cover and refrigerate overnight."
     ]
   },
@@ -8466,11 +8492,7 @@ const KITCHEN_RECIPES = [
     "time": 20,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 32,
-    "carbs": 18,
-    "fat": 14,
-    "saturatedFat": 4.6,
-    "calories": 326,
+    "protein": 33, "carbs": 20, "fat": 14, "saturatedFat": 4.6, "calories": 335, "sodium": 300,
     "tags": [
       "lunch",
       "high-protein",
@@ -8483,15 +8505,16 @@ const KITCHEN_RECIPES = [
       "4 oz tuna steak",
       "1 hard-boiled egg, halved",
       "1 cup green beans, steamed",
-      "1 small potato, boiled and sliced",
+      "1 small potato, peeled, boiled and sliced",
       "5 Niçoise olives",
       "1 cup lettuce leaves",
+      "1/2 cup chopped kale",
       "1 tbsp olive oil",
       "1 tsp lemon juice"
     ],
     "steps": [
       "Grill the tuna for 2 to 3 minutes per side and slice it.",
-      "Arrange the lettuce on a plate.",
+      "Arrange the lettuce and kale on a plate.",
       "Top with the tuna, egg, green beans, potato, and olives.",
       "Drizzle with olive oil and lemon juice."
     ]
@@ -8505,11 +8528,7 @@ const KITCHEN_RECIPES = [
     "time": 30,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 22,
-    "carbs": 20,
-    "fat": 13,
-    "saturatedFat": 3.1,
-    "calories": 285,
+    "protein": 23, "carbs": 22, "fat": 17, "saturatedFat": 3.1, "calories": 322, "sodium": 250,
     "tags": [
       "lunch",
       "high-protein",
@@ -8529,17 +8548,18 @@ const KITCHEN_RECIPES = [
       "1 tbsp olive oil",
       "1 tsp herbes de Provence",
       "2 hard-boiled eggs, halved",
-      "1/2 cup plain Greek yogurt"
+      "1/2 cup plain Greek yogurt",
+      "1 tbsp ground flaxseed"
     ],
     "steps": [
       "Warm the olive oil in a large pan over medium heat.",
       "Add the eggplant, zucchini, and pepper and cook for 8 minutes.",
       "Stir in the garlic, tomatoes, beans, and herbs.",
       "Simmer for 15 minutes until the vegetables are soft.",
-      "Serve warm in bowls, topped with a halved egg and a dollop of yogurt."
+      "Serve warm in bowls, topped with a halved egg, a dollop of yogurt and the flaxseed."
     ]
   },
-  {
+{
     "id": "provencal-chicken-olive-salad",
     "image": "kitchen/provencal-chicken-olive-salad.jpg",
     "credit": "",
@@ -8577,7 +8597,7 @@ const KITCHEN_RECIPES = [
       "Sprinkle the basil over the top."
     ]
   },
-  {
+{
     "id": "grilled-vegetable-goat-cheese-tartine",
     "image": "kitchen/grilled-vegetable-goat-cheese-tartine.jpg",
     "credit": "",
@@ -8615,7 +8635,7 @@ const KITCHEN_RECIPES = [
       "Drizzle with olive oil and add the basil."
     ]
   },
-  {
+{
     "id": "lentil-herb-salad-provencal",
     "image": "kitchen/lentil-herb-salad-provencal.jpg",
     "credit": "",
@@ -8668,11 +8688,7 @@ const KITCHEN_RECIPES = [
     "time": 35,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 32,
-    "carbs": 12,
-    "fat": 9,
-    "saturatedFat": 0.5,
-    "calories": 257,
+    "protein": 32, "carbs": 12, "fat": 9, "saturatedFat": 0.5, "calories": 257, "sodium": 350,
     "tags": [
       "dinner",
       "high-protein",
@@ -8687,17 +8703,18 @@ const KITCHEN_RECIPES = [
       "1 pinch saffron threads",
       "1 fennel bulb, sliced",
       "2 cloves garlic, minced",
-      "4 cups fish or vegetable stock",
-      "1 strip orange peel"
+      "4 cups low-sodium fish or vegetable stock",
+      "1 strip orange peel",
+      "1 tbsp lemon juice"
     ],
     "steps": [
       "Simmer the stock with the saffron, fennel, garlic, and orange peel for 10 minutes.",
       "Stir in the tomatoes and simmer for 5 minutes.",
       "Add the fish and shrimp and cook gently for 8 minutes.",
-      "Ladle into bowls and serve."
+      "Ladle into bowls, stir in lemon juice and serve."
     ]
   },
-  {
+{
     "id": "herb-roasted-chicken-provencal",
     "image": "kitchen/herb-roasted-chicken-provencal.jpg",
     "credit": "",
@@ -8744,11 +8761,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 34,
-    "carbs": 4,
-    "fat": 10,
-    "saturatedFat": 1.5,
-    "calories": 242,
+    "protein": 36, "carbs": 10, "fat": 14, "saturatedFat": 1.5, "calories": 300, "sodium": 200,
     "tags": [
       "dinner",
       "high-protein",
@@ -8762,16 +8775,18 @@ const KITCHEN_RECIPES = [
       "1 lemon, half juiced and half sliced",
       "1 tbsp chopped fresh herbs (parsley, thyme)",
       "1 tbsp olive oil",
+      "1 cup steamed broccoli, for serving",
+      "1 tbsp ground flaxseed",
       "Salt and black pepper"
     ],
     "steps": [
       "Rub the fillets with olive oil, salt, and pepper.",
       "Grill for 3 to 4 minutes per side until the fish flakes.",
       "Squeeze the lemon juice over the top.",
-      "Sprinkle with herbs and serve with lemon slices."
+      "Sprinkle with herbs and serve with lemon slices and the broccoli, with the flaxseed over the broccoli."
     ]
   },
-  {
+{
     "id": "baked-cod-with-ratatouille",
     "image": "kitchen/baked-cod-with-ratatouille.jpg",
     "credit": "",
@@ -8816,11 +8831,7 @@ const KITCHEN_RECIPES = [
     "time": 120,
     "difficulty": "Medium",
     "servings": 4,
-    "protein": 32,
-    "carbs": 14,
-    "fat": 11,
-    "saturatedFat": 4.5,
-    "calories": 283,
+    "protein": 32, "carbs": 14, "fat": 11, "saturatedFat": 4.5, "calories": 283, "sodium": 450,
     "tags": [
       "dinner",
       "high-protein",
@@ -8834,7 +8845,7 @@ const KITCHEN_RECIPES = [
       "12 black olives",
       "2 cloves garlic, minced",
       "1 tsp herbes de Provence",
-      "1 cup beef stock",
+      "1 cup low-sodium beef stock",
       "1 tbsp olive oil"
     ],
     "steps": [
@@ -8844,7 +8855,7 @@ const KITCHEN_RECIPES = [
       "Serve in bowls with the sauce."
     ]
   },
-  {
+{
     "id": "grilled-shrimp-garlic-herbs",
     "image": "kitchen/grilled-shrimp-garlic-herbs.jpg",
     "credit": "",
@@ -8881,7 +8892,7 @@ const KITCHEN_RECIPES = [
       "Squeeze the lemon juice over the top and serve."
     ]
   },
-  {
+{
     "id": "baked-salmon-olive-tapenade",
     "image": "kitchen/baked-salmon-olive-tapenade.jpg",
     "credit": "",
@@ -8917,7 +8928,7 @@ const KITCHEN_RECIPES = [
       "Bake for 12 to 14 minutes until the salmon flakes."
     ]
   },
-  {
+{
     "id": "chicken-olives-lemon-provencal",
     "image": "kitchen/chicken-olives-lemon-provencal.jpg",
     "credit": "",
@@ -8964,11 +8975,7 @@ const KITCHEN_RECIPES = [
     "time": 45,
     "difficulty": "Easy",
     "servings": 4,
-    "protein": 20,
-    "carbs": 20,
-    "fat": 14,
-    "saturatedFat": 4.6,
-    "calories": 286,
+    "protein": 19, "carbs": 20, "fat": 12, "saturatedFat": 3, "calories": 260, "sodium": 300,
     "tags": [
       "dinner",
       "high-protein",
@@ -8982,20 +8989,21 @@ const KITCHEN_RECIPES = [
       "1 eggplant, sliced",
       "1 tomato, sliced",
       "1/2 onion, sliced",
-      "2 oz Gruyère cheese, grated",
+      "1 oz Gruyère cheese, grated",
       "1 tsp herbes de Provence",
       "1 tbsp olive oil",
+      "1 tsp lemon zest",
       "4 poached eggs"
     ],
     "steps": [
       "Heat the oven to 375°F.",
       "Layer the sliced vegetables upright in a baking dish, alternating them.",
-      "Sprinkle with cheese, herbs, and olive oil.",
+      "Sprinkle with cheese, herbs, lemon zest, and olive oil.",
       "Bake for 35 minutes until tender and golden.",
       "Top each serving with a poached egg."
     ]
   },
-  {
+{
     "id": "turkey-white-bean-cassoulet-light",
     "image": "kitchen/turkey-white-bean-cassoulet-light.jpg",
     "credit": "",
@@ -9045,11 +9053,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 13,
-    "carbs": 9,
-    "fat": 11,
-    "saturatedFat": 1.8,
-    "calories": 187,
+    "protein": 13, "carbs": 10, "fat": 9, "saturatedFat": 1.8, "calories": 170, "sodium": 420,
     "tags": [
       "snacks-smoothies",
       "high-protein",
@@ -9060,8 +9064,9 @@ const KITCHEN_RECIPES = [
       "low-sodium"
     ],
     "ingredients": [
-      "1 cup pitted black olives",
-      "1 tbsp capers",
+      "1/2 cup pitted black olives",
+      "1/2 cup roasted red peppers",
+      "2 tsp capers",
       "1 clove garlic",
       "1 tsp lemon juice",
       "1 tbsp olive oil",
@@ -9069,12 +9074,12 @@ const KITCHEN_RECIPES = [
       "1 cup plain Greek yogurt, for serving"
     ],
     "steps": [
-      "Blend the olives, capers, garlic, lemon juice, and olive oil until chunky.",
+      "Blend the olives, roasted red peppers, capers, garlic, lemon juice, and olive oil until chunky.",
       "Spoon the tapenade into a small bowl.",
       "Serve with the cucumber slices for scooping and the yogurt for dipping."
     ]
   },
-  {
+{
     "id": "herbed-goat-cheese-tomato-bites",
     "image": "kitchen/herbed-goat-cheese-tomato-bites.jpg",
     "credit": "",
@@ -9122,11 +9127,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 2,
-    "protein": 10,
-    "carbs": 10,
-    "fat": 6,
-    "saturatedFat": 0.5,
-    "calories": 134,
+    "protein": 14, "carbs": 13, "fat": 8, "saturatedFat": 0.5, "calories": 175, "sodium": 150,
     "tags": [
       "vegetarian",
       "gluten-free",
@@ -9136,7 +9137,9 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "2 cucumbers, peeled and chopped",
-      "1 cup plain Greek yogurt",
+      "1 1/4 cups plain Greek yogurt",
+      "1/2 cup diced tomatoes, for topping",
+      "2 tbsp hemp seeds",
       "1 tbsp chopped dill",
       "1 clove garlic, minced",
       "1 tsp lemon juice",
@@ -9145,10 +9148,10 @@ const KITCHEN_RECIPES = [
     "steps": [
       "Blend the cucumber, yogurt, dill, garlic, and lemon juice until smooth.",
       "Season with salt and pepper.",
-      "Chill for 30 minutes and serve cold."
+      "Chill for 30 minutes, top with hemp seeds and the diced tomatoes and serve cold."
     ]
   },
-  {
+{
     "id": "simple-green-salad-lemon-herbs",
     "image": "kitchen/simple-green-salad-lemon-herbs.jpg",
     "credit": "",
@@ -9187,7 +9190,7 @@ const KITCHEN_RECIPES = [
       "Sprinkle the herbs over the top."
     ]
   },
-  {
+{
     "id": "provencal-fish-soup-light",
     "image": "kitchen/provencal-fish-soup-light.jpg",
     "credit": "",
@@ -9225,6 +9228,2697 @@ const KITCHEN_RECIPES = [
       "Add the tomatoes, stock, and herbes de Provence. Simmer for 10 minutes.",
       "Add the fish chunks and cook gently for 8 minutes, until the fish flakes.",
       "Stir in the lemon juice and season with salt and pepper."
+    ]
+  },
+  {
+    "id": "chicken-strawberry-salsa",
+    "image": "kitchen/seared-chicken-strawberry-salsa.jpg",
+    "credit": "Pexels",
+    "name": "Seared Chicken with Strawberry Salsa",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 46, "carbs": 8, "fat": 10, "saturatedFat": 3, "calories": 306,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total)",
+      "150 g strawberries, hulled and diced (about 1 cup) (organic preferred)",
+      "40 g red onion, finely diced (about 1/4 cup)",
+      "1 small jalapeño, seeded and finely diced (optional)",
+      "1 lime, juiced",
+      "A small handful of fresh cilantro, chopped",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Stir the strawberries, onion, jalapeño, lime juice, and cilantro together in a bowl. Set the salsa aside while you cook the chicken.",
+      "Season the chicken with salt and pepper.",
+      "Cook in a pan with the olive oil until the center reaches 165°F, about 6 minutes a side.",
+      "Rest the chicken a few minutes, slice, and spoon the salsa over the top."
+    ]
+  },
+  {
+    "id": "tuscan-chicken-skewers",
+    "image": "kitchen/tuscan-chicken-kebabs.jpg",
+    "credit": "Pexels",
+    "name": "Tuscan Chicken Kebabs",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 48, "carbs": 10, "fat": 10, "saturatedFat": 3, "calories": 322,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total), cut into chunks",
+      "160 g cherry tomatoes (about 1 cup)",
+      "150 g zucchini, cut into thick half moons",
+      "1 small red onion, cut into wedges",
+      "1 bell pepper, cut into squares",
+      "2 teaspoons olive oil",
+      "1 lemon, juiced",
+      "2 garlic cloves, minced",
+      "1 teaspoon dried Italian herbs",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Toss the chicken with olive oil, lemon juice, garlic, herbs, salt, and pepper. Let it sit while you cut the vegetables.",
+      "Thread the chicken and vegetables onto skewers, alternating as you go.",
+      "Grill or cook in a pan, turning now and then, until the chicken reaches 165°F, about 10 to 12 minutes.",
+      "Squeeze a little extra lemon over the top and serve."
+    ]
+  },
+  {
+    "id": "chicken-strips-green-beans",
+    "image": "kitchen/baked-chicken-strips-green-beans.jpg",
+    "credit": "Pexels",
+    "name": "Baked Chicken Strips with Green Beans",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 54, "carbs": 26, "fat": 13, "saturatedFat": 3.5, "calories": 439,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "budget-friendly",
+      "dairy-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total), cut into strips",
+      "40 g rolled oats (about 1/3 cup), blitzed into coarse crumbs, mixed with the zest of 1/2 lemon",
+      "1 egg, beaten",
+      "1 teaspoon paprika",
+      "300 g green beans",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper",
+      "150 g cherry tomatoes, halved (about 1 cup)"
+    ],
+    "steps": [
+      "Heat the oven to 400°F and line a baking tray.",
+      "Dip each chicken strip in the egg, then in the oat crumbs mixed with paprika, salt, and pepper.",
+      "Lay the strips on the tray, drizzle with the olive oil, and bake until the center reaches 165°F, about 18 minutes. Squeeze the remaining lemon half over the strips before serving.",
+      "Steam the green beans until tender, about 5 minutes. Serve the chicken strips with the green beans and the cherry tomatoes alongside."
+    ]
+  },
+  {
+    "id": "oat-chicken-fingers",
+    "image": "kitchen/oat-crusted-chicken-fingers.jpg",
+    "credit": "\"Baked Chicken Tenders with Sweet and Sour Sauce\" by TheCulinaryGeek, licensed under CC BY 2.0",
+    "name": "Oat-Crusted Chicken Fingers",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 53, "carbs": 25, "fat": 14, "saturatedFat": 3.5, "calories": 439,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "budget-friendly",
+      "dairy-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total), cut into fingers",
+      "60 g rolled oats (about 2/3 cup), blitzed into coarse crumbs",
+      "1 egg, beaten",
+      "1 teaspoon garlic powder",
+      "1 teaspoon paprika",
+      "2 teaspoons olive oil",
+      "A pinch of salt (optional) and pepper",
+      "150 g cherry tomatoes, halved (about 1 cup)",
+      "1/2 cucumber, sliced"
+    ],
+    "steps": [
+      "Heat the oven to 400°F and line a baking tray.",
+      "Mix the oat crumbs with garlic powder, paprika, salt, and pepper.",
+      "Dip each chicken finger in the egg, then press into the oat crumbs.",
+      "Lay on the tray, drizzle with olive oil, and bake until the center reaches 165°F, about 18 minutes.",
+      "Serve the chicken fingers with the cherry tomatoes and cucumber slices alongside."
+    ]
+  },
+  {
+    "id": "ranchero-eggs-tortilla",
+    "image": "kitchen/huevos-rancheros.jpg",
+    "credit": "Pexels",
+    "name": "Huevos Rancheros",
+    "category": "Breakfast",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 24, "carbs": 36, "fat": 13, "saturatedFat": 4.3, "calories": 357,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "budget-friendly",
+      "vegetarian",
+      "gluten-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "1 egg",
+      "2 egg whites",
+      "1 small corn tortilla",
+      "80 g canned black beans, drained (about 1/3 cup)",
+      "80 g salsa (about 1/3 cup)",
+      "14 g crumbled feta (about 1/2 oz)",
+      "1 teaspoon olive oil",
+      "A pinch of cumin and pepper"
+    ],
+    "steps": [
+      "Warm the beans in a small pan with the cumin.",
+      "Warm the tortilla in a dry pan until soft.",
+      "Fry the egg and egg whites in the olive oil the way you like them.",
+      "Lay the tortilla on a plate, spoon the beans over it, top with the eggs, salsa, and feta."
+    ]
+  },
+  {
+    "id": "southwest-quinoa-egg-bowl",
+    "image": "kitchen/southwestern-quinoa-egg-bowl.jpg",
+    "credit": "Pexels",
+    "name": "Southwestern Quinoa and Egg Bowl",
+    "category": "Breakfast",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 19, "carbs": 48, "fat": 11, "saturatedFat": 2, "calories": 369,
+    "tags": [
+      "breakfast",
+      "balanced-macros",
+      "easy-prep",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "100 g cooked quinoa (about 1/2 cup)",
+      "1 egg",
+      "80 g canned black beans, drained (about 1/3 cup)",
+      "80 g broccoli florets, chopped small (about 1 cup)",
+      "40 g salsa (about 3 tablespoons)",
+      "1 tablespoon ground flaxseed",
+      "1/2 teaspoon cumin",
+      "1 lime wedge"
+    ],
+    "steps": [
+      "Warm the quinoa, beans, and broccoli in a pan with the cumin, then stir in the ground flaxseed.",
+      "Fry the egg the way you like it.",
+      "Spoon the quinoa mix into a bowl, top with the egg and salsa.",
+      "Squeeze lime over the top and eat."
+    ]
+  },
+  {
+    "id": "microwave-veggie-egg-bowl",
+    "image": "kitchen/microwave-egg-veggie-bowl.jpg",
+    "credit": "Pexels",
+    "name": "Microwave Egg and Veggie Bowl",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 16, "carbs": 8, "fat": 12, "saturatedFat": 3.1, "calories": 210,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "small-portions",
+      "vegetarian",
+      "gluten-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 eggs",
+      "30 g chopped kale, stems removed (about 1 cup)",
+      "80 g cherry tomatoes, halved (about 1/2 cup)",
+      "50 g bell pepper, diced",
+      "1 tablespoon pumpkin seeds"
+    ],
+    "steps": [
+      "Whisk the eggs in a microwave-safe bowl.",
+      "Stir in the kale, tomatoes, and pepper.",
+      "Microwave for 90 seconds, stir, then microwave 60 seconds more, until the kale is tender.",
+      "Sprinkle with the pumpkin seeds, let it sit a moment, then eat from the bowl."
+    ]
+  },
+  {
+    "id": "western-omelet-mug",
+    "image": "kitchen/western-mug-omelet.jpg",
+    "credit": "Pexels",
+    "name": "Western Mug Omelet",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 27, "carbs": 7, "fat": 7, "saturatedFat": 3.0, "calories": 200,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "small-portions",
+      "gluten-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 egg",
+      "2 egg whites",
+      "40 g diced cooked chicken breast (about 1/4 cup)",
+      "30 g red bell pepper, diced",
+      "20 g onion, diced",
+      "14 g shredded part-skim mozzarella (about 1/2 oz)",
+      "30 g chopped kale, stems removed (about 1 cup)"
+    ],
+    "steps": [
+      "Whisk the egg and egg whites in a microwave-safe mug.",
+      "Stir in the chicken, pepper, onion, kale, and mozzarella.",
+      "Microwave for 90 seconds, stir, then microwave 30 seconds more.",
+      "Let it sit a moment, then eat from the mug."
+    ]
+  },
+  {
+    "id": "salmon-foil-packet-lemon",
+    "image": "kitchen/lemon-garlic-salmon-foil-packet.jpg",
+    "credit": "Pexels",
+    "name": "Lemon-Garlic Salmon Foil Packet",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 35, "carbs": 7, "fat": 20, "saturatedFat": 3.5, "calories": 348,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 salmon fillets (about 300 g total)",
+      "200 g green beans",
+      "1 lemon, half juiced and half sliced",
+      "2 garlic cloves, minced",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Heat the oven to 400°F and tear off two large sheets of foil.",
+      "Place a salmon fillet and half the green beans on each sheet.",
+      "Drizzle with lemon juice and olive oil, scatter the garlic, and lay lemon slices on top.",
+      "Fold the foil into sealed packets and bake for 15 minutes, until the salmon flakes."
+    ]
+  },
+  {
+    "id": "tea-citrus-tilapia",
+    "image": "kitchen/citrus-tea-tilapia.jpg",
+    "credit": "Pexels",
+    "name": "Citrus Tea Tilapia",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 41, "carbs": 13, "fat": 4, "saturatedFat": 1, "calories": 254,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 tilapia fillets (about 300 g total)",
+      "120 ml brewed green tea, cooled (about 1/2 cup)",
+      "60 ml orange juice (about 1/4 cup)",
+      "1 teaspoon orange zest",
+      "200 g green beans",
+      "A pinch of salt (optional) and pepper",
+      "150 g cherry tomatoes, halved (about 1 cup)"
+    ],
+    "steps": [
+      "Stir the tea, orange juice, and zest together in a shallow dish.",
+      "Lay the tilapia in the tea mix for 10 minutes, turning once.",
+      "Lift the fish out and cook in a pan until it flakes, about 3 minutes a side.",
+      "Steam the green beans and cherry tomatoes until tender and serve them alongside."
+    ]
+  },
+  {
+    "id": "chicken-mole-sauce",
+    "image": "kitchen/chicken-mole.jpg",
+    "credit": "Pexels",
+    "name": "Chicken Mole",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 50, "carbs": 8, "fat": 13, "saturatedFat": 3.5, "calories": 349,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total)",
+      "160 g tomato sauce (about 2/3 cup)",
+      "2 tablespoons natural peanut butter (no added sugar)",
+      "2 teaspoons unsweetened cocoa powder",
+      "1 teaspoon chili powder",
+      "1/2 teaspoon cumin",
+      "A pinch of cinnamon",
+      "1 garlic clove, minced",
+      "1 teaspoon olive oil",
+      "A small handful of fresh cilantro, chopped",
+      "40 g red onion, finely diced (about 1/4 cup)"
+    ],
+    "steps": [
+      "Season the chicken with a little salt and pepper and cook in a pan with the olive oil until the center reaches 165°F. Set aside.",
+      "In the same pan, warm the tomato sauce, peanut butter, cocoa, chili powder, cumin, cinnamon, and garlic.",
+      "Stir until the sauce is smooth, about 3 minutes.",
+      "Slice the chicken, spoon the sauce over it, and scatter the cilantro and red onion on top."
+    ]
+  },
+  {
+    "id": "salmon-cucumber-dill",
+    "image": "kitchen/salmon-cucumbers-dill.jpg",
+    "credit": "\"Pittsburgh salmon salad\" by Triciaburmeister, licensed under CC BY-SA 4.0",
+    "name": "Salmon with Cucumbers and Dill",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 37, "carbs": 5, "fat": 18, "saturatedFat": 2.5, "calories": 330,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "nut-free",
+      "egg-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 salmon fillets (about 300 g total)",
+      "200 g cucumber, thinly sliced (about 1 cup)",
+      "60 g plain nonfat Greek yogurt (about 1/4 cup)",
+      "1 tablespoon fresh dill, chopped",
+      "1 lemon, juiced",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Season the salmon with salt and pepper.",
+      "Cook in a pan with the olive oil until it flakes, about 4 minutes a side.",
+      "Toss the cucumber with the yogurt, dill, and lemon juice.",
+      "Serve the salmon with the cucumber salad on the side."
+    ]
+  },
+  {
+    "id": "salmon-salad-stuffed-tomato",
+    "image": "kitchen/tomato-stuffed-salmon-salad.jpg",
+    "credit": "Pexels",
+    "name": "Tomato Stuffed with Dill Salmon Salad",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 19, "carbs": 6, "fat": 5, "saturatedFat": 1, "calories": 145,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "small-portions",
+      "easy-prep",
+      "gluten-free",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 large tomatoes",
+      "150 g canned salmon, drained (about 2/3 cup)",
+      "60 g plain nonfat Greek yogurt (about 1/4 cup)",
+      "40 g celery, finely diced",
+      "20 g red onion, finely diced",
+      "1 tablespoon fresh dill, chopped",
+      "1 lemon, juiced",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Cut the tops off the tomatoes and scoop out the insides.",
+      "Mix the salmon with the yogurt, celery, onion, dill, and lemon juice.",
+      "Season lightly and spoon the salad into the tomatoes.",
+      "Serve cold, straight from the fridge if you like."
+    ]
+  },
+  {
+    "id": "broccoli-cheese-scramble",
+    "image": "kitchen/broccoli-cheese-scramble-muffin.jpg",
+    "credit": "Pexels",
+    "name": "Broccoli and Cheese Scramble",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 17, "carbs": 7, "fat": 13, "saturatedFat": 3.9, "calories": 213,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "low-carb",
+      "easy-prep",
+      "small-portions",
+      "vegetarian",
+      "gluten-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 egg",
+      "1 egg white",
+      "100 g broccoli florets, chopped small (about 1 cup)",
+      "30 g chopped kale, stems removed (about 1 cup)",
+      "14 g shredded reduced-fat cheddar (about 1/2 oz)",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Warm the oil in a pan and cook the broccoli and kale until just tender, about 3 minutes.",
+      "Whisk the egg and egg white and pour them over the broccoli.",
+      "Stir gently until the eggs are just set, then fold in the cheddar.",
+      "Serve right away, while the cheese is still soft."
+    ]
+  },
+  {
+    "id": "salmon-honey-balsamic",
+    "image": "kitchen/salmon-honey-balsamic-glaze.jpg",
+    "credit": "\"Mesa Grill Ancho Chile Honey Glazed Salmon\" by Calgary Reviews, licensed under CC BY 2.0",
+    "name": "Salmon with Honey Balsamic Glaze",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 35, "carbs": 17, "fat": 18, "saturatedFat": 2.5, "calories": 370,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "low-sodium",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "2 salmon fillets (about 300 g total)",
+      "1 tablespoon honey",
+      "1 tablespoon balsamic vinegar",
+      "1 teaspoon Dijon mustard",
+      "1 garlic clove, minced",
+      "200 g green beans",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Stir the honey, balsamic, mustard, and garlic together.",
+      "Season the salmon with salt and pepper and brush half the glaze over it.",
+      "Cook in a pan with the olive oil, brushing with the rest of the glaze as it cooks, until the salmon flakes, about 4 minutes a side.",
+      "Steam the green beans until tender and serve them alongside."
+    ]
+  },
+  {
+    "id": "jess-tuscan-lentil-chicken-soup",
+    "image": "kitchen/jess-tuscan-lentil-chicken-soup.jpg",
+    "credit": "",
+    "name": "Jess's Tuscan Lentil and Chicken Soup",
+    "category": "Dinner",
+    "time": 50,
+    "difficulty": "Easy",
+    "servings": 9,
+    "protein": 23, "carbs": 34, "fat": 4, "saturatedFat": 1, "calories": 262,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "nut-free",
+      "egg-free",
+      "budget-friendly",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cups lentils, rinsed",
+      "2 tablespoons olive oil",
+      "8 garlic cloves, minced",
+      "2 carrots, diced",
+      "2 zucchini, diced",
+      "2 cans diced tomatoes (no salt)",
+      "2 low-sodium chicken bouillon cubes",
+      "10 cups water",
+      "2 teaspoons Italian herbs (basil, oregano, thyme)",
+      "Black pepper",
+      "12 oz cooked chicken breast, diced (about 340 g)",
+      "2 cups chopped kale, stems removed",
+      "Parmesan (optional)",
+      "Whole-grain seeded bread, for serving (optional)",
+      "Juice of 1 lemon"
+    ],
+    "steps": [
+      "Sear the chicken in a pan with a little of the olive oil until browned at the edges, about 4 minutes.",
+      "Heat the oil, saute the garlic for 1 minute.",
+      "Add the carrots and zucchini, cook 3-4 minutes.",
+      "Add the lentils, tomatoes, bouillon, herbs, pepper, water, and protein.",
+      "Boil, then simmer 35-40 minutes until the lentils are tender.",
+      "Stir in the kale and cook 5 minutes more, until tender, then stir in the lemon juice and serve with Parmesan and whole-grain seeded bread."
+    ]
+  },
+  {
+    "id": "mississippi-pot-roast",
+    "image": "kitchen/mississippi-pot-roast.jpg",
+    "credit": "",
+    "name": "Mississippi Pot Roast",
+    "category": "Dinner",
+    "time": 480,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 40, "carbs": 5, "fat": 6, "saturatedFat": 2.1, "calories": 234,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "low-carb",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "3 lb top round roast (or eye of round), trimmed",
+      "1 teaspoon garlic powder",
+      "1 teaspoon onion powder",
+      "1 teaspoon dried dill",
+      "1/2 teaspoon dried parsley",
+      "1 teaspoon smoked paprika",
+      "6 pepperoncini peppers, plus 2 tablespoons of the juice",
+      "1 cup low-sodium beef broth",
+      "2 carrots, sliced"
+    ],
+    "steps": [
+      "Rub the roast all over with the garlic powder, onion powder, dill, parsley, and smoked paprika.",
+      "Set the roast in the slow cooker.",
+      "Tuck the peppers and carrots around the roast, then pour in the pepper juice and the broth.",
+      "Cover and cook on low for 8 hours, until the roast pulls apart easily.",
+      "Shred the meat with two forks and stir it through the juices. Skim any fat from the juices before serving.",
+      "Serve with steamed green beans or roasted cauliflower."
+    ]
+  },
+  {
+    "id": "slow-cooker-chicken-posole",
+    "image": "kitchen/slow-cooker-chicken-posole.jpg",
+    "credit": "",
+    "name": "Slow Cooker Chicken Posole",
+    "category": "Dinner",
+    "time": 360,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 30, "carbs": 21, "fat": 7, "saturatedFat": 1.5, "calories": 256,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 1/2 lb boneless, skinless chicken breasts",
+      "2 cans hominy (about 25 oz total), drained",
+      "1 can diced tomatoes (14 oz)",
+      "1 onion, chopped",
+      "4 garlic cloves, minced",
+      "4 cups low-sodium chicken broth",
+      "2 teaspoons chili powder",
+      "1 teaspoon ground cumin",
+      "1 teaspoon dried oregano",
+      "A pinch of salt (optional) and pepper",
+      "Lime wedges, chopped cilantro, and sliced avocado, to serve"
+    ],
+    "steps": [
+      "Put the chicken, hominy, tomatoes, onion, garlic, and broth in the slow cooker.",
+      "Stir in the chili powder, cumin, oregano, salt, and pepper.",
+      "Cover and cook on low for 6 hours, until the chicken is tender.",
+      "Lift the chicken out and shred it with two forks.",
+      "Stir the shredded chicken back into the pot.",
+      "Serve with lime, cilantro, and avocado."
+    ]
+  },
+  {
+    "id": "slow-cooker-bbq-brisket",
+    "image": "kitchen/slow-cooker-bbq-brisket.jpg",
+    "credit": "",
+    "name": "Slow Cooker BBQ Beef Brisket",
+    "category": "Dinner",
+    "time": 480,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 32, "carbs": 6, "fat": 6, "saturatedFat": 2.5, "calories": 208,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "3 lb beef brisket, flat half only, fat cap removed",
+      "1 1/2 cups low-sodium sugar-free BBQ sauce",
+      "1/2 cup low-sodium beef broth",
+      "1 onion, sliced",
+      "1 tablespoon smoked paprika",
+      "1 teaspoon garlic powder",
+      "1 teaspoon ground cumin",
+      "Salt and pepper",
+      "1 tablespoon apple cider vinegar",
+      "1 red bell pepper, sliced"
+    ],
+    "steps": [
+      "Rub the brisket all over with the paprika, garlic powder, cumin, salt, and pepper.",
+      "Scatter the sliced onion in the bottom of the slow cooker.",
+      "Lay the brisket on the onions and pepper, and pour the BBQ sauce, broth, and vinegar over it.",
+      "Cover and cook on low for 8 hours, until the brisket slices easily.",
+      "Slice against the grain and spoon the cooking juices over the top. Skim any fat from the juices before serving."
+    ]
+  },
+  {
+    "id": "creamy-tuscan-garlic-chicken",
+    "image": "kitchen/creamy-tuscan-garlic-chicken.jpg",
+    "credit": "",
+    "name": "Slow Cooker Creamy Tuscan Garlic Chicken",
+    "category": "Dinner",
+    "time": 360,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 58, "carbs": 10, "fat": 8, "saturatedFat": 3, "calories": 344,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "low-carb",
+      "gluten-free",
+      "egg-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "4 boneless, skinless chicken breasts (about 700 g total)",
+      "3/4 cup evaporated skim milk",
+      "1/2 cup low-sodium chicken broth",
+      "1/3 cup sun-dried tomatoes, chopped",
+      "3 cups chopped kale, stems removed",
+      "5 garlic cloves, minced",
+      "1 teaspoon Italian seasoning",
+      "1/4 cup grated Parmesan",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Lay the chicken breasts in the slow cooker.",
+      "Whisk the evaporated skim milk, broth, garlic, Italian seasoning, salt, and pepper together and pour it over the chicken.",
+      "Scatter the sun-dried tomatoes on top.",
+      "Cover and cook on low for 6 hours, until the chicken is cooked through.",
+      "Stir in the kale and Parmesan and cook 5 minutes more, until the kale is tender and the sauce comes together.",
+      "Serve over whole-grain pasta or brown rice, or on its own."
+    ]
+  },
+  {
+    "id": "slow-cooker-beef-stew",
+    "image": "kitchen/slow-cooker-beef-stew.jpg",
+    "credit": "",
+    "name": "Slow Cooker Beef Stew",
+    "category": "Dinner",
+    "time": 480,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 41, "carbs": 14, "fat": 18, "saturatedFat": 3.5, "calories": 370,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 lb beef stew meat, cubed",
+      "4 cups low-sodium beef broth",
+      "3 carrots, sliced",
+      "2 potatoes, peeled and diced",
+      "2 cups cauliflower florets",
+      "1 onion, chopped",
+      "4 garlic cloves, minced",
+      "1 tablespoon tomato paste",
+      "2 teaspoons dried thyme",
+      "1 teaspoon dried rosemary",
+      "1 tablespoon olive oil",
+      "Salt and pepper",
+      "Juice of 1/2 lemon"
+    ],
+    "steps": [
+      "Put the beef, broth, carrots, potatoes, cauliflower, onion, and garlic in the slow cooker.",
+      "Stir in the tomato paste, thyme, rosemary, olive oil, salt, and pepper.",
+      "Cover and cook on low for 8 hours, until the beef and vegetables are tender.",
+      "Stir in the lemon juice, taste, and adjust the salt.",
+      "Serve with whole-grain bread, or on its own."
+    ]
+  },
+  {
+    "id": "slow-cooker-bbq-pulled-pork",
+    "image": "kitchen/slow-cooker-bbq-pulled-pork.jpg",
+    "credit": "",
+    "name": "Slow Cooker BBQ Pulled Pork",
+    "category": "Dinner",
+    "time": 480,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 29, "carbs": 13, "fat": 13, "saturatedFat": 5, "calories": 286,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "3 lb pork shoulder",
+      "1 onion, chopped",
+      "1 1/2 cups low-sodium sugar-free BBQ sauce",
+      "2 tablespoons apple cider vinegar",
+      "1 teaspoon smoked paprika",
+      "1 teaspoon garlic powder",
+      "Salt and pepper",
+      "1 red bell pepper, sliced"
+    ],
+    "steps": [
+      "Set the pork shoulder in the slow cooker and scatter the chopped onion and sliced pepper over it.",
+      "Stir the BBQ sauce, vinegar, paprika, garlic powder, salt, and pepper together and pour it over the pork.",
+      "Cover and cook on low for 8 hours, until the pork pulls apart easily.",
+      "Lift the pork out, shred it with two forks, and return it to the pot.",
+      "Stir the shredded pork through the sauce.",
+      "Serve on whole-grain buns with extra sauce, or over roasted cauliflower."
+    ]
+  },
+  {
+    "id": "bbq-chicken-drumsticks",
+    "image": "kitchen/bbq-chicken-drumsticks.jpg",
+    "credit": "",
+    "name": "BBQ Chicken Drumsticks",
+    "category": "Dinner",
+    "time": 360,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 33, "carbs": 18, "fat": 11, "saturatedFat": 2.5, "calories": 304,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "8 chicken drumsticks, skin removed (about 900 g total)",
+      "1 cup low-sodium sugar-free BBQ sauce",
+      "1 tablespoon olive oil",
+      "1 teaspoon smoked paprika",
+      "1 teaspoon garlic powder",
+      "Salt and pepper",
+      "1 red bell pepper, sliced"
+    ],
+    "steps": [
+      "Season the drumsticks with salt, pepper, paprika, and garlic powder.",
+      "Heat the olive oil in a pan and brown the drumsticks on all sides, 5 to 7 minutes.",
+      "Move the drumsticks to the slow cooker, tuck the pepper slices around them, and pour the BBQ sauce over them.",
+      "Cover and cook on low for 6 hours, until the chicken is tender and cooked through.",
+      "Serve with extra sauce on the side."
+    ]
+  },
+  {
+    "id": "bbq-meatballs",
+    "image": "kitchen/bbq-meatballs.jpg",
+    "credit": "",
+    "name": "BBQ Meatballs",
+    "category": "Dinner",
+    "time": 300,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 32, "carbs": 9, "fat": 5, "saturatedFat": 1.4, "calories": 206,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 1/2 lb ground turkey breast (99% lean)",
+      "1/3 cup whole-grain breadcrumbs",
+      "1 egg",
+      "1/3 cup grated Parmesan",
+      "2 tablespoons chopped parsley",
+      "1 teaspoon garlic powder",
+      "1 tablespoon ground flaxseed",
+      "Salt and pepper",
+      "1 1/2 cups low-sodium sugar-free BBQ sauce",
+      "1 red bell pepper, finely diced",
+      "A small handful of fresh parsley, chopped, to serve"
+    ],
+    "steps": [
+      "Mix the ground turkey, breadcrumbs, egg, Parmesan, parsley, red pepper, garlic powder, ground flaxseed, salt, and pepper in a bowl.",
+      "Roll the mix into small meatballs, about 1 inch across.",
+      "Set the meatballs in the slow cooker and pour the BBQ sauce over them.",
+      "Cover and cook on low for 5 hours, stirring once or twice.",
+      "Serve with toothpicks as a snack, or on a whole-grain roll. Scatter the extra parsley over the top before serving."
+    ]
+  },
+  {
+    "id": "slow-cooker-bbq-ribs",
+    "image": "kitchen/slow-cooker-bbq-ribs.jpg",
+    "credit": "",
+    "name": "Slow Cooker Country-Style BBQ Ribs",
+    "category": "Dinner",
+    "time": 420,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 19, "carbs": 4, "fat": 11, "saturatedFat": 4.5, "calories": 193,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 1/2 lb boneless country-style ribs (pork loin)",
+      "1 1/2 cups low-sodium sugar-free BBQ sauce",
+      "1 tablespoon smoked paprika",
+      "1 tablespoon garlic powder",
+      "1 tablespoon onion powder",
+      "1/2 teaspoon salt",
+      "1 teaspoon black pepper",
+      "1/2 teaspoon cayenne pepper",
+      "1 red bell pepper, sliced"
+    ],
+    "steps": [
+      "Mix the paprika, garlic powder, onion powder, salt, pepper, and cayenne in a small bowl.",
+      "Rub the seasoning all over the ribs.",
+      "Set the ribs in the slow cooker, tuck the pepper slices around them, and pour the BBQ sauce over the top.",
+      "Cover and cook on low for 7 hours, until the ribs are tender.",
+      "Serve with extra sauce on the side."
+    ]
+  },
+  {
+    "id": "greek-salad",
+    "image": "kitchen/greek-salad.jpg",
+    "credit": "",
+    "name": "Greek Salad",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 38, "carbs": 10, "fat": 12, "saturatedFat": 3.2, "calories": 295,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "budget-friendly",
+      "gluten-free",
+      "nut-free",
+      "egg-free"
+    ],
+    "ingredients": [
+      "4 chicken breasts (about 450 g total), grilled and sliced",
+      "400 g ripe tomatoes (about 2 large), cut into wedges",
+      "200 g cucumber (about 1 medium), sliced into half moons",
+      "1 red bell pepper, seeded and sliced",
+      "1/2 red onion, thinly sliced",
+      "40 g Kalamata olives, pitted",
+      "40 g feta cheese, crumbled or in a block",
+      "4 teaspoons olive oil",
+      "1 tablespoon lemon juice",
+      "1 teaspoon dried oregano",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Grill the chicken breasts until the center reaches 165°F, about 6 minutes a side. Rest a few minutes, then slice.",
+      "Put the tomatoes, cucumber, pepper, and onion in a large bowl.",
+      "Add the olives and feta on top.",
+      "Whisk the olive oil, lemon juice, oregano, salt, and pepper in a small cup.",
+      "Pour the dressing over the salad and toss gently.",
+      "Let it sit for 5 minutes so the flavors come together, then top each serving with sliced grilled chicken and serve."
+    ]
+  },
+  {
+    "id": "chickpea-salad",
+    "image": "kitchen/chickpea-salad.jpg",
+    "credit": "",
+    "name": "Chickpea Salad",
+    "category": "Dinner",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 16, "carbs": 38, "fat": 11, "saturatedFat": 2.5, "calories": 315,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "budget-friendly",
+      "vegetarian",
+      "gluten-free",
+      "nut-free",
+      "egg-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cans chickpeas, drained and rinsed (about 480 g total)",
+      "200 g cucumber (about 1 medium), diced",
+      "200 g cherry tomatoes, halved",
+      "1/2 red onion, finely diced",
+      "60 g feta cheese, crumbled",
+      "1 tablespoon olive oil",
+      "60 g plain nonfat Greek yogurt (about 1/4 cup)",
+      "1 tablespoon lemon juice",
+      "1/2 teaspoon ground cumin",
+      "A small handful of fresh parsley, chopped",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Drain and rinse the chickpeas, then tip them into a large bowl.",
+      "Add the cucumber, tomatoes, onion, and feta.",
+      "Whisk the olive oil, yogurt, lemon juice, and cumin in a small cup.",
+      "Pour the dressing over the salad and toss until everything is coated.",
+      "Stir in the parsley, season lightly, and serve. It keeps well in the fridge for a day."
+    ]
+  },
+  {
+    "id": "shrimp-scampi-vegetables",
+    "image": "kitchen/shrimp-scampi-vegetables.jpg",
+    "credit": "",
+    "name": "Shrimp Scampi with Kale, Tomatoes and Zucchini",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 32, "carbs": 36, "fat": 13, "saturatedFat": 3.5, "calories": 385,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "balanced-macros",
+      "nut-free",
+      "egg-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 lb large shrimp, peeled and deveined (about 450 g)",
+      "6 oz whole-grain spaghetti (about 170 g)",
+      "2 tablespoons olive oil",
+      "1 tablespoon butter",
+      "5 garlic cloves, minced",
+      "1 cup cherry tomatoes, halved",
+      "2 cups chopped kale, stems removed",
+      "1 medium zucchini, sliced into half-moons",
+      "1 medium zucchini, cut into thin ribbons",
+      "Juice of 1 lemon",
+      "1/4 teaspoon red pepper flakes",
+      "2 tablespoons grated Parmesan",
+      "2 tablespoons chopped parsley",
+      "Salt and pepper",
+      "1 teaspoon grated fresh ginger"
+    ],
+    "steps": [
+      "Cook the pasta in salted water until just tender, about 9 minutes. Drain, saving 1/2 cup of the pasta water.",
+      "Warm the olive oil and butter in a large pan over medium heat. Add the garlic and red pepper flakes and cook 1 minute, until fragrant.",
+      "Add the shrimp in a single layer and cook 2 minutes per side, until pink.",
+      "Add the kale, tomatoes, zucchini, and ginger and cook 3 minutes, until just soft and the kale is tender.",
+      "Stir in the lemon juice and toss until everything is coated, about 1 minute.",
+      "Toss in the pasta and the zucchini ribbons with a splash of the saved pasta water. Top with Parmesan and parsley and serve."
+    ]
+  },
+  {
+    "id": "stuffed-artichokes",
+    "image": "kitchen/stuffed-artichokes.jpg",
+    "credit": "",
+    "name": "Stuffed Artichokes",
+    "category": "Snacks",
+    "time": 60,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 12, "carbs": 35, "fat": 15, "saturatedFat": 2.5, "calories": 329,
+    "tags": [
+      "snacks-smoothies",
+      "vegetarian",
+      "egg-free",
+      "nut-free",
+      "easy-prep",
+      "small-portions",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "4 medium artichokes",
+      "1 lemon, halved",
+      "3/4 cup whole-grain breadcrumbs",
+      "2 tablespoons ground flaxseed",
+      "1/4 cup grated Parmesan cheese",
+      "4 garlic cloves, minced",
+      "1/2 cup fresh parsley, chopped",
+      "3 tablespoons olive oil",
+      "Salt and pepper",
+      "2 cups water, for steaming",
+      "1 red bell pepper, finely diced"
+    ],
+    "steps": [
+      "Trim the artichokes: cut off the top inch, snip the sharp leaf tips, and peel away the tough outer leaves.",
+      "Rub the cut edges with half a lemon so they do not brown.",
+      "Spread the leaves open gently and pull out the small center leaves and the fuzzy choke with a spoon.",
+      "Mix the breadcrumbs, ground flaxseed, Parmesan, garlic, parsley, red pepper, and a pinch of salt and pepper.",
+      "Spoon the filling between the leaves and into the center of each artichoke. Drizzle with olive oil.",
+      "Stand the artichokes upright in a pot with about 2 inches of water and the lemon half. Cover and steam 40-45 minutes, until a leaf pulls away easily.",
+      "Serve warm with the lemon squeezed over the top."
+    ]
+  },
+  {
+    "id": "italian-minestrone",
+    "image": "kitchen/italian-minestrone.jpg",
+    "credit": "",
+    "name": "Italian Minestrone",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 12, "carbs": 40, "fat": 7, "saturatedFat": 0.5, "calories": 271,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "balanced-macros",
+      "budget-friendly",
+      "easy-prep",
+      "nut-free",
+      "egg-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 tablespoons olive oil",
+      "1 onion, chopped",
+      "2 carrots, diced",
+      "2 celery stalks, diced",
+      "3 garlic cloves, minced",
+      "2 zucchini, diced",
+      "2 cups green beans, cut into 1-inch pieces",
+      "1 can (14.5 oz) diced tomatoes, no salt added",
+      "1 can (15 oz) cannellini beans, rinsed and drained",
+      "1 can (15 oz) kidney beans, rinsed and drained",
+      "6 cups low-sodium vegetable broth",
+      "1 teaspoon dried Italian herbs (basil and oregano)",
+      "1/2 teaspoon ground turmeric",
+      "Salt and pepper",
+      "1 cup small whole-grain pasta (ditalini or small shells)",
+      "Grated Parmesan, for serving"
+    ],
+    "steps": [
+      "Heat the olive oil in a large pot over medium heat.",
+      "Add the onion, carrots, and celery. Cook 5 minutes until softened.",
+      "Add the garlic and zucchini. Cook 2 minutes more.",
+      "Add the tomatoes, both beans, green beans, broth, herbs, salt, and pepper. Bring to a boil.",
+      "Lower the heat and simmer 20 minutes.",
+      "Stir in the pasta. Cook 10 minutes until the pasta is tender.",
+      "Taste and add more salt or pepper if you like.",
+      "Serve with grated Parmesan on top."
+    ]
+  },
+  {
+    "id": "roasted-cauliflower-white-bean-tacos",
+    "image": "kitchen/roasted-cauliflower-white-bean-tacos.jpg",
+    "credit": "",
+    "name": "Roasted Cauliflower and White Bean Tacos",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 11, "carbs": 37, "fat": 9, "saturatedFat": 0.5, "calories": 268,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "gluten-free",
+      "budget-friendly",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "400 g cauliflower florets, cut into small pieces",
+      "1 can white beans (400 g), drained and rinsed",
+      "1 tablespoon olive oil",
+      "1 teaspoon ground cumin",
+      "1 teaspoon smoked paprika",
+      "1/4 teaspoon salt",
+      "8 small corn tortillas",
+      "1 cup shredded green cabbage",
+      "1/2 cup salsa",
+      "1 lime, cut into wedges",
+      "1/4 cup chopped fresh cilantro",
+      "1/4 cup pumpkin seeds"
+    ],
+    "steps": [
+      "Heat the oven to 200°C (400°F). Line a baking tray with baking paper.",
+      "Toss the cauliflower with the olive oil, cumin, smoked paprika, and salt. Spread it in a single layer on the tray.",
+      "Roast for 20 minutes, turning once halfway through, until the edges are browned and the centres are soft.",
+      "While the cauliflower roasts, warm the white beans in a small pan over medium heat for 3 to 4 minutes. Mash a few beans with a fork to thicken them.",
+      "Warm the tortillas in a dry pan for 30 seconds on each side, or wrap them in a clean towel and microwave for 30 seconds.",
+      "Fill each tortilla with cauliflower, white beans, and shredded cabbage.",
+      "Top with salsa, cilantro, and pumpkin seeds. Serve with lime wedges."
+    ]
+  },
+  {
+    "id": "white-bean-greens-soup",
+    "image": "kitchen/white-bean-greens-soup.jpg",
+    "credit": "",
+    "name": "White Bean and Greens Soup",
+    "category": "Light Meals",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 11, "carbs": 28, "fat": 6, "saturatedFat": 0.5, "calories": 206,
+    "tags": [
+      "small-portions",
+      "vegan",
+      "gluten-free",
+      "dairy-free",
+      "budget-friendly",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 tablespoon olive oil",
+      "1 onion, chopped",
+      "2 carrots, peeled and sliced",
+      "3 garlic cloves, minced",
+      "1 teaspoon dried rosemary",
+      "2 cans cannellini beans (400 g each), drained and rinsed",
+      "4 cups low-sodium vegetable broth",
+      "6 cups chopped kale, stems removed",
+      "1 lemon, juiced",
+      "Salt and black pepper to taste",
+      "3 tablespoons ground flaxseed"
+    ],
+    "steps": [
+      "Heat the olive oil in a large pot over medium heat.",
+      "Add the onion and carrots. Cook for 5 minutes, stirring often, until the onion is soft.",
+      "Add the garlic and rosemary. Cook for 1 minute until fragrant.",
+      "Add the beans and the broth. Bring to a gentle boil, then turn the heat down and simmer for 10 minutes.",
+      "Stir in the kale a handful at a time. Simmer for 5 more minutes until the greens are wilted and tender.",
+      "Stir in the ground flaxseed and the lemon juice. Taste and add salt and pepper.",
+      "Ladle into bowls and serve hot."
+    ]
+  },
+  {
+    "id": "lentil-barley-bowl",
+    "image": "kitchen/lentil-barley-bowl.jpg",
+    "credit": "",
+    "name": "Lentil and Barley Bowl",
+    "category": "Dinner",
+    "time": 35,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 14, "carbs": 40, "fat": 11, "saturatedFat": 1, "calories": 313,
+    "tags": [
+      "dinner",
+      "vegan",
+      "high-protein",
+      "budget-friendly",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 cup dry brown lentils, rinsed",
+      "1 cup pearl barley, rinsed",
+      "3 cups water or low-sodium vegetable broth",
+      "1 zucchini, diced",
+      "1 red pepper, diced",
+      "1 red onion, diced",
+      "2 tablespoons olive oil",
+      "1 teaspoon ground cumin",
+      "1 cup cherry tomatoes, halved",
+      "1/4 cup chopped fresh parsley",
+      "1 lemon, juiced",
+      "Salt and black pepper to taste",
+      "4 tablespoons ground flaxseed"
+    ],
+    "steps": [
+      "Put the lentils, barley, and water or broth in a medium pot. Bring to a boil.",
+      "Turn the heat to low, cover, and simmer for 25 minutes until the lentils are tender and the barley is chewy. Drain any extra liquid.",
+      "While the grains cook, heat the oven to 200°C (400°F). Toss the zucchini, red pepper, and onion with 1 tablespoon of the olive oil and the cumin. Spread on a baking tray.",
+      "Roast the vegetables for 20 minutes, turning once, until soft and browned at the edges.",
+      "Stir the roasted vegetables and cherry tomatoes into the lentils and barley.",
+      "Add the remaining olive oil, lemon juice, parsley, and ground flaxseed. Toss gently.",
+      "Taste and add salt and pepper. Serve warm or at room temperature."
+    ]
+  },
+  {
+    "id": "chickpea-kale-roasted-cauliflower-skillet",
+    "image": "kitchen/chickpea-kale-roasted-cauliflower-skillet.jpg",
+    "credit": "",
+    "name": "Chickpea and Kale Skillet with Roasted Cauliflower",
+    "category": "Dinner",
+    "time": 30,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 12, "carbs": 36, "fat": 9, "saturatedFat": 0.5, "calories": 275,
+    "tags": [
+      "dinner",
+      "vegan",
+      "vegetarian",
+      "gluten-free",
+      "dairy-free",
+      "high-protein",
+      "easy-prep",
+      "budget-friendly",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 medium cauliflower (about 200 g florets)",
+      "1 tablespoon olive oil",
+      "1 onion, chopped",
+      "2 garlic cloves, minced",
+      "1 teaspoon ground cumin",
+      "1/2 teaspoon ground turmeric",
+      "1 can chickpeas (400 g), drained and rinsed",
+      "4 cups chopped kale, stems removed",
+      "1 lemon, juiced",
+      "Salt and black pepper to taste",
+      "1/4 cup pumpkin seeds",
+      "1 cup cherry tomatoes, halved"
+    ],
+    "steps": [
+      "Heat the oven to 200°C (400°F). Toss the cauliflower florets with half the olive oil and roast for 15 minutes, until browned at the edges.",
+      "While the cauliflower roasts, warm the rest of the olive oil in a large skillet over medium heat. Add the onion and cook 4 minutes, until soft.",
+      "Add the garlic, cumin, and turmeric. Cook for 1 minute until fragrant.",
+      "Add the chickpeas and 2 tablespoons of water. Cover and cook for 5 minutes.",
+      "Add the kale a handful at a time, stirring until each handful wilts, then add the cherry tomatoes.",
+      "Stir in the roasted cauliflower and the lemon juice. Taste and add salt and pepper, then sprinkle with the pumpkin seeds.",
+      "Serve hot, straight from the pan."
+    ]
+  },
+  {
+    "id": "overnight-oats-berries",
+    "image": "kitchen/overnight-oats-berries.jpg",
+    "credit": "",
+    "name": "Overnight Oats with Berries",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 16, "carbs": 46, "fat": 4, "saturatedFat": 1.1, "calories": 290,
+    "tags": [
+      "breakfast",
+      "vegetarian",
+      "easy-prep",
+      "high-protein",
+      "balanced-macros",
+      "low-sodium",
+      "nut-free"
+    ],
+    "ingredients": [
+      "1 cup rolled oats",
+      "1 cup milk",
+      "1/2 cup plain Greek yogurt",
+      "1 tablespoon chia seeds",
+      "1/4 teaspoon pure stevia (or monk fruit extract)",
+      "1/2 teaspoon ground cinnamon",
+      "1 cup mixed berries, including blueberries"
+    ],
+    "steps": [
+      "Stir the oats, milk, yogurt, chia seeds, stevia, and cinnamon together in a bowl or jar.",
+      "Cover and put in the fridge overnight, or for at least 4 hours.",
+      "In the morning, stir the oats. Add a splash of milk if they are thicker than you like.",
+      "Divide between two bowls.",
+      "Top each bowl with half the berries. Serve cold."
+    ]
+  },
+  {
+    "id": "garlic-butter-cod-broccoli",
+    "image": "kitchen/garlic-butter-cod-broccoli.jpg",
+    "credit": "",
+    "name": "Garlic Olive Oil Cod with Roasted Broccoli and Brussels Sprouts",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 31, "carbs": 14, "fat": 13, "saturatedFat": 2.0, "calories": 299,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "egg-free",
+      "nut-free",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 cod fillets (about 300 g total)",
+      "150 g broccoli florets (about 1 1/2 cups)",
+      "150 g Brussels sprouts, halved (about 1 1/2 cups)",
+      "1 tablespoon olive oil",
+      "3 garlic cloves, minced",
+      "1 lemon, juiced",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper",
+      "150 g cherry tomatoes, halved (about 1 cup)"
+    ],
+    "steps": [
+      "Heat the oven to 425°F and line a baking tray with parchment.",
+      "Toss the broccoli, Brussels sprouts, and cherry tomatoes with the olive oil, salt, and pepper and spread them on the tray.",
+      "Roast for 10 minutes, until the broccoli starts to brown at the edges.",
+      "Season the cod with salt and pepper and lay it on the tray beside the vegetables.",
+      "Warm the olive oil with the garlic in a small pan and spoon it over the cod.",
+      "Roast 10 minutes more, until the cod flakes easily with a fork.",
+      "Squeeze the lemon juice over the top and serve."
+    ]
+  },
+  {
+    "id": "turkey-meatballs-tomato-sauce",
+    "image": "kitchen/turkey-meatballs-tomato-sauce.jpg",
+    "credit": "",
+    "name": "Turkey Meatballs in Tomato Sauce",
+    "category": "Dinner",
+    "time": 35,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 46, "carbs": 16, "fat": 4, "saturatedFat": 1.2, "calories": 284,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "easy-prep",
+      "nut-free",
+      "budget-friendly"
+    ],
+    "ingredients": [
+      "1 1/2 lb ground turkey breast (99% lean)",
+      "1/3 cup whole-grain breadcrumbs",
+      "1 egg, beaten",
+      "1 tablespoon grated Parmesan",
+      "2 garlic cloves, minced",
+      "1 teaspoon dried Italian herbs",
+      "2 cups tomato sauce",
+      "Olive oil spray",
+      "A pinch of salt (optional) and pepper",
+      "A small handful of fresh basil leaves, torn"
+    ],
+    "steps": [
+      "Mix the turkey, breadcrumbs, egg, Parmesan, garlic, herbs, salt, and pepper in a large bowl.",
+      "Roll the mix into 16 small meatballs, about 1 1/2 inches across.",
+      "Spray a large pan with olive oil spray and brown the meatballs on all sides over medium heat, about 6 minutes.",
+      "Pour the tomato sauce over the meatballs and bring it to a gentle simmer.",
+      "Cover and cook for 15 minutes, until the meatballs are cooked through.",
+      "Serve over whole-grain pasta or with whole-grain bread, or on their own. Scatter the basil over the top before serving."
+    ]
+  },
+  {
+    "id": "tuna-steak-green-beans",
+    "image": "kitchen/tuna-steak-green-beans.jpg",
+    "credit": "",
+    "name": "Tuna Steak with Green Beans and Cherry Tomatoes",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 38, "carbs": 11, "fat": 6, "saturatedFat": 1, "calories": 250,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "low-carb",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 tuna steaks (about 300 g total)",
+      "200 g green beans",
+      "150 g cherry tomatoes, halved (about 1 cup)",
+      "1 lemon, juiced",
+      "1 teaspoon olive oil",
+      "1 garlic clove, minced",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Season the tuna with salt and pepper.",
+      "Warm the olive oil in a pan over medium-high heat.",
+      "Cook the tuna for 2 to 3 minutes a side, until seared outside and pink in the middle.",
+      "Set the tuna aside to rest a few minutes.",
+      "In the same pan, cook the green beans and tomatoes with the garlic for 3 to 4 minutes, until the beans are just tender.",
+      "Squeeze the lemon juice over the vegetables, slice the tuna, and serve."
+    ]
+  },
+  {
+    "id": "pork-chops-apple-onion",
+    "image": "kitchen/pork-chops-apple-onion.jpg",
+    "credit": "",
+    "name": "Grilled Pork Chops with Apple and Onion",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 31, "carbs": 22, "fat": 10, "saturatedFat": 3.0, "calories": 304,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 boneless pork loin chops, trimmed (about 300 g total)",
+      "1 apple, cored and sliced (organic preferred)",
+      "1 onion, sliced",
+      "1 teaspoon olive oil",
+      "1 teaspoon Dijon mustard",
+      "1/2 teaspoon dried thyme",
+      "A pinch of salt (optional) and pepper",
+      "1 red bell pepper, sliced"
+    ],
+    "steps": [
+      "Season the pork chops with salt, pepper, and thyme.",
+      "Warm the olive oil in a pan over medium-high heat.",
+      "Cook the pork chops for 4 to 5 minutes a side, until the center reaches 145°F. Set aside to rest.",
+      "In the same pan, cook the apple, onion, and pepper for 4 minutes, until softened.",
+      "Stir in the mustard and a splash of water, scraping up the browned bits.",
+      "Spoon the apple and onion over the pork chops and serve."
+    ]
+  },
+  {
+    "id": "chicken-vegetable-stir-fry",
+    "image": "kitchen/chicken-vegetable-stir-fry.jpg",
+    "credit": "",
+    "name": "Chicken and Vegetable Stir-Fry with Brown Rice",
+    "category": "Dinner",
+    "time": 25,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 36, "carbs": 30, "fat": 8, "saturatedFat": 1.5, "calories": 340,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "balanced-macros",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "2 chicken breasts (about 300 g total), sliced into thin strips",
+      "1 1/2 cups cooked brown rice, for serving",
+      "1 red bell pepper, sliced",
+      "2 cups broccoli florets",
+      "1 carrot, sliced into thin rounds",
+      "2 tablespoons low-sodium soy sauce",
+      "1 tablespoon olive oil",
+      "2 garlic cloves, minced",
+      "1 teaspoon grated fresh ginger",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Cook the brown rice if you have not already, and keep it warm.",
+      "Toss the chicken strips with half the soy sauce.",
+      "Warm the olive oil in a large pan or wok over high heat.",
+      "Cook the chicken until browned and cooked through, about 5 minutes. Set aside.",
+      "In the same pan, cook the pepper, broccoli, and carrot for 3 to 4 minutes, until just tender.",
+      "Add the garlic and ginger and cook 1 minute more.",
+      "Return the chicken to the pan with the rest of the soy sauce and toss everything together.",
+      "Serve over the brown rice."
+    ]
+  },
+  {
+    "id": "baked-ziti-kale-ricotta",
+    "image": "kitchen/baked-ziti-kale-ricotta.jpg",
+    "credit": "",
+    "name": "Baked Ziti with Kale and Ricotta",
+    "category": "Dinner",
+    "time": 40,
+    "difficulty": "Medium",
+    "servings": 6,
+    "protein": 17, "carbs": 36, "fat": 5, "saturatedFat": 2.5, "calories": 258,
+    "tags": [
+      "dinner",
+      "balanced-macros",
+      "vegetarian",
+      "easy-prep",
+      "nut-free"
+    ],
+    "ingredients": [
+      "8 oz whole-grain ziti pasta (about 225 g)",
+      "2 cups tomato sauce",
+      "1 cup blended low-fat (1%) cottage cheese",
+      "1 cup shredded part-skim mozzarella, divided",
+      "2 cups chopped kale, stems removed",
+      "1 cup broccoli florets, chopped small",
+      "1 teaspoon olive oil",
+      "1/2 teaspoon dried Italian herbs",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Heat the oven to 375°F and oil a baking dish.",
+      "Cook the ziti in salted water until just tender, about 9 minutes, adding the kale and broccoli for the last 2 minutes. Drain.",
+      "Stir the kale through the hot pasta until it is tender.",
+      "Mix in the tomato sauce, cottage cheese, half the mozzarella, the herbs, salt, and pepper.",
+      "Tip everything into the baking dish and scatter the rest of the mozzarella on top.",
+      "Bake for 20 minutes, until the cheese is melted and bubbling.",
+      "Let it sit for 5 minutes before serving."
+    ]
+  },
+  {
+    "id": "beef-vegetable-soup",
+    "image": "kitchen/beef-vegetable-soup.jpg",
+    "credit": "",
+    "name": "Beef and Vegetable Soup",
+    "category": "Dinner",
+    "time": 50,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 29, "carbs": 21, "fat": 9, "saturatedFat": 2.5, "calories": 278,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "egg-free",
+      "nut-free",
+      "budget-friendly",
+      "easy-prep",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 1/2 lb beef stew meat, cut into small cubes",
+      "6 cups low-sodium beef broth",
+      "2 potatoes, peeled and diced",
+      "3 carrots, sliced",
+      "2 celery stalks, diced",
+      "1 onion, chopped",
+      "3 garlic cloves, minced",
+      "1 tablespoon tomato paste",
+      "2 cups chopped kale, stems removed",
+      "1 teaspoon dried thyme",
+      "1 tablespoon olive oil",
+      "A pinch of salt (optional) and pepper",
+      "Juice of 1/2 lemon"
+    ],
+    "steps": [
+      "Warm the olive oil in a large pot over medium-high heat.",
+      "Brown the beef on all sides, about 5 minutes. Set aside.",
+      "In the same pot, cook the onion, carrots, and celery for 4 minutes, until softened.",
+      "Stir in the garlic and tomato paste and cook 1 minute more.",
+      "Return the beef to the pot with the potatoes, broth, thyme, salt, and pepper.",
+      "Bring to a boil, then lower the heat and simmer for 30 minutes, until the beef is tender. Stir in the kale and simmer 5 minutes more, until tender.",
+      "Stir in the lemon juice, taste, and add more salt or pepper if you like. Serve hot."
+    ]
+  },
+  {
+    "id": "veggie-fried-rice-egg",
+    "image": "kitchen/veggie-fried-rice-egg.jpg",
+    "credit": "",
+    "name": "Veggie Fried Rice with Egg",
+    "category": "Dinner",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 13, "carbs": 40, "fat": 11, "saturatedFat": 1.5, "calories": 320,
+    "tags": [
+      "dinner",
+      "vegetarian",
+      "balanced-macros",
+      "easy-prep",
+      "nut-free",
+      "dairy-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "3 cups cooked brown rice, cooled",
+      "2 cups cauliflower rice",
+      "4 eggs, beaten",
+      "1 cup frozen mixed vegetables (peas, carrots, corn)",
+      "3 green onions, sliced",
+      "2 tablespoons low-sodium soy sauce",
+      "1 tablespoon olive oil",
+      "2 garlic cloves, minced",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Warm half the olive oil in a large pan over medium-high heat.",
+      "Pour in the eggs and scramble until just set, about 1 minute. Set aside.",
+      "Warm the rest of the oil in the same pan and cook the garlic for 30 seconds.",
+      "Add the frozen vegetables and cauliflower rice and cook for 3 minutes, until heated through.",
+      "Add the rice and soy sauce and stir-fry for 3 minutes, until the rice is hot and lightly browned.",
+      "Stir in the scrambled egg and green onions. Serve right away."
+    ]
+  },
+  {
+    "id": "cottage-cheese-toast-tomato",
+    "image": "kitchen/cottage-cheese-toast-tomato.jpg",
+    "credit": "",
+    "name": "Cottage Cheese Toast with Tomato and Basil",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 17, "carbs": 29, "fat": 8, "saturatedFat": 3.5, "calories": 256,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian",
+      "small-portions",
+      "nut-free"
+    ],
+    "ingredients": [
+      "1 slice whole-grain bread",
+      "1/2 cup cottage cheese",
+      "1 tomato, sliced",
+      "4 fresh basil leaves",
+      "1 teaspoon olive oil",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Toast the bread until golden.",
+      "Spread the cottage cheese over the toast.",
+      "Lay the tomato slices on top.",
+      "Tear the basil over the top and drizzle with the olive oil.",
+      "Season lightly and eat right away."
+    ]
+  },
+  {
+    "id": "banana-peanut-butter-smoothie",
+    "image": "kitchen/banana-peanut-butter-smoothie.jpg",
+    "credit": "",
+    "name": "Banana Peanut Butter Smoothie",
+    "category": "Breakfast",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 17, "carbs": 35, "fat": 10, "saturatedFat": 2.5, "calories": 295,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian",
+      "gluten-free",
+      "egg-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/2 banana, peeled",
+      "1/2 cup blueberries",
+      "1 tablespoon peanut butter",
+      "1/2 cup milk",
+      "1/4 cup plain Greek yogurt",
+      "4 ice cubes"
+    ],
+    "steps": [
+      "Put the banana, blueberries, peanut butter, milk, yogurt, and ice in a blender.",
+      "Blend until smooth, about 30 seconds.",
+      "Pour into a glass and drink right away."
+    ]
+  },
+  {
+    "id": "savory-oatmeal-egg-kale",
+    "image": "kitchen/savory-oatmeal-egg-kale.jpg",
+    "credit": "",
+    "name": "Savory Oatmeal with Egg and Kale",
+    "category": "Breakfast",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 15, "carbs": 33, "fat": 12, "saturatedFat": 3.5, "calories": 300,
+    "tags": [
+      "breakfast",
+      "high-protein",
+      "easy-prep",
+      "vegetarian",
+      "small-portions",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1/3 cup rolled oats",
+      "2/3 cup water",
+      "1 egg",
+      "1 cup chopped kale, stems removed",
+      "1 tablespoon grated Parmesan",
+      "1 tablespoon ground flaxseed",
+      "A pinch of salt (optional) and pepper",
+      "80 g cherry tomatoes, halved (about 1/2 cup)"
+    ],
+    "steps": [
+      "Cook the oats in the water over medium heat for 4 to 5 minutes, until thick.",
+      "Stir in the kale and cherry tomatoes and cook 2 minutes, until the kale is tender and the tomatoes soften.",
+      "Fry the egg in a small pan the way you like it.",
+      "Stir the ground flaxseed into the oatmeal, spoon into a bowl, and top with the egg and Parmesan.",
+      "Season lightly and eat right away."
+    ]
+  },
+  {
+    "id": "egg-salad-lettuce-cups",
+    "image": "kitchen/egg-salad-lettuce-cups.jpg",
+    "credit": "",
+    "name": "Egg Salad Lettuce Cups",
+    "category": "Lunch",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 15, "carbs": 4, "fat": 12, "saturatedFat": 3.2, "calories": 186,
+    "tags": [
+      "lunch",
+      "high-protein",
+      "low-carb",
+      "small-portions",
+      "easy-prep",
+      "gluten-free",
+      "nut-free",
+      "vegetarian"
+    ],
+    "ingredients": [
+      "4 eggs, hard-boiled and peeled",
+      "3 tablespoons plain Greek yogurt",
+      "1 teaspoon Dijon mustard",
+      "2 green onions, sliced",
+      "1 tablespoon fresh dill, chopped",
+      "8 large lettuce leaves",
+      "A pinch of salt (optional) and pepper",
+      "1 teaspoon lemon juice",
+      "40 g red bell pepper, finely diced (about 1/4 cup)"
+    ],
+    "steps": [
+      "Chop the eggs and put them in a bowl.",
+      "Stir in the yogurt, mustard, lemon juice, green onions, dill, red pepper, salt, and pepper.",
+      "Spoon the egg salad into the lettuce leaves.",
+      "Eat like a wrap, straight away."
+    ]
+  },
+  {
+    "id": "tomato-mozzarella-salad",
+    "image": "kitchen/tomato-mozzarella-salad.jpg",
+    "credit": "",
+    "name": "Tomato and Mozzarella Salad",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 9, "carbs": 7, "fat": 9, "saturatedFat": 3.5, "calories": 145,
+    "tags": [
+      "snacks-smoothies",
+      "vegetarian",
+      "small-portions",
+      "easy-prep",
+      "gluten-free",
+      "egg-free",
+      "nut-free"
+    ],
+    "ingredients": [
+      "2 large tomatoes, sliced",
+      "56 g fresh part-skim mozzarella, sliced (about 2 oz)",
+      "8 fresh basil leaves",
+      "2 teaspoons olive oil",
+      "1 teaspoon balsamic vinegar",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Lay the tomato and mozzarella slices on a plate, alternating them.",
+      "Tuck the basil leaves between the slices.",
+      "Drizzle with the olive oil and balsamic vinegar.",
+      "Season lightly and serve right away."
+    ]
+  },
+  {
+    "id": "yogurt-herb-dip-veggies",
+    "image": "kitchen/yogurt-herb-dip-veggies.jpg",
+    "credit": "",
+    "name": "Carrot and Cucumber Sticks with Yogurt Herb Dip",
+    "category": "Snacks",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 14, "carbs": 17, "fat": 5, "saturatedFat": 0.5, "calories": 175,
+    "tags": [
+      "snacks-smoothies",
+      "vegetarian",
+      "small-portions",
+      "easy-prep",
+      "gluten-free",
+      "egg-free",
+      "nut-free",
+      "low-sodium"
+    ],
+    "ingredients": [
+      "1 cup plain Greek yogurt",
+      "2 carrots, peeled and cut into sticks",
+      "1 cucumber, cut into sticks",
+      "1 tablespoon fresh dill, chopped",
+      "1 garlic clove, minced",
+      "1 lemon, juiced",
+      "1 teaspoon olive oil",
+      "1 tablespoon ground flaxseed",
+      "A pinch of salt (optional) and pepper"
+    ],
+    "steps": [
+      "Stir the yogurt, dill, garlic, lemon juice, olive oil, and ground flaxseed together in a small bowl.",
+      "Season lightly with salt and pepper.",
+      "Cut the carrots and cucumber into sticks.",
+      "Serve the vegetables with the dip."
+    ]
+  },
+  {
+    "id": "citrus-mint-sparkling-refresher",
+    "image": "kitchen/citrus-mint-sparkling-refresher.jpg",
+    "credit": "",
+    "name": "Citrus-Mint Sparkling Refresher",
+    "category": "Mocktails",
+    "cuisine": "Greek",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 1, "carbs": 17, "fat": 0, "saturatedFat": 0, "calories": 68, "sodium": 2,
+    "tags": [
+      "mocktails",
+      "greek",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "1 large orange, freshly juiced",
+      "1 lemon, freshly juiced",
+      "6-8 fresh mint leaves",
+      "1 cup cold sparkling water, unflavoured",
+      "Ice",
+      "Orange slices and mint sprigs, to garnish (optional)",
+      "Stevia or monk fruit to taste (optional, only if more sweetness is wanted)"
+    ],
+    "steps": [
+      "Juice the orange and lemon into a glass or small pitcher.",
+      "Gently muddle the mint leaves at the bottom of the glass.",
+      "Add ice, pour the sparkling water on top, and stir gently.",
+      "Garnish with orange slices and mint sprigs and serve at once."
+    ]
+  },
+  {
+    "id": "limoncello-mocktail",
+    "image": "kitchen/limoncello-mocktail.jpg",
+    "credit": "",
+    "name": "Limoncello Mocktail",
+    "category": "Mocktails",
+    "cuisine": "Italian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 0, "carbs": 5, "fat": 0, "saturatedFat": 0, "calories": 15, "sodium": 1,
+    "tags": [
+      "mocktails",
+      "italian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "1/2 cup fresh lemon juice (3-4 lemons)",
+      "1 cup sparkling water or club soda",
+      "Stevia or monk fruit to taste (start with a few drops liquid stevia or 1/2-1 tsp granulated stevia or monk fruit)",
+      "Ice",
+      "Lemon wheel and fresh mint or 5-6 basil leaves, to garnish"
+    ],
+    "steps": [
+      "Juice the lemons.",
+      "Stir the stevia or monk fruit into the lemon juice until dissolved.",
+      "Slowly pour in the sparkling water and stir gently.",
+      "Pour over ice and garnish with a lemon wheel and mint or basil."
+    ]
+  },
+  {
+    "id": "lavender-lemon-sparkler",
+    "image": "kitchen/lavender-lemon-sparkler.jpg",
+    "credit": "",
+    "name": "Lavender-Lemon Sparkler",
+    "category": "Mocktails",
+    "cuisine": "French Mediterranean",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 0, "carbs": 3, "fat": 0, "saturatedFat": 0, "calories": 10, "sodium": 1,
+    "tags": [
+      "mocktails",
+      "french",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "2 tsp dried culinary lavender (culinary grade only, never ornamental or fragrance lavender)",
+      "2 tsp stevia or monk fruit sweetener",
+      "250 ml boiling water",
+      "2 tbsp lemon juice per glass",
+      "2 tbsp lavender syrup per glass",
+      "Sparkling water, to top up",
+      "Ice"
+    ],
+    "steps": [
+      "Put the lavender, stevia or monk fruit, and boiling water in a small saucepan. Bring to a gentle boil, then turn to very low and simmer 7-10 minutes until the colour fades from the lavender. Strain and cool. This is the lavender syrup.",
+      "Per glass: add 2 tbsp lavender syrup and 2 tbsp lemon juice.",
+      "Top with sparkling water, add ice, and garnish."
+    ]
+  },
+  {
+    "id": "pomegranate-thyme-cooler",
+    "image": "kitchen/pomegranate-thyme-cooler.jpg",
+    "credit": "",
+    "name": "Pomegranate-Thyme Cooler",
+    "category": "Mocktails",
+    "cuisine": "Sardinian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 0, "carbs": 6, "fat": 0, "saturatedFat": 0, "calories": 22, "sodium": 1,
+    "tags": [
+      "mocktails",
+      "sardinian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "2 x 12 oz cans sparkling berry water, chilled (or plain sparkling water)",
+      "4 oz (1/2 cup) 100% pomegranate juice, no added sugar",
+      "A few fresh cranberries, to garnish",
+      "Fresh thyme sprigs"
+    ],
+    "steps": [
+      "Per glass: add 1/2 can sparkling water and 1 oz pomegranate juice.",
+      "Add 2-3 cranberries and top with 1-2 thyme sprigs.",
+      "Serve at once."
+    ]
+  },
+  {
+    "id": "shikuwasa-mint-sparkler",
+    "image": "kitchen/shikuwasa-mint-sparkler.jpg",
+    "credit": "",
+    "name": "Shikuwasa-Mint Sparkler",
+    "category": "Mocktails",
+    "cuisine": "Okinawan",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 1,
+    "protein": 0, "carbs": 3, "fat": 0, "saturatedFat": 0, "calories": 10, "sodium": 0,
+    "tags": [
+      "mocktails",
+      "okinawan",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "2 tbsp (30 ml) 100% shikuwasa juice (check the label: 100% juice, no added sugar; avoid sweetened soda or syrup versions)",
+      "1/2 cup (120 ml) cold sparkling water",
+      "A few fresh mint leaves",
+      "Ice",
+      "Stevia or monk fruit to taste (optional)",
+      "If shikuwasa is unavailable: lime juice with a small squeeze of mandarin or orange"
+    ],
+    "steps": [
+      "Pour the sparkling water into a tall glass first to keep the bubbles.",
+      "Add the shikuwasa juice and stir gently.",
+      "Add ice and mint, torn or slapped to release the oils. Serve at once.",
+      "Do not drink the juice neat. It is very acidic."
+    ]
+  },
+  {
+    "id": "lemon-herb-greek-seasoning",
+    "image": "kitchen/lemon-herb-greek-seasoning.jpg",
+    "credit": "",
+    "name": "Lemon-Herb Greek Seasoning",
+    "category": "Spices",
+    "cuisine": "Greek",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 9,
+    "protein": 0, "carbs": 0, "fat": 0, "saturatedFat": 0, "calories": 2, "sodium": 0,
+    "tags": [
+      "spices",
+      "greek",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 tbsp dried oregano",
+      "1 tsp garlic powder",
+      "1 tsp onion powder",
+      "1 tsp lemon zest or dried lemon peel",
+      "1/2 tsp black pepper",
+      "1/2 tsp dried rosemary",
+      "1/2 tsp dried dill",
+      "1/4 tsp red pepper flakes",
+      "No salt (salt is omitted entirely for the lowest sodium; salt the dish separately if needed)"
+    ],
+    "steps": [
+      "Whisk everything together in a small bowl, breaking up any clumps.",
+      "Use 1-2 tsp per 500 g chicken, fish, or vegetables.",
+      "Store the base blend airtight, cool and dry, up to 2 months. Use dried lemon peel (not fresh zest) if storing in the pantry; with fresh zest, refrigerate and use within 2-3 days."
+    ]
+  },
+  {
+    "id": "homemade-italian-seasoning",
+    "image": "kitchen/homemade-italian-seasoning.jpg",
+    "credit": "",
+    "name": "Homemade Italian Seasoning",
+    "category": "Spices",
+    "cuisine": "Italian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 36,
+    "protein": 0, "carbs": 0, "fat": 0, "saturatedFat": 0, "calories": 2, "sodium": 0,
+    "tags": [
+      "spices",
+      "italian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "3 tbsp dried oregano",
+      "3 tbsp dried basil",
+      "3 tbsp dried parsley",
+      "2 tbsp dried marjoram",
+      "1 tbsp ground thyme",
+      "2 tsp crushed dried rosemary"
+    ],
+    "steps": [
+      "Measure all six dried herbs into a clean, dry bowl or mason jar.",
+      "Stir or shake until combined.",
+      "Store airtight, cool, dark and dry, and use within 6 months to 1 year. Start with 1 tsp per dish and adjust."
+    ]
+  },
+  {
+    "id": "herbes-de-provence",
+    "image": "kitchen/herbes-de-provence.jpg",
+    "credit": "",
+    "name": "Herbes de Provence",
+    "category": "Spices",
+    "cuisine": "French Mediterranean",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 0, "carbs": 0, "fat": 0, "saturatedFat": 0, "calories": 2, "sodium": 0,
+    "tags": [
+      "spices",
+      "french",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 tsp dried marjoram",
+      "2 tsp dried thyme",
+      "1 tsp dried basil",
+      "1 tsp dried rosemary, crumbled",
+      "1 tsp dried sage",
+      "1/4 tsp dried lavender (optional; leave it out if it tastes soapy to you)",
+      "1/8 tsp ground fennel"
+    ],
+    "steps": [
+      "Combine all ingredients in a bowl.",
+      "Store airtight at room temperature up to 2 months.",
+      "Use 1-2 tsp per dish on roast chicken, grilled fish, roast vegetables, ratatouille, and soups."
+    ]
+  },
+  {
+    "id": "fennel-saffron-myrtle-seasoning",
+    "image": "kitchen/fennel-saffron-myrtle-seasoning.jpg",
+    "credit": "",
+    "name": "Fennel-Saffron-Myrtle Seasoning",
+    "category": "Spices",
+    "cuisine": "Sardinian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 6,
+    "protein": 0, "carbs": 1, "fat": 0, "saturatedFat": 0, "calories": 3, "sodium": 0,
+    "tags": [
+      "spices",
+      "sardinian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 tsp wild fennel seeds, lightly crushed",
+      "2 tsp dried thyme",
+      "1 tsp dried rosemary, crushed",
+      "1 tsp dried myrtle berries, crushed (or 1 tsp dried myrtle leaves if berries are unavailable; if neither is available, use 1 tsp dried bay leaf, crumbled)",
+      "A pinch of saffron threads, crumbled (about 1/8 tsp, optional; omit and the blend still works)"
+    ],
+    "steps": [
+      "Mix everything in a small jar and shake before use.",
+      "Use 1-2 tsp per 500 g fish, chicken, or vegetables, rubbed with a little olive oil and lemon.",
+      "Good on grilled fish, chicken, roast fennel or cauliflower, and in bean and barley minestrone."
+    ]
+  },
+  {
+    "id": "ginger-turmeric-seasoning",
+    "image": "kitchen/ginger-turmeric-seasoning.jpg",
+    "credit": "",
+    "name": "Ginger-Turmeric Seasoning",
+    "category": "Spices",
+    "cuisine": "Okinawan",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 15,
+    "protein": 0, "carbs": 1, "fat": 0, "saturatedFat": 0, "calories": 3, "sodium": 0,
+    "tags": [
+      "spices",
+      "okinawan",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 tbsp ground coriander",
+      "1 tsp garlic powder",
+      "1 tsp ground turmeric",
+      "1/2 tsp cayenne",
+      "2 tsp ground ginger"
+    ],
+    "steps": [
+      "Combine all ingredients and store sealed at room temperature.",
+      "Use 1-2 tsp per dish, mixed with a little olive oil or citrus juice as a rub, or stirred into soups and stir-fries."
+    ]
+  },
+  {
+    "id": "greek-yogurt-chicken-marinade",
+    "image": "kitchen/greek-yogurt-chicken-marinade.jpg",
+    "credit": "",
+    "name": "Greek Yogurt Chicken Marinade",
+    "category": "Marinades",
+    "cuisine": "Greek",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 3,
+    "protein": 55, "carbs": 2, "fat": 16, "saturatedFat": 3, "calories": 387, "sodium": 328,
+    "tags": [
+      "marinades",
+      "greek",
+      "high-protein",
+      "low-sodium",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 1/2 lb boneless, skinless chicken breasts or thighs",
+      "1/2 cup plain Greek yogurt (low-fat or 2%, unsweetened)",
+      "4 cloves garlic, minced",
+      "2 tbsp extra-virgin olive oil",
+      "Juice of 1 small lemon (plus zest if liked)",
+      "2 tsp dried oregano",
+      "1 tsp dried thyme",
+      "1/4 tsp salt",
+      "1 tsp paprika",
+      "1/2 tsp ground cumin"
+    ],
+    "steps": [
+      "If using breasts, pound to even thickness and trim fat.",
+      "Whisk the yogurt, garlic, oil, lemon juice and zest, oregano, thyme, salt, paprika, and cumin.",
+      "Add the chicken, turn to coat, cover, and refrigerate at least 2 hours, up to 24 hours.",
+      "Rest 20 minutes out of the fridge, then grill 8-12 minutes, bake at 425 F for 14-20 minutes, or air-fry at 375 F for 10-14 minutes, to 165 F inside."
+    ]
+  },
+  {
+    "id": "tuscan-lemon-garlic-herb-marinade",
+    "image": "kitchen/tuscan-lemon-garlic-herb-marinade.jpg",
+    "credit": "",
+    "name": "Tuscan Lemon, Garlic and Herb Marinade",
+    "category": "Marinades",
+    "cuisine": "Italian",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 53, "carbs": 4, "fat": 16, "saturatedFat": 3, "calories": 387, "sodium": 414,
+    "tags": [
+      "marinades",
+      "italian",
+      "high-protein",
+      "low-sodium",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 lb chicken, fish, or vegetables",
+      "1/3 cup olive oil",
+      "2 lemons, zested and juiced",
+      "6 cloves garlic, grated or crushed",
+      "4 sprigs fresh rosemary, roughly chopped",
+      "1 tbsp dried oregano",
+      "1/2 tsp crushed red pepper flakes (optional)",
+      "1/2 tsp salt",
+      "1 tsp ground black pepper"
+    ],
+    "steps": [
+      "Whisk everything in a bowl or shake in a jar or bag.",
+      "Add the chicken, fish, or vegetables and coat.",
+      "Marinate: fish or seafood 20 minutes to 1 hour; chicken 4-6 hours; vegetables 20 minutes to 24 hours. Do not over-marinate in the lemon juice or the texture turns mushy.",
+      "Grill or roast as usual. The marinade alone keeps in the fridge up to 5 days."
+    ]
+  },
+  {
+    "id": "herbes-de-provence-lemon-marinade",
+    "image": "kitchen/herbes-de-provence-lemon-marinade.jpg",
+    "credit": "",
+    "name": "Herbes de Provence Lemon Marinade",
+    "category": "Marinades",
+    "cuisine": "French Mediterranean",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 3,
+    "protein": 53, "carbs": 2, "fat": 21, "saturatedFat": 4, "calories": 427, "sodium": 126,
+    "tags": [
+      "marinades",
+      "french",
+      "high-protein",
+      "low-sodium",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1-1 1/2 lb chicken, fish, or vegetables",
+      "6 tbsp (1/4 cup plus 2 tbsp) olive oil",
+      "2 tbsp lemon juice",
+      "2-4 tsp Herbes de Provence",
+      "2 garlic cloves, crushed",
+      "Black pepper to taste",
+      "No added salt"
+    ],
+    "steps": [
+      "Mix the oil, lemon juice, Herbes de Provence, garlic, and pepper.",
+      "Coat the chicken, fish, or vegetables and grill, roast, or barbecue.",
+      "For stronger flavour, refrigerate chicken in the marinade before cooking (30 minutes for fish, 2-4 hours for chicken; do not leave fish in citrus for hours)."
+    ]
+  },
+  {
+    "id": "myrtle-lemon-grilled-fish",
+    "image": "kitchen/myrtle-lemon-grilled-fish.jpg",
+    "credit": "",
+    "name": "Myrtle-Lemon Grilled Fish",
+    "category": "Marinades",
+    "cuisine": "Sardinian",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 35, "carbs": 1, "fat": 19, "saturatedFat": 4, "calories": 320, "sodium": 244,
+    "tags": [
+      "marinades",
+      "sardinian",
+      "high-protein",
+      "low-sodium",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "4 whole fish about 1 lb (450 g) each, or 4 palm-sized fillets of sea bass, mullet, or swordfish",
+      "3 tbsp extra-virgin olive oil, for the fish and grate",
+      "2 garlic cloves, lightly crushed",
+      "8 fresh myrtle sprigs (or 8 bay leaves if myrtle is unavailable)",
+      "1 lemon, thinly sliced",
+      "8 flat-leaf parsley stems",
+      "Black pepper",
+      "1/2 tsp coarse salt total for the 4 fish (or omit it)",
+      "To finish: 4 tbsp best olive oil, 2 lemons halved, 1 tbsp chopped parsley"
+    ],
+    "steps": [
+      "Scale and gut the fish, scrape the dark membrane inside the cavity until pale, rinse, and dry. Score the back shallowly.",
+      "Rub lightly with salt and pepper, rest 20 minutes, and pat dry again.",
+      "Put 2 myrtle sprigs, 2 lemon slices, 1/2 crushed garlic clove, and 2 parsley stems in each cavity (for fillets, lay them on top). Brush the skin with oil.",
+      "Grill over hot coals, turn once, 7-9 minutes per side for a 1 lb fish, to 131-135 F in the thickest part. Rest 3 minutes.",
+      "Dress at the table only with a spiral of olive oil and a squeeze of lemon. Do not wet-marinate fish before grilling; a marinade wets the surface and prevents browning."
+    ]
+  },
+  {
+    "id": "citrus-soy-sesame-marinade",
+    "image": "kitchen/citrus-soy-sesame-marinade.jpg",
+    "credit": "",
+    "name": "Citrus-Soy-Sesame Marinade",
+    "category": "Marinades",
+    "cuisine": "Okinawan",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 36, "carbs": 2, "fat": 2, "saturatedFat": 0, "calories": 219, "sodium": 438,
+    "tags": [
+      "marinades",
+      "okinawan",
+      "high-protein",
+      "low-sodium",
+      "gluten-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1-1 1/2 lb mahi mahi or other thick fish, extra-firm tofu, or boneless skinless chicken",
+      "2 tbsp low-sodium soy sauce",
+      "2 tbsp water",
+      "1 tbsp rice vinegar",
+      "Juice of 1 orange (about 2 tbsp)",
+      "Juice of 1/2 lime (about 1 tbsp)",
+      "1 tsp sesame oil",
+      "2 scallions, sliced",
+      "1 tsp sriracha (optional)"
+    ],
+    "steps": [
+      "Put the fish, tofu, or chicken in a glass dish.",
+      "Whisk the soy sauce, water, vinegar, orange and lime juice, sesame oil, and scallions (and sriracha if using); pour over and flip to coat.",
+      "Marinate 10-30 minutes for fish or tofu, up to 2 hours for chicken.",
+      "Bake at 400 F for about 20 minutes until the fish flakes easily, or grill or pan-fry chicken or tofu to 165 F or heated through. Discard the used marinade."
+    ]
+  },
+  {
+    "id": "mediterranean-salad-dressing",
+    "image": "kitchen/mediterranean-salad-dressing.jpg",
+    "credit": "",
+    "name": "Mediterranean Salad Dressing",
+    "category": "Salad Dressings",
+    "cuisine": "Greek",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 16,
+    "protein": 0, "carbs": 1, "fat": 14, "saturatedFat": 2, "calories": 130, "sodium": 0,
+    "tags": [
+      "salad-dressings",
+      "greek",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 cloves garlic",
+      "1 tbsp ground oregano",
+      "1 cup extra-virgin olive oil",
+      "1/2 cup fresh lemon juice"
+    ],
+    "steps": [
+      "Mix all ingredients with a whisk or immersion blender.",
+      "Use 1 tbsp per serving. Olive oil is calorie-dense, so measure the portion rather than pouring freely."
+    ]
+  },
+  {
+    "id": "low-sodium-italian-dressing",
+    "image": "kitchen/low-sodium-italian-dressing.jpg",
+    "credit": "",
+    "name": "Low-Sodium Italian Dressing",
+    "category": "Salad Dressings",
+    "cuisine": "Italian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 0, "carbs": 1, "fat": 14, "saturatedFat": 2, "calories": 125, "sodium": 6,
+    "tags": [
+      "salad-dressings",
+      "italian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/2 cup extra-virgin olive oil",
+      "1/4 cup white-wine or red-wine vinegar (or a mix)",
+      "2 tsp balsamic vinegar (optional)",
+      "2 tbsp water",
+      "4-5 drops liquid stevia or a pinch of monk fruit (or omit the sweetener entirely)",
+      "2 tsp lemon juice",
+      "1 tbsp grated Parmesan, optional (omit for 1 mg sodium per serving)",
+      "1 tsp garlic powder",
+      "3/4 tsp dried parsley",
+      "1/2 tsp dried basil",
+      "1/8 tsp dried oregano",
+      "1/8 tsp red pepper flakes",
+      "Black pepper to taste"
+    ],
+    "steps": [
+      "Put everything in a jar with a tight lid and shake vigorously, or immersion-blend, until emulsified.",
+      "Taste and adjust the vinegar and pepper.",
+      "Store sealed in the fridge 2-3 weeks and shake before each use. Separation is normal.",
+      "Doubles as a marinade: use 1/2 cup per lb chicken, 2-4 hours."
+    ]
+  },
+  {
+    "id": "nicoise-lemon-dijon-vinaigrette",
+    "image": "kitchen/nicoise-lemon-dijon-vinaigrette.jpg",
+    "credit": "",
+    "name": "Nicoise Lemon-Dijon Vinaigrette",
+    "category": "Salad Dressings",
+    "cuisine": "French Mediterranean",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 12,
+    "protein": 0, "carbs": 2, "fat": 14, "saturatedFat": 2, "calories": 128, "sodium": 10,
+    "tags": [
+      "salad-dressings",
+      "french",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/2 cup lemon juice (2-3 lemons)",
+      "3/4 cup extra-virgin olive oil",
+      "1 medium shallot, minced (about 3 tbsp)",
+      "1 tbsp minced fresh thyme leaves",
+      "2 tbsp minced fresh basil leaves",
+      "2 tsp minced fresh oregano leaves",
+      "1 tsp Dijon mustard",
+      "Black pepper to taste",
+      "No added salt"
+    ],
+    "steps": [
+      "Whisk the lemon juice, oil, shallot, thyme, basil, oregano, and mustard in a medium bowl.",
+      "Season with pepper only.",
+      "Use 2-3 tbsp per composed salad of lettuce, green beans, tomatoes, potatoes in small portions, egg, and a palm-sized portion of olive-oil-packed tuna, drained.",
+      "Use the dressing on the salad without anchovies, and with olives and capers rinsed and in small amounts."
+    ]
+  },
+  {
+    "id": "citrus-basil-vinaigrette",
+    "image": "kitchen/citrus-basil-vinaigrette.jpg",
+    "credit": "",
+    "name": "Citrus-Basil Vinaigrette",
+    "category": "Salad Dressings",
+    "cuisine": "Sardinian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 0, "carbs": 3, "fat": 14, "saturatedFat": 2, "calories": 130, "sodium": 0,
+    "tags": [
+      "salad-dressings",
+      "sardinian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/4 cup extra-virgin olive oil",
+      "2 tbsp fresh lemon juice",
+      "1 tbsp fresh orange juice",
+      "1 small garlic clove, minced",
+      "1 tbsp fresh basil, finely chopped",
+      "Black pepper to taste",
+      "No added salt and no added sweetener"
+    ],
+    "steps": [
+      "Whisk the oil, lemon juice, orange juice, garlic, basil, and pepper.",
+      "Toss over warm fregola with roast cauliflower, rinsed green olives in small amounts, and arugula.",
+      "Serve warm or at room temperature.",
+      "Add a palm-sized portion of grilled fish or chicken, or a serving of chickpeas or beans, for GLP-1 protein. Pecorino only as 1 tbsp shaved, if wanted at all."
+    ]
+  },
+  {
+    "id": "sesame-ginger-dressing",
+    "image": "kitchen/sesame-ginger-dressing.jpg",
+    "credit": "",
+    "name": "Sesame-Ginger Dressing",
+    "category": "Salad Dressings",
+    "cuisine": "Okinawan",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 1, "carbs": 1, "fat": 9, "saturatedFat": 1, "calories": 83, "sodium": 288,
+    "tags": [
+      "salad-dressings",
+      "okinawan",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1/4 cup low-sodium soy sauce or tamari",
+      "1/4 cup rice vinegar, unseasoned (seasoned vinegar has added sugar and salt)",
+      "3 tbsp toasted sesame oil",
+      "2 tbsp neutral oil (avocado, canola, or light olive oil)",
+      "Stevia or monk fruit to taste, or omit the sweetener (add 1 tsp lime or orange zest for brightness)",
+      "1 tsp fresh ginger, finely grated",
+      "1 clove garlic, finely grated or minced",
+      "1/4 tsp black pepper",
+      "1 tbsp toasted sesame seeds, optional (omit to keep oxalate as low as possible)"
+    ],
+    "steps": [
+      "Whisk the soy sauce, vinegar, sweetener if using, ginger, garlic, and pepper.",
+      "While whisking vigorously, slowly drizzle in the sesame oil, then the neutral oil, to emulsify.",
+      "Stir in the sesame seeds just before serving, if using.",
+      "Use only 1-2 tbsp per serving. Store airtight in the fridge up to 2 weeks; let it sit 10-15 minutes at room temperature and shake before use."
+    ]
+  },
+  {
+    "id": "pistou-basil-garlic-sauce",
+    "image": "kitchen/pistou-basil-garlic-sauce.jpg",
+    "credit": "",
+    "name": "Pistou Basil-Garlic Sauce",
+    "category": "Salad Dressings",
+    "cuisine": "French Mediterranean",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 0, "carbs": 0, "fat": 5, "saturatedFat": 1, "calories": 46, "sodium": 0,
+    "tags": [
+      "salad-dressings",
+      "french",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1-2 garlic cloves",
+      "3 large handfuls basil leaves",
+      "2-4 tbsp extra-virgin olive oil",
+      "A pinch of salt, or omit it",
+      "No pine nuts and no cheese in the pot (cheese is passed separately)"
+    ],
+    "steps": [
+      "Pound the garlic, then add the basil a handful at a time, then work in the olive oil until it forms a paste.",
+      "Stir a spoonful into each bowl of vegetable or bean soup at the table. Do not boil it."
+    ]
+  },
+  {
+    "id": "olive-tapenade-condiment",
+    "image": "kitchen/olive-tapenade-condiment.jpg",
+    "credit": "",
+    "name": "Olive Tapenade Condiment",
+    "category": "Salad Dressings",
+    "cuisine": "French Mediterranean",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 16,
+    "protein": 0, "carbs": 1, "fat": 5, "saturatedFat": 1, "calories": 56, "sodium": 200,
+    "tags": [
+      "salad-dressings",
+      "french",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "1 1/2 cups pitted olives (Castelvetrano and Leccino), rinsed",
+      "1/4 cup parsley",
+      "3 tbsp extra-virgin olive oil",
+      "Red pepper flakes to taste",
+      "No anchovies and no added salt"
+    ],
+    "steps": [
+      "Rinse the brined olives well and omit the anchovies and any added salt.",
+      "Pulse the olives, parsley, olive oil, and red pepper flakes until coarsely chopped, not smooth.",
+      "Use no more than 1 tbsp per person as a flavour condiment on grilled fish or vegetables, not as a spread in quantity.",
+      "Do not make it a daily item for high blood pressure or kidney disease."
     ]
   }
 ];
