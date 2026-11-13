@@ -212,7 +212,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <details class="viz-details">
 <summary><h4 class="entry-lede">How I built it: New Chapter: GLP-1 Tracker™</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot.</p>
-<p>A six-tab interface (Today, Shots, Weight, Journal, Companion, More), offline-first with a service worker and installable on iPhone and Android. No frameworks, no build step. Integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
+<p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More), offline-first with a service worker and installable on iPhone and Android. No frameworks, no build step. Integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
 <p>Built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI with opt-in memory (remembers name, goals, preferences), rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit no medical advice guardrails. Replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
 <p><strong>Design decisions:</strong> I iterated the interface based on real user testing. Added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. Ran an accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
 <ul>
@@ -228,12 +228,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>Built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone. Built a custom design system around the brand gold and sage palette with a hand-designed app icon, gradient header, and refined card and button styling. Mobile-first responsive layout.</p>
 </details>
 <p><strong>Outcome:</strong> Designed, built, and launched as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. <a href="https://millrjess.github.io/tracker/">Sales page</a>.</p>
-<p><strong>Sources</strong></p>
+<details class="viz-details">
+<summary><h4 class="entry-lede">Sources</h4><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
-<li>Karakasis et al., Metabolism, March 2025 (lean mass; PMID 39719170): <a href="https://pubmed.ncbi.nlm.nih.gov/39719170/">Karakasis et al., Metabolism, March 2025, PMID 39719170</a>.</li>
-<li>Look et al., Diabetes, Obesity and Metabolism, 2025, SURMOUNT-1 DXA substudy (tirzepatide; about 25 percent of weight lost as lean mass): <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">Body composition changes during weight reduction with tirzepatide in the SURMOUNT-1 study</a>.</li>
-<li>Tinsley and Nadolsky, 2025, case series reporting the STEP-1 DXA subset figure (semaglutide; about 40 percent of weight loss as lean soft tissue): <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">Preservation of lean soft tissue during weight loss induced by GLP-1 and GLP-1/GIP receptor agonists: A case series</a>.</li>
+<li><a href="https://pubmed.ncbi.nlm.nih.gov/39719170/">Karakasis et al., Metabolism, March 2025 (lean mass; PMID 39719170)</a>.</li>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">Look et al., Diabetes, Obesity and Metabolism, 2025, SURMOUNT-1 DXA substudy (tirzepatide; about 25 percent of weight lost as lean mass)</a>.</li>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">Tinsley and Nadolsky, 2025, case series reporting the STEP-1 DXA subset figure (semaglutide; about 40 percent of weight loss as lean soft tissue)</a>.</li>
 </ul>
+</details>
 
 <h2>Data and business intelligence</h2>
 <h3>Predictive Analytics Dashboard Pipeline (SQL / Tableau)</h3>
@@ -254,7 +256,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="post-card">
 <h3>Course Case Study: Business Intelligence for Google Fiber</h3>
 <p class="muted">May 2025 to present</p>
+<details class="viz-details">
+<summary><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>I created a dashboard to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls. I worked closely with teams to make sure the tool was useful, easy to use, and followed privacy rules. The dashboard helps leaders make smarter decisions and improve service while keeping customer info safe.</p>
+</details>
 </div>
 
 </div>
@@ -395,7 +400,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

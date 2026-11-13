@@ -103,8 +103,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-book{background:#f0dfae !important; color:#0b1a30 !important; border:2px solid #f0dfae; box-shadow:0 10px 22px -8px rgba(15,35,64,.35)}
+.btn-book:hover{background:#f0dfae !important; color:#0b1a30 !important}
 .btn-secondary{background:transparent; color:var(--navy) !important; border:2px solid var(--navy); box-shadow:none}
 .btn-secondary:hover{background:var(--accent-soft); transform:translateY(-2px)}
+.summary-box{background:var(--accent-soft); border:1px solid var(--border); border-left:4px solid var(--navy); border-radius:var(--radius); padding:1.1em 1.4em; margin:1.4em 0}
+.summary-box h2{margin-top:0}
+.need-box{background:var(--accent-soft); border:1px solid #f0dfae; border-radius:var(--radius); padding:1.1em 1.4em; margin:1.6em 0}
+.need-box h2{margin-top:0}
+.need-box ul{margin-bottom:.6em}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -136,16 +143,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
 }
-
-/* consultation form */
-.consult-form{max-width:640px; margin:1.2em 0}
-.consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
-.consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
-  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
-  background:#f8fafc; margin-top:.35em; display:block}
-.consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
-  outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
-.consult-form button{border:0; cursor:pointer; font:inherit}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -185,25 +182,47 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main id="main" tabindex="-1" class="wrap page">
 <article>
 <h1>Why accessibility and UX matter</h1>
+<div class="summary-box">
+<h2>What this page covers, in 30 seconds</h2>
+<p>WCAG 2.2 AA is the technical standard for an accessible website. Section 508 points federal agencies to WCAG, and the ADA Title II rule sets WCAG 2.1 AA deadlines for state and local governments. Accessible pages are easier for visitors and search engines to use, and they reduce legal and procurement risk.</p>
+</div>
 <p class="lede">An accessible website is usable by everyone, including visitors who use a keyboard, a screen reader, magnification, or captions. It is also easier for search engines to read, and it reduces legal and procurement risk. Those three reasons are why Section 508, WCAG, and W3C validation are treated together, not as separate checklists.</p>
 <h2>What each term means</h2>
+<h3>WCAG 2.2</h3>
 <p><strong>WCAG</strong> stands for Web Content Accessibility Guidelines. It is the technical standard published by the World Wide Web Consortium, known as W3C. WCAG 2.2, published in October 2023, organizes its requirements around four principles: content must be perceivable, operable, understandable, and robust. Level AA is the level most organizations target. It includes all Level A criteria plus the Level AA criteria, 55 criteria in total.</p>
+<h3>Section 508</h3>
 <p><strong>Section 508</strong> is United States federal law, part of the Rehabilitation Act. It requires federal agencies to make their electronic and information technology accessible to people with disabilities. Section 508 is not a separate web standard. Its revised standards, published in January 2017 with compliance required by January 18, 2018, incorporate WCAG 2.0 Level A and AA by reference for web content. In practice, a site that meets WCAG 2.2 AA also meets the WCAG 2.0 AA baseline Section 508 points to, with one exception. WCAG 2.2 removed criterion 4.1.1, Parsing, which WCAG 2.0 still contains, so valid parsing still matters for the 2.0 baseline.</p>
+<h3>W3C validation</h3>
 <p><strong>W3C validation</strong> checks whether the code of a page follows the published HTML standard. Valid code is not the same as an accessible page, and an accessible page can still have a validator warning. Validation matters because broken or ambiguous code is harder for browsers, assistive tools, and search engines to parse consistently.</p>
 <h2>Who has to comply</h2>
+<h3>Deadlines and who they cover</h3>
 <p>State and local governments have a rule with set deadlines under the Americans with Disabilities Act, Title II. Their web content and mobile apps must meet WCAG 2.1 AA by April 26, 2027 for entities serving 50,000 or more people, and April 26, 2028 for smaller entities. Private businesses open to the public fall under ADA Title III. There is no federal rule naming a WCAG version or a deadline for private businesses, but the Department of Justice has long taken the position that the ADA applies to goods and services offered online, and WCAG is the benchmark courts and settlements usually point to. Federal agencies, and vendors who supply them, are covered by Section 508 through procurement.</p>
+<h3>General information, not legal advice</h3>
 <p>This page is general information, not legal advice. A specific obligation depends on the organization, its customers, and its contracts.</p>
 <h2>Why it matters for visitors and for business</h2>
+<h3>For visitors</h3>
 <p>Accessibility is not only about compliance. A visitor who cannot use a keyboard, read low-contrast text, or follow a video without captions cannot complete a booking, a purchase, or a contact form. Fixing those barriers widens the audience that can actually use the site, and it removes friction for every visitor, including people on a phone, in bright light, or with a temporary injury. Clear headings, plain language, labeled forms, and buttons large enough to tap on a phone help a visitor in a hurry, on a small screen, or with a slow connection, as well as a visitor using assistive technology.</p>
+<h3>For the business</h3>
 <p>It also protects the business. An inaccessible selling page, booking flow, or checkout is a lost sale and a complaint risk at the same time. The same work that makes a page usable also makes the offer easier to understand: clear headings, descriptive links, labeled forms, and text alternatives for images and video.</p>
 <p>Fewer dead ends and fewer abandoned forms mean fewer lost inquiries and fewer support messages asking what a page means.</p>
+<h3>For procurement</h3>
 <p>For businesses that sell to government, schools, or large organizations, accessibility also affects procurement. Those buyers often require WCAG conformance in a contract, even when a private business is not directly covered by Section 508 or ADA Title II. A site that already meets WCAG 2.2 AA is easier to put forward in that process than a site that would need to be rebuilt first.</p>
 <h2>How it helps rankings, without overstating it</h2>
+<h3>What search engines read</h3>
 <p>Accessibility is not a named Google ranking factor, and passing an accessibility audit does not by itself lift a page in search results. What it does is remove the technical reasons a search engine might misunderstand or undervalue a page. A search crawler reads code, headings, link text, alt text, and page structure, much like a screen reader does. When that code is clear, the crawler can tell what the page is about, which section covers which topic, and which page a link is pointing to.</p>
 <p>The same practices help both: semantic HTML, one clear main heading with a logical heading order, descriptive link text, alt text for meaningful images, transcripts or captions for video, and fast, stable pages that do not shift as they load. A page that is clear when read aloud is usually clear to a search engine as well.</p>
+<h3>Why clarity helps both</h3>
 <p>That clarity supports the signals search engines do use: pages that load fast and keep visitors engaged because they can actually read and use the content. A page that is hard to navigate, with vague links, missing labels, or images with no description, gives a search engine less to work with, and gives visitors a reason to leave. Accessibility work fixes both problems at the same time, which is why it is part of technical SEO work here, not a separate ranking promise. Search rankings are not guaranteed.</p>
 <h2>How this site handles it</h2>
 <p>Every engagement follows the same standards this site is held to: valid W3C code, WCAG 2.2 AA accessibility, and user experience grounded in published research. That standard is applied in the WCAG Accessibility Audit and Remediation service and in the Website Standards Pass service, both listed on the pricing page. No accessibility claim is published for a page until that page has been checked against the applicable WCAG 2.2 AA criteria, not only against an automated score.</p>
+<div class="need-box">
+<h2>Need this for your site?</h2>
+<ul>
+<li>WCAG Accessibility Audit &amp; Remediation, from $750</li>
+<li>Website Standards Pass, from $750</li>
+</ul>
+<p><a href="../pricing/">See pricing</a></p>
+</div>
 <p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 <h2>Screen reader check: the live tracker app</h2>
 <p>On November 5, 2026, the live New Chapter: GLP-1 Tracker™ app was checked with ChromeVox on desktop Chrome, latest version. The reader reads buttons and text in order, on every tab in the app. This is a screen reader check of the live app. It is not a claim that every page passes every WCAG 2.2 AA criterion.</p>
@@ -221,7 +240,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

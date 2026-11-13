@@ -239,6 +239,17 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .post-card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
 .post-card h2{border:0; padding:0; margin:.2em 0 .35em; font-size:1.22rem}
 
+
+/* faqs */
+.faq{border:1px solid var(--border); border-radius:12px; margin:1em 0; background:#fff}
+.faq>summary{list-style:none; cursor:pointer; padding:.9em 1.1em; font-weight:600; color:var(--navy); display:flex; justify-content:space-between; gap:1em; align-items:baseline}
+.faq>summary::-webkit-details-marker{display:none}
+.faq>summary::after{content:"+"; font-weight:700; flex:none}
+.faq[open]>summary::after{content:"\2212"}
+.faq>summary:hover{color:var(--accent)}
+.faq>*:not(summary){margin-left:1.1em; margin-right:1.1em}
+.faq>*:not(summary):last-child{margin-bottom:1em}
+
 /* footer */
 .site-footer{background:linear-gradient(180deg,var(--navy),var(--accent-dark)); color:#c6d2e2; margin-top:44px}
 .footer-inner{padding-top:30px; padding-bottom:30px; display:flex; justify-content:space-between;
@@ -307,71 +318,91 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>On this page:</p>
 <ul>
 <li><a href="#what-do-you-do">What do you do, and what platforms do you work with?</a></li>
-<li><a href="#do-you-provide-ongoing-support">Do you provide ongoing support?</a></li>
 <li><a href="#what-is-included-in-a-care-plan">What is included in a care plan?</a></li>
-<li><a href="#what-if-my-site-has-an-emergency">What if my site has an emergency?</a></li>
 <li><a href="#how-much-do-you-charge">How much do you charge?</a></li>
-<li><a href="#how-long-does-a-typical-project-take">How long does a typical project take?</a></li>
-<li><a href="#can-you-work-with-my-existing-team-or-developer">Can you work with my existing team or developer?</a></li>
-<li><a href="#why-hire-a-consultant-instead-of-doing-it-yourself">Why hire a consultant instead of doing it yourself?</a></li>
-<li><a href="#what-have-you-been-doing-and-are-you-taking-clients-now">What have you been doing, and are you taking clients now?</a></li>
-<li><a href="#do-you-work-remotely">Do you work remotely?</a></li>
 <li><a href="#how-do-i-book-a-consultation">How do I book a consultation?</a></li>
-<li><a href="#do-i-pay-before-we-meet">Do I pay before we meet?</a></li>
-<li><a href="#what-if-we-cannot-find-a-time">What if we cannot find a time?</a></li>
 <li><a href="#how-do-we-start">How do we start?</a></li>
-<li><a href="#still-have-a-question">Still Have a Question?</a></li>
 </ul>
 </nav>
 
-<h2 id="what-do-you-do">What do you do, and what platforms do you work with?</h2>
+<details class="faq" id="what-do-you-do">
+<summary>What do you do, and what platforms do you work with?</summary>
 <p>I keep business websites secure, reliable, and working as intended. I work with WordPress, Drupal, Joomla, and custom database-driven websites.</p>
+</details>
 
-<h2 id="do-you-provide-ongoing-support">Do you provide ongoing support?</h2>
+<details class="faq" id="do-you-provide-ongoing-support">
+<summary>Do you provide ongoing support?</summary>
 <p>Yes, that&rsquo;s the core of what I do. Care plans cover updates, backups, security monitoring, and support every month, so small issues never become emergencies. They&rsquo;re available for all the platforms above, not just WordPress.</p>
+</details>
 
-<h2 id="what-is-included-in-a-care-plan">What is included in a care plan?</h2>
+<details class="faq" id="what-is-included-in-a-care-plan">
+<summary>What is included in a care plan?</summary>
 <ul>
 <li><strong>Essential, $150/month:</strong> CMS updates, daily off-site backups, uptime monitoring, and a monthly site health report.</li>
 <li><strong>Professional, $300/month:</strong> everything in Essential, plus security hardening and malware scanning, performance checks, one hour of content or design tweaks, and priority support.</li>
 </ul>
+</details>
 
-<h2 id="what-if-my-site-has-an-emergency">What if my site has an emergency?</h2>
+<details class="faq" id="what-if-my-site-has-an-emergency">
+<summary>What if my site has an emergency?</summary>
 <p>Emergency help is for clients on a care plan only. There is no fixed reply window. How fast help can come depends on the damage.</p>
+</details>
 
-<h2 id="how-much-do-you-charge">How much do you charge?</h2>
+<details class="faq" id="how-much-do-you-charge">
+<summary>How much do you charge?</summary>
 <p>Website care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One-time services start from $500 for a Site Health Audit, from $750 for a Website Standards Pass or a WCAG Accessibility Audit, and from $1,000 for Technical SEO or Analytics Dashboards. Strategy sessions are $200 per hour, payment at booking. See the full <a href="../pricing/">pricing page</a>.</p>
+</details>
 
-<h2 id="how-long-does-a-typical-project-take">How long does a typical project take?</h2>
+<details class="faq" id="how-long-does-a-typical-project-take">
+<summary>How long does a typical project take?</summary>
 <p>Every engagement is scoped individually, with a clear timeline before work begins.</p>
+</details>
 
-<h2 id="can-you-work-with-my-existing-team-or-developer">Can you work with my existing team or developer?</h2>
+<details class="faq" id="can-you-work-with-my-existing-team-or-developer">
+<summary>Can you work with my existing team or developer?</summary>
 <p>Absolutely. I often act as the technical oversight layer: reviewing work, handling security and infrastructure, and making sure nothing falls through the cracks.</p>
+</details>
 
-<h2 id="why-hire-a-consultant-instead-of-doing-it-yourself">Why hire a consultant instead of doing it yourself?</h2>
+<details class="faq" id="why-hire-a-consultant-instead-of-doing-it-yourself">
+<summary>Why hire a consultant instead of doing it yourself?</summary>
 <p>You&rsquo;re hiring accountability, not just output. I judge whether work is correct and safe before it goes live, tell you in your proposal how to reach me if your site is compromised, and learn your business well enough to advise it.</p>
+</details>
 
-<h2 id="what-have-you-been-doing-and-are-you-taking-clients-now">What have you been doing, and are you taking clients now?</h2>
+<details class="faq" id="what-have-you-been-doing-and-are-you-taking-clients-now">
+<summary>What have you been doing, and are you taking clients now?</summary>
 <p>Yes, I&rsquo;m taking on website management clients and contract engagements, with 20 years of production experience behind me. In 2020 I stepped away from client work to raise my daughter. During that time I wrote The Ledger Series novels and earned 12 major course certificates between 2024 and 2026, including Google&rsquo;s Advanced Data Analytics Specialization, completed in January 2026. You can read the full story on my <a href="../about/">About page</a>.</p>
+</details>
 
-<h2 id="do-you-work-remotely">Do you work remotely?</h2>
+<details class="faq" id="do-you-work-remotely">
+<summary>Do you work remotely?</summary>
 <p>Yes. I work remotely from North Andover, MA 01845, serving clients nationwide. Sessions are on Zoom, or onsite by arrangement in Greater Boston&rsquo;s North Shore and the Merrimack Valley.</p>
+</details>
 
-<h2 id="how-do-i-book-a-consultation">How do I book a consultation?</h2>
+<details class="faq" id="how-do-i-book-a-consultation">
+<summary>How do I book a consultation?</summary>
 <p>Book on the <a href="../booking/">booking page</a>. The 15-minute discovery call is free. A 1-hour strategy session is $200. After payment, I will arrange a time with you, and I confirm every booking personally before it&rsquo;s final.</p>
+</details>
 
-<h2 id="do-i-pay-before-we-meet">Do I pay before we meet?</h2>
+<details class="faq" id="do-i-pay-before-we-meet">
+<summary>Do I pay before we meet?</summary>
 <p>For a paid strategy session, yes. Session fee $200, payment at booking through Stripe, with a receipt, and no session starts until payment is received.</p>
+</details>
 
-<h2 id="what-if-we-cannot-find-a-time">What if we cannot find a time?</h2>
+<details class="faq" id="what-if-we-cannot-find-a-time">
+<summary>What if we cannot find a time?</summary>
 <p>If we can&rsquo;t find a time that works, you&rsquo;ll be refunded.</p>
+</details>
 
-<h2 id="how-do-we-start">How do we start?</h2>
+<details class="faq" id="how-do-we-start">
+<summary>How do we start?</summary>
 <p><a href="../booking/">Book a consultation</a>, or <a href="../contact/">contact me</a>. Tell me about your site and what&rsquo;s worrying you, and I&rsquo;ll reply personally.</p>
+</details>
 
-<h2 id="still-have-a-question">Still Have a Question?</h2>
+<details class="faq" id="still-have-a-question">
+<summary>Still Have a Question?</summary>
 <p>If your question is not answered here, contact me. Tell me about your site and what is worrying you, and I will reply personally.</p>
 <p class="hero-cta"><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a> <a class="btn btn-secondary" href="../contact/">Contact me</a></p>
+</details>
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -379,7 +410,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

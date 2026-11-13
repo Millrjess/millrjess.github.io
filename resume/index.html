@@ -88,35 +88,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   border-radius:20px; padding:clamp(1.4rem,4vw,3rem); box-shadow:var(--shadow)}
 .page > article > h1:first-child{margin-top:0}
 
-/* hero */
-.hero{background:
-    radial-gradient(900px 320px at 85% -10%, rgba(240,223,174,.22), transparent 60%),
-    linear-gradient(135deg,var(--accent-dark) 0%, var(--navy) 100%);
-  color:#eaf0f8; border-radius:18px; padding:clamp(1.8em,5vw,3em);
-  margin:1em 0 2.2em; box-shadow:var(--shadow)}
-.hero h1{color:#fff; margin-top:0; font-size:clamp(1.7rem,1.2rem + 2.4vw,2.4rem)}
-.hero h2{color:#fff; border:0}
-.hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
-.hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
 .btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-book{background:#f0dfae !important; color:#0b1a30 !important; border:2px solid #f0dfae; box-shadow:0 10px 22px -8px rgba(15,35,64,.35)}
+.btn-book:hover{background:#f0dfae !important; color:#0b1a30 !important}
 
-/* cards */
-.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
-.card{display:block; border:1px solid var(--border); border-radius:16px;
-  padding:1.25em 1.35em; background:#fff; color:var(--slate); text-decoration:none !important;
-  transition:transform .18s, box-shadow .18s, border-color .18s}
-.card:hover{border-color:var(--accent); box-shadow:var(--shadow); transform:translateY(-4px);
-  text-decoration:none !important}
-.card h3{margin:.2em 0 .35em; font-size:1.05rem}
-.card p{margin:0; color:var(--muted); font-size:.9em}
-.post-list{display:grid; gap:16px; margin-top:1.1em}
-.post-card{border:1px solid var(--border); border-radius:16px; padding:1.15em 1.4em;
-  background:#fff; transition:box-shadow .18s, transform .18s}
-.post-card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
-.post-card h2{border:0; padding:0; margin:.2em 0 .35em; font-size:1.22rem}
 
 /* footer */
 .site-footer{background:linear-gradient(180deg,var(--navy),var(--accent-dark)); color:#c6d2e2; margin-top:44px}
@@ -133,30 +111,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
 }
-
-/* consultation form */
-.consult-form{max-width:640px; margin:1.2em 0}
-.consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
-.consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
-  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
-  background:#f8fafc; margin-top:.35em; display:block}
-.consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
-  outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
-.consult-form button{border:0; cursor:pointer; font:inherit}
-
-/* expandable summaries */
-.viz-details{margin:1.2em 0 0}
-.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
-.viz-details>summary::-webkit-details-marker{display:none}
-.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
-.viz-details .entry-lede{display:block}
-.viz-details .entry-toggle{display:inline-block; margin-top:.5em; margin-left:.6em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
-.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
-.viz-details[open] .entry-toggle::after{content:"\2212"}
-.viz-details .show-less{display:none}
-.viz-details[open] .show-less{display:inline}
-.viz-details[open] .read-more{display:none}
-.viz-details>summary:hover .entry-toggle{color:var(--accent)}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -200,7 +154,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>Professional Summary</h2>
 
-<p>Senior expert with 20 years of experience in secure web operations, technical SEO, and data-driven digital strategy, now building custom website agents and web apps on Cloudflare Workers, with token-authenticated users and Stripe-gated access. Available for contract (1099) and project engagements.</p>
+<p>Website operations consultant with 20 years of experience in secure web operations, technical SEO, and data-driven digital strategy. I build custom website agents and web apps on Cloudflare Workers, with secure sign-in for users and paid access through Stripe. Available for contract (1099) and project engagements.</p>
 
 <p><strong>Core Stack:</strong> WordPress/Drupal management, CMS security, technical SEO, site performance; SQL, BigQuery, GA4, Tableau, Power BI, Python (Pandas), automated reporting; Figma, wireframing, UI/accessibility audits, conversion optimization; Website agents, Cloudflare Workers, workflow automation, digital marketing &amp; e-commerce, remote operations.</p>
 
@@ -208,32 +162,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <p>12 major course certificates. <a href="../certifications/">See the full list with verification links</a>, or verify any badge in my <a href="https://www.credly.com/users/millrjess/badges/credly">Credly Badge Wallet</a>.</p>
 
-<ul>
-<li>Connect and Protect: Networks and Network Security (Google, Jun 2026)</li>
-
-<li>Play It Safe: Manage Security Risks (Google, Apr 2026)</li>
-
-<li>Foundations of Cybersecurity (Google, Mar 2026)</li>
-
-<li>Google Advanced Data Analytics Specialization (Google, Jan 2026)</li>
-
-<li>Google Business Intelligence Specialization (Google, Nov 2025)</li>
-
-<li>Google Data Analytics Professional Certificate (Google, Mar 2025)</li>
-
-<li>Google UX Design Professional Certificate (Google, Feb 2025)</li>
-
-<li>Think Outside the Inbox: Email Marketing (Google, May 2026)</li>
-
-<li>From Likes to Leads: Interact with Customers Online (Google, Mar 2026)</li>
-
-<li>Attract and Engage Customers with Digital Marketing (Google, Feb 2026)</li>
-
-<li>Foundations of Digital Marketing and E-commerce (Google, Feb 2026)</li>
-
-<li>Google Analytics 4 (GA4) Essential Training (Dec 2024)</li>
-
-</ul>
 <h2>Experience</h2>
 
 <p><strong>Website Operations Consultant</strong>, Independent Contractor, North Andover MA (2016 to 2020, returning 2026)</p>
@@ -267,23 +195,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 </ul>
 
-<p><strong>Senior Consultant</strong>, NTT DATA (Contract), Boston MA (2011)</p>
+<p><strong>Senior Consultant</strong>, NTT DATA (Contract), Boston MA (2011) &mdash; Conducted UX and usability audits for financial platforms.</p>
 
-<ul>
-<li>Conducted UX and usability audits for financial platforms</li>
-</ul>
+<p><strong>Digital Transformation Consultant</strong>, Independent, Greater Boston MA (2004 to 2010) &mdash; Built e-commerce platforms and full-stack SEO strategies.</p>
 
-<p><strong>Digital Transformation Consultant</strong>, Independent, Greater Boston MA (2004 to 2010)</p>
-
-<ul>
-<li>Built e-commerce platforms and full-stack SEO strategies</li>
-</ul>
-
-<p><strong>Early Career, Web &amp; Digital Design</strong> (2000 to 2004)</p>
-
-<ul>
-<li>Developed websites and marketing assets for small businesses during early digital expansion</li>
-</ul>
+<p><strong>Early Career, Web &amp; Digital Design</strong> (2000 to 2004) &mdash; Developed websites and marketing assets for small businesses during early digital expansion.</p>
 
 <h2>Selected Work</h2>
 
@@ -342,6 +258,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>WCAG Accessibility</li>
 </ul>
 
+<p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
+
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -349,7 +267,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

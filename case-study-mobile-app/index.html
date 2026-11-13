@@ -101,6 +101,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-book{background:#f0dfae !important; color:#0b1a30 !important; border:2px solid #f0dfae; box-shadow:0 10px 22px -8px rgba(15,35,64,.35)}
+.btn-book:hover{background:#f0dfae !important; color:#0b1a30 !important}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -132,16 +134,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
 }
-
-/* consultation form */
-.consult-form{max-width:640px; margin:1.2em 0}
-.consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
-.consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
-  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
-  background:#f8fafc; margin-top:.35em; display:block}
-.consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
-  outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
-.consult-form button{border:0; cursor:pointer; font:inherit}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -178,28 +170,28 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main id="main" class="wrap page">
 <article>
 <h1>Capstone Project: UX Design Mobile App</h1>
-<p><strong>Transforming Customer Experiences: A UX Design Capstone Project for Foodie Explorer</strong></p>
+<h2>Transforming Customer Experiences: A UX Design Capstone Project for Foodie Explorer</h2>
 
 <hr />
 
 
-<p><strong>Project Overview</strong></p>
+<h2>Project Overview</h2>
 
 <p><em>Product</em>: Mobile App "Foodie Explorer"<br><em>Duration</em>: 3-6 months<br><em>Role</em>: Lead UX Designer<br><em>Responsibilities</em>: User research, wireframing, prototyping, usability testing, and accessibility improvements</p>
 
-<p><strong>The Problem</strong></p>
+<h2>The Problem</h2>
 
 <p>David, a busy professional, needs a reliable and efficient way to look up recipes and order groceries online, as his schedule leaves him little time for grocery shopping.</p>
 
-<p><strong>The Goal</strong></p>
+<h2>The Goal</h2>
 
 <p>Develop the Foodie Explorer app to help users search for recipes and order groceries for delivery, focusing on convenience, meal planning, and support for local businesses.</p>
 
-<p><strong>Understanding the User</strong></p>
+<h2>Understanding the User</h2>
 
 <p>Conducted user research through surveys and usability tests to understand the needs of busy professionals. Key insights led to a redesign emphasizing easy-to-use search capabilities, personalized suggestions, and simplified navigation.</p>
 
-<p><strong>User Research: Pain Points</strong></p>
+<h2>User Research: Pain Points</h2>
 
 <ol>
 <li><strong>Time Constraints</strong>: Users struggle to find time for grocery shopping and meal planning.</li>
@@ -211,7 +203,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>Lack of Personalization</strong>: Limited tailored recipe recommendations.</li>
 </ol>
 
-<p><strong>Persona: David Miller</strong></p>
+<h2>Persona: David Miller</h2>
+<p class="muted">Persona based on user research for this capstone project.</p>
 
 <ul>
 <li><strong>Age</strong>: 42</li>
@@ -223,11 +216,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>Frustrations</strong>: Time constraints, grocery store hassle, limited cooking time, finding quality ingredients, inconsistent quality</li>
 </ul>
 
-<p><strong>User Journey Map</strong></p>
+<h2>User Journey Map</h2>
 
 <p>David's journey highlights his need for a seamless grocery shopping experience, saving time, and ensuring high-quality products.</p>
 
-<p><strong>Features and Benefits</strong></p>
+<h2>Features and Benefits</h2>
 
 <ul>
 <li><strong>Smart Recipe Discovery</strong>: Search recipes based on ingredients, dietary needs, cuisine, or cooking time.</li>
@@ -243,11 +236,11 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>Community Features</strong>: Share recipes and find inspiration.</li>
 </ul>
 
-<p><strong>Value</strong></p>
+<h2>Value</h2>
 
 <p>Foodie Explorer simplifies meal prep, reduces waste, and empowers users to eat better without hassle.</p>
 
-<p><strong>Starting the Design</strong></p>
+<h2>Starting the Design</h2>
 
 <ul>
 <li><strong>Paper Wireframes</strong>: Initial concepts and layouts.</li>
@@ -257,7 +250,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>Low-Fidelity Prototype</strong>: Basic prototype to test functionality.</li>
 </ul>
 
-<p><strong>Usability Study: Findings</strong></p>
+<h2>Usability Study: Findings</h2>
 
 <ol>
 <li><strong>Intuitive Search</strong>: Simplified recipe discovery.</li>
@@ -267,7 +260,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>Streamlined Navigation</strong>: Minimalist design improves user experience.</li>
 </ol>
 
-<p><strong>Refining the Design</strong></p>
+<h2>Refining the Design</h2>
 
 <ul>
 <li><strong>Mockups</strong>: Improved personalization and accessibility.</li>
@@ -275,7 +268,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li><strong>High-Fidelity Prototype</strong>: Finalized designs for detailed testing.</li>
 </ul>
 
-<p><strong>Accessibility Considerations</strong></p>
+<h2>Accessibility Considerations</h2>
 
 <ul>
 <li>High contrast mode and readable fonts</li>
@@ -285,13 +278,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Clear navigation and large tap targets</li>
 </ul>
 
-<p><strong>Going Forward</strong></p>
+<h2>Going Forward</h2>
 
-<p><strong>Takeaways</strong></p>
+<h2>Takeaways</h2>
 
 <p>The redesigned app streamlines grocery shopping and recipe discovery, enhancing user experience and saving time.</p>
 
-<p><strong>Next Steps</strong></p>
+<h2>Next Steps</h2>
 
 <ol>
 <li>Conduct further usability testing.</li>
@@ -300,6 +293,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <li>Expand accessibility features for a diverse user base.</li>
 </ol>
+<p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -307,7 +301,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

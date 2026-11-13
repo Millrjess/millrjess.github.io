@@ -160,12 +160,21 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .viz-details[open] .read-more{display:none}
 .viz-details>summary:hover .entry-toggle{color:var(--accent)}
 
-/* care plan comparison */
-.plan-table-wrap{overflow-x:auto; margin:1.2em 0}
-.plan-table{width:100%; border-collapse:collapse; font-size:.95em; min-width:520px}
+/* care plan comparison: table on desktop, stacked cards on mobile */
+.plan-table-wrap{margin:1.2em 0}
+.plan-table{width:100%; border-collapse:collapse; font-size:.95em}
 .plan-table th,.plan-table td{border:1px solid var(--border); padding:.6em .8em; text-align:left}
 .plan-table th{background:var(--navy); color:#fff}
 .plan-table td:first-child{font-weight:600; color:var(--navy)}
+@media (max-width:720px){
+  .plan-table,.plan-table tbody,.plan-table tr,.plan-table td,.plan-table th,.plan-table caption{display:block; width:100%}
+  .plan-table thead{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .plan-table tr{border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden}
+  .plan-table th,.plan-table td{border:0; border-bottom:1px solid var(--border)}
+  .plan-table th[scope="row"]{background:var(--accent-soft); color:var(--navy)}
+  .plan-table td:last-child{border-bottom:0}
+  .plan-table td::before{content:attr(data-label); display:block; font-weight:700; color:var(--navy); font-size:.85em}
+}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -223,15 +232,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <tr><th scope="col">Feature</th><th scope="col">Essential, $150/month</th><th scope="col">Professional, $300/month</th></tr>
 </thead>
 <tbody>
-<tr><th scope="row">CMS core, theme, and plugin updates</th><td>Included</td><td>Included</td></tr>
-<tr><th scope="row">Daily off-site backups</th><td>Included</td><td>Included</td></tr>
-<tr><th scope="row">Uptime monitoring</th><td>Included</td><td>Included</td></tr>
-<tr><th scope="row">Monthly site health report</th><td>Included</td><td>Included</td></tr>
-<tr><th scope="row">W3C validation</th><td>Included</td><td>Included</td></tr>
-<tr><th scope="row">Security hardening and malware scanning</th><td>Not included</td><td>Included</td></tr>
-<tr><th scope="row">Performance checks</th><td>Not included</td><td>Included</td></tr>
-<tr><th scope="row">One hour of content or design updates per month</th><td>Not included</td><td>Included</td></tr>
-<tr><th scope="row">Priority support</th><td>Not included</td><td>Included</td></tr>
+<tr><th scope="row">CMS core, theme, and plugin updates</th><td data-label="Essential, $150/month">Included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Daily off-site backups</th><td data-label="Essential, $150/month">Included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Uptime monitoring</th><td data-label="Essential, $150/month">Included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Monthly site health report</th><td data-label="Essential, $150/month">Included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">W3C validation</th><td data-label="Essential, $150/month">Included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Security hardening and malware scanning</th><td data-label="Essential, $150/month">Not included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Performance checks</th><td data-label="Essential, $150/month">Not included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">One hour of content or design updates per month</th><td data-label="Essential, $150/month">Not included</td><td data-label="Professional, $300/month">Included</td></tr>
+<tr><th scope="row">Priority support</th><td data-label="Essential, $150/month">Not included</td><td data-label="Professional, $300/month">Included</td></tr>
 </tbody>
 </table>
 <p>Priority support means Professional clients are answered before Essential clients during support hours.</p>
@@ -248,33 +257,34 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </ul>
 <h3>Audit</h3>
 <ul>
-<li><strong>Site Health Audit, from $500:</strong> A review of technical SEO, security configuration, and website performance. You receive a prioritized action plan identifying issues and recommended improvements.</li>
+<li><strong><a href="../services/">Site Health Audit</a>, from $500:</strong> Technical SEO, security, and performance review with a prioritized action plan.</li>
 </ul>
 <h3>Security</h3>
 <ul>
-<li><strong>Malware Removal &amp; Incident Response, from $500 per incident:</strong> Investigation, malware cleanup, vulnerability remediation, and security hardening within the agreed scope, under a signed agreement. Emergency turnaround is available to care plan clients only.</li>
+<li><strong><a href="../services/#website-security-and-incident-response">Malware Removal &amp; Incident Response</a>, from $500 per incident:</strong> Investigation, cleanup, and hardening within the agreed scope.</li>
 </ul>
 <h3>Search and measurement</h3>
 <ul>
-<li><strong>Technical SEO &amp; Search Optimization, from $1,000:</strong> Technical improvements that help search engines access and understand your website. Work may include structured data, crawl and indexing fixes, page speed improvements, and GA4 measurement setup. The proposal identifies the issues to address and the deliverables. Search rankings are not guaranteed.</li>
-<li><strong>Analytics &amp; Reporting Dashboards, from $1,000:</strong> GA4 configuration, custom dashboards, and automated reporting built around the questions your business needs to answer. The scope defines the data sources, events, reports, and integrations included.</li>
+<li><strong><a href="../services/#technical-seo-and-performance">Technical SEO &amp; Search Optimization</a>, from $1,000:</strong> Structured data, crawl and indexing fixes, page speed, and GA4 setup. Search rankings are not guaranteed.</li>
+<li><strong><a href="../services/#analytics-and-reporting-dashboards">Analytics &amp; Reporting Dashboards</a>, from $1,000:</strong> GA4 configuration, custom dashboards, and automated reporting built around your questions.</li>
 </ul>
 <h3>Accessibility and standards</h3>
 <ul>
-<li><strong>Website Standards Pass, from $750:</strong> W3C validation, WCAG 2.2 AA accessibility corrections, and user experience fixes based on Nielsen Norman Group research for your existing site or web application. Small sites up to 10 pages, from $750; medium sites of 11 to 30 pages, from $1,500; large sites of 31 pages or more, from $2,500. Web applications and very large sites are quoted individually after a short review.</li>
+<li><strong><a href="../services/#website-standards-pass">Website Standards Pass</a>, from $750:</strong> W3C validation, WCAG 2.2 AA accessibility corrections, and user experience fixes for your existing site or web application. Small sites up to 10 pages, from $750; medium sites of 11 to 30 pages, from $1,500; large sites of 31 pages or more, from $2,500. Web applications and very large sites are quoted individually after a short review.</li>
 <li><strong>WCAG Accessibility Audit &amp; Remediation, from $750:</strong> full accessibility review with prioritized fixes to meet WCAG 2.1 AA and reduce accessibility barriers. The starting price covers a small business site. Larger sites and web applications are quoted individually after a short review.</li>
 </ul>
 <h3>Build</h3>
 <ul>
-<li><strong>Front End Development, from $1,500:</strong> Responsive interfaces built with HTML, CSS, and JavaScript. Available for new projects, improvements to existing sites, and rescue work. Accessibility requirements and supported browsers are agreed in the project scope.</li>
-<li><strong>Custom Web App Development, from $5,000:</strong> Custom web applications scoped around your business needs. Features may include installation as a progressive web app, offline functionality, Stripe payment processing, dashboards, tracking tools, and accessible interfaces. See <a href="../tracker/">New Chapter: GLP-1 Tracker™</a> as an example of independent product work.</li>
-<li><strong>Website Agents, from $2,500:</strong> Custom website agents for lead qualification, customer support, data processing, and multi-step workflows, connected to your apps and cloud services. Integrations, permitted actions, and human review requirements are defined before development begins.</li>
+<li><strong><a href="../services/#custom-web-application-development">Front End Development</a>, from $1,500:</strong> Responsive HTML, CSS, and JavaScript interfaces for new, existing, or rescue work.</li>
+<li><strong><a href="../services/#custom-web-application-development">Custom Web App Development</a>, from $5,000:</strong> Custom web applications scoped around your business needs. See <a href="../tracker/">New Chapter: GLP-1 Tracker™</a> as an example.</li>
+<li><strong><a href="../services/#website-agents">Website Agents</a>, from $2,500:</strong> Custom agents for lead qualification, customer support, and multi-step workflows.</li>
 </ul>
 <h3>Testing</h3>
 <ul>
-<li><strong>Independent Usability Studies, $1,000 per round:</strong> Independent usability studies coordinated from the beginning, through iteration, to implementation and launch. Each round covers one user group, typically 5 users, and prioritized findings. Pre-launch checks cover W3C validation, WCAG 2.2 AA accessibility, security and malware, speed, broken links and forms, and analytics. Additional rounds are $1,000 each. Participant recruitment and incentives, if needed, are quoted separately in the proposal.</li>
+<li><strong><a href="../services/#independent-usability-studies">Independent Usability Studies</a>, $1,000 per round:</strong> One user group, typically 5 users, with prioritized findings per round. Recruitment quoted separately.</li>
 </ul>
-<p>The Accessibility Audit and the Standards Pass are different services. The Audit is a review with prioritized fixes to meet WCAG 2.1 AA, the version the U.S. Department of Justice adopted in 2024 for state and local government websites. The Standards Pass is a focused review and correction against WCAG 2.2 AA, the practice standard, which builds on 2.1. The proposal identifies the WCAG version, conformance level, pages, templates, interactions, and testing methods covered for the service you choose.</p>
+<p>Full detail for each service is on the <a href="../services/">Services page</a>.</p>
+<p>The Audit is a review with prioritized fixes to meet WCAG 2.1 AA. The Standards Pass is a focused review and correction against WCAG 2.2 AA, the practice standard, which builds on 2.1.</p>
 <p>Read <a href="../accessibility/">why accessibility and UX matter for your business and rankings</a>.</p>
 
 <h2 id="rates-and-payment">Rates and Payment</h2>
@@ -341,7 +351,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

@@ -145,6 +145,27 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 
+/* expandable summaries, portfolio Read more pattern */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details summary h2.entry-lede{display:inline; font-size:1em; margin:0}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; margin-left:.6em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+.service-details{margin:.7em 0 0}
+.service-details>summary .entry-lede{display:inline; font-weight:600; color:var(--navy)}
+.service-details ul{margin:.8em 0}
+.toc-details{margin:1em 0}
+.toc-details>summary .entry-lede{display:inline; font-weight:700; color:var(--navy)}
+.toc-details ul{margin:.8em 0 0}
+
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
@@ -188,29 +209,17 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p class="hero-cta"><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a> <a class="btn btn-secondary" href="../pricing/">View pricing</a></p>
 
 <nav aria-label="On this page">
-<p>On this page:</p>
+<details class="viz-details toc-details">
+<summary><span class="entry-lede">Jump to a service</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
-<li><a href="#how-i-work">How I Work</a></li>
-<li><a href="#your-business-stays-yours">Your Business Stays Yours</a></li>
 <li><a href="#website-management-and-maintenance">Website Management and Maintenance</a></li>
 <li><a href="#website-security-and-incident-response">Website Security and Incident Response</a></li>
 <li><a href="#website-standards-pass">Website Standards Pass</a></li>
 <li><a href="#technical-seo-and-performance">Technical SEO and Performance</a></li>
 <li><a href="#custom-web-application-development">Custom Web Application Development</a></li>
-<li><a href="#website-agents">Website Agents</a>
-<ul>
-<li><a href="#how-an-agent-engagement-works">How an Agent Engagement Works</a></li>
+<li><a href="#website-agents">Website Agents</a></li>
 </ul>
-</li>
-<li><a href="#analytics-and-reporting-dashboards">Analytics and Reporting Dashboards</a>
-<ul>
-<li><a href="#how-a-dashboard-engagement-works">How a Dashboard Engagement Works</a></li>
-</ul>
-</li>
-<li><a href="#consulting-and-advisory">Consulting and Advisory</a></li>
-<li><a href="#independent-usability-studies">Independent Usability Studies</a></li>
-<li><a href="#let-us-discuss-your-website">Let Us Discuss Your Website</a></li>
-</ul>
+</details>
 </nav>
 
 
@@ -233,6 +242,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="website-management-and-maintenance">Website Management and Maintenance</h2>
 
 <p>Ongoing care for WordPress, Drupal, Joomla, and custom database-driven websites.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>CMS core, theme, plugin, and extension updates</li>
 <li>Pre-update backups and post-update checks</li>
@@ -241,6 +252,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Monthly site health reports in plain language</li>
 </ul>
 <p>The proposal defines the covered website, backup arrangements, support hours, and how to reach me.</p>
+</details>
 <p>See <a href="../pricing/#care-plans">care plans from $150 per month</a>.</p>
 
 
@@ -248,6 +260,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="website-security-and-incident-response">Website Security and Incident Response</h2>
 
 <p>Help investigating compromised websites, removing malware, addressing identified vulnerabilities, and reducing the risk of another incident.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Investigation and cleanup within the agreed scope</li>
 <li>Vulnerability patching and security hardening</li>
@@ -255,6 +269,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>A written summary of findings, actions taken, and recommended follow-up</li>
 </ul>
 <p>Where the cause can be established, I explain how the compromise occurred and what needs to change.</p>
+</details>
 <p>One-time cleanups are available without a care plan, scheduled by availability.</p>
 <p>See <a href="../pricing/#one-time-services">malware removal and incident response from $500 per incident</a>.</p>
 
@@ -263,6 +278,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="website-standards-pass">Website Standards Pass</h2>
 
 <p>A scoped review and correction of markup, accessibility, and usability issues on an existing website or web application.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>HTML and CSS validation, with agreed issues corrected</li>
 <li>Accessibility testing and corrections against agreed WCAG 2.2 AA criteria</li>
@@ -271,6 +288,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>A written summary of corrections, remaining issues, and decisions requiring your input</li>
 </ul>
 <p>The proposal identifies the pages, templates, components, browsers, and interactions covered. It also defines the testing methods and completion criteria.</p>
+</details>
 <p>Read <a href="../accessibility/">why accessibility and UX matter for your business and rankings</a>.</p>
 <p>See <a href="../pricing/">pricing for the Website Standards Pass</a>.</p>
 
@@ -279,6 +297,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="technical-seo-and-performance">Technical SEO and Performance</h2>
 
 <p>Technical work to help search engines access and understand your website, and to help visitors use it without unnecessary delays or dead ends.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Site health audits with prioritized recommendations</li>
 <li>Crawl and indexing issue reviews</li>
@@ -287,6 +307,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>GA4 and reporting setup</li>
 </ul>
 <p>You receive a record of what I checked, what I changed, and what remains unresolved. I do not guarantee search rankings.</p>
+</details>
 <p>See <a href="../pricing/#one-time-services">technical SEO pricing from $1,000</a>.</p>
 
 
@@ -294,6 +315,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="custom-web-application-development">Custom Web Application Development</h2>
 
 <p>Custom web applications built around your users, workflows, and business requirements.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Installable progressive web apps</li>
 <li>Offline access for selected functions</li>
@@ -302,6 +325,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Custom dashboards, tracking tools, and data exports</li>
 <li>Responsive interfaces and accessibility testing against agreed criteria</li>
 </ul>
+</details>
 <p>My independent product, <a href="../tracker/">New Chapter: GLP-1 Tracker™</a>, provides a live example of subscription-based tracking tools and an AI Wellness Companion. Its public product page describes companion memory, data export, and Stripe subscription payments.</p>
 <p>See <a href="../pricing/#one-time-services">custom web app pricing from $5,000</a>.</p>
 
@@ -312,6 +336,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>Custom website agents that use your approved content and connected systems to answer questions and support routine workflows.</p>
 <p><strong>Live example:</strong> try the help chat on this site. It is a Website Agent built and managed by me, answering only from published pages, with a person as the fallback for questions it cannot answer. Website Agents start from $2,500.</p>
 <p>See <a href="../pricing/#one-time-services">Website Agents pricing</a>.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Lead qualification and customer support</li>
 <li>Responses grounded in your pages, documents, and data</li>
@@ -319,8 +345,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Authenticated access and subscription controls where required</li>
 <li>Defined limits, escalation paths, and human review points</li>
 </ul>
-<h3 id="how-an-agent-engagement-works">How an Agent Engagement Works</h3>
-<p>We identify the task, approved information sources, permitted actions, and situations that require a person. I build and test the agent using representative questions and workflows from your business. Before launch, we agree on how its content, access, and behavior will be maintained.</p>
+<p>How an engagement works: we identify the task, approved information sources, permitted actions, and situations that require a person. I build and test the agent using representative questions and workflows from your business, and before launch we agree on how its content, access, and behavior will be maintained.</p>
+</details>
 
 
 
@@ -328,6 +354,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="analytics-and-reporting-dashboards">Analytics and Reporting Dashboards</h2>
 
 <p>Measurement and reporting built around the questions your business needs to answer.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>GA4 configuration and event tracking</li>
 <li>Custom dashboards in Tableau or Power BI</li>
@@ -335,8 +363,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Automated reporting on an agreed schedule</li>
 <li>Documentation and handover</li>
 </ul>
-<h3 id="how-a-dashboard-engagement-works">How a Dashboard Engagement Works</h3>
-<p>We first agree on the questions the dashboard should answer. I then connect the available data sources, build the views, and explain how to use and maintain the finished dashboard. See <a href="../portfolio/">the portfolio</a> and <a href="../pricing/">pricing from $1,000</a>.</p>
+<p>How a dashboard engagement works: we first agree on the questions the dashboard should answer. I then connect the available data sources, build the views, and explain how to use and maintain the finished dashboard.</p>
+</details>
+<p>See <a href="../portfolio/">the portfolio</a> and <a href="../pricing/">pricing from $1,000</a>.</p>
 
 
 
@@ -344,6 +373,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="consulting-and-advisory">Consulting and Advisory</h2>
 
 <p>Practical guidance informed by 20 years of website work across operations, development, data, and security.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Technical strategy sessions and second opinions</li>
 <li>Pre-launch reviews and troubleshooting</li>
@@ -351,6 +382,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Ad hoc development and technical support</li>
 </ul>
 <p>Each engagement starts with a defined question, responsibility, or deliverable.</p>
+</details>
 <p>See <a href="../pricing/#consultations">strategy sessions at $200 per hour, payment at booking, refunded if we can't find a time</a>.</p>
 
 
@@ -358,6 +390,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2 id="independent-usability-studies">Independent Usability Studies</h2>
 
 <p>Independent usability studies coordinated from the beginning, through iteration, to implementation and launch, so a website is tested by real users before it goes live. I test a site as an outsider, not as its designer, so I am not grading my own work.</p>
+<details class="viz-details service-details">
+<summary><span class="entry-lede">What is included</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <ul>
 <li>Beginning: goals, user groups, tasks, and success measures are agreed, with participants recruited to match those users</li>
 <li>Iteration: small, moderated rounds, typically 5 users per user group per round, with fixes between rounds and a retest after changes</li>
@@ -365,7 +399,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Pre-launch checks: W3C validation, WCAG 2.2 AA accessibility, security and malware checks, speed, broken links and forms, and analytics</li>
 <li>Taking a website to launch: findings, corrections, and retest results are documented, with remaining issues and decisions requiring your input clearly listed</li>
 </ul>
-<p>The proposal identifies the user groups, tasks, rounds, pages, and testing methods covered. See <a href="../pricing/">pricing for Independent Usability Studies</a>.</p>
+<p>The proposal identifies the user groups, tasks, rounds, pages, and testing methods covered.</p>
+</details>
+<p>See <a href="../pricing/">pricing for Independent Usability Studies</a>.</p>
 
 
 
@@ -384,7 +420,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

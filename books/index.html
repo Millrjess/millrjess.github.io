@@ -143,6 +143,23 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
 
+
+/* expandable summaries, wellness journal pattern, consultant palette */
+.viz-details{margin:1.2em 0 0}
+.viz-details>summary{list-style:none; cursor:pointer; display:block; border-radius:4px}
+.viz-details>summary::-webkit-details-marker{display:none}
+.viz-details>summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+.viz-details .entry-lede{display:block}
+.viz-details .entry-toggle{display:inline-block; margin-top:.5em; margin-left:.6em; font-weight:600; color:var(--navy); text-decoration:underline; text-underline-offset:2px}
+.viz-details .entry-toggle::after{content:"+"; display:inline-block; margin-left:.45em; font-weight:700; text-decoration:none}
+.viz-details[open] .entry-toggle::after{content:"\2212"}
+.viz-details .show-less{display:none}
+.viz-details[open] .show-less{display:inline}
+.viz-details[open] .read-more{display:none}
+.viz-details>summary:hover .entry-toggle{color:var(--accent)}
+.viz-details summary h3{margin-top:0}
+.viz-details summary h4{display:inline; font-size:1em; margin:0}
+
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
@@ -198,31 +215,41 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2>Book One: The Second Account</h2>
 <p>Eleven years. One city that has learned to smooth away anything it cannot manage.</p>
 <p>Aura Voss is a reviewer in the reconciliation division. Her job is to review discrepancy reports: citizens who remember things the official record shows never happened. People who insist on a spouse the registry doesn't recognize. A child who says she saw birds somewhere birds no longer exist.</p>
+<details class="viz-details">
+<summary><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>Aura's job is to approve the corrections. For eleven years, she has been very good at it.</p>
 <p>When a dark red case file lands in her queue by apparent error, she reads it. It concerns a man who can describe a wedding the system has no record of, down to the weather and the tear in a coat cuff that was never mended. She notes that she took no action.</p>
 <p>This is not true.</p>
 <p>The Second Account is the first book in The Ledger Series: a trilogy about what a system does to the self when the self has agreed to look away long enough.</p>
 <p>For readers of Kazuo Ishiguro, Yoko Ogawa, and Emily St. John Mandel.</p>
+</details>
 <p><a class="btn" href="https://www.amazon.com/author/millrjess">Read Book One on Amazon</a></p>
 <hr>
 <h2>Book Two: The Echo Trace</h2>
 <p>The Ledger did not collapse. It learned.</p>
 <p>Three weeks after the system's failure, Aura Voss is underground with a coat that has no tracking thread and a list of things the city no longer agrees happened. The Ledger has rebuilt itself around the interruption she caused, smarter for having faced it. The reassertion arrives every morning. She catalogs the texture of what it takes to endure it.</p>
+<details class="viz-details">
+<summary><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>In the unmanaged sector beyond the city's map, she finds what the system has been maintaining at the cost of everything else: a pharmaceutical manifest reclassifying four hundred elderly residents as negative efficiency ratios. A settlement that breathes unmonitored air. Her father, sixty feet underground, who has been building the only thing that can end this.</p>
 <p>And a counter signal bearing her own design signature.</p>
 <p>The Echo Trace is the second book in The Ledger Series. This series asks not what the system did to its citizens, but what the citizens agreed to do on its behalf.</p>
 <p>"The system did not call this a death sentence. The system called it pathway optimization."</p>
+</details>
 <p><a class="btn" href="https://www.amazon.com/author/millrjess">Read Book Two on Amazon</a></p>
 <hr>
 <h2>Book Three: The Ghost Index</h2>
 <p>The first two books of The Ledger Series are narrated by Aura Voss in the first person. This one is not.</p>
 <p>By the time this story begins, Aura has been suppressed seventy-three times in twenty-three years. The Ledger took what it decided she did not need to keep, reset her to baseline, and returned her to the registry. The woman who walks out of the mountain at the start of this book has made it further than every previous version of herself.</p>
+<details class="viz-details">
+<summary><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></summary>
 <p>In the Ghost Index, a hidden repository below the city's transit infrastructure, she will find the files of the seventy-three iterations who came before her: each attempt, each failure, and each thing the system invented specifically to stop her. Iteration 31 made it react. Iteration 59 used her last four seconds not to fight what was happening, but to write a sentence for a version of herself she would never meet.</p>
 <p>Whether the woman reading that sentence is still the person who can say 'I' is what this book is about.</p>
 <p>The Ghost Index is the conclusion of The Ledger Series. It closes where the series always intended to close: with a system that has been answering for twenty-three years receiving no answer.</p>
+</details>
 <p><a class="btn" href="https://www.amazon.com/author/millrjess">Read Book Three on Amazon</a></p>
 <hr>
 <blockquote><p>If your memories can be edited, are you still you?</p></blockquote>
+<p>Looking for help with your website? See my <a href="../services/">consulting services</a>.</p>
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -230,7 +257,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a> &middot; <a href="https://www.facebook.com/millrjess">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/">Pinterest</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>

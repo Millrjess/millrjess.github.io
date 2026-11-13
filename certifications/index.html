@@ -87,20 +87,12 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   border-radius:20px; padding:clamp(1.4rem,4vw,3rem); box-shadow:var(--shadow)}
 .page > article > h1:first-child{margin-top:0}
 
-/* hero */
-.hero{background:
-    radial-gradient(900px 320px at 85% -10%, rgba(240,223,174,.22), transparent 60%),
-    linear-gradient(135deg,var(--accent-dark) 0%, var(--navy) 100%);
-  color:#eaf0f8; border-radius:18px; padding:clamp(1.8em,5vw,3em);
-  margin:1em 0 2.2em; box-shadow:var(--shadow)}
-.hero h1{color:#fff; margin-top:0; font-size:clamp(1.7rem,1.2rem + 2.4vw,2.4rem)}
-.hero h2{color:#fff; border:0}
-.hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
-.hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
 .btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
+.btn-book{background:#f0dfae !important; color:#0b1a30 !important; border:2px solid #f0dfae; box-shadow:0 10px 22px -8px rgba(15,35,64,.35)}
+.btn-book:hover{background:#f0dfae !important; color:#0b1a30 !important}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -111,11 +103,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   text-decoration:none !important}
 .card h3{margin:.2em 0 .35em; font-size:1.05rem}
 .card p{margin:0; color:var(--muted); font-size:.9em}
-.post-list{display:grid; gap:16px; margin-top:1.1em}
-.post-card{border:1px solid var(--border); border-radius:16px; padding:1.15em 1.4em;
-  background:#fff; transition:box-shadow .18s, transform .18s}
-.post-card:hover{box-shadow:var(--shadow); transform:translateY(-2px)}
-.post-card h2{border:0; padding:0; margin:.2em 0 .35em; font-size:1.22rem}
 
 /* footer */
 .site-footer{background:linear-gradient(180deg,var(--navy),var(--accent-dark)); color:#c6d2e2; margin-top:44px}
@@ -131,17 +118,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   body{font-size:16px}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
+  .gallery{grid-template-columns:repeat(2,1fr); gap:12px}
+  .gallery .card{padding:.6em}
 }
 
-/* consultation form */
-.consult-form{max-width:640px; margin:1.2em 0}
-.consult-form label{display:block; font-weight:600; margin:1em 0 .3em; color:var(--navy); font-size:.95rem}
-.consult-form input,.consult-form select,.consult-form textarea{width:100%; padding:.7em .9em;
-  border:1px solid var(--border); border-radius:10px; font:inherit; color:var(--slate);
-  background:#f8fafc; margin-top:.35em; display:block}
-.consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
-  outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
-.consult-form button{border:0; cursor:pointer; font:inherit}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -179,50 +159,44 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>Professional Credentials &amp; Continuing Education</h1>
 <p class="muted">Technical Expertise. Professional Experience. Continuous Development.</p>
-<p>With 20 years of experience in website operations, management, and technical problem-solving, I bring a multidisciplinary understanding of the technology that supports modern business operations.</p>
-<p>My professional development includes structured education in cybersecurity, advanced data analytics, business intelligence, user experience design, and digital marketing.</p>
-<p>That study supports my practical experience managing business websites.</p>
+<p>With 20 years of experience in website operations, management, and technical problem-solving, I bring a multidisciplinary understanding of the technology that supports modern business operations. My professional development includes structured education in cybersecurity, advanced data analytics, business intelligence, user experience design, and digital marketing, and that study supports my practical experience managing business websites.</p>
 <p>My educational credentials include Google professional certificate programs, Coursera specializations, and individual course certificates. Each credential is listed under its official title, with a verification link where one is available. See my full learning record and verify any badge in my <a href="https://www.credly.com/users/millrjess">Credly Badge Wallet</a>.</p>
 
 <h2>Cybersecurity</h2>
 <p>Formal education in cybersecurity principles, security practices, threat awareness, and risk management. This knowledge supports a security-conscious approach to website operations and digital infrastructure.</p>
 <ul>
-<li><strong>Connect and Protect: Networks and Network Security</strong>, Google, June 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/A06QS3TEK9BG">Verify Connect and Protect: Networks and Network Security credential</a></li>
-<li><strong>Play It Safe: Manage Security Risks</strong>, Google, April 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/KRTO6583H5QO">Verify Play It Safe: Manage Security Risks credential</a></li>
-<li><strong>Foundations of Cybersecurity</strong>, Google, March 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/S3Q8ID7L7NYT">Verify Foundations of Cybersecurity credential</a></li>
+<li><strong>Connect and Protect: Networks and Network Security</strong>, Google, June 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/A06QS3TEK9BG">Verify</a></li>
+<li><strong>Play It Safe: Manage Security Risks</strong>, Google, April 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/KRTO6583H5QO">Verify</a></li>
+<li><strong>Foundations of Cybersecurity</strong>, Google, March 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/S3Q8ID7L7NYT">Verify</a></li>
 </ul>
 
 <h2>Data, Analytics &amp; Business Intelligence</h2>
 <p>Training in data analysis, data visualization, analytical methods, and business intelligence. These disciplines support data-informed decision-making and a better understanding of business performance.</p>
 <ul>
-<li><strong>Google Advanced Data Analytics Specialization</strong>, Google, January 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/XT57ZKQ4EK01">Verify Google Advanced Data Analytics Specialization credential</a></li>
-<li><strong>Google Business Intelligence Specialization</strong>, Google, November 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/PTV3VOONUFUN">Verify Google Business Intelligence Specialization credential</a></li>
-<li><strong>Google Data Analytics Professional Certificate</strong>, Google, March 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/9RR6UTUGEABB">Verify Google Data Analytics Professional Certificate credential</a></li>
+<li><strong>Google Advanced Data Analytics Specialization</strong>, Google, January 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/XT57ZKQ4EK01">Verify</a></li>
+<li><strong>Google Business Intelligence Specialization</strong>, Google, November 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/PTV3VOONUFUN">Verify</a></li>
+<li><strong>Google Data Analytics Professional Certificate</strong>, Google, March 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/9RR6UTUGEABB">Verify</a></li>
 <li><strong>Google Analytics 4 (GA4) Essential Training</strong>, December 2024</li>
 </ul>
 
 <h2>UX Design</h2>
 <p>Education in user experience principles, usability, accessibility, and user-centered design. These concepts inform how websites present information, function, and serve their audiences.</p>
 <ul>
-<li><strong>Google UX Design Professional Certificate</strong>, Google, February 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/3APYW3NTJOZW">Verify Google UX Design Professional Certificate credential</a></li>
+<li><strong>Google UX Design Professional Certificate</strong>, Google, February 2025 &middot; <a href="https://www.coursera.org/account/accomplishments/specialization/3APYW3NTJOZW">Verify</a></li>
 </ul>
 
 <h2>Digital Marketing &amp; E-commerce</h2>
 <p>Training in digital marketing, online business strategies, e-commerce fundamentals, and digital customer engagement.</p>
 <ul>
-<li><strong>Think Outside the Inbox: Email Marketing</strong>, Google, May 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/GS40JZ8GHBQS">Verify Think Outside the Inbox: Email Marketing credential</a></li>
-<li><strong>Attract and Engage Customers with Digital Marketing</strong>, Google, February 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/HLA5N1GEINQX">Verify Attract and Engage Customers with Digital Marketing credential</a></li>
-<li><strong>Foundations of Digital Marketing and E-commerce</strong>, Google, February 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/CPVT2NOXK1QA">Verify Foundations of Digital Marketing and E-commerce credential</a></li>
-<li><strong>From Likes to Leads: Interact with Customers Online</strong>, Google, March 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/CNNZ60N9O29T">Verify From Likes to Leads: Interact with Customers Online credential</a></li>
+<li><strong>Think Outside the Inbox: Email Marketing</strong>, Google, May 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/GS40JZ8GHBQS">Verify</a></li>
+<li><strong>Attract and Engage Customers with Digital Marketing</strong>, Google, February 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/HLA5N1GEINQX">Verify</a></li>
+<li><strong>Foundations of Digital Marketing and E-commerce</strong>, Google, February 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/CPVT2NOXK1QA">Verify</a></li>
+<li><strong>From Likes to Leads: Interact with Customers Online</strong>, Google, March 2026 &middot; <a href="https://www.coursera.org/account/accomplishments/verify/CNNZ60N9O29T">Verify</a></li>
 </ul>
-
-<h2>Professional Perspective</h2>
-<p>Technology is constantly evolving. Maintaining technical relevance requires more than experience alone. It requires continued learning, practical application, and an understanding of how technology affects business operations.</p>
-<p>That combination helps businesses maintain reliable, secure, and effective digital operations.</p>
 
 <h2>Certificate Gallery</h2>
 <p class="muted">Course certificates for the Google UX Design Professional Certificate, February 2025.</p>
-<div class="cards">
+<div class="cards gallery">
 <figure class="card"><img src="../assets/img/uxcert-1.jpeg" alt=""><figcaption>Coursera certificate for the Google UX Design Professional Certificate, February 2025</figcaption></figure>
 <figure class="card"><img src="../assets/img/google-ux-design-professional-certificate.2-3.png" alt=""><figcaption>Google UX Design Certificate of Completion badge</figcaption></figure>
 <figure class="card"><img src="../assets/img/img_5284-1.jpg" alt=""><figcaption>Build Dynamic User Interfaces (UI) for Websites</figcaption></figure>
@@ -233,6 +207,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <figure class="card"><img src="../assets/img/img_5289-1.jpg" alt=""><figcaption>Foundations of User Experience (UX) Design</figcaption></figure>
 <figure class="card"><img src="../assets/img/img_5292-1.jpg" alt=""><figcaption>Design a User Experience for Social Good &amp; Prepare for Jobs</figcaption></figure>
 </div>
+<p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 </article>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -240,7 +215,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
     <p>&copy; 2026 Jessica A. Miller &middot; Website Operations Consultant</p>
     <p>North Andover, MA &middot; (978) 267-5304 &middot; <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a> &middot; <a href="https://checkr.com/profiles/jessica-miller-aa27">Verify my identity on Checkr</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess">LinkedIn</a> &middot; <a href="https://github.com/Millrjess">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess">Author</a></p>
-    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
+    <p class="footer-nav"><a href="/services/">Services</a> &middot; <a href="/pricing/">Pricing</a> &middot; <a href="/booking/">Book a Discovery Call</a> &middot; <a href="/about/">About</a> &middot; <a href="/testimonials/">Testimonials</a> &middot; <a href="/contact/">Contact</a> &middot; <a href="/faqs/">FAQs</a> &middot; <a href="/privacy-policy/">Privacy Policy</a> &middot; <a href="/books/">Books</a> &middot; <a href="/wellness/">Wellness</a></p>
   </div>
 </footer>
 <script>
