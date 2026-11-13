@@ -43,7 +43,7 @@ p{margin:0 0 1em}
 ::selection{background:var(--accent); color:#fff}
 .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
 h1,h2,h3,h4{font-family:var(--font-head); color:var(--sage); line-height:1.22;
-  margin:1.5em 0 .55em}
+  margin:1.15em 0 .5em}
 h1{font-size:clamp(1.9rem,1.3rem + 2.4vw,2.6rem); margin-top:.2em; font-weight:800}
 h2{font-size:1.4rem; font-weight:700}
 h3{font-size:1.12rem; font-weight:600}
@@ -55,7 +55,7 @@ a:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radi
 body{overflow-wrap:break-word}
 .muted{color:var(--muted); font-size:.92em}
 img{max-width:100%; height:auto; border-radius:var(--radius)}
-figure{margin:1.6em 0}
+figure{margin:1.2em 0}
 figcaption{color:var(--muted); font-size:.85em; text-align:center}
 blockquote{
   border-left:4px solid var(--accent); margin:1.6em 0; padding:.8em 1.3em;
@@ -64,7 +64,7 @@ blockquote{
 blockquote p{margin:.5em 0}
 ul,ol{padding-left:1.4em}
 li{margin:.4em 0}
-hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
+hr{border:0; border-top:1px solid var(--border); margin:1.6em 0}
 
 /* header */
 .site-header{background:rgba(255,255,255,.9); backdrop-filter:blur(12px);
@@ -104,7 +104,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   border:4px solid rgba(255,255,255,.35); box-shadow:0 10px 26px -10px rgba(0,0,0,.45)}
 
 /* cards */
-.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.1em 0}
 .card{display:block; border:1px solid var(--border); border-radius:16px;
   padding:1.25em 1.35em; background:#fff; color:var(--slate); text-decoration:none !important;
   transition:transform .18s, box-shadow .18s, border-color .18s}
@@ -114,7 +114,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .card p{margin:0; color:var(--muted); font-size:.9em}
 .post-list{display:grid; gap:16px; margin-top:1.1em}
 details[id],h2[id],h3[id]{scroll-margin-top:180px}
-.page-nav{margin:.4em 0 1.8em; display:flex; flex-wrap:wrap; gap:10px; max-width:100%; align-items:center;
+.page-nav{margin:.4em 0 1.2em; display:flex; flex-wrap:wrap; gap:10px; max-width:100%; align-items:center;
   position:sticky; top:90px; z-index:40; background:var(--bg); padding:.7em 0; border-bottom:1px solid var(--border)}
 .nav-pill{display:inline-block; padding:.6em 1.2em; border-radius:999px; border:1px solid var(--border); background:#fff; font-weight:600; font-size:.92em; color:var(--slate); text-decoration:none; white-space:normal; text-align:left; line-height:1.35; max-width:100%; box-sizing:border-box; overflow-wrap:break-word}
 .nav-pill:hover{border-color:var(--sage-dark); text-decoration:none}
@@ -124,16 +124,17 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
   background:#fff}
 .post-card h3{margin:.2em 0 .35em; font-size:1.1rem}
 .post-card p{margin:.3em 0; color:var(--muted); font-size:.92em}
-.product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin:1.1em 0 1.6em}
+.product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin:1em 0 1.2em}
 .product-card{border:1px solid var(--border); border-radius:16px; background:#fff; overflow:hidden; display:flex; flex-direction:column}
 .product-card img{width:100%; aspect-ratio:1/1; object-fit:contain; background:#fafafa; padding:12px}
-.product-info{padding:1em 1.2em 1.2em; display:flex; flex-direction:column; flex:1}
+.product-info{padding:.9em 1.1em 1.1em; display:flex; flex-direction:column; flex:1}
 .product-info h4{margin:0 0 .35em; font-size:1rem; line-height:1.35}
 .product-info p{margin:0 0 .9em; color:var(--muted); font-size:.9em; flex:1}
 .shop-btn{display:inline-block; text-align:center; background:var(--sage-dark); color:#fff; font-weight:600; font-size:.92em; padding:.65em 1.2em; border-radius:999px; text-decoration:none}
 .shop-btn:hover{filter:brightness(1.1); color:#fff}
-.cta-band{background:var(--sage-soft); border:1px solid var(--border); border-radius:var(--radius); padding:1.4em 1.6em; margin:1.8em 0; text-align:center}
+.cta-band{background:var(--sage-soft); border:1px solid var(--border); border-radius:var(--radius); padding:1.4em 1.6em; margin:1.2em 0; text-align:center}
 .cta-band p{margin:0 0 .9em; font-size:1.05em}
+.cta-band .shop-btn{white-space:nowrap}
 .hero-cta{margin-top:1.1em}
 .disclosure{background:var(--sage-soft); border:1px solid var(--border); border-radius:var(--radius);
   padding:.9em 1.2em; color:#4E5C46; font-size:.92em; margin:1.2em 0}
@@ -152,7 +153,7 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
 .journal-entry>summary:hover .entry-toggle{color:var(--sage)}
 
 /* footer */
-.site-footer{background:var(--accent-dark); color:#ffffff; margin-top:44px}
+.site-footer{background:var(--accent-dark); color:#ffffff; margin-top:28px}
 .footer-inner{padding-top:30px; padding-bottom:30px; display:flex; justify-content:space-between;
   gap:14px; flex-wrap:wrap; font-size:.92rem; align-items:center}
 .footer-inner p{margin:.25em 0}
@@ -162,10 +163,20 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
 
 /* responsive */
 @media (max-width:720px){
-  body{font-size:16px}
-  .hero{margin-top:.5em; margin-bottom:1.3em; padding:1.15em 1.25em 1.3em}
-  .hero h1{margin-top:.15em}
-  .hero .lede{line-height:1.55}
+  body{font-size:16px; line-height:1.6}
+  .hero{margin-top:.5em; margin-bottom:.9em; padding:.85em 1em 1em}
+  .hero h1{margin-top:.1em; font-size:1.5rem}
+  .hero-logo{width:72px; height:72px}
+  .hero .tagline{margin:.3em 0 .2em}
+  .hero .core-line{margin:.2em 0 0}
+  .hero .lede{line-height:1.55; font-size:1rem; margin-bottom:.4em}
+  .hero-cta{margin-top:.7em}
+  .page{padding-top:12px; padding-bottom:16px}
+  .page > article{padding:1rem 1.25rem}
+  .header-inner{padding-top:8px; padding-bottom:8px}
+  .brand-logo{height:38px}
+  .cta-band{padding:1em 1.2em; margin:1.2em 0}
+  .cta-band p{margin-bottom:.6em}
   #story{margin-top:.7em}
   hr{margin:1.3em 0}
   .footer-inner{flex-direction:column; align-items:flex-start}
@@ -216,7 +227,7 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
 </div>
 <div class="cta-band">
 <p>I log my shots, protein, water, and movement in the tracker I built.</p>
-<p style="margin-bottom:0"><a class="shop-btn" href="/tracker/">Try the tracker — $3.99 a month</a></p>
+<p style="margin-bottom:0"><a class="shop-btn" href="/tracker/">Try the tracker $3.99/mo</a></p>
 </div>
 <nav class="page-nav" aria-label="On this page">
 <a class="nav-pill nav-pill-shop" href="#amazon-favorites">My favorites</a>
@@ -251,7 +262,7 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
 <p>Everything on this page is something I actually use in my own routine. If it is here, I bought it, and I would buy it again. When I find something new worth sharing, it lands here first.</p>
 <p><strong>My promise:</strong> no sponsored placements, no paid rankings. Just what works for me, shared the way I would tell a friend.</p>
 <div class="disclosure"><strong>Disclosure:</strong> As an Amazon Associate I earn from qualifying purchases.</div>
-<p style="text-align:center;margin:1.5em 0"><a class="shop-btn" href="https://www.amazon.com/shop/influencer-0e881cda/photo/amzn1.shoppablemedia.v1.collage.1231117a-9acb-45f9-815d-6b108f717f60?ref_=aip_sf_photo_spv_ons_mixed_m_pspvrd&amp;tag=jessicamil089-20&amp;originMarketplaceId=ATVPDKIKX0DER" rel="nofollow sponsored noopener" aria-label="See my shoppable photo on Amazon">See my shoppable photo</a></p>
+<p style="text-align:center;margin:1.5em 0"><a class="shop-btn" href="https://www.amazon.com/shop/influencer-0e881cda/photo/amzn1.shoppablemedia.v1.collage.1231117a-9acb-45f9-815d-6b108f717f60?ref_=aip_sf_photo_spv_ons_mixed_m_pspvrd&amp;tag=millrjess-20&amp;originMarketplaceId=ATVPDKIKX0DER" rel="nofollow sponsored noopener" aria-label="See my shoppable photo on Amazon">See my shoppable photo</a></p>
 <h3 id="healthy-metabolism-products">Healthy Metabolism</h3>
 <p>Below are the high-protein staples in my kitchen right now. I keep sugar and saturated fat low, and I pair them with strength training to protect muscle and Pilates for flexibility and balance.</p>
 <div class="product-grid">
@@ -429,7 +440,7 @@ window.addEventListener('resize',setOff);window.addEventListener('load',setOff);
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
   <div class="wrap footer-inner">
     <p>&copy; 2026 Jessica A. Miller. All rights reserved.</p>
-    <p class="social"><a href="https://www.linkedin.com/in/millrjess" aria-label="Jessica A. Miller on LinkedIn">LinkedIn</a> &middot; <a href="https://github.com/Millrjess" aria-label="Jessica A. Miller on GitHub">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20" aria-label="Jessica A. Miller on Behance">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797" aria-label="Jessica A. Miller on Medium">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess" aria-label="Jessica A. Miller Amazon author page">Author</a> &middot; <a href="https://www.facebook.com/millrjess" aria-label="Jessica A. Miller on Facebook">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026" aria-label="Jessica A. Miller on Instagram">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026" aria-label="Jessica A. Miller on Threads">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/" aria-label="Jessica A. Miller on Pinterest">Pinterest</a></p>
+    <p class="social"><a href="https://www.linkedin.com/in/millrjess" aria-label="Jessica A. Miller on LinkedIn">LinkedIn</a> &middot; <a href="https://github.com/Millrjess" aria-label="Jessica A. Miller on GitHub">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20" aria-label="Jessica A. Miller on Behance">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797" aria-label="Jessica A. Miller on Medium">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess" aria-label="Jessica A. Miller Amazon author page">Author</a> &middot; <a href="https://www.facebook.com/millrjess" aria-label="Jessica A. Miller on Facebook">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026" aria-label="Jessica A. Miller on Instagram">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026" aria-label="Jessica A. Miller on Threads">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/" aria-label="Jessica A. Miller on Pinterest">Pinterest</a> &middot; <a href="https://gmail.us8.list-manage.com/subscribe?u=9035fd3eb09dd3f2a7ba37939&amp;id=5352c60bbc" aria-label="Subscribe to the A New Chapter newsletter">Newsletter</a></p>
     <p>Zepbound, Mounjaro, Wegovy, and Ozempic are registered trademarks of their respective owners. New Chapter is not affiliated with or endorsed by Eli Lilly or Novo Nordisk.</p>
   </div>
 </footer>

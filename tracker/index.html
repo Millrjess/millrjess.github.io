@@ -242,6 +242,7 @@
     .price-card li { padding: 6px 0 6px 25px; position: relative; }
     .price-card li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
     .price-card .button { width: 100%; }
+    .plan-includes-label { text-align: center; font-weight: 700; color: var(--sage-dark); font-size: .9rem; letter-spacing: .03em; margin: 0 auto 12px; }
     .plan-includes { list-style: none; padding: 0; margin: 0 auto 28px; max-width: 520px; color: var(--muted); }
     .plan-includes li { padding: 6px 0 6px 25px; position: relative; }
     .plan-includes li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
@@ -296,15 +297,17 @@
       h1 { font-size: clamp(2.45rem, 13vw, 3.8rem); }
       .actions { flex-direction: column; }
       .button { width: 100%; }
-      .phone-stage { min-height: 0; transform: scale(.91); margin: -12px -25px; }
+      .phone-stage { min-height: 0; transform: scale(.91); margin: -22px -25px; }
       .halo { width: 350px; height: 350px; }
       .phone { width: 286px; height: 480px; min-height: 0; }
       .quote-note { right: 0; bottom: 18px; }
       section { padding: 16px 0; }
       .why-different, .whole-body { padding: 14px 0; }
-      .hero { padding: 18px 0 12px; }
-      h1 { margin: 12px 0 10px; }
-      .actions { margin-top: 16px; }
+      .hero { padding: 12px 0 8px; }
+      h1 { margin: 8px 0 8px; font-size: clamp(2.05rem, 10.5vw, 3rem); }
+      .hero-grid { gap: 20px; }
+      .hero-copy > p { line-height: 1.5; }
+      .actions { margin-top: 12px; }
       .cta-note { margin-top: 8px; }
       .why-different h2, .whole-body h2 { margin-bottom: 8px; }
       .demo-video { padding-top: 16px; }
@@ -362,7 +365,7 @@
           
           <div class="eyebrow">The GLP-1 tracker built for strength</div>
           <h1>Protect your strength while the medicine works</h1>
-          <p style="font-family:var(--serif);font-size:1.3rem;color:var(--sage-dark);margin-bottom:18px">New Chapter: GLP-1 Tracker™</p>
+          <p style="font-family:var(--serif);font-size:1.3rem;color:var(--sage-dark);margin-bottom:10px">New Chapter: GLP-1 Tracker™</p>
           <p class="subhead">About 25% of weight lost on tirzepatide, and about 40% on semaglutide, can be lean mass, not fat. New Chapter keeps your protein, water, shots, and weight in one calm place, so you can protect what matters.</p>
           <div class="actions">
             <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try the free demo <span aria-hidden="true">→</span></a>
@@ -446,7 +449,7 @@
     <section class="included" style="background:var(--surface-soft)">
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Included, not extra.</h2>
-        <p>Other apps put these tools behind a paid plan. In the App Store, MyFitnessPal Premium is $19.99 a month, and it is the plan that unlocks the barcode scanner, voice logging, photo meal logging, and data export. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export in $3.99 a month.</p>
+        <p>Other apps put these tools behind a paid plan. In the App Store, MyFitnessPal Premium is $19.99 a month. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export in $3.99 a month.</p>
         <p>A year of MyFitnessPal Premium+ is $99.99 in the App Store. A year of New Chapter is $29.99.</p>
         <ul style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:10px">
           <li><strong>Scan barcode.</strong> The food fills itself in. No typing.</li>
@@ -502,6 +505,7 @@
     <section class="pricing" id="pricing">
       <div class="wrap">
         <div class="price-intro"><h2>Start tracking today</h2><p>Try the demo free. The subscription unlocks the full tracker and your AI Wellness Companion.</p><p>Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p></div>
+        <p class="plan-includes-label">Every plan includes</p>
         <ul class="plan-includes">
           <li><span aria-hidden="true" class="check-mark">✓</span>AI Wellness Companion with memory</li>
           <li><span aria-hidden="true" class="check-mark">✓</span>40 Companion messages a day</li>

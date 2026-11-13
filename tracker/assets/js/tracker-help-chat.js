@@ -76,15 +76,27 @@
   window.addEventListener("resize",raiseBubble);
   window.addEventListener("scroll",raiseBubble,{passive:true});
   raiseBubble();
-  /* Hide the bubble while the pricing section is in view, so it never
-     covers body text or the edge of a Subscribe button. */
+  /* Hide the bubble while the hero or the pricing section is in view,
+     so it never covers the trial wording in the hero or body text or
+     the edge of a Subscribe button at pricing. It reappears once the
+     user has scrolled past the hero, except at pricing, where it
+     stays hidden. If the chat panel is open when the bubble hides,
+     the panel closes too. */
+  var hero=document.querySelector(".hero");
   var pricing=document.getElementById("pricing");
-  function hideForPricing(hide){
+  var hideHero=false, hidePricing=false;
+  function updateBubble(){
+    var hide=hideHero || hidePricing;
     btn.style.display=hide?"none":"";
     if(hide && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); }
   }
-  if(pricing && "IntersectionObserver" in window){
-    new IntersectionObserver(function(entries){ hideForPricing(entries[0].isIntersecting); }).observe(pricing);
+  if("IntersectionObserver" in window){
+    if(hero){
+      new IntersectionObserver(function(entries){ hideHero=entries[0].isIntersecting; updateBubble(); }).observe(hero);
+    }
+    if(pricing){
+      new IntersectionObserver(function(entries){ hidePricing=entries[0].isIntersecting; updateBubble(); }).observe(pricing);
+    }
   }
   document.body.appendChild(btn); document.body.appendChild(panel);
   function ask(){

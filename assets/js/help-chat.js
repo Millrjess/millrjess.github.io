@@ -64,16 +64,30 @@
   panel.setAttribute("aria-label","Help chat");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
   panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>This help chat is not Jessica. It answers only from published pages on this site, and it links you to the page that covers your question. Only Jessica can confirm a booking, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
-  var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}body{padding-bottom:76px}}"; document.head.appendChild(st);
+  var st=document.createElement("style"); st.textContent="#hc-toggle{transition:opacity .25s ease, visibility .25s ease}#hc-toggle.hc-hidden{opacity:0; visibility:hidden; pointer-events:none}#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}body{padding-bottom:76px}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
+  /* Hide while reading: the button covers body text at bottom-right while
+     scrolling mid-page. Hide it while scrolling, show it again once
+     scrolling pauses or the reader reaches the bottom of the page.
+     It stays visible while the chat panel is open. */
+  var hcScrollTimer=null;
+  function hcNearBottom(){ return (window.scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 120); }
+  function hcUpdateBtn(){ if(panel.style.display!=="none" || hcNearBottom()){ btn.classList.remove("hc-hidden"); } else { btn.classList.add("hc-hidden"); } }
+  window.addEventListener("scroll", function(){
+    if(panel.style.display!=="none"){ return; }
+    if(hcNearBottom()){ btn.classList.remove("hc-hidden"); return; }
+    btn.classList.add("hc-hidden");
+    clearTimeout(hcScrollTimer);
+    hcScrollTimer=setTimeout(function(){ btn.classList.remove("hc-hidden"); }, 900);
+  }, {passive:true});
   function ask(){
     var inp=document.getElementById("hc-q"); var q=inp.value.trim(); if(!q) return;
     var log=document.getElementById("hc-log");
     var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+q.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p><p style='margin:8px 0'>"+find(q)+"</p>"; log.appendChild(d); inp.value="";
   }
-  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "block" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
-  document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); };
-  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
+  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "block" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); else btn.classList.remove("hc-hidden"); };
+  document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); btn.classList.remove("hc-hidden"); };
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); btn.classList.remove("hc-hidden"); } });
   document.getElementById("hc-send").onclick=ask;
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); } });
 })();

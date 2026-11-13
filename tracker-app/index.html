@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=081">
+<link rel="stylesheet" href="styles.css?v=082">
 </head>
 <body>
 
@@ -883,6 +883,15 @@
           <button type="button" class="kitchen-chip" data-filter="light-meals" aria-pressed="false">Light Meals</button>
         </div>
       </div>
+      <div class="kitchen-filter-group">
+        <p class="kitchen-filter-label" id="kitchen-filter-new-label">New sections</p>
+        <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-new-label">
+          <button type="button" class="kitchen-chip" data-filter="mocktails" aria-pressed="false">Mocktails</button>
+          <button type="button" class="kitchen-chip" data-filter="spices" aria-pressed="false">Spices</button>
+          <button type="button" class="kitchen-chip" data-filter="marinades" aria-pressed="false">Marinades</button>
+          <button type="button" class="kitchen-chip" data-filter="salad-dressings" aria-pressed="false">Salad Dressings</button>
+        </div>
+      </div>
       <details class="kitchen-more-filters" id="kitchen-more-filters">
         <summary id="kitchen-more-filters-summary">More filters</summary>
         <div class="kitchen-filter-group">
@@ -903,6 +912,7 @@
       </details>
     </div>
     <div id="kitchen-hidden"></div>
+    <p class="muted" id="kitchen-count" style="font-size:.9rem">171 recipes</p>
     <div id="meal-ideas" class="card" style="margin-top:16px"></div>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
@@ -1350,6 +1360,14 @@
       <p><strong>Who it is for:</strong> For adults navigating GLP-1 treatment.</p>
       <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
       <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while staying strong.</p>
+      <h4 style="margin:16px 0 8px">Why protecting muscle matters</h4>
+      <p>About 25 percent of the weight lost on Zepbound can be lean mass, not just fat. For semaglutide, the STEP-1 DXA subset found about 40 percent. DXA measures lean mass, which includes water and organ tissue along with muscle. It is not pure muscle.</p>
+      <h4 style="margin:16px 0 8px">Sources</h4>
+      <ul>
+        <li>Karakasis et al., Metabolism, March 2025 (PMID 39719170): about 25 percent of tirzepatide weight loss was lean mass.</li>
+        <li>SURMOUNT-1 body composition, Diabetes, Obesity and Metabolism, 2025 (PMID 39996356; PMC11965027): about 75% fat mass and 25% lean mass.</li>
+        <li>Tinsley and Nadolsky, 2025 (PMC12536186), reporting trial data from the STEP-1 DXA subset: about 40 percent lean soft tissue.</li>
+      </ul>
       <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
       <p>Track medication, injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
@@ -1688,7 +1706,7 @@
     </div>
   </div>
 
-<script src="app.js?v=081"></script>
+<script src="app.js?v=082"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

@@ -109,9 +109,9 @@
       localStorage.setItem(LS, JSON.stringify(store));
       var chat = [
         { role: "user", content: "Can you give me a protein recipe idea?" },
-        { role: "assistant", content: "Try eggs with spinach and cheese, with whole grain toast. This is encouragement, not medical advice." },
+        { role: "assistant", content: "Try eggs with kale and cheese, with whole grain toast. This is encouragement, not medical advice." },
         { role: "user", content: "Can you make me a shopping list?" },
-        { role: "assistant", content: "Here is a shopping list: eggs, spinach, cheese, whole grain bread." },
+        { role: "assistant", content: "Here is a shopping list: eggs, kale, cheese, whole grain bread." },
         { role: "user", content: "What is a healthy snack idea?" },
         { role: "assistant", content: "Greek yogurt with berries is a good choice. This is encouragement, not medical advice." }
       ];
