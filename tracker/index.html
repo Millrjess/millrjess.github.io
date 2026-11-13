@@ -53,7 +53,7 @@
     {
       "@type": "Question",
       "name": "Can I try it first?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. The full tracker with the Companion is $3.99 a month or $29.99 a year." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged." }
     },
     {
       "@type": "Question",
@@ -166,7 +166,7 @@
       background: var(--surface);
       border-bottom: 1px solid var(--line);
     }
-    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 0; align-items: center; max-width: 68ch; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
     .eyebrow { display: flex; gap: 12px; align-items: center; color: var(--sage-dark); font-weight: 700; font-size: .9rem; letter-spacing: .03em; }
     .eyebrow:before { content: ""; width: 34px; height: 2px; background: var(--gold); }
     h1, h2, h3, p { margin-top: 0; }
@@ -192,11 +192,8 @@
     .button:hover { transform: translateY(-2px); }
     .button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visible, video:focus-visible { outline: 3px solid color-mix(in srgb, var(--gold) 55%, transparent); outline-offset: 3px; }
     .button.primary { background: var(--sage-dark); color: var(--bg); }
+    .button.ghost { background: transparent; color: var(--sage-dark); border: 1px solid var(--sage-dark); }
     @media (prefers-color-scheme: dark) { .button.primary { color: #172019; background: var(--sage-dark); } }
-    .mini-trust { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 18px; color: var(--muted); font-size: .88rem; }
-    .mini-trust span { display: flex; align-items: center; gap: 7px; }
-    .mini-trust i { width: 7px; height: 7px; background: var(--gold-deep); border-radius: 50%; }
-
     .phone-stage { position: relative; min-height: 480px; display: grid; place-items: center; }
     .halo { position: absolute; width: 430px; height: 430px; border-radius: 50%; background: var(--sage-pale); }
     .phone {
@@ -214,14 +211,6 @@
     h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.2; letter-spacing: -.02em; margin-bottom: 0; }
     h3 { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; line-height: 1.3; }
     .section-head p { color: var(--muted); font-size: 1.19rem; margin-bottom: 12px; max-width: 620px; }
-    .features { background: var(--bg); }
-    .feature-list { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
-    .feature { padding: 22px 24px 22px 0; border-bottom: 1px solid var(--line); }
-    .feature:not(:nth-child(3n+1)) { border-left: 1px solid var(--line); padding-left: 24px; }
-    .feature .icon { color: var(--sage); width: 40px; height: 40px; margin-bottom: 16px; }
-    .feature .icon svg { width: 100%; height: 100%; stroke-width: 1.5; }
-    .feature h3 { margin-bottom: 10px; }
-    .feature p { color: var(--muted); font-size: 1rem; margin-bottom: 0; line-height: 1.5; }
     .pillars-list { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
     .pillar { padding: 22px 24px 22px 0; border-bottom: 1px solid var(--line); }
     .pillar:not(:first-child) { border-left: 1px solid var(--line); padding-left: 24px; }
@@ -253,6 +242,11 @@
     .price-card li { padding: 6px 0 6px 25px; position: relative; }
     .price-card li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
     .price-card .button { width: 100%; }
+    .plan-includes { list-style: none; padding: 0; margin: 0 auto 28px; max-width: 520px; color: var(--muted); }
+    .plan-includes li { padding: 6px 0 6px 25px; position: relative; }
+    .plan-includes li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
+    .terms-check { display: flex; gap: 8px; align-items: flex-start; font-size: .92rem; margin: 0 0 14px; cursor: pointer; }
+    .terms-check input { margin-top: 3px; flex: 0 0 auto; }
     .payment-note { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 22px; }
 
     .how-it-works { background: var(--bg); }
@@ -263,7 +257,6 @@
     .steps li { counter-increment: step; padding: 16px 0 16px 56px; position: relative; border-top: 1px solid var(--line); line-height: 1.5; }
     .steps li:before { content: counter(step); position: absolute; left: 0; top: 14px; width: 36px; height: 36px; border-radius: 50%; background: var(--sage); color: #fff; display: grid; place-items: center; font-weight: 700; }
 
-    .testimonials { background: var(--bg); }
     .stories-shell { max-width: 860px; margin: auto; border-block: 1px solid var(--line); padding: 34px 0; display: grid; grid-template-columns: 140px 1fr; gap: 42px; align-items: center; }
     .story-mark { width: 120px; height: 120px; border-radius: 50%; background: var(--gold-deep); color: #fff; display: grid; place-items: center; font-family: var(--serif); font-size: 3.6rem; }
     .story-mark.word { font-family: var(--sans); font-size: 1.05rem; font-weight: 700; letter-spacing: .01em; }
@@ -280,10 +273,6 @@
     details[open] summary .faq-icon:after { content: "−"; }
     details p { color: var(--muted); padding: 0 30px 18px 0; margin: 0; }
 
-    .closing-inner { background: var(--gold-pale); color: var(--ink); padding: 62px; border-radius: 38px 6px 38px 6px; display: flex; align-items: center; justify-content: space-between; gap: 42px; }
-    .closing-copy h2 { max-width: 650px; margin-bottom: 14px; }
-    .closing-copy p { color: color-mix(in srgb, var(--ink) 76%, transparent); margin-bottom: 0; }
-    .closing-inner .button { flex: 0 0 auto; }
     .mobile-buy { display: none; }
     footer { border-top: 1px solid var(--line); padding: 26px 0 64px; color: var(--muted); font-size: .9rem; }
     .footer-row { display: flex; justify-content: space-between; gap: 28px; }
@@ -297,9 +286,6 @@
       .phone { transform: rotate(0); }
       .quote-note { right: 2%; }
       .section-head, .faq-grid { grid-template-columns: 1fr; gap: 20px; }
-      .feature-list { grid-template-columns: 1fr 1fr; }
-      .feature:not(:nth-child(3n+1)) { border-left: 0; padding-left: 0; }
-      .feature:nth-child(even) { border-left: 1px solid var(--line); padding-left: 24px; }
       .faq-grid { gap: 36px; }
     }
     @media (max-width: 620px) {
@@ -310,7 +296,6 @@
       h1 { font-size: clamp(2.45rem, 13vw, 3.8rem); }
       .actions { flex-direction: column; }
       .button { width: 100%; }
-      .mini-trust { gap: 10px 18px; }
       .phone-stage { min-height: 0; transform: scale(.91); margin: -12px -25px; }
       .halo { width: 350px; height: 350px; }
       .phone { width: 286px; height: 480px; min-height: 0; }
@@ -321,34 +306,26 @@
       h1 { margin: 12px 0 10px; }
       .actions { margin-top: 16px; }
       .cta-note { margin-top: 8px; }
-      .mini-trust { margin-top: 10px; gap: 6px 18px; }
       .why-different h2, .whole-body h2 { margin-bottom: 8px; }
-      .demo-video, .features, .testimonials { padding-top: 16px; }
+      .demo-video { padding-top: 16px; }
       .pricing { padding-top: 16px; padding-bottom: 20px; }
       .demo-video { padding-bottom: 32px; }
-      .features { padding-top: 32px; }
-      .try-it { padding-bottom: 24px; }
       .pricing { padding-top: 24px; padding-bottom: 32px; }
-      .testimonials { padding-top: 32px; }
       .section-head { margin-bottom: 28px; }
-      .feature-list { grid-template-columns: 1fr; }
       .pillars-list { grid-template-columns: 1fr; }
       .pillar, .pillar:not(:first-child) { border-left: 0; padding: 18px 0; }
-      .feature, .feature:not(:nth-child(3n+1)), .feature:nth-child(even) { border-left: 0; padding: 18px 0; min-height: 0; display: grid; grid-template-columns: 45px 1fr; column-gap: 18px; }
-      .feature .icon { margin: 0; grid-row: span 2; width: 36px; height: 36px; }
-      .feature h3 { margin: 1px 0 5px; }
       .price-grid { grid-template-columns: 1fr; }
       .price-card { padding: 24px 20px; }
       .stories-shell { grid-template-columns: 1fr; gap: 23px; }
       .story-mark { width: 74px; height: 74px; font-size: 2.5rem; }
       .story-mark.word { font-size: .74rem; line-height: 1.2; text-align: center; }
-      .closing-inner { padding: 30px 22px; flex-direction: column; align-items: stretch; }
       .footer-row { flex-direction: column; }
       body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
       .mobile-buy { position: fixed; z-index: 30; left: 12px; right: 12px; max-width: calc(100vw - 24px); bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 54px; padding: 8px 12px; border-radius: 7px; background: var(--sage-dark); color: var(--bg); box-shadow: 0 12px 30px rgba(26, 39, 28, .3); transform: translateY(170%); pointer-events: none; transition: transform .32s ease; }
       .mobile-buy.on { transform: translateY(0); pointer-events: auto; }
       .mobile-buy-text { font-size: .76rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
       .mobile-buy-btn { flex: 0 0 auto; background: #E8B54A; color: #233027; font-size: .85rem; font-weight: 700; padding: 8px 13px; border-radius: 999px; text-decoration: none; }
+      .mobile-buy-demo { flex: 0 0 auto; color: var(--bg); font-size: .8rem; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
       @media (max-width: 400px) {
         .mobile-buy { padding: 8px 10px; }
         .mobile-buy-text { font-size: .71rem; }
@@ -372,7 +349,10 @@
   <header role="banner" aria-label="Site header" style="padding:14px 0;border-bottom:1px solid var(--line);background:var(--surface)"><nav aria-label="Site">
     <div class="wrap" style="display:flex;justify-content:space-between;align-items:center">
       <a href="../wellness/" style="display:flex;align-items:center;gap:14px;font-family:var(--serif);font-size:1.1rem;color:var(--ink);text-decoration:none"><img src="../tracker-app/icons/lotus-gold-only-transparent.png" alt="" aria-hidden="true" width="60" height="46">A New Chapter</a>
-      <a href="#pricing" style="color:var(--sage-dark);font-weight:600;font-size:.95rem">See pricing</a>
+      <div style="display:flex;gap:18px;align-items:center">
+        <a href="https://millrjess.github.io/tracker-demo/" style="color:var(--sage-dark);font-weight:600;font-size:.95rem">Try the free demo</a>
+        <a href="#pricing" style="color:var(--sage-dark);font-weight:600;font-size:.95rem">See pricing</a>
+      </div>
     </div>
   </nav></header>
   <main id="main">
@@ -382,13 +362,18 @@
           
           <div class="eyebrow">The GLP-1 tracker built for strength</div>
           <h1>Protect your strength while the medicine works</h1>
-          <p style="font-family:var(--serif);font-size:1.3rem;color:var(--sage-dark);margin-bottom:18px">Stay strong while the medicine works.</p>
+          <p style="font-family:var(--serif);font-size:1.3rem;color:var(--sage-dark);margin-bottom:18px">New Chapter: GLP-1 Tracker™</p>
           <p class="subhead">About 25% of weight lost on tirzepatide, and about 40% on semaglutide, can be lean mass, not fat. New Chapter keeps your protein, water, shots, and weight in one calm place, so you can protect what matters.</p>
           <div class="actions">
             <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try the free demo <span aria-hidden="true">→</span></a>
-            <a class="button primary" href="#pricing">See pricing <span aria-hidden="true">→</span></a>
+            <a class="button ghost" href="#pricing">See pricing <span aria-hidden="true">→</span></a>
           </div>
-          <p class="cta-note">From $3.99 a month, cancel anytime.</p>
+          <p class="cta-note">Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p>
+        </div>
+        <div class="phone-stage">
+          <div class="halo"></div>
+          <div class="phone"><img src="assets/app-today-hero.png" alt="New Chapter: GLP-1 Tracker app showing the Today screen with the lotus"></div>
+          <div class="quote-note"><strong>The lotus opens a little each morning.</strong>It blooms again, one day at a time.</div>
         </div>
 
       </div>
@@ -427,7 +412,7 @@
       </div>
     </section>
 
-    <section class="pillars">
+    <section class="pillars" id="features">
       <div class="wrap">
         <div class="section-head">
           <h2>Three things it does.</h2>
@@ -451,14 +436,18 @@
     <section class="why-different" style="background:var(--surface)">
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Private by design.</h2>
-        <p>Your tracking data stays on your device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored. I cannot see your chats. No one at New Chapter can. I cannot see your entries. No one at New Chapter can. It leaves your phone only when you choose to send it: to your doctor through your medical portal, or to the Companion to get a reply. Companion Memory is optional, off by default, and you can delete it with Forget me. The app also sends anonymous usage statistics, such as which screens are viewed, to Google. Your entries, photos, and journal content are never included. No ads. We do not sell your health information. Your health information stays on your phone, where it belongs.</p>
+        <p>Your tracking data stays on your device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.</p>
+        <p>I cannot see your chats. No one at New Chapter can. I cannot see your entries. No one at New Chapter can. It leaves your phone only when you choose to send it: to your doctor through your medical portal, or to the Companion to get a reply.</p>
+        <p>Companion Memory is optional, off by default, and you can delete it with Forget me. The app also sends anonymous usage statistics, such as which screens are viewed, to Google. Your entries, photos, and journal content are never included.</p>
+        <p>No ads. We do not sell your health information. Your health information stays on your phone, where it belongs.</p>
       </div>
     </section>
 
     <section class="included" style="background:var(--surface-soft)">
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Included, not extra.</h2>
-        <p>Other apps put these tools behind a paid plan. In the App Store, MyFitnessPal Premium is $19.99 a month, and it is the plan that unlocks the barcode scanner, voice logging, photo meal logging, and data export. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export in $3.99 a month. A year of MyFitnessPal Premium+ is $99.99 in the App Store. A year of New Chapter is $29.99. Photo meal logging in New Chapter is Scan my plate. It is coming soon. It is not live yet, and it is not included today.</p>
+        <p>Other apps put these tools behind a paid plan. In the App Store, MyFitnessPal Premium is $19.99 a month, and it is the plan that unlocks the barcode scanner, voice logging, photo meal logging, and data export. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export in $3.99 a month.</p>
+        <p>A year of MyFitnessPal Premium+ is $99.99 in the App Store. A year of New Chapter is $29.99.</p>
         <ul style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:10px">
           <li><strong>Scan barcode.</strong> The food fills itself in. No typing.</li>
           <li><strong>Log by voice.</strong> Say what you ate. No typing.</li>
@@ -468,7 +457,7 @@
           <li><strong>GLP-1 tools.</strong> Doses, reminders, side effects, and a doctor summary.</li>
           <li><strong>Download your diary.</strong> Export your entries as a CSV file.</li>
         </ul>
-        <p style="margin-top:18px">Scan my plate is coming soon. Take a photo of your plate, and the app identifies the food and fills in the macros for you. It is included when it lands.</p>
+        <p style="margin-top:18px">Scan my plate is coming soon. Take a photo of your plate, and the app identifies the food and fills in the macros for you. It is not live yet, and it is not included today. It is included when it lands.</p>
       </div>
     </section>
 
@@ -483,7 +472,7 @@
           <li><strong>No food guilt, no medical advice.</strong></li>
           <li><strong>Forty messages a day</strong>, right where you already log.</li>
         </ul>
-        <p>Free chat answers general questions. The Companion lives inside your tracker, so it already knows your routine.</p>
+        <p>The help chat on this page answers general questions. The Companion lives inside your tracker, so it already knows your routine.</p>
         <p>Only the messages you send leave your phone. They are not stored, sold, or used to train AI models.</p>
       </div>
     </section>
@@ -492,49 +481,9 @@
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Bring it to your doctor.</h2>
         <p>At each refill, your doctor may ask questions: your current dose, your current weight, what you are doing for weight management and exercise, and any side effects. The tracker puts all four in one summary you can copy or download and send through your medical portal.</p>
+        <p>The doctor summary is a direct line to your treatment team, not just a printout. Your information stays yours and goes only where you send it.</p>
         <p>It is not a medical device. It does not replace your doctor's advice, your dietitian's guidance, or medical supervision. It complements them. When you arrive with a clear record, your doctor and dietitian can see the whole picture and make better decisions with you.</p>
         <p>We don't pretend to be your doctor. And we don't charge a high membership fee. It's $3.99 a month, cancel anytime.</p>
-      </div>
-    </section>
-
-    <section class="pricing" id="pricing">
-      <div class="wrap">
-        <div class="price-intro"><h2>Start tracking today</h2><p>Try the demo free. The subscription unlocks the full tracker and your AI Wellness Companion.</p></div>
-        <label style="display:flex;gap:8px;align-items:flex-start;max-width:68ch;margin:0 auto 16px;font-size:.95rem">
-          <input type="checkbox" id="terms-agree" style="margin-top:3px">
-          <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
-        </label>
-        <p id="terms-msg" role="status" style="max-width:68ch;margin:0 auto 16px;min-height:1.2em;color:#8a2f2f"></p>
-        <div class="price-grid">
-          <div class="price-card">
-            <h3>Monthly</h3>
-            <div class="amount">$3.99</div>
-            <div class="period">per month. Automatically renews monthly until canceled.</div>
-            <ul>
-              <li><span aria-hidden="true" class="check-mark">✓</span>AI Wellness Companion with memory</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>40 Companion messages a day</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>All six tabs including Companion</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>All future upgrades included</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>Works on any phone</li>
-            </ul>
-            <a class="button primary" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe Monthly</a>
-          </div>
-          <div class="price-card featured">
-            <h3>Annual</h3>
-            <span class="save">Save 37 percent</span>
-            <div class="amount">$29.99</div>
-            <div class="period">per year, charged upfront each year. Automatically renews yearly until canceled.</div>
-            <ul>
-              <li><span aria-hidden="true" class="check-mark">✓</span>AI Wellness Companion with memory</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>40 Companion messages a day</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>All six tabs including Companion</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>All future upgrades included</li>
-              <li><span aria-hidden="true" class="check-mark">✓</span>Works on any phone</li>
-            </ul>
-            <a class="button primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01">Subscribe Annual</a>
-          </div>
-        </div>
-        <p class="payment-note">After subscribing, you will land on the welcome page, where you get your code and the app link. Secure payment through Stripe. Cancel anytime. Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription. After 30 days, no partial refund for the current month or year.</p>
       </div>
     </section>
 
@@ -550,9 +499,48 @@
       </div>
     </section>
 
+    <section class="pricing" id="pricing">
+      <div class="wrap">
+        <div class="price-intro"><h2>Start tracking today</h2><p>Try the demo free. The subscription unlocks the full tracker and your AI Wellness Companion.</p><p>Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p></div>
+        <ul class="plan-includes">
+          <li><span aria-hidden="true" class="check-mark">✓</span>AI Wellness Companion with memory</li>
+          <li><span aria-hidden="true" class="check-mark">✓</span>40 Companion messages a day</li>
+          <li><span aria-hidden="true" class="check-mark">✓</span>Every tab, including Companion</li>
+          <li><span aria-hidden="true" class="check-mark">✓</span>All future upgrades included</li>
+          <li><span aria-hidden="true" class="check-mark">✓</span>Works on any phone</li>
+        </ul>
+        <div class="price-grid">
+          <div class="price-card">
+            <h3>Monthly</h3>
+            <div class="amount">$3.99</div>
+            <div class="period">per month. Automatically renews monthly until canceled.</div>
+            <label class="terms-check">
+              <input type="checkbox" class="terms-agree">
+              <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
+            </label>
+            <a class="button primary" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe Monthly</a>
+          </div>
+          <div class="price-card featured">
+            <h3>Annual</h3>
+            <span class="save">Save 37 percent</span>
+            <div class="amount">$29.99</div>
+            <div class="period">per year, charged upfront each year. Automatically renews yearly until canceled.</div>
+            <label class="terms-check">
+              <input type="checkbox" class="terms-agree">
+              <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
+            </label>
+            <a class="button primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01">Subscribe Annual</a>
+          </div>
+        </div>
+        <p id="terms-msg" role="status" style="text-align:center;min-height:1.2em;color:#8a2f2f;margin:16px auto 0"></p>
+        <p class="payment-note">After subscribing, you will land on the welcome page, where you get your code and the app link. Secure payment through Stripe. Cancel anytime. Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription. After 30 days, no partial refund for the current month or year.</p>
+      </div>
+    </section>
+
+
     <section class="help-videos" id="help-videos" style="text-align:center;background:var(--surface)">
       <div class="wrap" style="max-width:560px;margin:auto">
-        <h2 style="margin-bottom:16px">Help videos</h2>
+        <h2 style="margin-bottom:16px">Getting started</h2>
         <p style="color:var(--muted);margin-bottom:18px">Short videos that show you how, step by step.</p>
         <details style="text-align:left;max-width:68ch;margin:0 auto">
           <summary>Getting started</summary>
@@ -574,8 +562,8 @@
       <div class="wrap faq-grid">
         <div class="faq-copy"><h2>Questions, answered.</h2><p>Clear information before you decide.</p></div>
         <div class="accordion">
-          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. The full tracker with the Companion is $3.99 a month or $29.99 a year.</p></details>
-          <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Cancel in your Stripe portal (website subscriptions) or in the Play Store (Play subscriptions). Cancel anytime. Your cancellation takes effect at the end of the period you paid for, and you keep access until then. Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription. The 30-day refund applies to your first subscription only. Renewals do not qualify. After 30 days, no partial refund for the current month or year. Website subscriptions are refunded through Stripe. Play Store subscriptions are refunded through the Play Store, under Google Play rules, not by us directly. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. We answer refund requests within one business day. That is our response time. When the money reaches your bank depends on your payment provider and your bank.</p></details>
+          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p></details>
+          <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Cancel in your Stripe portal (website subscriptions) or in the Play Store (Play subscriptions). Cancel anytime. Your cancellation takes effect at the end of the period you paid for, and you keep access until then.</p><p>Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription. The 30-day refund applies to your first subscription only. Renewals do not qualify. After 30 days, no partial refund for the current month or year.</p><p>Website subscriptions are refunded through Stripe. Play Store subscriptions are refunded through the Play Store, under Google Play rules, not by us directly.</p><p>Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. We answer refund requests within one business day. That is our response time. When the money reaches your bank depends on your payment provider and your bank.</p></details>
           <details><summary>What happens to my data if I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>When your paid period ends, the service locks, not your data. You can still view and export your entries. Your data is never wiped. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime. Your tracked data lives on your device. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device. Your access code is tied to the device that first redeems it.</p></details>
           <details><summary>Is my data private?<span aria-hidden="true" class="faq-icon"></span></summary><p>Everything you track stays on your phone. I cannot see your entries. No one at New Chapter can. The only thing that leaves is what you choose to send, either to the Companion for a reply or to your doctor through your medical portal. Cloudflare, which runs the Companion, commits to zero data retention and no training on those messages.</p></details>
           <details><summary>Does it give medical advice?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. It is a personal organization tool and does not diagnose, treat, or replace your prescriber, dietitian, or doctor. Always follow your prescriber's instructions.</p></details>
@@ -624,7 +612,7 @@
             #mc_embed_signup input { border-color: #E8E2D4; font-family: "DM Sans", system-ui, sans-serif; }
             #mc_embed_signup .button { background: #E8B54A; color: #233027; font-family: "DM Sans", system-ui, sans-serif; }
           </style>
-          <script>(function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';}(jQuery));var $mcj=jQuery.noConflict(true);</script>
+          <script>if (typeof jQuery !== "undefined") { (function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';}(jQuery)); var $mcj=jQuery.noConflict(true); }</script>
         </div>
       </div>
     </section>
@@ -632,8 +620,9 @@
   </main>
 
   <div class="mobile-buy" id="sticky-bar" aria-hidden="true">
-    <span class="mobile-buy-text">New Chapter: GLP-1 Tracker™, $3.99/month</span>
-    <a class="mobile-buy-btn" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe monthly</a>
+    <span class="mobile-buy-text">New Chapter™ · $3.99/month</span>
+    <a class="mobile-buy-demo" href="https://millrjess.github.io/tracker-demo/">Try the demo</a>
+    <a class="mobile-buy-btn" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe</a>
   </div>
   <script>
     (function () {
@@ -672,28 +661,33 @@
   </script>
 
   <script>
-    /* Clickwrap (v066): the Terms checkbox must be checked before any
-       Stripe checkout link can be followed. Acceptance is logged with
-       a timestamp and the Terms version. */
+    /* Clickwrap (v066): a Terms checkbox sits directly above each
+       Subscribe button and must be checked before any Stripe checkout
+       link can be followed. The two boxes stay in sync. Acceptance is
+       logged with a timestamp and the Terms version. */
     (function () {
-      var box = document.getElementById('terms-agree');
+      var boxes = Array.prototype.slice.call(document.querySelectorAll('.terms-agree'));
       var msg = document.getElementById('terms-msg');
-      if (!box) return;
+      if (!boxes.length) return;
+      function anyChecked() { return boxes.some(function (b) { return b.checked; }); }
       function logAcceptance() {
         try {
           localStorage.setItem('nct-terms-accepted', JSON.stringify({ at: new Date().toISOString(), termsVersion: '2026-11-09' }));
         } catch {}
       }
-      box.addEventListener('change', function () {
-        if (box.checked) { logAcceptance(); if (msg) msg.textContent = ''; }
+      boxes.forEach(function (box) {
+        box.addEventListener('change', function () {
+          boxes.forEach(function (b) { b.checked = box.checked; });
+          if (box.checked) { logAcceptance(); if (msg) msg.textContent = ''; }
+        });
       });
       document.querySelectorAll('a[href*="buy.stripe.com"]').forEach(function (a) {
         a.addEventListener('click', function (e) {
-          if (!box.checked) {
+          if (!anyChecked()) {
             e.preventDefault();
             if (msg) msg.textContent = 'Please agree to the Terms first.';
-            box.focus();
-            box.scrollIntoView({ block: 'center' });
+            boxes[0].focus();
+            boxes[0].scrollIntoView({ block: 'center' });
           } else {
             logAcceptance();
           }
@@ -709,7 +703,7 @@
         <li>SURMOUNT-1 DXA substudy, lean mass about 25 percent on tirzepatide: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">PMC11965027</a></li>
         <li>STEP-1 DXA subset, lean mass about 40 percent on semaglutide: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">PMC12536186</a></li>
         <li>Karakasis et al., Metabolism, March 2025 (lean mass; PMID 39719170): <a href="https://pubmed.ncbi.nlm.nih.gov/39719170/">PMID 39719170</a></li>
-        <li>MyFitnessPal Premium pricing, $19.99 a month and $79.99 a year in the App Store, and Premium+ $99.99 a year in the App Store, checked October 2026 and November 12, 2026: <a href="https://calorix.ai/compare/myfitnesspal-premium-price/">Calorix, MyFitnessPal Premium price</a></li>
+        <li>MyFitnessPal Premium ($19.99 a month, $79.99 a year) and Premium+ ($99.99 a year) in the App Store, checked October 2026 and November 12, 2026: <a href="https://calorix.ai/compare/myfitnesspal-premium-price/">Calorix</a></li>
       </ul>
     </div>
   </section>
