@@ -732,30 +732,6 @@
 
     <div id="photo-compare" class="hidden" style="margin-bottom:12px"></div>
     <div id="photo-grid" class="photo-grid"></div>
-
-    <div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
-      <div class="modal-card">
-        <button type="button" class="modal-x" id="doctor-x" aria-label="Close doctor visit summary">×</button>
-        <h2 style="margin-top:0">Doctor visit summary</h2>
-        <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-          <label style="flex:1 1 0;min-width:0">From
-            <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 8px">
-          </label>
-          <label style="flex:1 1 0;min-width:0">To
-            <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 8px">
-          </label>
-        </div>
-        <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
-        <div class="form-actions" style="flex-wrap:wrap">
-          <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
-          <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
-          <button type="button" class="btn" id="doctor-pdf">Download PDF</button>
-          <button type="button" class="btn" id="doctor-close">Close</button>
-        </div>
-        <p class="code-msg" id="doctor-msg" style="min-height:1.2em"></p>
-      </div>
-    </div>
   </section>
 
   <!-- JOURNAL TAB -->
@@ -1521,6 +1497,30 @@
   </section>
 
 </main>
+
+<div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
+  <div class="modal-card">
+    <button type="button" class="modal-x" id="doctor-x" aria-label="Close doctor visit summary">×</button>
+    <h2 style="margin-top:0">Doctor visit summary</h2>
+    <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+      <label style="flex:1 1 0;min-width:0">From
+        <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 8px">
+      </label>
+      <label style="flex:1 1 0;min-width:0">To
+        <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 8px">
+      </label>
+    </div>
+    <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
+    <div class="form-actions" style="flex-wrap:wrap">
+      <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
+      <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
+      <button type="button" class="btn" id="doctor-pdf">Download PDF</button>
+      <button type="button" class="btn" id="doctor-close">Close</button>
+    </div>
+    <p class="code-msg" id="doctor-msg" style="min-height:1.2em"></p>
+  </div>
+</div>
 
 <footer class="app-footer" aria-label="App footer">
   <p><a href="mailto:millrjess@gmail.com?subject=A%20New%20Chapter%20Tracker%20feedback">Give feedback</a></p>
