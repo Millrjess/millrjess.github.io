@@ -421,6 +421,18 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
     btn.setAttribute("aria-expanded", open ? "true" : "false");
   });
 });
+(function(){
+  function openTarget(){
+    var id = location.hash && location.hash.slice(1);
+    if(!id) return;
+    var el = document.getElementById(id);
+    if(!el) return;
+    var d = el.tagName === "DETAILS" ? el : el.closest("details");
+    if(d && !d.open){ d.open = true; d.scrollIntoView(); }
+  }
+  window.addEventListener("hashchange", openTarget);
+  openTarget();
+})();
 </script>
 <script src="../assets/js/help-chat.js?v=6"></script>
 <script src="../assets/js/ga-events.js?v=1"></script>
