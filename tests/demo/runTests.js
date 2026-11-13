@@ -17,6 +17,7 @@ const SNAP = "demo-nct-snapshots";
 const GEN = "demo-nct-store-gen";
 const EVER = "demo-nct-ever-had-entries";
 const CHAT_KEY = "newChapterTracker.demo.chat.v1";
+const TOKEN_KEY = "newChapterTracker.demo.authToken.v1";
 
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".ico": "image/x-icon" };
 
@@ -1069,6 +1070,8 @@ async function main() {
     });
     await page.waitForTimeout(200);
     await page.fill("#set-calorie-target", "1400");
+    // v080: Save lives inside the collapsed Companion card (finding 30).
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click('#settings-form button[type="submit"]');
     await page.waitForTimeout(400);
     const withTarget = await page.evaluate(() => ({
@@ -1077,6 +1080,7 @@ async function main() {
     }));
     check("V169 calorie target: 1400 shows 350 of 1,400", withTarget.today === "350" && withTarget.target === " of 1,400", JSON.stringify(withTarget));
     await page.fill("#set-calorie-target", "");
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click('#settings-form button[type="submit"]');
     await page.waitForTimeout(400);
     const cleared = await page.evaluate(() => ({
@@ -1085,6 +1089,7 @@ async function main() {
     }));
     check("V169 calorie target: clearing it reverts to the plain section", cleared.today === "350" && cleared.target === "", JSON.stringify(cleared));
     await page.fill("#set-calorie-target", "-5");
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click('#settings-form button[type="submit"]');
     await page.waitForTimeout(400);
     const invalidTarget = await page.evaluate((LS) => {
@@ -1107,6 +1112,8 @@ async function main() {
     await page.waitForTimeout(300);
     await openYourGoals(page);
     await page.fill("#set-protein-goal", "120");
+    // v080: Save lives inside the collapsed Companion card (finding 30).
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click("#settings-form button[type='submit']");
     await page.waitForTimeout(400);
     await clickTab(page, "today");
@@ -1118,6 +1125,7 @@ async function main() {
     await page.waitForTimeout(300);
     await openYourGoals(page);
     await page.fill("#set-protein-goal", "");
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click("#settings-form button[type='submit']");
     await page.waitForTimeout(400);
     await clickTab(page, "today");
@@ -1128,6 +1136,7 @@ async function main() {
     await page.waitForTimeout(300);
     await openYourGoals(page);
     await page.fill("#set-protein-goal", "0");
+    await openSettingsCard(page, "AI Wellness Companion access");
     await page.click("#settings-form button[type='submit']");
     await page.waitForTimeout(400);
     await clickTab(page, "today");
@@ -1208,14 +1217,19 @@ async function main() {
     await page.reload();
     await clickTab(page, "weight");
     await page.waitForTimeout(400);
+    // v080: the cutoffs live behind an "About BMI" disclosure (finding
+    // 16), and the over line now leads with the number.
+    await page.evaluate(() => { const d = document.querySelector("#bmi-healthy-block details"); if (d) d.open = true; });
+    await page.waitForTimeout(200);
     const bmi = await page.evaluate(() => ({
       line: (document.getElementById("bmi-line") || {}).textContent || "",
       over: (document.getElementById("bmi-over-line") || {}).textContent || "",
       range: (document.getElementById("bmi-healthy-range") || {}).textContent || "",
       blockHidden: document.getElementById("bmi-healthy-block").hidden,
-      cutoffs: (document.querySelector("#bmi-healthy-block .bmi-cutoffs") || {}).textContent || ""
+      cutoffs: (document.querySelector("#bmi-healthy-block .bmi-cutoffs") || {}).textContent || "",
+      disclosureOpen: !!((document.querySelector("#bmi-healthy-block details") || {}).open)
     }));
-    check("V169 BMI extras: 182 lbs at 5 ft 6 in, overweight by 27.7, healthy 115 to 154", bmi.line.indexOf("29.4") !== -1 && bmi.over === "Overweight by 27.7 lbs" && bmi.range.indexOf("115 to 154 lbs") !== -1 && !bmi.blockHidden && bmi.cutoffs.indexOf("Underweight below 18.5") !== -1, JSON.stringify(bmi));
+    check("V169 BMI extras: 182 lbs at 5 ft 6 in, 27.7 lbs above the healthy range, 115 to 154", bmi.line.indexOf("29.4") !== -1 && bmi.over === "27.7 lbs above the healthy range" && bmi.range.indexOf("115 to 154 lbs") !== -1 && !bmi.blockHidden && bmi.cutoffs.indexOf("Underweight below 18.5") !== -1 && bmi.disclosureOpen, JSON.stringify(bmi));
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({ weight: [{ id: "w1", date: today(0), value: 182 }] })) });
     await page.reload();
     await clickTab(page, "weight");
@@ -1302,7 +1316,8 @@ async function main() {
   } catch (e) { check("V169 six-tab nav Companion", false, "error: " + e.message); }
 
   try {
-    // Journal tab: Side effects section with the same timeline, newest
+    // v080: side effects no longer appear on the Journal tab (finding
+    // 20); the same timeline lives on the Side Effects tab, newest
     // first, severity dots; Edit and Delete work from there.
     const { ctx, page } = await newPage(browser, url);
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({
@@ -1313,23 +1328,23 @@ async function main() {
       ]
     })) });
     await page.reload();
-    await clickMoreTab(page, "journal");
+    await clickMoreTab(page, "side-effects");
     await page.waitForTimeout(400);
-    const journalSe = await page.evaluate(() => {
-      const items = [...document.querySelectorAll("#journal-se-list .se-timeline-item")];
+    const effectsSe = await page.evaluate(() => {
+      const items = [...document.querySelectorAll("#sideeffect-list .se-timeline-item")];
       return {
-        heading: [...document.querySelectorAll("#tab-journal h3")].map((el) => el.textContent).includes("Side effects"),
+        heading: (document.querySelector("#tab-side-effects h2") || {}).textContent || "",
         items: items.length,
         first: items.length ? items[0].textContent : "",
         moderateDot: items.some((el) => el.classList.contains("se-sev-moderate")),
         mildDot: items.some((el) => el.classList.contains("se-sev-mild")),
-        editBtns: document.querySelectorAll("#journal-se-list [data-edit-se]").length,
-        delBtns: document.querySelectorAll("#journal-se-list [data-del-se]").length
+        editBtns: document.querySelectorAll("#sideeffect-list [data-edit-se]").length,
+        delBtns: document.querySelectorAll("#sideeffect-list [data-del-se]").length
       };
     });
-    check("V169 journal side effects: section shows both effects, newest first, severity dots", journalSe.heading && journalSe.items === 2 && journalSe.first.indexOf("Fatigue") !== -1 && journalSe.moderateDot && journalSe.mildDot && journalSe.editBtns === 2 && journalSe.delBtns === 2, JSON.stringify(journalSe));
-    // Edit from the Journal tab: switches to the Effects tab, form opens with the entry.
-    await page.click('#journal-se-list [data-edit-se="s2"]');
+    check("V169 side effects tab: section shows both effects, newest first, severity dots", effectsSe.heading === "Side Effects" && effectsSe.items === 2 && effectsSe.first.indexOf("Fatigue") !== -1 && effectsSe.moderateDot && effectsSe.mildDot && effectsSe.editBtns === 2 && effectsSe.delBtns === 2, JSON.stringify(effectsSe));
+    // Edit from the Effects tab: the form opens with the entry.
+    await page.click('#sideeffect-list [data-edit-se="s2"]');
     await page.waitForTimeout(400);
     const editOpened = await page.evaluate(() => ({
       effectsActive: document.getElementById("tab-side-effects").classList.contains("active"),
@@ -1337,12 +1352,12 @@ async function main() {
       symptom: document.getElementById("se-symptom").value,
       severity: document.getElementById("se-severity").value
     }));
-    check("V169 journal side effects: Edit opens the form on the Effects tab", editOpened.effectsActive && editOpened.formVisible && editOpened.symptom === "Fatigue" && editOpened.severity === "Moderate", JSON.stringify(editOpened));
+    check("V169 side effects tab: Edit opens the form", editOpened.effectsActive && editOpened.formVisible && editOpened.symptom === "Fatigue" && editOpened.severity === "Moderate", JSON.stringify(editOpened));
     await ctx.close();
-  } catch (e) { check("V169 journal side effects Edit", false, "error: " + e.message); }
+  } catch (e) { check("V169 side effects tab Edit", false, "error: " + e.message); }
 
   try {
-    // Delete from the Journal tab: gone from both lists and the store.
+    // Delete from the Effects tab: gone from the list and the store.
     const { ctx, page } = await newPage(browser, url);
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({
       journal: [{ id: "j1", date: today(0), mood: "Good", notes: "Feeling strong." }],
@@ -1352,34 +1367,33 @@ async function main() {
       ]
     })) });
     await page.reload();
-    await clickMoreTab(page, "journal");
+    await clickMoreTab(page, "side-effects");
     await page.waitForTimeout(400);
-    await page.click('#journal-se-list [data-del-se="s1"]');
+    await page.click('#sideeffect-list [data-del-se="s1"]');
     await page.waitForTimeout(400);
     const afterDel = await page.evaluate((LS) => {
       const s = JSON.parse(localStorage.getItem(LS));
       return {
-        journalItems: document.querySelectorAll("#journal-se-list .se-timeline-item").length,
-        journalText: (document.getElementById("journal-se-list") || {}).textContent || "",
         effectsItems: document.querySelectorAll("#sideeffect-list .se-timeline-item").length,
         effectsText: (document.getElementById("sideeffect-list") || {}).textContent || "",
         stored: s.sideEffects.map((e) => e.symptom)
       };
     }, LS);
-    check("V169 journal side effects: Delete removes it from both lists and the store", afterDel.journalItems === 1 && afterDel.journalText.indexOf("Nausea") === -1 && afterDel.effectsItems === 1 && afterDel.effectsText.indexOf("Nausea") === -1 && afterDel.stored.join(",") === "Fatigue", JSON.stringify(afterDel));
+    check("V169 side effects tab: Delete removes it from the list and the store", afterDel.effectsItems === 1 && afterDel.effectsText.indexOf("Nausea") === -1 && afterDel.stored.join(",") === "Fatigue", JSON.stringify(afterDel));
     await ctx.close();
-  } catch (e) { check("V169 journal side effects Delete", false, "error: " + e.message); }
+  } catch (e) { check("V169 side effects tab Delete", false, "error: " + e.message); }
 
   // ---------- v000: Companion name and avatar ----------
   try {
     // A chosen name shows in the chat header and the welcome message.
-    // The input placeholder reads the not-available message: the demo
-    // no longer accepts messages when not connected (Nov 8 fix), so
-    // the name is not in the placeholder anymore.
+    // The input placeholder reads the not-available message when not
+    // connected (Nov 8 fix); the trial placeholder itself is covered
+    // by the dedicated trial test below, so this check connects first
+    // (v080, finding 23) and verifies the name-based placeholder.
     const t = await newPage(browser, url);
     await setStorage(t.page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({
       settings: { medication: "Zepbound", dose: "", shotDay: "", waterGoal: 92, proteinGoal: 90, movementGoal: 30, carbGoal: 150, fatGoal: 60, calorieTarget: "", heightFt: "", heightIn: "", movementPlan: null, customExercises: [], refillDate: "", goalWeight: "", startingWeight: null, companionName: "Nova", companionAvatar: "sage", theme: "sage", textSize: "normal", readAloud: false }
-    })) });
+    })), [TOKEN_KEY]: "test-token-123" });
     await t.page.reload();
     await t.page.waitForTimeout(400);
     await clickTab(t.page, "chat");
@@ -1391,7 +1405,7 @@ async function main() {
       headerAvatarSage: (document.getElementById("chat-header-avatar") || { classList: { contains: () => false } }).classList.contains("avatar-sage"),
       rowAvatarSage: !!(document.querySelector("#chat-messages .chat-row.assistant .chat-lotus.avatar-sage"))
     }));
-    check("V000 companion name shows in header and welcome; input offers the trial", named.title === "Your Nova" && named.welcome.indexOf("Hi, I am Nova.") === 0 && named.placeholder.indexOf("trial") !== -1, JSON.stringify(named));
+    check("V000 companion name shows in header and welcome; input asks Nova", named.title === "Your Nova" && named.welcome.indexOf("Hi, I am Nova.") === 0 && named.placeholder === "Ask Nova...", JSON.stringify(named));
     check("V000 companion avatar shows beside messages and in header", named.headerAvatarSage && named.rowAvatarSage, JSON.stringify(named));
     // Pick a different avatar in Settings: the header avatar follows.
     await clickMoreTab(t.page, "settings");
@@ -1404,6 +1418,8 @@ async function main() {
     check("V000 picking an avatar shows it in the header", deepGold === true, "deepGold=" + deepGold);
     // Clear the name in Settings: it falls back to the default.
     await t.page.fill("#set-companion-name", "");
+    // v080: Save lives inside the collapsed Companion card (finding 30).
+    await openSettingsCard(t.page, "AI Wellness Companion access");
     await t.page.click("#settings-form button[type='submit']");
     await t.page.waitForTimeout(400);
     await clickTab(t.page, "chat");

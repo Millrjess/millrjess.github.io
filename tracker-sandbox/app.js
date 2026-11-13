@@ -945,7 +945,7 @@ function showTab(name) {
     requestAnimationFrame(() => requestAnimationFrame(() => newPanel.classList.remove("tab-fading")));
   }
   window.scrollTo(0, 0);
-  if (name === "weight") { drawWeightChart(); drawBMIChart(); }
+  if (name === "weight") { drawWeightChart(); }
   if (name === "shots") { renderInjectionCalendar(); renderRefillCountdown(); }
   if (name === "journal") renderMood();
   if (name === "chat") { loadCoachMemory(); renderChat(); }
@@ -1182,13 +1182,17 @@ function renderMonthlyReview() {
   const closing = daysLogged.size === 0
     ? "A blank page. Next month is yours to write."
     : isCurrent
-      ? "The month isn't over yet. Keep writing."
+      ? "The month isn't over yet. Keep logging."
       : "That's a chapter worth keeping.";
 
   body.innerHTML = (lines.length ? `<ul style="margin:0 0 4px;padding-left:20px">${lines.map((l) => `<li style="margin:0 0 8px">${l}</li>`).join("")}</ul>` : "") +
     `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
 
   document.getElementById("review-next").style.visibility = isCurrent ? "hidden" : "";
+  // v080: open the story when the month has entries, so it is not
+  // hidden behind a closed disclosure.
+  const reviewDet = document.getElementById("review-details");
+  if (reviewDet) reviewDet.open = daysLogged.size > 0;
 }
 
 document.getElementById("review-prev").addEventListener("click", () => {
@@ -2020,7 +2024,7 @@ function renderMacros() {
     const pCal = targets.protein * 4, cCal = targets.carbs * 4, fCal = targets.fat * 9;
     const tCal = pCal + cCal + fCal;
     balanceEl.textContent = tCal > 0
-      ? "Your balance: " + Math.round(100 * pCal / tCal) + "% protein · " + Math.round(100 * cCal / tCal) + "% carbohydrates · " + Math.round(100 * fCal / tCal) + "% healthy fats"
+      ? "Target balance (share of target calories): " + Math.round(100 * pCal / tCal) + "% protein · " + Math.round(100 * cCal / tCal) + "% carbohydrates · " + Math.round(100 * fCal / tCal) + "% healthy fats"
       : "";
   }
   document.getElementById("macro-center-grams").textContent = totals[selectedMacro];
@@ -3017,6 +3021,7 @@ function openScanModal() {
   m.classList.remove("hidden");
   m.style.display = "flex";
   document.getElementById("scan-status").textContent = "Starting camera...";
+  updateScanActionBtn();
   const closeBtn = document.getElementById("scan-close-btn");
   if (closeBtn) closeBtn.focus();
   startScanCamera();
@@ -3247,8 +3252,21 @@ async function captureBarcodeFrame() {
 }
 document.getElementById("macro-scan-food").addEventListener("click", openScanModal);
 document.getElementById("scan-close-btn").addEventListener("click", closeScanModal);
-document.getElementById("scan-capture-btn").addEventListener("click", captureBarcodeFrame);
-document.getElementById("scan-lookup-btn").addEventListener("click", () => lookupBarcode(document.getElementById("scan-barcode-input").value));
+// v080: one primary barcode button; its label follows the state of the
+// number field. A typed number means look it up; an empty field means
+// capture from the camera.
+function updateScanActionBtn() {
+  const btn = document.getElementById("scan-action-btn");
+  const input = document.getElementById("scan-barcode-input");
+  if (!btn || !input) return;
+  btn.textContent = input.value.trim() ? "Look up barcode" : "Capture barcode";
+}
+document.getElementById("scan-action-btn").addEventListener("click", () => {
+  const input = document.getElementById("scan-barcode-input");
+  if (input && input.value.trim()) lookupBarcode(input.value);
+  else captureBarcodeFrame();
+});
+document.getElementById("scan-barcode-input").addEventListener("input", updateScanActionBtn);
 document.getElementById("scan-log-btn").addEventListener("click", () => {
   const food = document.getElementById("scan-food").value.trim() || "Scanned food";
   const grams = Math.max(0, Math.round(Number(document.getElementById("scan-protein").value) || 0));
@@ -3320,7 +3338,6 @@ async function recognizePlate(dataUrl) {
   // fill plate-food, plate-protein, plate-carbs, plate-fat from the
   // reply, then update the status. The Worker call belongs here.
 }
-document.getElementById("macro-plate-food").addEventListener("click", openPlateModal);
 document.getElementById("plate-close-btn").addEventListener("click", closePlateModal);
 document.getElementById("plate-take-btn").addEventListener("click", () => document.getElementById("plate-photo-input").click());
 function handlePlatePhotoFile(file) {
@@ -3866,10 +3883,12 @@ function renderNextInjection() {
   gotoBtn.textContent = "Log shot";
 }
 
-// The Today card never logs a shot. It takes you to the Shots tab,
-// where the shot is logged deliberately with the site and dose.
+// The Today card's single Log shot takes you to the Shots tab and
+// opens the log form, so the shot is logged deliberately with the
+// site and dose. (v080: folded the Quick Actions Log shot in here.)
 document.getElementById("goto-shots-btn").addEventListener("click", () => {
   showTab("shots");
+  document.getElementById("show-injection-form").click();
 });
 document.getElementById("goto-shot-day-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
 document.getElementById("today-refill-settings-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
@@ -3879,10 +3898,6 @@ document.getElementById("today-refill-settings-btn").addEventListener("click", (
    open. Reminders runs the existing calendar shot reminder download.
    Log side effect opens the Side Effects tab with the log form open.
    No new data, no new screens. */
-document.getElementById("qa-log-shot").addEventListener("click", () => {
-  showTab("shots");
-  document.getElementById("show-injection-form").click();
-});
 document.getElementById("qa-reminders").addEventListener("click", () => {
   document.getElementById("add-shot-reminder").click();
 });
@@ -4356,7 +4371,7 @@ function renderInjections() {
     <div class="entry">
       <p class="entry-title">${escapeHtml(inj.medication)}${inj.dose ? " " + escapeHtml(inj.dose) + " mg" : ""}</p>
       <p class="entry-sub">${escapeHtml(formatDate(inj.date))} &middot; ${escapeHtml(inj.site)} &middot; ${escapeHtml(status)}</p>
-      ${inj.notes ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
+      ${inj.notes && inj.notes.trim().toLowerCase() !== status.toLowerCase() ? `<p class="entry-notes">${escapeHtml(inj.notes)}</p>` : ""}
       ${missedOrDelayed ? `<p class="entry-notes">Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>` : ""}
       <div class="entry-actions">
         <button class="btn btn-small" data-edit-inj="${inj.id}" aria-label="Edit injection: ${escapeHtml(inj.medication)}${inj.dose ? " " + escapeHtml(inj.dose) + " mg" : ""} on ${escapeHtml(formatDate(inj.date))}">Edit</button>
@@ -4494,7 +4509,8 @@ function renderWeight() {
   if (sorted.length) {
     const current = sorted[sorted.length - 1].value;
     const start = getStartingWeight();
-    document.getElementById("current-weight").textContent = Number(current).toFixed(1);
+    const curWEl = document.getElementById("current-weight");
+    if (curWEl) curWEl.textContent = Number(current).toFixed(1);
     document.getElementById("weight-hero-value").textContent = Number(current).toFixed(1);
     document.getElementById("weight-hero-date").textContent = "Latest weigh-in " + formatDate(sorted[sorted.length - 1].date);
     /* Starting weight is frozen (K3). It is read from settings, not from
@@ -4503,7 +4519,8 @@ function renderWeight() {
     document.getElementById("starting-weight").textContent = start ? Number(start.value).toFixed(1) : "--";
     document.getElementById("starting-weight-date").textContent = start ? formatDate(start.date) : "";
   } else {
-    document.getElementById("current-weight").textContent = "--";
+    const curWEl2 = document.getElementById("current-weight");
+    if (curWEl2) curWEl2.textContent = "--";
     document.getElementById("weight-hero-value").textContent = "—";
     document.getElementById("weight-hero-date").textContent = "No weigh-ins yet";
     document.getElementById("starting-weight").textContent = "--";
@@ -4522,9 +4539,9 @@ function renderWeight() {
     const amount = Math.abs(change).toFixed(1);
     const pct = (Math.abs(change) / start * 100).toFixed(1);
     document.getElementById("total-lost-label").textContent = gained ? "Total gained" : "Total lost";
-    document.getElementById("total-lost").textContent = (gained ? "+" : "-") + amount;
+    document.getElementById("total-lost").textContent = amount;
     document.getElementById("percent-lost-label").textContent = gained ? "Percent gained" : "Percent lost";
-    document.getElementById("percent-lost").textContent = (gained ? "+" : "-") + pct;
+    document.getElementById("percent-lost").textContent = pct;
     noteEl.textContent = "";
   } else {
     document.getElementById("total-lost-label").textContent = "Total lost";
@@ -4587,7 +4604,6 @@ function renderWeight() {
   renderWeightMilestone();
   renderWeightVisuals();
   drawWeightChart();
-  drawBMIChart();
 }
 
 /* ---------- BMI (v168) ---------- */
@@ -4640,9 +4656,9 @@ function renderBMI() {
   const highLbs = 24.9 * h2 / 703;
   if (overLine) {
     if (bmi.value >= 25) {
-      overLine.textContent = "Overweight by " + (bmi.weight - highLbs).toFixed(1) + " lbs";
+      overLine.textContent = (bmi.weight - highLbs).toFixed(1) + " lbs above the healthy range";
     } else if (bmi.value < 18.5) {
-      overLine.textContent = "Underweight by " + (lowLbs - bmi.weight).toFixed(1) + " lbs";
+      overLine.textContent = (lowLbs - bmi.weight).toFixed(1) + " lbs below the healthy range";
     } else {
       overLine.textContent = "In the healthy range";
     }
@@ -4754,6 +4770,9 @@ function openDoctorModal() {
   if (fromEl && !fromEl.value) fromEl.value = todayStr(-30);
   if (toEl && !toEl.value) toEl.value = todayStr();
   rebuildDoctorText();
+  // The summary is long; start the box at the top so the first line
+  // (the product name and heading) is fully visible, never clipped.
+  text.scrollTop = 0;
   document.getElementById("doctor-msg").textContent = "";
   recordDialogOpener("doctor-modal");
   modal.classList.remove("hidden");
@@ -4778,6 +4797,7 @@ function closeDoctorModal() {
    fallback only. */
 document.querySelectorAll(".doctor-summary-btn").forEach((b) => b.addEventListener("click", openDoctorModal));
 document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
+document.getElementById("doctor-x").addEventListener("click", closeDoctorModal);
 document.getElementById("doctor-modal").addEventListener("click", (e) => {
   if (e.target.id === "doctor-modal") closeDoctorModal();
 });
@@ -4988,11 +5008,13 @@ function renderWeightMilestone() {
     textEl.textContent = "Goal reached! Incredible work.";
     subEl.textContent = "From " + startW + " to " + curW + " lbs. You did this.";
   } else {
-    const milestone = pctRound >= 75 ? 75 : pctRound >= 50 ? 50 : pctRound >= 25 ? 25 : 0;
+    const milestone = pctRound >= 75 ? 75 : pctRound >= 50 ? 50 : pctRound >= 40 ? 40 : pctRound >= 25 ? 25 : 0;
     textEl.textContent = milestone === 75
       ? "Three quarters of the way there. Beautiful work."
       : milestone === 50
       ? "Halfway there. Beautiful work."
+      : milestone === 40
+      ? "Almost halfway there. Beautiful work."
       : milestone === 25
       ? "A quarter of the way there. Beautiful work."
       : "You're on your way. Every day counts.";
@@ -5198,86 +5220,6 @@ function drawWeightChart() {
    BMI = 703 × weight(lb) / height(in)². Only drawn when height is
    set and there are at least two weigh-ins. A light band marks the
    healthy range (BMI 18.5–24.9). */
-function drawBMIChart() {
-  const canvas = document.getElementById("bmi-chart");
-  const emptyMsg = document.getElementById("bmi-chart-empty");
-  if (!canvas) return;
-  const sorted = [...(store.weight || [])].sort(byDate);
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const chartText = document.getElementById("bmi-chart-text");
-  const ft = Number(store.settings && store.settings.heightFt);
-  const inch = Number(store.settings && store.settings.heightIn);
-  const totalIn = (Number.isFinite(ft) ? ft : 0) * 12 + (Number.isFinite(inch) ? inch : 0);
-  if (!(totalIn > 0)) {
-    if (emptyMsg) { emptyMsg.style.display = ""; emptyMsg.textContent = "Add your height in Settings to see your BMI chart."; }
-    if (chartText) chartText.textContent = "";
-    canvas.style.display = "none";
-    return;
-  }
-  if (sorted.length < 2) {
-    if (emptyMsg) { emptyMsg.style.display = ""; emptyMsg.textContent = "Log at least two weigh-ins to see your BMI chart."; }
-    if (chartText) chartText.textContent = sorted.length === 1
-      ? "One weigh-in so far. Log another weigh-in to see your BMI chart."
-      : "";
-    canvas.style.display = "none";
-    return;
-  }
-  if (emptyMsg) emptyMsg.style.display = "none";
-  canvas.style.display = "";
-  const bmis = sorted.map((w) => 703 * Number(w.value) / (totalIn * totalIn));
-  const W = canvas.width, H = canvas.height;
-  const padL = 52, padR = 16, padT = 16, padB = 40;
-  const min = Math.min(...bmis), max = Math.max(...bmis);
-  const span = Math.max(max - min, 1);
-  const lo = Math.min(min - span * 0.15, 18.5 - span * 0.1);
-  const hi = Math.max(max + span * 0.15, 24.9 + span * 0.1);
-  const x = (i) => padL + (i / (sorted.length - 1)) * (W - padL - padR);
-  const y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
-  ctx.fillStyle = "rgba(90,107,82,0.10)";
-  ctx.fillRect(padL, y(24.9), W - padL - padR, y(18.5) - y(24.9));
-  ctx.strokeStyle = "#E5E0D5";
-  ctx.fillStyle = "#6E6A5E";
-  ctx.font = "20px sans-serif";
-  ctx.textAlign = "right";
-  for (let g = 0; g <= 4; g++) {
-    const gv = lo + ((hi - lo) / 4) * g;
-    ctx.beginPath();
-    ctx.moveTo(padL, y(gv));
-    ctx.lineTo(W - padR, y(gv));
-    ctx.stroke();
-    ctx.fillText(gv.toFixed(1), padL - 8, y(gv) + 7);
-  }
-  ctx.textAlign = "center";
-  const labelEvery = Math.max(1, Math.ceil(sorted.length / 5));
-  sorted.forEach((w, i) => {
-    if (i % labelEvery === 0 || i === sorted.length - 1) {
-      ctx.textAlign = i === sorted.length - 1 ? "right" : i === 0 ? "left" : "center";
-      ctx.fillText(formatDate(w.date).replace(/, \d{4}$/, ""),
-        i === sorted.length - 1 ? W - 4 : i === 0 ? 4 : x(i), H - 12);
-      ctx.textAlign = "center";
-    }
-  });
-  ctx.beginPath();
-  bmis.forEach((v, i) => (i === 0 ? ctx.moveTo(x(i), y(v)) : ctx.lineTo(x(i), y(v))));
-  ctx.strokeStyle = "#E8B54A";
-  ctx.lineWidth = 4;
-  ctx.stroke();
-  ctx.lineTo(x(bmis.length - 1), H - padB);
-  ctx.lineTo(x(0), H - padB);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(232, 181, 74, 0.16)"; // v052: flat soft gold fill, no gradient and no retired gold.
-  ctx.fill();
-  ctx.fillStyle = "#E8B54A";
-  bmis.forEach((v, i) => {
-    ctx.beginPath();
-    ctx.arc(x(i), y(v), 7, 0, Math.PI * 2);
-    ctx.fill();
-  });
-  if (chartText) {
-    chartText.textContent = "BMI from " + bmis[0].toFixed(1) + " on " + formatDate(sorted[0].date) + " to " + bmis[bmis.length - 1].toFixed(1) + " on " + formatDate(sorted[sorted.length - 1].date) + " over " + sorted.length + " weigh-ins. Healthy range 18.5–24.9.";
-  }
-}
 
 /* ---------- Measurements ---------- */
 
@@ -5346,7 +5288,7 @@ function renderMeasurements() {
   const list = document.getElementById("measurement-list");
   const sorted = [...store.measurements].sort(byDateDesc);
   if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No measurements yet.</p>';
+    list.innerHTML = '<div class="card"><p class="empty-state" style="margin:0">No measurements yet.</p></div>';
     return;
   }
   const visibleMeas = sorted.slice(0, measLimit);
@@ -5458,7 +5400,7 @@ function renderPhotos() {
   // Snapshots keep photo dates only, not the pictures; skip those here.
   const sorted = [...store.photos].filter((p) => p.dataUrl).sort(byDateDesc);
   if (!sorted.length) {
-    grid.innerHTML = '<p class="empty-state">No progress photos yet.</p>';
+    grid.innerHTML = '<div class="card"><p class="empty-state" style="margin:0">No progress photos yet.</p></div>';
     return;
   }
   grid.innerHTML = sorted.map((p) => `
@@ -5551,14 +5493,6 @@ document.getElementById("show-journal-form").addEventListener("click", () => {
   journalForm.reset();
   document.getElementById("journal-date").value = todayStr();
   toggleForm(journalForm, document.getElementById("show-journal-form"), true);
-});
-
-/* v057: the Evening Reflection card moved to the Journal tab, so its
-   button opens the journal form instead of switching tabs. */
-const reflectionWriteBtn = document.getElementById("reflection-write-btn");
-if (reflectionWriteBtn) reflectionWriteBtn.addEventListener("click", () => {
-  document.getElementById("show-journal-form").click();
-  journalForm.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 document.getElementById("cancel-journal").addEventListener("click", () => {
@@ -5663,8 +5597,6 @@ function renderJournal() {
     journalLimit += 10;
     renderJournal();
   });
-  // v169: the Side effects section below the entries stays in step.
-  renderJournalSe();
 }
 
 /* ---------- Side effects ---------- */
@@ -5716,7 +5648,6 @@ seForm.addEventListener("submit", (e) => {
 });
 
 let seLimit = 10; // entries shown; "show more" loads older ones in batches
-let journalSeLimit = 10; // same, for the Side effects section on the Journal tab
 
 /* One side effect entry in the gentle timeline, shared by the Effects
    tab and the Side effects section on the Journal tab (v169). */
@@ -5760,7 +5691,6 @@ function bindSeButtons(container) {
     store.sideEffects = store.sideEffects.filter((x) => x.id !== b.dataset.delSe);
     saveStore();
     seLimit = 10;
-    journalSeLimit = 10;
     renderSideEffects();
   }));
 }
@@ -5775,7 +5705,8 @@ function renderSeTrends() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const recent = (store.sideEffects || []).filter((e) => e.date >= localDateStr(thirtyDaysAgo));
-  if (!recent.length) { el.innerHTML = ""; return; }
+  if (!recent.length) { el.innerHTML = ""; el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
   const sevNum = { "Mild": 1, "Moderate": 2, "Severe": 3 };
   const groups = {};
   recent.forEach((e) => {
@@ -5783,9 +5714,10 @@ function renderSeTrends() {
     // count together. The display name keeps the first spelling typed.
     const display = (e.symptom || "Effect").trim();
     const key = display.toLowerCase();
-    if (!groups[key]) groups[key] = { display, count: 0, sev: 0, n: 0, last: "" };
+    if (!groups[key]) groups[key] = { display, count: 0, sev: 0, n: 0, last: "", sevLabel: "" };
     groups[key].count++;
     if (sevNum[e.severity]) { groups[key].sev += sevNum[e.severity]; groups[key].n++; }
+    if (e.severity) groups[key].sevLabel = e.severity;
     if (!groups[key].last || e.date > groups[key].last) groups[key].last = e.date;
   });
   const shotDates = new Set((store.injections || []).map((e) => e.date));
@@ -5802,9 +5734,14 @@ function renderSeTrends() {
       const sd = shotDates.has(g.last) ? g.last : dayBeforeStr(g.last);
       shotNote = ", after your shot on " + formatDate(sd);
     }
-    return `<li><strong>${escapeHtml(g.display)}</strong>: ${g.count} time${g.count === 1 ? "" : "s"} in the last 30 days, average severity ${avg} of 3${shotNote}</li>`;
+    // v080: a single event shows its severity ("Mild, 1 time"); the
+    // average only means something with 2 or more events.
+    const sevText = g.count === 1 && g.sevLabel
+      ? escapeHtml(g.sevLabel) + ", 1 time in the last 30 days"
+      : g.count + " time" + (g.count === 1 ? "" : "s") + " in the last 30 days, average severity " + avg + " of 3";
+    return `<li><strong>${escapeHtml(g.display)}</strong>: ${sevText}${shotNote}</li>`;
   }).join("");
-  el.innerHTML = `<h3 style="margin:12px 0 6px">Trends, last 30 days</h3><ul style="margin:0;padding-left:20px">${rows}</ul>`;
+  el.innerHTML = `<h3 style="margin:0 0 6px">Trends, last 30 days</h3><ul style="margin:0;padding-left:20px">${rows}</ul>`;
 }
 
 /* ---------- Saved recipes (sandbox feature) ---------- */
@@ -9532,8 +9469,22 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
     c.classList.toggle("active", c === chip);
     c.setAttribute("aria-pressed", c === chip ? "true" : "false");
   });
+  // v080: when a dietary filter is active, the collapsed "More filters"
+  // summary names it, so the active filter is visible when closed.
+  const moreSummary = document.getElementById("kitchen-more-filters-summary");
+  if (moreSummary) {
+    const dietary = ["fresh-picks", "quick-and-easy", "high-protein", "vegetarian", "vegan", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"];
+    moreSummary.textContent = dietary.includes(kitchenFilter) ? "More filters · " + chip.textContent : "More filters";
+  }
   renderKitchen();
 }));
+// v080: the shopping list lives below the recipes; this button under
+// the search is its persistent spot, with the item count.
+const kitchenShoppingJump = document.getElementById("kitchen-shopping-jump");
+if (kitchenShoppingJump) kitchenShoppingJump.addEventListener("click", () => {
+  const section = document.getElementById("shopping-list-section");
+  if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 const kitchenSearchInput = document.getElementById("kitchen-search-input");
 if (kitchenSearchInput) kitchenSearchInput.addEventListener("input", () => {
   kitchenSearch = kitchenSearchInput.value;
@@ -9759,6 +9710,9 @@ function renderShoppingList() {
   const prevVal = prevInput ? prevInput.value : "";
   const list = loadShoppingList();
   const staples = loadPantryStaples();
+  // v080: keep the count on the shopping jump button under the search.
+  const jump = document.getElementById("kitchen-shopping-jump");
+  if (jump) jump.textContent = "Shopping list (" + list.length + ")";
   const toBuy = [];
   const checkPantry = [];
   list.forEach((x) => (pantryMatch(x.text) ? checkPantry : toBuy).push(x));
@@ -10330,7 +10284,6 @@ function renderSideEffects() {
   const sorted = [...store.sideEffects].sort(byDateDesc);
   if (!sorted.length) {
     list.innerHTML = '<p class="empty-state">No side effects logged yet.</p>';
-    renderJournalSe();
     return;
   }
   const visibleSe = sorted.slice(0, seLimit);
@@ -10348,32 +10301,10 @@ function renderSideEffects() {
     seLimit += 10;
     renderSideEffects();
   });
-  renderJournalSe();
 }
 
 /* Side effects on the Journal tab (v169): the same timeline, below the
    journal entries, in addition to the Effects tab. */
-function renderJournalSe() {
-  const list = document.getElementById("journal-se-list");
-  if (!list) return;
-  const sorted = [...store.sideEffects].sort(byDateDesc);
-  if (!sorted.length) {
-    list.innerHTML = '<p class="empty-state">No side effects logged yet.</p>';
-    return;
-  }
-  const visibleSe = sorted.slice(0, journalSeLimit);
-  const remainingSe = sorted.length - visibleSe.length;
-  list.innerHTML = `<div class="se-timeline">` + visibleSe.map(seItemHtml).join("") + `</div>`
-    + (remainingSe > 0
-      ? `<button class="btn" id="more-journal-se" style="width:100%;margin-top:8px">Show older (${remainingSe} more)</button>`
-      : "");
-  bindSeButtons(list);
-  const moreBtn = document.getElementById("more-journal-se");
-  if (moreBtn) moreBtn.addEventListener("click", () => {
-    journalSeLimit += 10;
-    renderJournalSe();
-  });
-}
 
 /* ---------- Settings ---------- */
 
@@ -12562,6 +12493,11 @@ function maybeReadAloud() {
   }
 }
 
+// v080: the chat mic and speaker are inline SVG, matching the tab-bar
+// icons, instead of emoji.
+const MIC_SVG = '<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+const SPEAKER_SVG = '<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+const STOP_SVG = '<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';
 function renderChat() {
   renderMorningCheckin();
   // v000: the chat header shows the Companion's chosen name and avatar.
@@ -12587,17 +12523,17 @@ function renderChat() {
     b.type = "button";
     b.className = "btn btn-small chat-listen";
     b.setAttribute("aria-label", "Listen to this reply");
-    b.textContent = "🔊 Listen";
+    b.innerHTML = SPEAKER_SVG + " Listen";
     b.dataset.text = text;
     b.addEventListener("click", () => {
-      if (isSpeaking()) { stopSpeaking(); b.textContent = "🔊 Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); return; }
+      if (isSpeaking()) { stopSpeaking(); b.innerHTML = SPEAKER_SVG + " Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); return; }
       if (speakCompanion(text)) {
-        b.textContent = "⏹ Stop";
+        b.innerHTML = STOP_SVG + " Stop";
         b.classList.add("playing");
         b.setAttribute("aria-label", "Stop listening");
         const u = currentUtterance;
         if (u) {
-          const done = () => { b.textContent = "🔊 Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); };
+          const done = () => { b.innerHTML = SPEAKER_SVG + " Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); };
           u.addEventListener("end", done);
           u.addEventListener("error", done);
         }
@@ -12606,6 +12542,9 @@ function renderChat() {
     return b;
   };
   if (chatHistory.length === 0) {
+    // v080: no greeting or Listen button until connected; the warning
+    // card above is the only thing shown when not connected.
+    if (!getAuthToken()) return;
     const welcomeText = "Hi, I am " + companionDisplayName() + ". Ask me about protein, water, or movement, or tell me how your day is going.";
     const row = document.createElement("div");
     row.className = "chat-row assistant";
@@ -12619,6 +12558,22 @@ function renderChat() {
     wrap.appendChild(listenBtn(welcomeText));
     row.appendChild(wrap);
     box.appendChild(row);
+    // v080: three tappable prompts under the greeting; tapping one
+    // fills the input so it can be sent or edited first.
+    const prompts = document.createElement("div");
+    prompts.className = "chat-prompts";
+    ["How can I get more protein today?", "What is a good walk to try?", "I feel tired today"].forEach((p) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn btn-small chat-prompt";
+      b.textContent = p;
+      b.addEventListener("click", () => {
+        const input = document.getElementById("chat-input");
+        if (input) { input.value = p; input.focus(); growChatInput(); }
+      });
+      prompts.appendChild(b);
+    });
+    box.appendChild(prompts);
     return;
   }
   chatHistory.forEach((m) => {
@@ -12821,7 +12776,7 @@ function submitChatForm() {
     listening = on;
     micBtn.setAttribute("aria-label", on ? "Stop listening" : "Talk instead of typing");
     micBtn.title = on ? "Stop listening" : "Talk instead of typing";
-    micBtn.textContent = on ? "⏹ Stop" : "🎤";
+    micBtn.innerHTML = on ? STOP_SVG + " Stop" : MIC_SVG;
     micBtn.classList.toggle("listening", on);
     if (statusEl) setFormStatus(statusEl, on ? "Listening... Tap Stop when you are done." : "", false);
   }

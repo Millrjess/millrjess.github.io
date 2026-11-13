@@ -793,6 +793,10 @@ label textarea {
 .recipe-modal-footer .btn { margin: 0; }
 .modal-card h2 { margin-top: 0; }
 .modal-card label { display: block; margin: 12px 0; font-weight: 600; font-size: .9rem; }
+/* v080: a checkbox inside a modal label keeps its own size; the
+   full-width input rule below would otherwise stretch it and push
+   its label text far away (setup Terms checkbox). */
+.modal-card label input[type="checkbox"] { width: 24px; height: 24px; flex: none; }
 .modal-card label select, .modal-card label input {
   display: block; width: 100%; margin-top: 6px; padding: 10px 12px;
   border: 1px solid var(--border, #ddd); border-radius: 10px; font-size: 1rem;
@@ -1271,8 +1275,8 @@ button.macro-vals:focus-visible { outline: 3px solid var(--focus); outline-offse
    width and height, with a clean gap, so the row never staggers. The
    labels are short and never wrap, so both fit on one line at phone
    width. */
-.shots-actions { display: flex; gap: 10px; margin: 12px 0; }
-.shots-actions .btn { flex: 1 1 0; min-width: 0; white-space: nowrap; text-align: center; }
+.shots-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.shots-actions .btn { flex: 1 1 150px; min-height: 44px; padding: 10px 12px; font-size: 0.9rem; text-align: center; }
 /* Progress photo comparison (v049, R-17): two picked photos sit side
    by side with their dates. */
 .photo-item.selected { outline: 3px solid #E8B54A; outline-offset: 2px; }
@@ -1342,7 +1346,7 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-log-btn:active { background: var(--sage-soft); }
 
 /* Today's Movement card */
-.movement-sub { margin: 0.25rem 0 0; font-size: 0.9rem; font-weight: 700; color: #87692B; }
+.movement-sub { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 700; color: #87692B; }
 .movement-desc { margin: 0.3rem 0 0; font-size: 0.85rem; line-height: 1.45; color: var(--muted); }
 .moves { list-style: none; margin: 0.75rem 0 0; padding: 0; }
 .moves li { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0; border-top: 1px solid #EFE9D6; }
@@ -1592,6 +1596,11 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   font-size: 0.85rem;
   padding: 6px 12px;
 }
+.chat-listen svg { vertical-align: -2px; margin-right: 2px; }
+.chat-mic svg { display: block; }
+/* v080: tappable prompts under the greeting in an empty chat. */
+.chat-prompts { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
+.chat-prompt { align-self: flex-start; text-align: left; white-space: normal; }
 .chat-listen.playing { background: #E8B54A; border-color: #87692B; color: #2B2B28; font-weight: 700; }
 
 /* Mic button: visible Listening state while recording. */
@@ -1679,6 +1688,12 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-filter-group { display: flex; flex-direction: column; gap: 4px; }
 .kitchen-filter-label { margin: 0; font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .kitchen-filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
+/* v080: the Dietary chips sit behind a "More filters" disclosure, so
+   Meal and search fit in the first viewport. */
+.kitchen-more-filters { margin-top: 2px; }
+.kitchen-more-filters summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: var(--sage-dark); padding: 6px 0; }
+.kitchen-more-filters summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kitchen-more-filters .kitchen-filter-group { margin-top: 6px; }
 .kitchen-chip {
   font: inherit;
   font-size: .9rem;
@@ -1804,6 +1819,11 @@ canvas { max-width: 100%; height: auto; display: block; }
 .week-bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
 .week-bar-val { font-size: .75rem; line-height: 1.2; min-height: 1.2em; color: var(--sage-deep); }
 .week-bar-track { width: 100%; height: 110px; display: flex; align-items: flex-end; justify-content: center; }
+/* v080: per-macro charts are shorter; the stacked chart stays full height. */
+#progress-protein-card .week-bar-track,
+#progress-carbs-card .week-bar-track,
+#progress-fat-card .week-bar-track,
+#progress-weight-card .week-bar-track { height: 64px; }
 .week-bar { width: 100%; max-width: 30px; border-radius: 6px 6px 0 0; }
 .week-bar-empty { background: #EDEBE3; }
 .week-bar-day { font-size: .85rem; color: var(--sage); margin-top: 6px; }
@@ -1831,12 +1851,12 @@ canvas { max-width: 100%; height: auto; display: block; }
    chevron right. No circle icon, so the title stays on one line. */
 .section-toggle {
   display: flex; align-items: baseline; gap: 10px; width: 100%;
-  background: none; border: none; padding: 0; margin: 0 0 4px;
+  background: none; border: none; padding: 10px 0; margin: 0 0 4px;
   font: inherit; color: inherit; cursor: pointer; text-align: left;
 }
 .section-toggle-title { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
-.section-toggle-summary { flex: 1; font-size: .85rem; color: var(--muted); text-align: right; line-height: 1.4; }
-.section-toggle-chevron { color: #87692B; font-size: 1rem; line-height: 1; flex: none; }
+.section-toggle-summary { flex: 1; font-size: .95rem; color: var(--muted); text-align: right; line-height: 1.4; }
+.section-toggle-chevron { color: #87692B; font-size: 1.25rem; line-height: 1; flex: none; }
 .section-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 .movement-subhead { font-size: 1.2rem; font-weight: 700; margin: 14px 0 8px; line-height: 1.3; }
 
@@ -1902,6 +1922,8 @@ canvas { max-width: 100%; height: auto; display: block; }
   touch-action: manipulation;
 }
 .stepper-btn:active { background: var(--sage-soft); border-color: var(--sage); }
+/* v080: the Movement steppers are 44px, a comfortable tap target. */
+#movement-card .stepper-btn { width: 44px; height: 44px; }
 .stepper-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 /* The macro steppers carry their row's color, darker for contrast. */
 .stepper-protein { color: #87692B; }

@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=079">
+<link rel="stylesheet" href="styles.css?v=080">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -84,13 +84,6 @@
 
   <!-- TODAY TAB -->
   <section id="tab-today" class="tab-panel active" role="tabpanel" aria-label="Today">
-    <div class="card hidden" id="backup-nudge" style="border-left:4px solid #E8B54A">
-      <p style="margin:0 0 8px" id="backup-nudge-text"></p>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary btn-small" id="backup-now">Back up now</button>
-        <button class="btn btn-small" id="backup-later">Remind me later</button>
-      </div>
-    </div>
     <div class="card hidden" id="restore-notice" role="status" style="border-left:4px solid #5A6B52">
       <p style="margin:0" id="restore-notice-text"></p>
       <button class="btn btn-small" id="restore-notice-hide" style="margin-top:8px">Got it</button>
@@ -107,22 +100,13 @@
       <p style="margin:0" id="storage-warning-text"></p>
       <button class="btn btn-small" id="storage-warning-hide" style="margin-top:8px">Got it</button>
     </div>
-    <div class="card hidden" id="discover-card" style="border-left:4px solid #E8B54A">
-      <h2 class="card-title" style="margin-top:0">What you can do</h2>
-      <p style="margin:0 0 8px">Two things worth knowing: your doctor summary lives on the Shots tab, and foods you log once are saved under Your foods, so logging them again takes one tap.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-small" id="discover-doctor-btn">See the doctor summary</button>
-        <button class="btn btn-small" id="discover-foods-btn">See Your foods</button>
-        <button class="btn btn-small" id="discover-dismiss-btn">Got it</button>
-      </div>
-    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <button id="day-prev" class="btn btn-small" aria-label="Previous day">←</button>
       <div style="text-align:center;flex:1;cursor:pointer" id="date-tap" role="button" aria-label="Today. Change the date shown." tabindex="0">
         <p style="margin:0;font-size:1.75rem;font-weight:700;letter-spacing:-0.01em" id="today-heading">Today</p>
         <p class="date-line" id="today-date" style="margin:4px 0 0"></p>
       </div>
-      <button id="day-cal" class="btn btn-small" aria-label="Open calendar to pick a date">📅</button>
+      <button id="day-cal" class="btn btn-small" aria-label="Open calendar to pick a date"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg></button>
       <button id="day-next" class="btn btn-small" aria-label="Next day">→</button>
     </div>
 
@@ -152,23 +136,33 @@
       </div>
     </div>
 
+    <div class="card hidden" id="backup-nudge" style="border-left:4px solid #E8B54A">
+      <p style="margin:0 0 8px" id="backup-nudge-text"></p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-small" id="backup-now">Back up now</button>
+        <button class="btn btn-small" id="backup-later">Remind me later</button>
+      </div>
+    </div>
+    <div class="card hidden" id="discover-card" style="border-left:4px solid #E8B54A">
+      <h2 class="card-title" style="margin-top:0">What you can do</h2>
+      <p style="margin:0 0 8px">Two things worth knowing: your doctor summary lives on the Shots tab, and foods you log once are saved under Your foods, so logging them again takes one tap.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-small" id="discover-doctor-btn">See the doctor summary</button>
+        <button class="btn btn-small" id="discover-foods-btn">See Your foods</button>
+        <button class="btn btn-small" id="discover-dismiss-btn">Got it</button>
+      </div>
+    </div>
+
     <div class="card" style="margin-top:12px">
       <h2 class="card-title">Next shot</h2>
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="goto-shots-btn">Log shot</button>
         <button class="btn btn-small hidden" id="goto-shot-day-btn">Set shot day</button>
-      </div>
-      <p class="muted hidden" id="today-refill-line" style="margin:8px 0 0;font-size:.9rem"><span id="today-refill-text"></span> <button type="button" class="btn-link" id="today-refill-settings-btn">Change it in Settings</button></p>
-    </div>
-
-    <div class="card" id="glp1-actions-card" role="group" aria-label="GLP-1 quick actions">
-      <h2 class="card-title">Quick Actions</h2>
-      <div class="quick-actions">
-        <button type="button" class="btn btn-primary btn-small" id="qa-log-shot">Log shot</button>
         <button type="button" class="btn btn-small" id="qa-reminders">Reminders</button>
         <button type="button" class="btn btn-small" id="qa-log-effect">Side effect</button>
       </div>
+      <p class="muted hidden" id="today-refill-line" style="margin:8px 0 0;font-size:.9rem"><span id="today-refill-text"></span> <button type="button" class="btn-link" id="today-refill-settings-btn">Change it in Settings</button></p>
     </div>
 
 
@@ -270,34 +264,37 @@
             <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
           </div>
         </div>
-        <h3 class="movement-subhead">Strength session</h3>
-        <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
-        <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
-        <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
-          <label>Exercise
-            <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
+      </div>
+    </div>
+
+    <div class="card" id="strength-card" role="group" aria-label="Strength">
+      <h2 class="card-title">Strength</h2>
+      <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
+      <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
+      <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
+        <label>Exercise
+          <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
+        </label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <label style="flex:1;min-width:70px">Sets
+            <input type="number" id="strength-sets" min="1" step="1" placeholder="3" required>
           </label>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <label style="flex:1;min-width:70px">Sets
-              <input type="number" id="strength-sets" min="1" step="1" placeholder="3" required>
-            </label>
-            <label style="flex:1;min-width:70px">Reps
-              <input type="number" id="strength-reps" min="1" step="1" placeholder="10" required>
-            </label>
-            <label style="flex:1;min-width:90px">Weight (lbs)
-              <input type="number" id="strength-weight" min="0" step="0.5" placeholder="Optional">
-            </label>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save</button>
-          </div>
-        </form>
-        <p class="code-msg" id="strength-saved-msg" role="status"></p>
-        <div id="strength-list"></div>
-        <div style="margin-top:12px">
-          <button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button>
-          <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
+          <label style="flex:1;min-width:70px">Reps
+            <input type="number" id="strength-reps" min="1" step="1" placeholder="10" required>
+          </label>
+          <label style="flex:1;min-width:90px">Weight (lbs)
+            <input type="number" id="strength-weight" min="0" step="0.5" placeholder="Optional">
+          </label>
         </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+      <p class="code-msg" id="strength-saved-msg" role="status"></p>
+      <div id="strength-list"></div>
+      <div style="margin-top:12px">
+        <button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button>
+        <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
       </div>
     </div>
 
@@ -310,7 +307,6 @@
 
     <div class="card" id="macros-card" role="group" aria-label="Your Macros">
       <h2 class="card-title">Macros</h2>
-      <p class="muted" style="margin:0">Protein, carbohydrates, and healthy fats, tracked to your own targets.</p>
 
       <div class="donut-wrap">
         <svg width="300" height="300" viewBox="0 0 300 300" role="img" aria-label="Donut chart of today's macros">
@@ -329,7 +325,7 @@
           </button>
         </div>
       </div>
-      <p class="donut-note">Tap a segment to see it in the center. Tap the center number to add more.</p>
+      <p class="donut-note">Shares of today's grams. Tap a segment to see it in the center. Tap the center number to add more.</p>
       <p class="muted" id="macro-balance" style="margin:8px 0 0;font-size:.9rem"></p>
 
       <div class="macro-rows">
@@ -397,7 +393,7 @@
       <p class="muted" style="margin:6px 0 0;font-size:.9rem">Targets are private. Change them in Settings.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
-      <button class="btn btn-small" id="macro-plate-food" style="margin-top:12px">Scan my plate (coming soon)</button>
+      <p class="muted" style="margin:12px 0 0;font-size:.9rem">Scan my plate arrives in December.</p>
 
     </div>
 
@@ -466,6 +462,16 @@
       <p class="muted" style="margin:0" id="progress-range">Last 7 days</p>
       <p style="margin:8px 0 0" id="progress-note"></p>
     </div>
+    <div class="card" id="progress-stack-card">
+      <h3 class="card-title">Your week by macro</h3>
+      <p class="muted" style="margin:0 0 4px;font-size:.9rem">Protein first, then carbs, then fat. Each bar is one day.</p>
+      <div class="week-bars" id="progress-bars-stack" role="img" aria-label="Macros by day, stacked"></div>
+      <div class="stack-legend" aria-hidden="true"><span><i style="background:#E8B54A"></i>Protein</span><span><i style="background:#5A6B52"></i>Carbs</span><span><i style="background:#7A8B6F"></i>Fat</span></div>
+      <table class="avg-table">
+        <thead><tr><th scope="col"></th><th scope="col">Avg</th><th scope="col">Goal</th></tr></thead>
+        <tbody id="progress-avg-body"></tbody>
+      </table>
+    </div>
     <div class="card" id="progress-protein-card">
       <h3 class="card-title">Protein</h3>
       <p style="margin:0"><span class="progress-big" id="progress-protein-big">0</span> <span class="progress-small">grams a day on average</span></p>
@@ -489,16 +495,6 @@
       <p style="margin:0"><span class="progress-big" id="progress-weight-big">—</span> <span class="progress-small">lbs, latest</span></p>
       <div class="week-bars" id="progress-bars-weight" role="img" aria-label="Weight by day"></div>
       <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-weight-note"></p>
-    </div>
-    <div class="card" id="progress-stack-card">
-      <h3 class="card-title">Your week by macro</h3>
-      <p class="muted" style="margin:0 0 4px;font-size:.9rem">Protein first, then carbs, then fat. Each bar is one day.</p>
-      <div class="week-bars" id="progress-bars-stack" role="img" aria-label="Macros by day, stacked"></div>
-      <div class="stack-legend" aria-hidden="true"><span><i style="background:#E8B54A"></i>Protein</span><span><i style="background:#5A6B52"></i>Carbs</span><span><i style="background:#7A8B6F"></i>Fat</span></div>
-      <table class="avg-table">
-        <thead><tr><th scope="col"></th><th scope="col">Avg</th><th scope="col">Goal</th></tr></thead>
-        <tbody id="progress-avg-body"></tbody>
-      </table>
     </div>
     <button class="btn btn-primary" id="progress-back" style="width:100%">Back to Today</button>
   </section>
@@ -616,7 +612,10 @@
       <p class="bmi-over" id="bmi-over-line"></p>
       <div class="bmi-healthy" id="bmi-healthy-block" hidden>
         <p id="bmi-healthy-range"></p>
-        <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obesity Class I 30–34.9 · Class II 35–39.9 · Class III 40+</p>
+        <details>
+          <summary>About BMI</summary>
+          <p class="bmi-cutoffs">Underweight below 18.5 · Healthy 18.5–24.9 · Overweight 25–29.9 · Obesity Class I 30–34.9 · Class II 35–39.9 · Class III 40+</p>
+        </details>
       </div>
     </div>
 
@@ -628,13 +627,6 @@
       <p class="muted" id="weight-per-week" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted" id="weight-goal-date" style="font-size:.9rem;margin:8px 0 0"></p>
       <p class="muted empty-state" id="weight-chart-empty">Log two weigh-ins to see your chart.</p>
-    </div>
-
-    <div class="card" id="bmi-chart-card">
-      <h3>BMI over time</h3>
-      <canvas id="bmi-chart" width="600" height="300" aria-label="BMI progress chart" aria-describedby="bmi-chart-text"></canvas>
-      <p class="muted" id="bmi-chart-text" style="font-size:.9rem;margin:8px 0 0"></p>
-      <p class="muted" id="bmi-chart-empty">Add your height in Settings and log at least two weigh-ins to see your BMI chart.</p>
     </div>
 
     <form id="weight-form" class="card hidden" aria-label="Log weight" novalidate>
@@ -653,10 +645,6 @@
     <p class="code-msg" id="weight-saved-msg" role="status" style="min-height:1.2em"></p>
 
     <div class="stats-row">
-      <div class="card stat-card">
-        <p class="stat-label">Current weight</p>
-        <p class="stat-value"><span id="current-weight">--</span> <span class="stat-unit">lbs</span></p>
-      </div>
       <div class="card stat-card">
         <p class="stat-label">Starting weight</p>
         <p class="stat-value"><span id="starting-weight">--</span> <span class="stat-unit">lbs</span></p>
@@ -726,6 +714,7 @@
 
     <div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
       <div class="modal-card">
+        <button type="button" class="modal-x" id="doctor-x" aria-label="Close doctor visit summary">×</button>
         <h2 style="margin-top:0">Doctor visit summary</h2>
         <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
@@ -796,12 +785,6 @@
       <p class="muted" id="mood-today-label" hidden></p>
     </div>
 
-    <div class="card">
-      <h2 class="card-title">Evening Reflection</h2>
-      <p>A few minutes to reflect.</p>
-      <button class="btn btn-primary" id="reflection-write-btn">Write journal entry</button>
-    </div>
-
     <details class="card" id="review-details">
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
@@ -813,9 +796,6 @@
     </details>
 
     <div id="journal-list" class="entry-list"></div>
-
-    <h3 style="margin-top:20px">Side effects</h3>
-    <div id="journal-se-list" class="entry-list"></div>
   </section>
 
   <!-- SIDE EFFECTS TAB -->
@@ -853,7 +833,7 @@
     </form>
     <p class="code-msg" id="se-saved-msg" role="status" style="min-height:1.2em"></p>
 
-    <div id="se-trends" style="margin-top:12px"></div>
+    <div id="se-trends" class="card hidden" style="margin-top:12px"></div>
 
     <div id="doctor-reminder" style="margin-top:12px"></div>
 
@@ -863,11 +843,11 @@
   <!-- RECIPES TAB -->
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
-    <p class="muted" style="font-size:.9rem">Nourishment that supports your next chapter.</p>
     <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
     <div style="margin:0 0 10px">
       <input type="search" enterkeyhint="search" id="kitchen-search-input" placeholder="Search recipes" aria-label="Search recipes in the Kitchen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:16px">
     </div>
+    <button type="button" class="btn btn-small" id="kitchen-shopping-jump" style="margin-bottom:10px">Shopping list (0)</button>
     <div id="kitchen-filters" class="kitchen-filters" role="group" aria-label="Filter recipes">
       <div class="kitchen-filter-group">
         <p class="kitchen-filter-label" id="kitchen-filter-meal-label">Meal</p>
@@ -880,27 +860,30 @@
           <button type="button" class="kitchen-chip" data-filter="light-meals" aria-pressed="false">Light Meals</button>
         </div>
       </div>
-      <div class="kitchen-filter-group">
-        <p class="kitchen-filter-label" id="kitchen-filter-dietary-label">Dietary</p>
-        <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-dietary-label">
-          <button type="button" class="kitchen-chip" data-filter="fresh-picks" aria-pressed="false">Fresh picks</button>
-          <button type="button" class="kitchen-chip" data-filter="quick-and-easy" aria-pressed="false">Quick and easy</button>
-          <button type="button" class="kitchen-chip" data-filter="high-protein" aria-pressed="false">High Protein</button>
-          <button type="button" class="kitchen-chip" data-filter="vegetarian" aria-pressed="false">Vegetarian</button>
-          <button type="button" class="kitchen-chip" data-filter="vegan" aria-pressed="false">Vegan</button>
-          <button type="button" class="kitchen-chip" data-filter="gluten-free" aria-pressed="false">Gluten-free</button>
-          <button type="button" class="kitchen-chip" data-filter="dairy-free" aria-pressed="false">Dairy-free</button>
-          <button type="button" class="kitchen-chip" data-filter="low-sodium" aria-pressed="false">Low-sodium</button>
-          <button type="button" class="kitchen-chip" data-filter="nut-free" aria-pressed="false">Nut-free</button>
-          <button type="button" class="kitchen-chip" data-filter="egg-free" aria-pressed="false">Egg-free</button>
+      <details class="kitchen-more-filters" id="kitchen-more-filters">
+        <summary id="kitchen-more-filters-summary">More filters</summary>
+        <div class="kitchen-filter-group">
+          <p class="kitchen-filter-label" id="kitchen-filter-dietary-label">Dietary</p>
+          <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-dietary-label">
+            <button type="button" class="kitchen-chip" data-filter="fresh-picks" aria-pressed="false">Fresh picks</button>
+            <button type="button" class="kitchen-chip" data-filter="quick-and-easy" aria-pressed="false">Quick and easy</button>
+            <button type="button" class="kitchen-chip" data-filter="high-protein" aria-pressed="false">High Protein</button>
+            <button type="button" class="kitchen-chip" data-filter="vegetarian" aria-pressed="false">Vegetarian</button>
+            <button type="button" class="kitchen-chip" data-filter="vegan" aria-pressed="false">Vegan</button>
+            <button type="button" class="kitchen-chip" data-filter="gluten-free" aria-pressed="false">Gluten-free</button>
+            <button type="button" class="kitchen-chip" data-filter="dairy-free" aria-pressed="false">Dairy-free</button>
+            <button type="button" class="kitchen-chip" data-filter="low-sodium" aria-pressed="false">Low-sodium</button>
+            <button type="button" class="kitchen-chip" data-filter="nut-free" aria-pressed="false">Nut-free</button>
+            <button type="button" class="kitchen-chip" data-filter="egg-free" aria-pressed="false">Egg-free</button>
+          </div>
         </div>
-      </div>
+      </details>
     </div>
     <div id="kitchen-hidden"></div>
+    <div id="meal-ideas" class="card" style="margin-top:16px"></div>
     <div id="kitchen-list" class="kitchen-list"></div>
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
     <div id="shopping-list-section" style="margin-top:18px"></div>
-<div id="meal-ideas" class="card" style="margin-top:16px"></div>
 <h3 style="margin-top:18px">Paste a Recipe</h3>
     <p class="muted" style="font-size:.9rem">Paste a recipe from anywhere.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
@@ -982,7 +965,7 @@
     <p class="muted" id="chat-availability-note" style="font-size:.9rem;margin:0 0 6px">Trial: 3 sample replies left. Sample replies, not the live AI. The live Companion is part of the full app.</p>
     <form id="chat-form" class="chat-form">
       <textarea id="chat-input" rows="1" placeholder="Ask the Companion..." aria-label="Type your message" autocomplete="off" maxlength="500"></textarea>
-      <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing">&#127908;</button>
+      <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing"><svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
@@ -995,7 +978,7 @@
 
     <form id="settings-form">
       <h2 class="settings-group">Your plan</h2>
-      <details class="card" open id="settings-goals-card">
+      <details class="card" id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
           <div style="margin-bottom:16px">
@@ -1069,8 +1052,9 @@
         <p class="muted">Leave it blank for no target.</p>
       </div>
 
-          <div style="margin-bottom:16px">
-        <h4 style="margin:0 0 8px">Or set by percentage</h4>
+          <details style="margin-bottom:16px">
+            <summary style="cursor:pointer;font-weight:600"><h4 style="display:inline;margin:0">Or set by percentage</h4></summary>
+            <div style="margin-top:12px">
         <p class="muted">Enter your calorie target above, then each macro's share. The app fills in the grams.</p>
         <div style="display:flex;gap:10px">
           <div style="flex:1">
@@ -1096,7 +1080,8 @@
           <button type="button" class="btn btn-primary" id="set-macro-pct-btn">Set goals from percentages</button>
         </div>
         <p class="code-msg" id="set-macro-pct-msg" style="min-height:1.2em"></p>
-      </div>
+            </div>
+          </details>
 
           <div style="margin-bottom:16px">
         <h4 style="margin:0 0 8px">Your height</h4>
@@ -1162,6 +1147,9 @@
             <input type="text" id="set-companion-key" placeholder="Paste your key here" autocomplete="off" spellcheck="false">
           </label>
         </details>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px">Save changes</button>
+        <p class="muted" style="margin:6px 0 0;font-size:.9rem">Save changes is for your companion key.</p>
+        <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
         </div>
       </details>
 
@@ -1254,10 +1242,7 @@
 
 
 
-      <button type="submit" class="btn btn-primary btn-block">Save changes</button>
       <p class="muted" style="margin:6px 0 0;font-size:.9rem">Changes save as you type.</p>
-      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Save changes is for your companion key.</p>
-      <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
     </form>
 
     <div class="card">
@@ -1269,12 +1254,12 @@
 <details class="card" open>
       <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Backup, restore, and privacy</h3></summary>
       <div style="margin-top:12px">
-    <div class="card">
+    <div>
       <p class="muted">Download everything you tracked. It opens in Excel, Google Sheets, or Numbers.</p>
       <button type="button" class="btn btn-primary" id="export-data">Export my data</button>
     </div>
 
-    <div class="card">
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
       <h3>Backup &amp; restore</h3>
       <p class="muted">Download backup saves a file to this phone, and keeps a copy inside the app. Restore opens a picker: choose On My iPhone or Downloads.</p>
       <p class="muted">Your demo entries live only in this browser on this device. A different browser, a private window, or cleared site data shows a separate, empty copy.</p>
@@ -1293,7 +1278,7 @@
       <p class="muted" style="margin-top:14px;font-size:.9rem">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
     </div>
 
-    <div class="card" id="reset-lotus-card">
+    <div id="reset-lotus-card" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
       <h3>Reset my lotus</h3>
       <p class="muted">Taking a break, or starting fresh? Resetting closes your lotus back to a bud and clears your log, so you can start again from the beginning.</p>
       <button type="button" class="btn" id="reset-lotus-start">Reset my lotus</button>
@@ -1351,7 +1336,7 @@
       <p class="muted" style="margin:0 0 10px">Tap a title to watch.</p>
       <div id="help-videos">
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Getting started</summary>
+        <summary aria-expanded="false">Getting started · 27 sec</summary>
         <video id="help-video-getting-started" controls playsinline preload="metadata" title="Getting started: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/getting-started-poster.jpg">
           <source src="assets/videos/getting-started.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1362,7 +1347,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Entering your code</summary>
+        <summary aria-expanded="false">Entering your code · 26 sec</summary>
         <video id="help-video-entering-your-code" controls playsinline preload="metadata" title="Entering your code: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/entering-your-code-poster.jpg">
           <source src="assets/videos/entering-your-code.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1373,7 +1358,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Today</summary>
+        <summary aria-expanded="false">Today · 19 sec</summary>
         <video id="help-video-today" controls playsinline preload="metadata" title="Today: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/today-poster.jpg">
           <source src="assets/videos/today.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1384,7 +1369,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Shots</summary>
+        <summary aria-expanded="false">Shots · 15 sec</summary>
         <video id="help-video-shots" controls playsinline preload="metadata" title="Shots: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/shots-poster.jpg">
           <source src="assets/videos/shots.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1395,7 +1380,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Weight</summary>
+        <summary aria-expanded="false">Weight · 15 sec</summary>
         <video id="help-video-weight" controls playsinline preload="metadata" title="Weight: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/weight-poster.jpg">
           <source src="assets/videos/weight.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1406,7 +1391,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Journal</summary>
+        <summary aria-expanded="false">Journal · 18 sec</summary>
         <video id="help-video-journal" controls playsinline preload="metadata" title="Journal: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/journal-poster.jpg">
           <source src="assets/videos/journal.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1417,7 +1402,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Companion</summary>
+        <summary aria-expanded="false">Companion · 18 sec</summary>
         <video id="help-video-companion" controls playsinline preload="metadata" title="Companion: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/companion-poster.jpg">
           <source src="assets/videos/companion.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1428,7 +1413,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Kitchen</summary>
+        <summary aria-expanded="false">Kitchen · 21 sec</summary>
         <video id="help-video-kitchen" controls playsinline preload="metadata" title="Kitchen: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/kitchen-poster.jpg">
           <source src="assets/videos/kitchen.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1439,7 +1424,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Settings</summary>
+        <summary aria-expanded="false">Settings · 26 sec</summary>
         <video id="help-video-settings" controls playsinline preload="metadata" title="Settings: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/settings-poster.jpg">
           <source src="assets/videos/settings.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1450,7 +1435,7 @@
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
-        <summary aria-expanded="false">Side Effects</summary>
+        <summary aria-expanded="false">Side Effects · 15 sec</summary>
         <video id="help-video-side-effects" controls playsinline preload="metadata" title="Side Effects: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/side-effects-poster.jpg">
           <source src="assets/videos/side-effects.mp4" type="video/mp4">
           Your browser does not support the video tag.
@@ -1505,7 +1490,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=079"></script>
+<script src="demo-seed.js?v=080"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1544,7 +1529,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=079"></script>
+<script src="app.js?v=080"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
