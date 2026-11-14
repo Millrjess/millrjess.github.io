@@ -1997,12 +1997,18 @@ html[data-theme="dark"] .stepper-fat { color: #DCC9A3; }
    and no clip, the lotus is whole and solid at every stage. The stage
    shows through scale and opacity only. */
 .bloom-wrap { display: flex; justify-content: center; margin: 2px 0 0; }
-.bloom-lotus { height: 60px; width: auto; display: block; opacity: 0.9; transform: scale(0.96); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease; }
+.bloom-lotus { height: 60px; width: auto; display: block; opacity: 0.9; transform: scale(0.96); transform-origin: 50% 100%; transition: transform .6s ease, opacity .6s ease, filter .6s ease; }
 .bloom-stage-1 .bloom-lotus { opacity: 0.92; transform: scale(0.97); }
 .bloom-stage-2 .bloom-lotus { opacity: 0.94; transform: scale(0.98); }
 .bloom-stage-3 .bloom-lotus { opacity: 0.96; transform: scale(0.99); }
 .bloom-stage-4 .bloom-lotus { opacity: 0.98; transform: scale(1); }
 .bloom-stage-5 .bloom-lotus { opacity: 1; transform: scale(1); }
+/* v089: the full bloom reads as a destination, not just one more step.
+   A soft gold halo behind the lotus, a glow on the flower itself,
+   and a gold stage line, so stage 5 is unmistakable next to stage 4. */
+.bloom-stage-5 .bloom-wrap { width: fit-content; margin-left: auto; margin-right: auto; padding: 10px 12px 4px; border-radius: 50%; background: radial-gradient(circle, rgba(232, 181, 74, 0.28) 0%, rgba(232, 181, 74, 0.10) 60%, rgba(232, 181, 74, 0) 78%); }
+.bloom-stage-5 .bloom-lotus { filter: drop-shadow(0 0 10px rgba(232, 181, 74, 0.7)); }
+.bloom-stage-5 .bloom-stage-line { color: var(--gold-dark); font-weight: 600; }
 .welcome-card .bloom-caption { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 4px 0 0; }
 .welcome-card .bloom-stage-line { text-align: center; color: var(--muted); font-size: 0.85rem; margin: 2px 0 0; }
 

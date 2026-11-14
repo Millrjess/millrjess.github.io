@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v088";
+const APP_VERSION = "v089";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1549,7 +1549,9 @@ function renderStreak() {
    stages 1-4 are intermediates in the same brushed gold, stage 5 is
    the brand lotus itself, unchanged. The images carry the opening now,
    so the scale and opacity progression in the CSS is subtle. Plain and
-   factual, no pressure language. */
+   factual, no pressure language. v089: stage 5 now carries a golden
+   halo and glow in the CSS, and the stage line celebrates the full
+   bloom, so the bloom reads as a destination, not just one more step. */
 function bloomProgress() {
   const days = loggedDates().size;
   const strengthDays = new Set((store.strength || []).map((e) => e.date)).size;
@@ -1589,7 +1591,8 @@ function renderBloom() {
   if (img) img.src = BLOOM_IMAGES[stage];
   const line = document.getElementById("bloom-stage-line");
   if (line) {
-    if (stage === 0) line.textContent = "Your lotus starts to open when you log. Fully open at 90 days of logging.";
+    if (stage === 5) line.textContent = "Your lotus is in full bloom. 90 days of logging. A new cycle begins.";
+    else if (stage === 0) line.textContent = "Your lotus starts to open when you log. Fully open at 90 days of logging.";
     else if (progress.blooms > 0) line.textContent = "Stage " + stage + " of 5. " + progress.blooms + (progress.blooms === 1 ? " bloom" : " blooms") + " completed.";
     else line.textContent = "Stage " + stage + " of 5. Fully open at 90 days of logging.";
   }
