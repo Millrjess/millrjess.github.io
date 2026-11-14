@@ -3527,7 +3527,7 @@ function renderMovementSummary() {
   const mins = sumForDate(store.exercise, date, "minutes");
   const goal = Number(store.settings.movementGoal) || 30;
   const count = (store.strength || []).filter((e) => e.date === date).length;
-  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength yet");
+  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength");
 }
 function setMovementSectionOpen(open) {
   movementSectionOpen = open;
@@ -4759,6 +4759,30 @@ function buildDoctorSummary(fromDate, toDate) {
   lines.push("This summary is from your own log. It is not medical advice.");
   return lines.join("\n");
 }
+/* Doctor summary (v085): the summary is shown to a clinician, so it must
+   reflect the saved log, not just this copy's in-memory store. This copy
+   can go stale when another copy of the app saves entries after this one
+   loaded (a second tab, or the app left open in the background), and the
+   summary would then wrongly say nothing is logged. Re-read the saved
+   copy on every rebuild and merge it in when it holds entries this copy
+   lacks, so the summary always reflects the latest saved data. Read-only:
+   it never writes to storage, it only updates the in-memory store. A merge
+   is a union, so it can never remove entries. */
+function refreshDoctorStore() {
+  let persistedStore = null;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    persistedStore = validateStore(JSON.parse(raw));
+  } catch { return; }
+  if (!persistedStore) return;
+  try {
+    if (countStoreEntries(persistedStore) > countStoreEntries(store)) {
+      store = mergeStores(persistedStore, store);
+      try { loadedGen = Number(localStorage.getItem(GEN_KEY)) || loadedGen; } catch {}
+    }
+  } catch { /* keep the in-memory store; the summary builds from it */ }
+}
 function openDoctorModal() {
   const modal = document.getElementById("doctor-modal");
   const text = document.getElementById("doctor-text");
@@ -4783,6 +4807,7 @@ function openDoctorModal() {
 function rebuildDoctorText() {
   const text = document.getElementById("doctor-text");
   if (!text) return;
+  refreshDoctorStore();
   const fromEl = document.getElementById("doctor-from");
   const toEl = document.getElementById("doctor-to");
   text.value = buildDoctorSummary(fromEl ? fromEl.value : "", toEl ? toEl.value : "");
