@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=090">
+<link rel="stylesheet" href="styles.css?v=091">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -187,15 +187,15 @@
       </div>
     </div>
 
-    <div class="card" id="movement-card" role="group" aria-label="Movement">
+    <div class="card" id="fitness-card" role="group" aria-label="Fitness">
       <button type="button" class="section-toggle" id="movement-toggle" aria-expanded="true" aria-controls="movement-body">
-        <span class="section-toggle-title">Movement</span>
+        <span class="section-toggle-title">Fitness</span>
         <span class="section-toggle-summary" id="movement-summary">0 of 30 min</span>
         <span class="section-toggle-chevron" aria-hidden="true">▸</span>
       </button>
       <div id="movement-body">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
-          <h3 class="movement-subhead" style="margin-top:0">Minutes today</h3>
+          <h3 class="movement-subhead" style="margin-top:0">Cardiovascular fitness</h3>
           <button class="btn btn-small" id="movement-customize" style="flex:none" aria-expanded="false" aria-controls="movement-plan-editor">Customize</button>
         </div>
         <div class="slider-row">
@@ -264,11 +264,8 @@
             <button type="button" class="btn" id="movement-plan-cancel">Cancel</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="card" id="strength-card" role="group" aria-label="Strength">
-      <h2 class="card-title">Strength</h2>
+      <div id="fitness-strength" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+        <h3 class="movement-subhead" style="margin-top:0">Strength</h3>
       <p class="muted" style="margin:0 0 4px">Log strength to protect muscle.</p>
       <p class="muted" style="margin:0 0 12px">Saved to today and shown in your <button type="button" class="linklike doctor-summary-btn">doctor summary</button>.</p>
       <div id="strength-routine" style="margin-top:12px">
@@ -303,6 +300,17 @@
       </form>
       <p class="code-msg" id="strength-saved-msg" role="status"></p>
       <div id="strength-list"></div>
+        <div id="fitness-strength-plan" class="hidden" style="margin-top:12px">
+          <label>Strength routine
+            <select id="fitness-strength-plan-select">
+              <option value="4day">4-day split (Mon, Tue, Thu, Fri)</option>
+              <option value="3day">3-day starter (Mon, Wed, Fri)</option>
+            </select>
+          </label>
+          <p class="muted" style="margin:4px 0 0;font-size:.9rem">Today is a rest day. Switch the plan here, or open a workout day to change its exercises.</p>
+        </div>
+      </div>
+      </div>
     </div>
 
     <div class="card" id="weight-today-card" role="group" aria-label="Weight">
@@ -1529,7 +1537,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=090"></script>
+<script src="demo-seed.js?v=091"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Log food from a photo" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Log food from a photo</h2>
@@ -1568,7 +1576,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=090"></script>
+<script src="app.js?v=091"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

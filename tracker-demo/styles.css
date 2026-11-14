@@ -703,6 +703,8 @@ label textarea {
 .tab-bar {
   position: fixed;
   bottom: 0;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   left: 0;
   right: 0;
   display: flex;
