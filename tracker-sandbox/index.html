@@ -283,6 +283,14 @@
       <h2 class="card-title">Strength</h2>
       <p class="muted" style="margin:0 0 4px">Log strength to protect muscle.</p>
       <p class="muted" style="margin:0 0 12px">Saved to today and shown in your <button type="button" class="linklike doctor-summary-btn">doctor summary</button>.</p>
+      <div id="strength-routine" style="margin-top:12px">
+        <h3 class="movement-subhead" id="strength-routine-title" style="margin-top:0">Today's routine</h3>
+        <p class="muted" id="strength-routine-warmup" style="margin:0 0 8px">Warm up: 5-minute walk, then arm circles and leg swings.</p>
+        <div id="strength-routine-list"></div>
+        <div id="strength-routine-reset" style="margin-top:8px"></div>
+        <p class="muted" id="strength-routine-note" style="margin:8px 0 0;font-size:.9rem">General fitness information, not medical advice. Talk to your doctor before starting a new exercise program.</p>
+        <p class="muted" id="strength-routine-shot" style="margin:4px 0 0;font-size:.9rem">On shot day, if you feel nauseated or tired, train lighter or move the session.</p>
+      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button><button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button></div>
       <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
@@ -1093,6 +1101,20 @@
         <label>Daily movement goal (min)
           <input type="number" id="set-movement-goal" min="0" step="1" placeholder="30">
         </label>
+      </div>
+
+          <div style="margin-bottom:16px">
+        <label>Strength routine
+          <select id="set-strength-plan">
+            <option value="4day">4-day split (Mon, Tue, Thu, Fri)</option>
+            <option value="3day">3-day starter (Mon, Wed, Fri)</option>
+          </select>
+        </label>
+        <p class="muted">Today's routine follows this plan. You can switch at any time.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button type="button" class="btn btn-small" id="strength-reset-all">Reset all routine changes</button>
+        </div>
+        <p class="code-msg" id="strength-reset-msg" style="min-height:1.2em"></p>
       </div>
 
           <div style="margin-bottom:16px">

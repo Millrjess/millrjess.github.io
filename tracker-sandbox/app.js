@@ -70,6 +70,8 @@ const DEFAULTS = {
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
     movementPlan: null, // v042: null or empty means no routine yet; the user picks their own moves; otherwise [{ name, detail }]
+    strengthPlan: "4day", // v088: "4day" or "3day"; which strength routine shows on Today
+    strengthCustom: {}, // v088: routine swaps and removals, { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
@@ -238,6 +240,32 @@ function validateStore(parsed, strict) {
       out.settings.movementPlan = clean.length ? clean : null;
     } else {
       out.settings.movementPlan = null;
+    }
+    // v088: the strength routine plan. "4day" or "3day"; anything else
+    // falls back to the 4-day split.
+    if (out.settings.strengthPlan !== "4day" && out.settings.strengthPlan !== "3day") out.settings.strengthPlan = "4day";
+    // v088: strength routine customizations. { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }.
+    // Shape only: a swap target that names no known exercise is
+    // ignored when the routine renders, so it can never break Today.
+    const sc = out.settings.strengthCustom;
+    if (sc === null || sc === undefined) {
+      out.settings.strengthCustom = {};
+    } else if (typeof sc === "object" && !Array.isArray(sc)) {
+      const clean = {};
+      for (const [dayKey, dayCustom] of Object.entries(sc)) {
+        if (!/^(3day|4day):[0-6]$/.test(dayKey)) continue;
+        if (!dayCustom || typeof dayCustom !== "object" || Array.isArray(dayCustom)) continue;
+        const cleanDay = {};
+        for (const [exName, c] of Object.entries(dayCustom)) {
+          if (!c || typeof c !== "object" || Array.isArray(c)) continue;
+          if (c.removed === true) { cleanDay[String(exName).slice(0, 80)] = { removed: true }; continue; }
+          if (typeof c.swap === "string" && c.swap.trim() !== "") cleanDay[String(exName).slice(0, 80)] = { swap: c.swap.trim().slice(0, 80) };
+        }
+        if (Object.keys(cleanDay).length) clean[dayKey] = cleanDay;
+      }
+      out.settings.strengthCustom = clean;
+    } else {
+      out.settings.strengthCustom = {};
     }
     // v169: the user's own exercises. Kept as [{ name, pattern, detail }]
     // only; anything else is dropped. A bad pattern falls back to Other.
@@ -3565,6 +3593,324 @@ if (movementToggleBtn) movementToggleBtn.addEventListener("click", () => setMove
 const strengthToggleBtn = document.getElementById("strength-toggle");
 if (strengthToggleBtn) strengthToggleBtn.addEventListener("click", () => setStrengthFormOpen(!strengthFormOpen));
 
+/* ---------- Strength routine (v088) ---------- */
+/* Built-in routine library: the 4-day upper/lower split and the 3-day
+   starter, from the research-based design (ACSM 2026 Position Stand:
+   each muscle twice a week, about 10 sets per muscle per week, 2 to 3
+   sets of 8 to 12 reps, stop 2 to 3 reps short of failure). Static
+   data only. Logging reuses the existing strength store, so no new
+   log model is needed. The day follows the weekday of the date being
+   viewed and the user's 3-day or 4-day choice in Settings
+   (settings.strengthPlan, default 4-day). */
+const STRENGTH_ROUTINES = {
+  "4day": {
+    1: { name: "Upper A", exercises: [
+      { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower with control, press up without bouncing." },
+      { name: "One-Arm Dumbbell Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10 each side", cue: "Pull to your hip, keep your back flat." },
+      { name: "Dumbbell Shoulder Press", muscle: "Shoulders", sets: 3, reps: 10, detail: "3 x 10", cue: "Press overhead, ribs down, do not arch your back." },
+      { name: "Dumbbell Chest Fly", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Open wide, keep a soft bend in the elbows." },
+      { name: "Band Row", muscle: "Upper back, biceps", sets: 2, reps: 12, detail: "2 x 12", cue: "Squeeze your shoulder blades, pull to your ribs." },
+      { name: "Dumbbell Biceps Curl", muscle: "Biceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows still, curl slowly, lower slowly." }
+    ] },
+    2: { name: "Lower A", exercises: [
+      { name: "Goblet Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Chest up, knees track over toes, sit back." },
+      { name: "Romanian Deadlift", muscle: "Hamstrings, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge at the hips, keep your back flat." },
+      { name: "Dumbbell Reverse Lunge", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Step back, lower until both knees bend." },
+      { name: "Glute Bridge", muscle: "Glutes, hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Squeeze glutes at the top, do not arch your back." },
+      { name: "Standing Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Rise onto your toes, lower slowly." },
+      { name: "Plank", muscle: "Core", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Body in a straight line, breathe, do not let hips sag." }
+    ] },
+    4: { name: "Upper B", exercises: [
+      { name: "Bent-Over Dumbbell Row, two-arm", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge forward, pull to your ribs, back flat." },
+      { name: "Dumbbell Incline Press", muscle: "Upper chest, shoulders", sets: 3, reps: 10, detail: "3 x 10", cue: "Press up and slightly back, keep feet flat." },
+      { name: "Lateral Raise", muscle: "Shoulders, side", sets: 3, reps: 12, detail: "3 x 12", cue: "Lift to shoulder height, lead with your elbows." },
+      { name: "Push-up, or knee push-up", muscle: "Chest, triceps", sets: 3, reps: 10, detail: "3 x 10", cue: "Body in a straight line, chest to the floor." },
+      { name: "Hammer Curl", muscle: "Biceps, forearms", sets: 2, reps: 12, detail: "2 x 12", cue: "Palms face each other, curl slowly." },
+      { name: "Overhead Triceps Extension", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows close to your head, lower behind your neck." }
+    ] },
+    5: { name: "Lower B", exercises: [
+      { name: "Dumbbell Deadlift", muscle: "Hamstrings, glutes, back", sets: 3, reps: 10, detail: "3 x 10", cue: "Push the floor away, keep the weight close to your legs." },
+      { name: "Bulgarian Split Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Back foot on a chair, lower straight down. Hold a wall for balance if needed." },
+      { name: "Hip Thrust", muscle: "Glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Drive through your heels, squeeze at the top." },
+      { name: "Single-Leg Romanian Deadlift", muscle: "Hamstrings, glutes", sets: 2, reps: 10, detail: "2 x 10 each leg", cue: "Hinge on one leg, keep your hips level, hold a wall if needed." },
+      { name: "Seated Calf Raise, or standing", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Full range, pause at the bottom." },
+      { name: "Dead Bug", muscle: "Core", sets: 2, reps: 10, detail: "2 x 10 each side", cue: "Press your lower back to the floor, move slowly." }
+    ] }
+  },
+  "3day": {
+    1: { name: "Upper", exercises: [
+      { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower with control, press up without bouncing." },
+      { name: "One-Arm Dumbbell Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10 each side", cue: "Pull to your hip, keep your back flat." },
+      { name: "Dumbbell Shoulder Press", muscle: "Shoulders", sets: 3, reps: 10, detail: "3 x 10", cue: "Press overhead, ribs down, do not arch your back." },
+      { name: "Dumbbell Chest Fly", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Open wide, keep a soft bend in the elbows." },
+      { name: "Band Row", muscle: "Upper back, biceps", sets: 2, reps: 12, detail: "2 x 12", cue: "Squeeze your shoulder blades, pull to your ribs." },
+      { name: "Dumbbell Biceps Curl", muscle: "Biceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows still, curl slowly, lower slowly." }
+    ] },
+    3: { name: "Lower", exercises: [
+      { name: "Goblet Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Chest up, knees track over toes, sit back." },
+      { name: "Romanian Deadlift", muscle: "Hamstrings, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge at the hips, keep your back flat." },
+      { name: "Dumbbell Reverse Lunge", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Step back, lower until both knees bend." },
+      { name: "Glute Bridge", muscle: "Glutes, hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Squeeze glutes at the top, do not arch your back." },
+      { name: "Standing Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Rise onto your toes, lower slowly." },
+      { name: "Plank", muscle: "Core", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Body in a straight line, breathe, do not let hips sag." }
+    ] },
+    5: { name: "Full-body", exercises: [
+      { name: "Goblet Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Chest up, knees track over toes, sit back." },
+      { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower with control, press up without bouncing." },
+      { name: "One-Arm Dumbbell Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10 each side", cue: "Pull to your hip, keep your back flat." },
+      { name: "Romanian Deadlift", muscle: "Hamstrings, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge at the hips, keep your back flat." },
+      { name: "Dumbbell Shoulder Press", muscle: "Shoulders", sets: 2, reps: 10, detail: "2 x 10", cue: "Press overhead, ribs down, do not arch your back." },
+      { name: "Plank", muscle: "Core", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Body in a straight line, breathe, do not let hips sag." }
+    ] }
+  }
+};
+/* Swap-only alternatives: exercises that are not in any built-in day
+   but can replace one. Merged into the exercise index below, so a
+   swap target always resolves to full data. Dumbbell, band, and
+   bodyweight only. */
+const STRENGTH_SWAP_ALTS = {
+  "Floor Press": { name: "Floor Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lie on the floor, press up, lower until your elbows touch the floor." },
+  "Band Chest Press": { name: "Band Chest Press", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Band behind your back, press forward, control the return." },
+  "Band Shoulder Press": { name: "Band Shoulder Press", muscle: "Shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand on the band, press overhead, ribs down." },
+  "Pike Push-up": { name: "Pike Push-up", muscle: "Shoulders, chest", sets: 3, reps: 8, detail: "3 x 8", cue: "Hips high, lower your head toward the floor." },
+  "Band Chest Fly": { name: "Band Chest Fly", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Band behind your back, open wide, soft elbows." },
+  "Band Biceps Curl": { name: "Band Biceps Curl", muscle: "Biceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand on the band, curl slowly, elbows still." },
+  "Bodyweight Squat": { name: "Bodyweight Squat", muscle: "Quads, glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Chest up, sit back, knees track over toes." },
+  "Split Squat": { name: "Split Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Long stance, lower straight down, torso tall." },
+  "Single-Leg Glute Bridge": { name: "Single-Leg Glute Bridge", muscle: "Glutes, hamstrings", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "One foot down, lift your hips, squeeze at the top." },
+  "Single-Leg Calf Raise": { name: "Single-Leg Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12 each leg", cue: "Rise onto your toes, lower slowly, hold a wall if needed." },
+  "Side Plank": { name: "Side Plank", muscle: "Core", sets: 2, reps: 20, detail: "2 x 20 seconds each side", cue: "Body in a straight line, hips lifted, breathe." },
+  "Band Lateral Raise": { name: "Band Lateral Raise", muscle: "Shoulders, side", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand on the band, lift to shoulder height." },
+  "Band Triceps Extension": { name: "Band Triceps Extension", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows close to your head, extend overhead." },
+  "Dumbbell Kickback": { name: "Dumbbell Kickback", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Hinge forward, extend your arm back, squeeze." },
+  "Seated Calf Raise": { name: "Seated Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Full range, pause at the bottom." }
+};
+/* Exercise index, built from the routine days plus the swap-only
+   alternatives. A swap is stored by name; this index resolves it. */
+const STRENGTH_EXERCISES = {};
+Object.values(STRENGTH_ROUTINES).forEach((plan) => {
+  Object.values(plan).forEach((day) => {
+    day.exercises.forEach((ex) => { STRENGTH_EXERCISES[ex.name] = ex; });
+  });
+});
+Object.values(STRENGTH_SWAP_ALTS).forEach((ex) => { STRENGTH_EXERCISES[ex.name] = ex; });
+/* Sensible swaps for each exercise. Every exercise in the library has
+   two options, so swapping can continue from a swapped-in exercise. */
+const STRENGTH_SWAPS = {
+  "Dumbbell Bench Press": ["Floor Press", "Band Chest Press"],
+  "One-Arm Dumbbell Row": ["Bent-Over Dumbbell Row, two-arm", "Band Row"],
+  "Dumbbell Shoulder Press": ["Band Shoulder Press", "Pike Push-up"],
+  "Dumbbell Chest Fly": ["Band Chest Fly", "Push-up, or knee push-up"],
+  "Band Row": ["One-Arm Dumbbell Row", "Bent-Over Dumbbell Row, two-arm"],
+  "Dumbbell Biceps Curl": ["Hammer Curl", "Band Biceps Curl"],
+  "Goblet Squat": ["Bodyweight Squat", "Split Squat"],
+  "Romanian Deadlift": ["Dumbbell Deadlift", "Single-Leg Romanian Deadlift"],
+  "Dumbbell Reverse Lunge": ["Split Squat", "Bulgarian Split Squat"],
+  "Glute Bridge": ["Hip Thrust", "Single-Leg Glute Bridge"],
+  "Standing Calf Raise": ["Seated Calf Raise", "Single-Leg Calf Raise"],
+  "Plank": ["Dead Bug", "Side Plank"],
+  "Bent-Over Dumbbell Row, two-arm": ["One-Arm Dumbbell Row", "Band Row"],
+  "Dumbbell Incline Press": ["Dumbbell Bench Press", "Push-up, or knee push-up"],
+  "Lateral Raise": ["Band Lateral Raise", "Dumbbell Shoulder Press"],
+  "Push-up, or knee push-up": ["Dumbbell Bench Press", "Band Chest Press"],
+  "Hammer Curl": ["Dumbbell Biceps Curl", "Band Biceps Curl"],
+  "Overhead Triceps Extension": ["Band Triceps Extension", "Dumbbell Kickback"],
+  "Dumbbell Deadlift": ["Romanian Deadlift", "Goblet Squat"],
+  "Bulgarian Split Squat": ["Split Squat", "Goblet Squat"],
+  "Hip Thrust": ["Glute Bridge", "Single-Leg Glute Bridge"],
+  "Single-Leg Romanian Deadlift": ["Romanian Deadlift", "Dumbbell Deadlift"],
+  "Seated Calf Raise, or standing": ["Standing Calf Raise", "Single-Leg Calf Raise"],
+  "Dead Bug": ["Plank", "Side Plank"],
+  "Floor Press": ["Dumbbell Bench Press", "Band Chest Press"],
+  "Band Chest Press": ["Dumbbell Bench Press", "Floor Press"],
+  "Band Shoulder Press": ["Dumbbell Shoulder Press", "Pike Push-up"],
+  "Pike Push-up": ["Dumbbell Shoulder Press", "Band Shoulder Press"],
+  "Band Chest Fly": ["Dumbbell Chest Fly", "Push-up, or knee push-up"],
+  "Band Biceps Curl": ["Dumbbell Biceps Curl", "Hammer Curl"],
+  "Bodyweight Squat": ["Goblet Squat", "Split Squat"],
+  "Split Squat": ["Goblet Squat", "Dumbbell Reverse Lunge"],
+  "Single-Leg Glute Bridge": ["Glute Bridge", "Hip Thrust"],
+  "Single-Leg Calf Raise": ["Standing Calf Raise", "Seated Calf Raise"],
+  "Side Plank": ["Plank", "Dead Bug"],
+  "Band Lateral Raise": ["Lateral Raise", "Dumbbell Shoulder Press"],
+  "Band Triceps Extension": ["Overhead Triceps Extension", "Dumbbell Kickback"],
+  "Dumbbell Kickback": ["Overhead Triceps Extension", "Band Triceps Extension"],
+  "Seated Calf Raise": ["Standing Calf Raise", "Single-Leg Calf Raise"]
+};
+function getStrengthPlan() {
+  return (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
+}
+function todaysStrengthRoutine() {
+  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  const parts = todayStr(viewOffset).split("-");
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return plan[d.getDay()] || null;
+}
+/* ---------- Strength routine customization (v088) ---------- */
+/* Swaps and removals persist in settings.strengthCustom, keyed by
+   routine day ("4day:1" is Monday Upper A) and by the built-in
+   exercise name in that slot. The built-in routine stays the
+   default; customizations only change what shows. */
+function strengthDayKey() {
+  const parts = todayStr(viewOffset).split("-");
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return getStrengthPlan() + ":" + d.getDay();
+}
+function getStrengthCustom(dayKey) {
+  const all = (store.settings && store.settings.strengthCustom) || {};
+  const day = all[dayKey];
+  return (day && typeof day === "object" && !Array.isArray(day)) ? day : {};
+}
+function setStrengthCustom(dayKey, slot, value) {
+  if (!store.settings.strengthCustom || typeof store.settings.strengthCustom !== "object" || Array.isArray(store.settings.strengthCustom)) store.settings.strengthCustom = {};
+  if (!store.settings.strengthCustom[dayKey] || typeof store.settings.strengthCustom[dayKey] !== "object") store.settings.strengthCustom[dayKey] = {};
+  if (value === null) {
+    delete store.settings.strengthCustom[dayKey][slot];
+    if (!Object.keys(store.settings.strengthCustom[dayKey]).length) delete store.settings.strengthCustom[dayKey];
+  } else {
+    store.settings.strengthCustom[dayKey][slot] = value;
+  }
+}
+/* The routine for the day being viewed, with the user's swaps and
+   removals applied. Each entry carries the exercise and the slot
+   (the built-in exercise name), so a swap still knows its slot. */
+function effectiveStrengthRoutine() {
+  const base = todaysStrengthRoutine();
+  if (!base) return null;
+  const dayKey = strengthDayKey();
+  const custom = getStrengthCustom(dayKey);
+  const exercises = [];
+  base.exercises.forEach((ex) => {
+    const c = custom[ex.name];
+    if (c && c.removed) return;
+    if (c && typeof c.swap === "string" && STRENGTH_EXERCISES[c.swap]) {
+      exercises.push({ ex: STRENGTH_EXERCISES[c.swap], slot: ex.name, swappedFrom: ex.name });
+      return;
+    }
+    exercises.push({ ex, slot: ex.name, swappedFrom: null });
+  });
+  return { name: base.name, dayKey, exercises };
+}
+/* Swap options for an exercise, excluding anything already in
+   today's routine, so a day never shows the same exercise twice. */
+function swapOptionsFor(name, eff) {
+  const names = (STRENGTH_SWAPS[name] || []).filter((n) => STRENGTH_EXERCISES[n] && !eff.exercises.some((e) => e.ex.name === n));
+  return names.map((n) => STRENGTH_EXERCISES[n]);
+}
+/* The exercise whose swap picker is open: { dayKey, slot }, or null. */
+let strengthSwapPicker = null;
+function resetStrengthDay() {
+  const eff = effectiveStrengthRoutine();
+  if (!eff) return;
+  if (!window.confirm("Reset today's routine to the built-in exercises?")) return;
+  if (store.settings.strengthCustom) delete store.settings.strengthCustom[eff.dayKey];
+  strengthSwapPicker = null;
+  saveStore();
+  renderStrength();
+}
+/* Last weight logged for an exercise, so a routine Log tap can
+   pre-fill it. Blank when the exercise was never logged with a weight. */
+function lastWeightForExercise(name) {
+  const entries = (store.strength || []).filter((e) => e.name === name && e.weight !== "" && e.weight !== undefined && e.weight !== null);
+  if (!entries.length) return "";
+  entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  return entries[entries.length - 1].weight;
+}
+function logRoutineExercise(name) {
+  const eff = effectiveStrengthRoutine();
+  if (!eff) return;
+  const item = eff.exercises.find((e) => e.ex.name === name);
+  if (!item) return;
+  const ex = item.ex;
+  clearStrengthStatus();
+  store.strength.push({ id: uid(), date: viewedDateStr(), name: ex.name.slice(0, 80), sets: ex.sets, reps: ex.reps, weight: lastWeightForExercise(ex.name) });
+  saveStore();
+  renderStrength();
+  const msg = document.getElementById("strength-saved-msg");
+  if (msg) setStrengthStatus(msg, ex.name + " logged.");
+}
+function renderStrengthRoutine() {
+  const wrap = document.getElementById("strength-routine");
+  if (!wrap) return;
+  const title = document.getElementById("strength-routine-title");
+  const warmup = document.getElementById("strength-routine-warmup");
+  const list = document.getElementById("strength-routine-list");
+  const note = document.getElementById("strength-routine-note");
+  const shot = document.getElementById("strength-routine-shot");
+  const resetWrap = document.getElementById("strength-routine-reset");
+  const eff = effectiveStrengthRoutine();
+  if (!eff) {
+    if (title) title.textContent = "Today's routine: Rest day";
+    if (warmup) warmup.hidden = true;
+    if (list) list.innerHTML = '<p class="muted" style="margin:0">Rest day. Walking counts today.</p>';
+    if (note) note.hidden = true;
+    if (shot) shot.hidden = true;
+    if (resetWrap) resetWrap.innerHTML = "";
+    return;
+  }
+  if (title) title.textContent = "Today's routine: " + eff.name;
+  if (warmup) warmup.hidden = false;
+  if (note) note.hidden = false;
+  if (shot) shot.hidden = false;
+  if (resetWrap) {
+    const hasCustom = Object.keys(getStrengthCustom(eff.dayKey)).length > 0;
+    resetWrap.innerHTML = hasCustom ? '<button type="button" class="btn btn-small" id="strength-routine-reset-btn">Reset routine</button>' : "";
+    const rb = document.getElementById("strength-routine-reset-btn");
+    if (rb) rb.addEventListener("click", resetStrengthDay);
+  }
+  if (!list) return;
+  const date = viewedDateStr();
+  const logged = (store.strength || []).filter((e) => e.date === date);
+  list.innerHTML = eff.exercises.map((item) => {
+    const ex = item.ex;
+    const already = logged.some((e) => e.name === ex.name && Number(e.sets) === ex.sets && Number(e.reps) === ex.reps);
+    const pickerOpen = strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === item.slot;
+    const options = pickerOpen ? swapOptionsFor(ex.name, eff) : [];
+    const picker = pickerOpen
+      ? (options.length
+        ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + options.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
+        : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
+      : "";
+    return `<div class="entry">
+        <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</p>
+        <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
+        <p class="entry-sub">${escapeHtml(ex.cue)}</p>
+        ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
+        <div class="entry-actions">
+          <button type="button" class="btn btn-small"${already ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${already ? "Logged" : "Log"}</button>
+          <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
+          <button type="button" class="btn btn-small btn-danger" data-remove-routine="${escapeHtml(item.slot)}" aria-label="Remove ${escapeHtml(ex.name)} from this routine">Remove</button>
+        </div>
+        ${picker}
+      </div>`;
+  }).join("");
+  list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => logRoutineExercise(b.dataset.logRoutine)));
+  list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.swapRoutine;
+    if (strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === slot) {
+      strengthSwapPicker = null;
+    } else {
+      strengthSwapPicker = { dayKey: eff.dayKey, slot };
+    }
+    renderStrengthRoutine();
+  }));
+  list.querySelectorAll("[data-swap-to]").forEach((b) => b.addEventListener("click", () => {
+    setStrengthCustom(eff.dayKey, b.dataset.swapSlot, { swap: b.dataset.swapTo });
+    strengthSwapPicker = null;
+    saveStore();
+    renderStrength();
+  }));
+  list.querySelectorAll("[data-remove-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.removeRoutine;
+    const item = eff.exercises.find((e) => e.slot === slot);
+    if (!window.confirm("Remove " + (item ? item.ex.name : "this exercise") + " from today's routine?")) return;
+    setStrengthCustom(eff.dayKey, slot, { removed: true });
+    strengthSwapPicker = null;
+    saveStore();
+    renderStrength();
+  }));
+}
+
 /* ---------- Strength status messages (v087) ---------- */
 /* The Strength card shows one short-lived status at a time. A new
    action, a date change, or a removal clears the old message first,
@@ -3646,6 +3992,7 @@ function renderStrength() {
     document.getElementById("strength-name").focus();
   }));
   updateCopyYesterdayButton();
+  renderStrengthRoutine();
   renderMovementSummary();
 }
 document.getElementById("strength-form").addEventListener("submit", (ev) => {
@@ -13055,6 +13402,10 @@ function renderSettings() {
   document.getElementById("set-water-goal").value = s.waterGoal || 92;
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
+  const sp = document.getElementById("set-strength-plan");
+  if (sp) sp.value = s.strengthPlan === "3day" ? "3day" : "4day";
+  const sra = document.getElementById("strength-reset-all");
+  if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
@@ -13291,6 +13642,10 @@ function collectSettingsFromForm() {
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
+  // v088: the strength routine plan. The select only offers the two
+  // valid values, so anything else falls back to the 4-day split.
+  const spSel = document.getElementById("set-strength-plan");
+  if (spSel) store.settings.strengthPlan = spSel.value === "3day" ? "3day" : "4day";
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
@@ -13393,6 +13748,36 @@ document.getElementById("settings-form").addEventListener("input", (e) => {
 document.getElementById("settings-form").addEventListener("change", () => {
   clearTimeout(settingsAutosaveTimer);
   settingsAutosaveTimer = setTimeout(autosaveSettings, 300);
+});
+
+/* ---------- Strength routine: reset all changes (v088) ---------- */
+/* Clears every routine swap and removal, so all days show the
+   built-in routine again. Disabled in Settings when there is
+   nothing to reset. */
+const strengthResetAllBtn = document.getElementById("strength-reset-all");
+if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
+  const msg = document.getElementById("strength-reset-msg");
+  if (!Object.keys(store.settings.strengthCustom || {}).length) {
+    if (msg) msg.textContent = "No routine changes to reset.";
+    return;
+  }
+  if (!window.confirm("Remove all routine swaps and removals?")) return;
+  store.settings.strengthCustom = {};
+  saveStore();
+  renderSettings();
+  renderToday();
+  const msg2 = document.getElementById("strength-reset-msg");
+  if (msg2) msg2.textContent = "Routine changes reset.";
+});
+
+/* ---------- Strength routine: plan change refreshes Today (v088) ---------- */
+/* The Settings autosave does not re-render Today, so switching the
+   3-day/4-day plan would leave the old routine showing until the
+   next Today render. Re-render after the autosave flushes (300 ms),
+   so Today shows the new plan the moment the user goes back to it. */
+const strengthPlanSel = document.getElementById("set-strength-plan");
+if (strengthPlanSel) strengthPlanSel.addEventListener("change", () => {
+  setTimeout(() => { renderToday(); }, 350);
 });
 
 /* ---------- Companion access code ---------- */
