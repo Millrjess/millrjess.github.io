@@ -3567,7 +3567,7 @@ function renderStrength() {
   list.innerHTML = today.length
     ? today.map((e) => `
       <div class="entry">
-        <p class="entry-title">${escapeHtml(e.name)}, ${escapeHtml(String(e.sets))} sets of ${escapeHtml(String(e.reps))}${e.weight !== "" && e.weight !== undefined && e.weight !== null ? " at " + escapeHtml(String(e.weight)) + " lbs" : ""}</p>
+        <p class="entry-title">${escapeHtml(e.name)}, ${escapeHtml(String(e.sets))} ${Number(e.sets) === 1 ? "set" : "sets"} of ${escapeHtml(String(e.reps))} ${Number(e.reps) === 1 ? "rep" : "reps"}${e.weight !== "" && e.weight !== undefined && e.weight !== null ? " at " + escapeHtml(String(e.weight)) + " lbs" : ""}</p>
         <p class="entry-sub">${escapeHtml(formatDate(e.date))}</p>
         <div class="entry-actions">
           <button class="btn btn-small btn-danger" data-del-strength="${e.id}" aria-label="Remove strength entry: ${escapeHtml(e.name)}">Remove</button>
@@ -4682,7 +4682,7 @@ function buildDoctorSummary(fromDate, toDate) {
   const from = ok(fromDate) ? fromDate : todayStr(-30);
   const rangeLabel = formatDateShort(from) + " to " + formatDateShort(to);
   const inRange = (d) => d >= from && d <= to;
-  const lines = ["New Chapter: GLP-1 Tracker \u2014 Visit summary", "Prepared " + formatDate(todayStr()), "Dates: " + formatDate(from) + " to " + formatDate(to) + ".", ""];
+  const lines = ["New Chapter: GLP-1 Tracker - Visit summary", "Prepared " + formatDate(todayStr()), "Dates: " + formatDate(from) + " to " + formatDate(to) + ".", ""];
   // Weight
   const sortedW = [...(store.weight || [])].sort(byDate);
   const latest = sortedW[sortedW.length - 1];
@@ -4725,7 +4725,7 @@ function buildDoctorSummary(fromDate, toDate) {
   lines.push("Side effects (" + rangeLabel + ")");
   if (recentE.length) {
     recentE.forEach((s) => {
-      lines.push("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " \u2014 " + s.notes : ""));
+      lines.push("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? ": " + s.notes : ""));
     });
   } else {
     lines.push("None logged from " + rangeLabel + ".");
@@ -4987,7 +4987,7 @@ function downloadDoctorPdf() {
     line("Side effects (last 30 days)", { size: 12, bold: true });
     if (recentE.length) {
       recentE.forEach((s) => {
-        line("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? " — " + s.notes : ""));
+        line("- " + formatDate(s.date) + ": " + s.symptom + " (" + s.severity + ")" + (s.notes ? ": " + s.notes : ""));
       });
     } else {
       line("None logged in the last 30 days.");
