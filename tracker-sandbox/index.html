@@ -281,7 +281,7 @@
 
     <div class="card" id="strength-card" role="group" aria-label="Strength">
       <h2 class="card-title">Strength</h2>
-      <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
+      <p class="muted" style="margin:0 0 12px">Saved to today and shown in your doctor summary.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button><button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button></div>
       <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
@@ -382,7 +382,7 @@
             <span class="macro-bar" id="macro-bar-fat" tabindex="0" role="slider" aria-label="Adjust fat logged today" aria-valuemin="0" aria-valuemax="999" aria-valuenow="0"><i id="bar-fat" style="background:#DCC9A3"></i></span>
             <button type="button" class="stepper-btn stepper-fat" id="fat-plus-btn" aria-label="Add 1 gram of fat">+</button>
           </div>
-          <span class="macro-detail"><span class="macro-why muted">Essential functions</span><span class="macro-pct" id="pct-fat">0% of your target</span></span>
+          <span class="macro-detail"><span class="macro-why muted">Essential body functions</span><span class="macro-pct" id="pct-fat">0% of your target</span></span>
           <div class="macro-inline-add inline-add hidden" id="fat-inline-add">
             <div class="inline-add-row">
               <input type="text" id="fat-inline-input" disabled inputmode="numeric" autocomplete="off" placeholder="10" aria-label="Grams of fat to add">
@@ -399,7 +399,7 @@
         <div style="height:10px;border-radius:99px;background:#EDEBE3;overflow:hidden;margin-top:8px"><i id="calories-fill" style="display:block;height:100%;width:0%;background:#E8B54A;border-radius:99px"></i></div>
         <p class="muted" id="calories-note" style="margin:8px 0 0;font-size:.9rem"></p>
         </div>
-      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Targets are private. Change them in Settings.</p>
+      <p class="muted" style="margin:6px 0 0;font-size:.9rem">Change your targets in Settings.</p>
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
@@ -507,7 +507,7 @@
     </div>
     <div class="card" id="progress-weight-card">
       <h3 class="card-title">Weight</h3>
-      <p style="margin:0"><span class="progress-big" id="progress-weight-big">—</span> <span class="progress-small">lbs, latest</span></p>
+      <p style="margin:0"><span class="progress-big" id="progress-weight-big">-</span> <span class="progress-small">lbs, latest</span></p>
       <div class="week-bars" id="progress-bars-weight" role="img" aria-label="Weight by day"></div>
       <p class="muted" style="margin:8px 0 0;font-size:.9rem" id="progress-weight-note"></p>
     </div>
@@ -545,7 +545,7 @@
     </div>
 
     <form id="injection-form" class="card hidden" aria-label="Log injection" novalidate>
-      <h3>Log Injection</h3>
+      <h3>Log injection</h3>
       <label>Date
         <input type="date" id="inj-date" required>
       </label>
@@ -694,7 +694,7 @@
     </div>
 
     <form id="measurement-form" class="card hidden" aria-label="Log measurements">
-      <h3>Log Measurements</h3>
+      <h3>Log measurements</h3>
       <label>Date
         <input type="date" id="meas-date" required>
       </label>
@@ -794,12 +794,12 @@
     <h2>Side Effects</h2>
     <p class="muted">Always share symptoms and side effects with your prescribing doctor. This app does not give medical advice.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px">
-      <button class="btn btn-primary" id="show-sideeffect-form">+ Log effect</button>
+      <button class="btn btn-primary" id="show-sideeffect-form">+ Log side effect</button>
       <button class="btn doctor-summary-btn" type="button">Doctor visit summary</button>
     </div>
 
     <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
-      <h3>Log Side Effect</h3>
+      <h3>Log side effect</h3>
       <label>Date
         <input type="date" id="se-date" required>
       </label>
@@ -886,7 +886,6 @@
     <p class="muted" style="font-size:.9rem">Nutrition is estimated from USDA values for the listed ingredients and serving size. Actual values vary by brand and preparation.</p>
     <div id="shopping-list-section" style="margin-top:18px"></div>
 <h3 style="margin-top:18px">Paste a Recipe</h3>
-    <p class="muted" style="font-size:.9rem">Paste a recipe from anywhere.</p>
     <button type="button" class="btn btn-small" id="paste-recipe-toggle" aria-expanded="false" aria-controls="paste-recipe-form">Paste a recipe</button>
     <form id="paste-recipe-form" class="hidden" aria-label="Paste a recipe" novalidate>
       <label>Paste a recipe<textarea id="paste-recipe-text" rows="4" maxlength="4000" placeholder="Paste the recipe here"></textarea></label>
@@ -906,7 +905,7 @@
         <label>Carbs (g)<input type="number" id="recipe-carbs" min="0" step="0.1" inputmode="decimal"></label>
         <label>Fat (g)<input type="number" id="recipe-fat" min="0" step="0.1" inputmode="decimal"></label>
         <label>Calories<input type="number" id="recipe-calories" min="0" step="1" inputmode="numeric"></label>
-        <label>Servings (this recipe makes)<input type="number" id="recipe-servings" min="1" step="1" inputmode="numeric"></label>
+        <label>Servings<input type="number" id="recipe-servings" min="1" step="1" inputmode="numeric"></label>
       </div>
       <img id="recipe-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo for this recipe" class="hidden" style="width:100%;border-radius:12px;margin:8px 0">
       <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo for this recipe">
@@ -947,7 +946,7 @@
       <img id="chat-header-avatar" class="chat-header-avatar" src="icons/lotus-gold-only-transparent.png" alt="">
       <h2 id="chat-title">Companion</h2>
     </div>
-    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored. <a href="privacy.html">Privacy Policy</a></p></details>
+    <details class="chat-privacy"><summary>Encouragement only, not medical advice.</summary><p class="muted" style="font-size:.85rem;margin:6px 0 0">When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored on our servers. <a href="privacy.html">Privacy Policy</a></p></details>
     <div class="card hidden" id="morning-checkin" style="border-left:4px solid #E8B54A">
       <p style="margin:0 0 4px;font-weight:700">Good morning, Jessica.</p>
       <p style="margin:0" id="morning-checkin-q"></p>
@@ -960,7 +959,7 @@
       <button type="button" class="btn btn-small chat-mic hidden" id="chat-mic" aria-label="Talk instead of typing" title="Talk instead of typing"><svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
       <button type="submit" class="btn btn-small" id="chat-send">Send</button>
     </form>
-    <p class="muted" style="font-size:.8rem;margin:4px 0 0">40 messages a day.</p>
+    <p class="muted" style="font-size:.8rem;margin:4px 0 0">You can send 40 messages a day.</p>
     <p class="code-msg" id="chat-msg" style="min-height:1.2em"></p>
     <p style="margin:4px 0 0"><button type="button" class="btn-link" id="chat-clear-btn">Clear chat history</button></p>
   </section>
@@ -970,7 +969,7 @@
     <h2>Settings</h2>
 
     <form id="settings-form">
-      <h2 class="settings-group">Your plan</h2>
+      <h2 class="settings-group">Your goals</h2>
       <details class="card" id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
@@ -1098,7 +1097,7 @@
         <label>Goal weight (lbs)
           <input type="number" id="set-goal-weight" min="0" step="0.1" placeholder="e.g. 150">
         </label>
-        <p class="muted">Your chart shows a goal line. Set it with your clinician.</p>
+        <p class="muted">Your chart shows a goal line. Set your goal weight with your clinician's guidance.</p>
       </div>
 
           <div style="margin-bottom:16px">
@@ -1114,7 +1113,7 @@
           <input type="date" id="set-refill-date">
         </label>
         <p class="muted" id="refill-countdown"></p>
-        <p class="muted">A reminder to request your prescription before you run out.</p>
+        <p class="muted">Reminds you to request your prescription before you run out.</p>
       </div>
 
         </div>
@@ -1140,7 +1139,7 @@
           </label>
         </details>
         <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px">Save changes</button>
-        <p class="muted" style="margin:6px 0 0;font-size:.9rem">Save changes is for your companion key.</p>
+        <p class="muted" style="margin:6px 0 0;font-size:.9rem">This Save changes button is only for your companion key.</p>
         <p class="code-msg" id="settings-saved-msg" role="status" style="min-height:1.2em"></p>
         </div>
       </details>
@@ -1236,7 +1235,7 @@
 
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
       <h3>Backup &amp; restore</h3>
-      <p class="muted">Download backup saves a file to this phone, and keeps a copy inside the app. Restore opens a picker: choose On My iPhone or Downloads.</p>
+      <p class="muted">Tap Download backup to save a file to this device and keep a copy inside the app. Restore opens a picker: choose your files or Downloads.</p>
       <p class="muted">Your entries live only in this app on this phone. Always open it from its home-screen icon. Safari or a link shows a separate, empty copy.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" class="btn btn-primary" id="backup-data">Download backup</button>
@@ -1256,10 +1255,10 @@
 
     <div id="reset-lotus-card" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
       <h3>Reset my lotus</h3>
-      <p class="muted">Taking a break, or starting fresh? Resetting closes your lotus back to a bud and clears your log, so you can start again from the beginning.</p>
+      <p class="muted">Taking a break, or starting fresh? Resetting returns your lotus to a bud and clears your log.</p>
       <button type="button" class="btn" id="reset-lotus-start">Reset my lotus</button>
       <div id="reset-lotus-confirm" class="hidden" style="margin-top:12px">
-        <p style="margin:0 0 8px"><strong>This clears:</strong> your lotus, and your whole log. Water, protein, movement, strength, injections, weight, measurements, photos, journal, moods, and side effects.</p>
+        <p style="margin:0 0 8px"><strong>This clears:</strong> your lotus and your whole log. Water, protein, movement, strength, injections, weight, measurements, photos, journal, moods, and side effects.</p>
         <p class="muted" style="margin:0 0 8px"><strong>This stays:</strong> your settings and goals, and your Companion memory.</p>
         <p class="muted" style="margin:0 0 10px">Back up first if you want to keep a copy. You can restore it later from Backup &amp; restore.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1283,25 +1282,25 @@
       <p style="font-weight:600">A GLP-1 lifestyle tool with a personal AI Wellness Companion. Everything in one place.</p>
       <p class="muted">Developed by Jessica A. Miller, Founder, New Chapter.</p>
       <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
-      <p><strong>Who it is for:</strong> For adults navigating GLP-1 treatment.</p>
+      <p><strong>Who it is for:</strong> Adults navigating GLP-1 treatment.</p>
       <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
       <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while staying strong.</p>
       <h4 style="margin:16px 0 8px">Why protecting muscle matters</h4>
-      <p>About 25 percent of the weight lost on Zepbound can be lean mass, not just fat. For semaglutide, the STEP-1 DXA subset found about 40 percent. DXA measures lean mass, which includes water and organ tissue along with muscle. It is not pure muscle.</p>
+      <p>About 25 percent of the weight lost on Zepbound can be lean mass, not just fat. For semaglutide, the STEP-1 DXA subset found about 40 percent was lean mass. DXA measures lean mass, which includes water and organ tissue along with muscle. It is not pure muscle.</p>
       <h4 style="margin:16px 0 8px">Sources</h4>
       <ul>
         <li>Karakasis et al., Metabolism, March 2025 (PMID 39719170): about 25 percent of tirzepatide weight loss was lean mass.</li>
-        <li>SURMOUNT-1 body composition, Diabetes, Obesity and Metabolism, 2025 (PMID 39996356; PMC11965027): about 75% fat mass and 25% lean mass.</li>
+        <li>SURMOUNT-1 body composition, Diabetes, Obesity and Metabolism, 2025 (PMID 39996356; PMC11965027): about 75 percent fat mass and 25 percent lean mass.</li>
         <li>Tinsley and Nadolsky, 2025 (PMC12536186), reporting trial data from the STEP-1 DXA subset: about 40 percent lean soft tissue.</li>
       </ul>
       <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
-      <p>Track medication, injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
+      <p>Track injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h4 style="margin:16px 0 8px">Privacy</h4>
-      <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. It stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.</p>
+      <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored on our servers.</p>
       <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your message and a short summary of today leave this device and are processed by Cloudflare to generate a reply. The summary is not your full log. Messages are not stored on our servers afterward. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
-      <p><strong>Companion memory (optional, off by default):</strong> Companion Memory is different. It is optional, and it is off by default. If you turn it on, it stores your name, goals, preferences, medication, dose, and shot day, so the Companion can personalize its replies. That saved memory is kept until you delete it with Forget me in Settings.</p>
+      <p><strong>Companion memory:</strong> Companion Memory is different. It is optional, and it is off by default. If you turn it on, it stores your name, goals, preferences, medication, dose, and shot day, so the Companion can personalize its replies. That saved memory is kept until you delete it with Forget me in Settings.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
         <a class="btn btn-small" href="terms.html" style="text-decoration:none;display:inline-flex;align-items:center">Terms of Service</a>
@@ -1342,7 +1341,7 @@
         <label>Carbs (g) <input type="number" id="scan-carbs" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <label>Fat (g) <input type="number" id="scan-fat" min="0" step="0.1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px"></label>
         <p class="muted">Check the label and edit these grams before logging. No calories are shown or logged.</p>
-        <button type="button" class="btn btn-primary btn-block" id="scan-log-btn">Log scanned food</button>
+        <button type="button" class="btn btn-primary btn-block" id="scan-log-btn">Log this food</button>
       </div>
     </div>
   </div>
@@ -1360,7 +1359,7 @@
 
   <section id="tab-help" class="tab-panel" role="tabpanel" aria-label="Help">
     <h2>Help</h2>
-    <p class="muted">Short videos that show you how, step by step, and answers to common questions.</p>
+    <p class="muted">Short videos that show you how, step by step, plus answers to common questions.</p>
     <div class="card">
       <h3>Help videos</h3>
       <p class="muted" style="margin:0 0 10px">Tap a title to watch.</p>
@@ -1373,7 +1372,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Getting started</summary>
-          <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. It is three ninety-nine a month, or twenty-nine ninety-nine a year. Cancel anytime. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
+          <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. It is $3.99 a month, or $29.99 a year. Cancel anytime. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1384,7 +1383,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Entering your code</summary>
-          <p>Get your code from the welcome page with your purchase email. Then enter it here in Settings. Type in the 6-digit code, and tap Connect My Companion. Once it connects, your companion is ready to chat. A code works for one hour on the device you enter it on. If it expires, request a fresh one from the welcome page.</p>
+          <p>Get your code from the welcome page with your purchase email. Then enter it here in Settings. Type in the 6-digit code, and tap Connect my companion. Once it connects, your companion is ready to chat. A code works for one hour on the device you enter it on. If it expires, request a fresh one from the welcome page.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1395,7 +1394,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Today</summary>
-          <p>This is Today, your home screen. Your lotus opens a little more each day you log. Tap Log shot to log your shot. Then water and movement. Your weight, and your food, by meal. That is Today. One day at a time.</p>
+          <p>This is Today, your home screen. Your lotus opens a little more each day you log. Tap Log shot to record your shot. Then water and movement. Your weight, and your food, by meal. That is Today. One day at a time.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1406,7 +1405,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Shots</summary>
-          <p>Log your shot in seconds, the dose is already filled in. Tap Log Shot, check the details, and save. Your history stays right here, and a weekly reminder keeps your shot day on track.</p>
+          <p>Log your shot in seconds. The dose is already filled in. Tap Log shot, check the details, and save. Your history stays right here, and a weekly reminder keeps your shot day on track.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1428,7 +1427,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Journal</summary>
-          <p>Tap More, then Journal, then New Entry. Pick a mood, and write a few words about how the day felt. Save it, and it is there in your list, ready to look back on. Your entries stay grouped by month, so you can look back any time.</p>
+          <p>Tap More, then Journal, then New Entry. Pick a mood, and write a few words about how the day felt. Save it, and it is there in your list, ready to look back on. Your entries stay grouped by month, so you can find them any time.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1450,7 +1449,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Kitchen</summary>
-          <p>Open the Kitchen tab to find a recipe. Tap a recipe to see it. The Greek Yogurt Berry Bowl is two hundred fifteen calories, with twenty grams of protein. Save it for later, and add the ingredients to your shopping list. Your shopping list is ready in the Kitchen, with everything you need.</p>
+          <p>Open the Kitchen tab to find a recipe. Tap a recipe to see it. The Greek Yogurt Berry Bowl is 215 calories, with 20 grams of protein. Save it for later, and add the ingredients to your shopping list. Your shopping list is ready in the Kitchen, with everything you need.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1461,7 +1460,7 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Settings</summary>
-          <p>In Settings, set your medication, dose, and shot day, so Today counts down to your next shot. Set your goals too: water, protein and movement, and your goal weight. Turn on Companion Memory here in Settings, so your Companion remembers your goals and your shot day. Changes save as you type. Set it once, and the app does the rest.</p>
+          <p>In Settings, set your medication, dose, and shot day, so Today counts down to your next shot. Set your goals too: water, protein, movement, and your goal weight. Turn on Companion Memory here in Settings, so your Companion remembers your goals and your shot day. Changes save as you type. Set it once, and the app does the rest.</p>
         </details>
       </details>
       <details class="help-video" style="margin:0 0 8px">
@@ -1472,20 +1471,20 @@
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
           <summary aria-expanded="false">Video transcript: Side Effects</summary>
-          <p>If something feels off, log it on the side effects tab. Tap log effect, add the symptom, and the severity, then save. Your notes stay in one list, share them with your prescribing doctor.</p>
+          <p>If something feels off, log it on the side effects tab. Tap Log side effect, add the symptom and the severity, then save. Your notes stay in one list. Share them with your prescribing doctor.</p>
         </details>
       </details>
       </div>
     </div>
     <div class="card">
       <h3 style="margin:12px 0 4px">Your code</h3>
-      <p class="muted" style="margin:0 0 10px">Get your code from the <a href="https://millrjess.github.io/tracker/welcome/">welcome page</a> with your purchase email. Enter it in Settings under AI Wellness Companion access. A code works for one hour, on the device that first uses it.</p>
+      <p class="muted" style="margin:0 0 10px">Enter your code in Settings under AI Wellness Companion access. A code works for one hour, on the device that first uses it.</p>
       <h3 style="margin:12px 0 4px">Back up</h3>
       <p class="muted" style="margin:0 0 10px">In Settings, under Backup &amp; restore, tap Download backup. The app also keeps a copy inside it, and makes automatic copies.</p>
       <h3 style="margin:12px 0 4px">Restore</h3>
       <p class="muted" style="margin:0 0 10px">In Settings, under Backup &amp; restore, tap Restore backup, then pick On My iPhone or Downloads. Or restore from a copy inside the app.</p>
       <h3 style="margin:12px 0 4px">Archive</h3>
-      <p class="muted" style="margin:0">In Your foods, tap Archive to move a food out of the list. Tap Archived foods to see them, Restore to bring one back, or the x to remove one. Archiving never deletes a food.</p>
+      <p class="muted" style="margin:0">In Your foods, tap Archive to move a food out of the list. Tap Archived foods to see them, Restore to bring one back, or the x to delete one for good. Archiving never deletes a food.</p>
     </div>
     <button type="button" class="btn btn-primary" data-goto="today" style="width:100%">Back to Today</button>
   </section>
@@ -1496,7 +1495,7 @@
   <div class="modal-card" style="display:flex;flex-direction:column;max-height:calc(100vh - 48px - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 48px - env(safe-area-inset-bottom, 0px));margin-top:0">
     <button type="button" class="modal-x" id="doctor-x" aria-label="Close doctor visit summary">×</button>
     <h2 style="margin-top:0">Doctor visit summary</h2>
-    <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
+    <p class="muted">A simple summary of your weight, shots, and side effects to show your clinician. It is not medical advice.</p>
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:12px;flex:none">
       <label style="margin:0">From
         <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 4px;font-size:.9rem">
@@ -1509,7 +1508,7 @@
     <div class="form-actions" style="flex-wrap:wrap;flex:none">
       <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
       <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
-      <button type="button" class="btn" id="doctor-pdf">Download PDF</button>
+      <button type="button" class="btn" id="doctor-pdf">Download (.pdf)</button>
       <button type="button" class="btn" id="doctor-close">Close</button>
     </div>
     <p class="code-msg" id="doctor-msg" style="min-height:1.2em;flex:none"></p>
@@ -1628,7 +1627,7 @@
           <input type="number" id="setup-fat-goal" min="0" step="1" placeholder="Grams">
         </label>
       </div>
-      <button type="button" class="btn btn-small" id="setup-fill-percent" style="margin-top:10px">Use 35% carbs, 33% fat, 32% protein</button>
+      <button type="button" class="btn btn-small" id="setup-fill-percent" style="margin-top:10px">Use 32% protein, 35% carbs, 33% fat</button>
       <p class="muted" id="setup-percent-note" style="font-size:.9rem">Fills the grams from your calorie target.</p>
     </div>
 
@@ -1646,9 +1645,9 @@
   </div>
 </div>
 
-  <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Log food from a photo" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
-      <h2 style="margin-top:0">Scan my plate</h2>
+      <h2 style="margin-top:0">Log food from a photo</h2>
       <p class="muted">Scan my plate is coming soon. For now, name the food and enter the macros below.</p>
       <img id="plate-photo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Photo of your plate" class="hidden" style="width:100%;border-radius:12px;margin-bottom:12px">
       <input type="file" id="plate-photo-input" accept="image/*" capture="environment" class="hidden" aria-label="Take a photo of your plate">
