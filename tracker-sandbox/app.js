@@ -1076,7 +1076,7 @@ document.addEventListener("keydown", (e) => {
     const sheet = document.getElementById("more-sheet");
     if (sheet && !sheet.classList.contains("hidden")) { e.preventDefault(); closeMoreSheet(); return; }
     const planEditor = document.getElementById("movement-plan-editor");
-    if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
+    if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); hideFitnessStrengthPlan(); return; }
     const doctorModal = document.getElementById("doctor-modal");
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
     if (inlineAddKey) { e.preventDefault(); closeInlineAdd(); return; }
@@ -4152,8 +4152,34 @@ function closeMovementPlanEditor() {
 }
 document.getElementById("movement-customize").addEventListener("click", () => {
   const editor = document.getElementById("movement-plan-editor");
-  if (editor && editor.classList.contains("hidden")) openMovementPlanEditor();
-  else closeMovementPlanEditor();
+  if (editor && editor.classList.contains("hidden")) { openMovementPlanEditor(); showFitnessStrengthPlan(); }
+  else { closeMovementPlanEditor(); hideFitnessStrengthPlan(); }
+});
+/* v091: the merged Fitness card has one Customize button for the day.
+   On rest days it also shows the strength plan switcher, so the plan
+   can change from the card; on workout days the routine list already
+   shows Swap and Remove for each exercise. */
+function showFitnessStrengthPlan() {
+  const wrap = document.getElementById("fitness-strength-plan");
+  if (!wrap) return;
+  if (effectiveStrengthRoutine()) { wrap.classList.add("hidden"); return; }
+  const sel = document.getElementById("fitness-strength-plan-select");
+  if (sel) sel.value = (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
+  wrap.classList.remove("hidden");
+}
+function hideFitnessStrengthPlan() {
+  const wrap = document.getElementById("fitness-strength-plan");
+  if (wrap) wrap.classList.add("hidden");
+}
+const fitnessPlanSel = document.getElementById("fitness-strength-plan-select");
+if (fitnessPlanSel) fitnessPlanSel.addEventListener("change", () => {
+  store.settings.strengthPlan = fitnessPlanSel.value === "3day" ? "3day" : "4day";
+  saveStore();
+  const sp = document.getElementById("set-strength-plan");
+  if (sp) sp.value = store.settings.strengthPlan;
+  renderStrengthRoutine();
+  if (effectiveStrengthRoutine()) hideFitnessStrengthPlan();
+  else showFitnessStrengthPlan();
 });
 document.getElementById("movement-plan-cancel").addEventListener("click", closeMovementPlanEditor);
 // v169: removing a custom exercise from the picker. Staged like every
@@ -4237,6 +4263,7 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
   }
   saveStore();
   closeMovementPlanEditor();
+  hideFitnessStrengthPlan();
   renderToday();
 });
 
@@ -12234,7 +12261,7 @@ const KITCHEN_RECIPES = [
   },
   {
     "id": "sicilian-sardines-chickpeas-lemon",
-    "image": "",
+    "image": "kitchen/sicilian-sardines-chickpeas-lemon.jpg",
     "credit": "",
     "name": "Sicilian Sardines with Chickpeas and Lemon",
     "category": "Dinner",
