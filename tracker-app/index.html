@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=083">
+<link rel="stylesheet" href="styles.css?v=084">
 </head>
 <body>
 
@@ -282,7 +282,8 @@
     <div class="card" id="strength-card" role="group" aria-label="Strength">
       <h2 class="card-title">Strength</h2>
       <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
-      <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button><button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button></div>
+      <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
         <label>Exercise
           <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
@@ -304,10 +305,6 @@
       </form>
       <p class="code-msg" id="strength-saved-msg" role="status"></p>
       <div id="strength-list"></div>
-      <div style="margin-top:12px">
-        <button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button>
-        <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
-      </div>
     </div>
 
     <div class="card" id="weight-today-card" role="group" aria-label="Weight">
@@ -414,7 +411,8 @@
     <div class="card" id="foods-card" role="group" aria-label="Today's food">
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
-      <div style="margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button><button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button></div>
+      <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
           <input type="text" enterkeyhint="search" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
@@ -454,10 +452,6 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
-      <div style="margin-top:12px">
-        <button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button>
-        <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
-      </div>
       <div id="food-list"></div>
     </div>
 
@@ -1710,7 +1704,7 @@
     </div>
   </div>
 
-<script src="app.js?v=083"></script>
+<script src="app.js?v=084"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
