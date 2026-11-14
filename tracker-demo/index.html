@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=085">
+<link rel="stylesheet" href="styles.css?v=086">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -1454,27 +1454,27 @@
      opens from Weight, Shots, and Side Effects alike. It was nested
      inside the Weight tab, whose display:none hid it on every other
      tab, so the Shots and Side Effects buttons appeared to do nothing. -->
-<div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary">
-  <div class="modal-card">
+<div id="doctor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Doctor visit summary" style="padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px))">
+  <div class="modal-card" style="display:flex;flex-direction:column;max-height:calc(100vh - 48px - env(safe-area-inset-bottom, 0px));max-height:calc(100dvh - 48px - env(safe-area-inset-bottom, 0px));margin-top:0">
     <button type="button" class="modal-x" id="doctor-x" aria-label="Close doctor visit summary">×</button>
     <h2 style="margin-top:0">Doctor visit summary</h2>
     <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-      <label style="flex:1 1 0;min-width:0">From
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:12px;flex:none">
+      <label style="margin:0">From
         <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 4px;font-size:.9rem">
       </label>
-      <label style="flex:1 1 0;min-width:0">To
+      <label style="margin:0">To
         <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 4px;font-size:.9rem">
       </label>
     </div>
-    <textarea id="doctor-text" readonly rows="10" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
-    <div class="form-actions" style="flex-wrap:wrap">
+    <textarea id="doctor-text" readonly rows="6" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical;flex:0 1 auto;min-height:120px;overflow-y:auto"></textarea>
+    <div class="form-actions" style="flex-wrap:wrap;flex:none">
       <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
       <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
       <button type="button" class="btn" id="doctor-pdf">Download PDF</button>
       <button type="button" class="btn" id="doctor-close">Close</button>
     </div>
-    <p class="code-msg" id="doctor-msg" style="min-height:1.2em"></p>
+    <p class="code-msg" id="doctor-msg" style="min-height:1.2em;flex:none"></p>
   </div>
 </div>
 
@@ -1506,7 +1506,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=085"></script>
+<script src="demo-seed.js?v=086"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1545,7 +1545,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=085"></script>
+<script src="app.js?v=086"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
