@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=083">
+<link rel="stylesheet" href="styles.css?v=084">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -270,7 +270,8 @@
     <div class="card" id="strength-card" role="group" aria-label="Strength">
       <h2 class="card-title">Strength</h2>
       <p class="muted" style="margin:0 0 12px">Saves to today and shows in your doctor summary.</p>
-      <button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-small" id="strength-toggle" aria-expanded="false" aria-controls="strength-form">Add exercise</button><button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button></div>
+      <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="strength-form" class="hidden" aria-label="Log strength exercise" novalidate>
         <label>Exercise
           <input type="text" id="strength-name" maxlength="80" placeholder="e.g. Push-ups" autocomplete="off" required>
@@ -292,10 +293,6 @@
       </form>
       <p class="code-msg" id="strength-saved-msg" role="status"></p>
       <div id="strength-list"></div>
-      <div style="margin-top:12px">
-        <button type="button" class="btn btn-small" id="copy-yesterday-exercise">Copy yesterday</button>
-        <p class="muted" id="copy-yesterday-exercise-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
-      </div>
     </div>
 
     <div class="card" id="weight-today-card" role="group" aria-label="Weight">
@@ -400,7 +397,8 @@
     <div class="card" id="foods-card" role="group" aria-label="Today's food">
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
-      <div style="margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button><button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button></div>
+      <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
           <input type="text" enterkeyhint="search" id="macro-food-name" maxlength="120" placeholder="e.g. Greek yogurt">
@@ -440,10 +438,6 @@
         </div>
         <p class="code-msg" id="macro-food-msg" style="min-height:1.2em"></p>
       </form>
-      <div style="margin-top:12px">
-        <button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button>
-        <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:6px 0 0;font-size:.9rem"></p>
-      </div>
       <div id="food-list"></div>
     </div>
 
@@ -1512,7 +1506,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=083"></script>
+<script src="demo-seed.js?v=084"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Scan my plate" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Scan my plate</h2>
@@ -1551,7 +1545,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=083"></script>
+<script src="app.js?v=084"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
