@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v086";
+const APP_VERSION = "v087";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -825,6 +825,16 @@ function formatDateShort(iso) {
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   if (isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function formatDateWeekdayShort(iso) {
+  // Same as formatDateShort, with the weekday: "Fri, Nov 13". Used where
+  // a status names the day, for example the Copy yesterday empty result.
+  if (!iso || typeof iso !== "string") return "";
+  const parts = iso.split("-");
+  if (parts.length !== 3) return "";
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
 
@@ -1650,6 +1660,7 @@ function renderToday() {
 
   renderMacros();
   renderMovement();
+  clearStrengthStatus();
   renderStrength();
   renderWeekStrip();
   renderTodayWeight();
@@ -3584,8 +3595,7 @@ function renderMovementSummary() {
   const date = viewedDateStr();
   const mins = sumForDate(store.exercise, date, "minutes");
   const goal = Number(store.settings.movementGoal) || 30;
-  const count = (store.strength || []).filter((e) => e.date === date).length;
-  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength logged");
+  el.textContent = mins + " of " + goal + " min";
 }
 function setMovementSectionOpen(open) {
   movementSectionOpen = open;
@@ -3605,13 +3615,52 @@ function setStrengthFormOpen(open) {
   const toggle = document.getElementById("strength-toggle");
   if (toggle) {
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    toggle.textContent = open ? "Hide form" : "Add exercise";
+    toggle.classList.toggle("hidden", open);
   }
 }
 const movementToggleBtn = document.getElementById("movement-toggle");
 if (movementToggleBtn) movementToggleBtn.addEventListener("click", () => setMovementSectionOpen(!movementSectionOpen));
 const strengthToggleBtn = document.getElementById("strength-toggle");
 if (strengthToggleBtn) strengthToggleBtn.addEventListener("click", () => setStrengthFormOpen(!strengthFormOpen));
+
+/* ---------- Strength status messages (v087) ---------- */
+/* The Strength card shows one short-lived status at a time. A new
+   action, a date change, or a removal clears the old message first,
+   so messages never stack and never go stale. Success messages also
+   clear themselves after a few seconds. */
+let strengthStatusTimer = null;
+let editingStrengthId = null;
+function clearStrengthStatus() {
+  if (strengthStatusTimer) { clearTimeout(strengthStatusTimer); strengthStatusTimer = null; }
+  ["strength-saved-msg", "copy-yesterday-exercise-msg"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = ""; el.classList.remove("success"); }
+  });
+}
+function setStrengthStatus(el, text, isError) {
+  clearStrengthStatus();
+  setFormStatus(el, text, isError);
+  if (!isError) {
+    strengthStatusTimer = setTimeout(() => {
+      if (el) { el.textContent = ""; el.classList.remove("success"); }
+      strengthStatusTimer = null;
+    }, 6000);
+  }
+}
+function resetStrengthForm() {
+  editingStrengthId = null;
+  const form = document.getElementById("strength-form");
+  if (form) form.reset();
+  const saveBtn = document.getElementById("strength-save-btn");
+  if (saveBtn) saveBtn.textContent = "Save";
+}
+function updateCopyYesterdayButton() {
+  const btn = document.getElementById("copy-yesterday-exercise");
+  if (!btn) return;
+  const source = todayStr(viewOffset - 1);
+  const hasYesterday = (store.exercise || []).some((e) => e.date === source) || (store.strength || []).some((e) => e.date === source);
+  btn.disabled = !hasYesterday;
+}
 
 /* ---------- Strength log (v033) ---------- */
 /* One form: exercise name, sets, reps, weight in pounds (optional).
@@ -3628,34 +3677,68 @@ function renderStrength() {
         <p class="entry-title">${escapeHtml(e.name)}, ${escapeHtml(String(e.sets))} ${Number(e.sets) === 1 ? "set" : "sets"} of ${escapeHtml(String(e.reps))} ${Number(e.reps) === 1 ? "rep" : "reps"}${e.weight !== "" && e.weight !== undefined && e.weight !== null ? " at " + escapeHtml(String(e.weight)) + " lbs" : ""}</p>
         <p class="entry-sub">${escapeHtml(formatDate(e.date))}</p>
         <div class="entry-actions">
+          <button class="btn btn-small" data-edit-strength="${e.id}" aria-label="Edit strength entry: ${escapeHtml(e.name)}">Edit</button>
           <button class="btn btn-small btn-danger" data-del-strength="${e.id}" aria-label="Remove strength entry: ${escapeHtml(e.name)}">Remove</button>
         </div>
       </div>`).join("")
     : '<p class="empty-state">No strength logged yet.</p>';
   list.querySelectorAll("[data-del-strength]").forEach((b) => b.addEventListener("click", () => {
+    if (!window.confirm("Remove this exercise?")) return;
+    clearStrengthStatus();
     store.strength = (store.strength || []).filter((x) => x.id !== b.dataset.delStrength);
     saveStore();
     renderStrength();
   }));
+  list.querySelectorAll("[data-edit-strength]").forEach((b) => b.addEventListener("click", () => {
+    const e = (store.strength || []).find((x) => x.id === b.dataset.editStrength);
+    if (!e) return;
+    clearStrengthStatus();
+    editingStrengthId = e.id;
+    document.getElementById("strength-name").value = e.name;
+    document.getElementById("strength-sets").value = e.sets;
+    document.getElementById("strength-reps").value = e.reps;
+    document.getElementById("strength-weight").value = (e.weight === "" || e.weight === undefined || e.weight === null) ? "" : e.weight;
+    const saveBtn = document.getElementById("strength-save-btn");
+    if (saveBtn) saveBtn.textContent = "Update";
+    setStrengthFormOpen(true);
+    document.getElementById("strength-name").focus();
+  }));
+  updateCopyYesterdayButton();
   renderMovementSummary();
 }
 document.getElementById("strength-form").addEventListener("submit", (ev) => {
   ev.preventDefault();
+  clearStrengthStatus();
   const name = document.getElementById("strength-name").value.trim();
   const sets = Math.round(Number(document.getElementById("strength-sets").value));
   const reps = Math.round(Number(document.getElementById("strength-reps").value));
   const weightRaw = document.getElementById("strength-weight").value;
   const weight = weightRaw === "" ? "" : Number(weightRaw);
   const msg = document.getElementById("strength-saved-msg");
-  if (!name) { setFormStatus(msg, "Give your exercise a name first.", true); return; }
-  if (!Number.isFinite(sets) || sets < 1) { setFormStatus(msg, "Sets must be at least 1.", true); return; }
-  if (!Number.isFinite(reps) || reps < 1) { setFormStatus(msg, "Reps must be at least 1.", true); return; }
-  if (weight !== "" && (!Number.isFinite(weight) || weight < 0)) { setFormStatus(msg, "Weight must be 0 or more, or left blank.", true); return; }
+  if (!name) { setStrengthStatus(msg, "Give your exercise a name first.", true); return; }
+  if (!Number.isFinite(sets) || sets < 1) { setStrengthStatus(msg, "Sets must be at least 1.", true); return; }
+  if (!Number.isFinite(reps) || reps < 1) { setStrengthStatus(msg, "Reps must be at least 1.", true); return; }
+  if (weight !== "" && (!Number.isFinite(weight) || weight < 0)) { setStrengthStatus(msg, "Weight must be 0 or more, or left blank.", true); return; }
+  if (editingStrengthId) {
+    const e = (store.strength || []).find((x) => x.id === editingStrengthId);
+    if (e) { e.name = name.slice(0, 80); e.sets = sets; e.reps = reps; e.weight = weight; }
+    saveStore();
+    resetStrengthForm();
+    setStrengthStatus(msg, "Strength exercise updated.");
+    renderStrength();
+    setStrengthFormOpen(false);
+    return;
+  }
   store.strength.push({ id: uid(), date: viewedDateStr(), name: name.slice(0, 80), sets, reps, weight });
   saveStore();
-  document.getElementById("strength-form").reset();
-  setFormStatus(msg, "Strength exercise saved.");
+  resetStrengthForm();
+  setStrengthStatus(msg, "Strength exercise saved.");
   renderStrength();
+  setStrengthFormOpen(false);
+});
+document.getElementById("strength-cancel").addEventListener("click", () => {
+  clearStrengthStatus();
+  resetStrengthForm();
   setStrengthFormOpen(false);
 });
 
@@ -3664,13 +3747,14 @@ document.getElementById("strength-form").addEventListener("submit", (ev) => {
    being viewed, as new entries. Same duplicate rule as foods: an entry
    already copied today is skipped, so a second tap adds nothing. */
 function copyYesterdayExercises() {
+  clearStrengthStatus();
   const msg = document.getElementById("copy-yesterday-exercise-msg");
   const target = viewedDateStr();
   const source = todayStr(viewOffset - 1);
   const yesterdaysEx = (store.exercise || []).filter((e) => e.date === source);
   const yesterdaysSt = (store.strength || []).filter((e) => e.date === source);
   if (!yesterdaysEx.length && !yesterdaysSt.length) {
-    if (msg) msg.textContent = "Nothing logged yesterday.";
+    if (msg) setStrengthStatus(msg, "Nothing logged " + formatDateWeekdayShort(source) + ".");
     return;
   }
   const todaysEx = (store.exercise || []).filter((e) => e.date === target);
@@ -3689,12 +3773,12 @@ function copyYesterdayExercises() {
     copied++;
   });
   if (!copied) {
-    if (msg) msg.textContent = "Already copied. Nothing new to add.";
+    if (msg) setStrengthStatus(msg, "Already copied. Nothing new to add.");
     return;
   }
   saveStore();
   renderToday();
-  if (msg) msg.textContent = "Copied " + copied + (copied === 1 ? " entry" : " entries") + " from yesterday.";
+  if (msg) setStrengthStatus(msg, "Copied " + copied + (copied === 1 ? " entry" : " entries") + " from yesterday.");
 }
 document.getElementById("copy-yesterday-exercise").addEventListener("click", copyYesterdayExercises);
 
