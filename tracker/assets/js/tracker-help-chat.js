@@ -76,28 +76,10 @@
   window.addEventListener("resize",raiseBubble);
   window.addEventListener("scroll",raiseBubble,{passive:true});
   raiseBubble();
-  /* Hide the bubble while the hero or the pricing section is in view,
-     so it never covers the trial wording in the hero or body text or
-     the edge of a Subscribe button at pricing. It reappears once the
-     user has scrolled past the hero, except at pricing, where it
-     stays hidden. If the chat panel is open when the bubble hides,
-     the panel closes too. */
-  var hero=document.querySelector(".hero");
-  var pricing=document.getElementById("pricing");
-  var hideHero=false, hidePricing=false;
-  function updateBubble(){
-    var hide=hideHero || hidePricing;
-    btn.style.display=hide?"none":"";
-    if(hide && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); }
-  }
-  if("IntersectionObserver" in window){
-    if(hero){
-      new IntersectionObserver(function(entries){ hideHero=entries[0].isIntersecting; updateBubble(); }).observe(hero);
-    }
-    if(pricing){
-      new IntersectionObserver(function(entries){ hidePricing=entries[0].isIntersecting; updateBubble(); }).observe(pricing);
-    }
-  }
+  /* The bubble stays visible at all times, so help is available when the
+     reader needs it, including at pricing where they may have a question
+     before subscribing. The raiseBubble logic above already lifts the
+     bubble above the sticky mobile buy bar, so it never covers Subscribe. */
   document.body.appendChild(btn); document.body.appendChild(panel);
   function ask(){
     var inp=document.getElementById("thc-q"); var q=inp.value.trim(); if(!q) return;
