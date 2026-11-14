@@ -12231,6 +12231,42 @@ const KITCHEN_RECIPES = [
       "Use no more than 1 tbsp per person as a flavour condiment on grilled fish or vegetables, not as a spread in quantity.",
       "Do not make it a daily item for high blood pressure or kidney disease."
     ]
+  },
+  {
+    "id": "sicilian-sardines-chickpeas-lemon",
+    "image": "",
+    "credit": "",
+    "name": "Sicilian Sardines with Chickpeas and Lemon",
+    "category": "Dinner",
+    "time": 15,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 32, "carbs": 33, "fat": 21, "saturatedFat": 3, "calories": 445, "sodium": 570,
+    "tags": [
+      "dinner",
+      "high-protein",
+      "gluten-free",
+      "dairy-free",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "2 cans (3.75 oz each) sardines in olive oil, drained",
+      "1 can (15 oz) chickpeas, drained and rinsed",
+      "1 cup cherry tomatoes, halved",
+      "1 tbsp olive oil",
+      "1 lemon, juiced",
+      "2 garlic cloves, thinly sliced",
+      "1/4 cup fresh parsley, chopped",
+      "1/4 tsp red pepper flakes",
+      "Black pepper"
+    ],
+    "steps": [
+      "Warm the olive oil in a wide pan over medium heat. Add the garlic and cook 30 seconds.",
+      "Add the chickpeas and tomatoes. Cook 5 minutes until the tomatoes soften.",
+      "Take the pan off the heat. Stir in the lemon juice and half the parsley.",
+      "Spoon the chickpeas onto two plates. Lay the sardines on top.",
+      "Scatter the rest of the parsley and the pepper flakes over each plate."
+    ]
   }
 ];
 let kitchenFilter = "all";
