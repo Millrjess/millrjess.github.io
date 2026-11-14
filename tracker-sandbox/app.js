@@ -3669,8 +3669,8 @@ const STRENGTH_ROUTINES = {
 };
 /* Swap-only alternatives: exercises that are not in any built-in day
    but can replace one. Merged into the exercise index below, so a
-   swap target always resolves to full data. Dumbbell, band, and
-   bodyweight only. */
+   swap target always resolves to full data. Dumbbell, band,
+   bodyweight, and machine options. */
 const STRENGTH_SWAP_ALTS = {
   "Floor Press": { name: "Floor Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lie on the floor, press up, lower until your elbows touch the floor." },
   "Band Chest Press": { name: "Band Chest Press", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Band behind your back, press forward, control the return." },
@@ -3686,7 +3686,16 @@ const STRENGTH_SWAP_ALTS = {
   "Band Lateral Raise": { name: "Band Lateral Raise", muscle: "Shoulders, side", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand on the band, lift to shoulder height." },
   "Band Triceps Extension": { name: "Band Triceps Extension", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows close to your head, extend overhead." },
   "Dumbbell Kickback": { name: "Dumbbell Kickback", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Hinge forward, extend your arm back, squeeze." },
-  "Seated Calf Raise": { name: "Seated Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Full range, pause at the bottom." }
+  "Seated Calf Raise": { name: "Seated Calf Raise", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Full range, pause at the bottom." },
+  "Chest Press machine": { name: "Chest Press machine", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Sit tall, press forward, control the return." },
+  "Seated Row machine": { name: "Seated Row machine", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10", cue: "Pull to your ribs, squeeze your shoulder blades." },
+  "Shoulder Press machine": { name: "Shoulder Press machine", muscle: "Shoulders", sets: 3, reps: 10, detail: "3 x 10", cue: "Press overhead, ribs down, do not arch your back." },
+  "Pec Fly machine": { name: "Pec Fly machine", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Open wide, keep a soft bend in the elbows." },
+  "Biceps Curl machine": { name: "Biceps Curl machine", muscle: "Biceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows still, curl slowly, lower slowly." },
+  "Leg Press": { name: "Leg Press", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Push through your heels. One leg at a time for a lunge replacement." },
+  "Seated Leg Curl machine": { name: "Seated Leg Curl machine", muscle: "Hamstrings", sets: 3, reps: 10, detail: "3 x 10", cue: "Curl slowly, control the return, keep your hips down." },
+  "Calf Raise machine": { name: "Calf Raise machine", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Rise onto your toes, lower slowly, full range." },
+  "Abdominal machine": { name: "Abdominal machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return." }
 };
 /* Exercise index, built from the routine days plus the swap-only
    alternatives. A swap is stored by name; this index resolves it. */
@@ -3697,21 +3706,22 @@ Object.values(STRENGTH_ROUTINES).forEach((plan) => {
   });
 });
 Object.values(STRENGTH_SWAP_ALTS).forEach((ex) => { STRENGTH_EXERCISES[ex.name] = ex; });
-/* Sensible swaps for each exercise. Every exercise in the library has
-   two options, so swapping can continue from a swapped-in exercise. */
+/* Sensible swaps for each exercise. Most exercises have two
+   options; exercises with a machine alternative have three, so
+   swapping can continue from a swapped-in exercise. */
 const STRENGTH_SWAPS = {
-  "Dumbbell Bench Press": ["Floor Press", "Band Chest Press"],
-  "One-Arm Dumbbell Row": ["Bent-Over Dumbbell Row, two-arm", "Band Row"],
-  "Dumbbell Shoulder Press": ["Band Shoulder Press", "Pike Push-up"],
-  "Dumbbell Chest Fly": ["Band Chest Fly", "Push-up, or knee push-up"],
-  "Band Row": ["One-Arm Dumbbell Row", "Bent-Over Dumbbell Row, two-arm"],
-  "Dumbbell Biceps Curl": ["Hammer Curl", "Band Biceps Curl"],
-  "Goblet Squat": ["Bodyweight Squat", "Split Squat"],
-  "Romanian Deadlift": ["Dumbbell Deadlift", "Single-Leg Romanian Deadlift"],
-  "Dumbbell Reverse Lunge": ["Split Squat", "Bulgarian Split Squat"],
+  "Dumbbell Bench Press": ["Floor Press", "Band Chest Press", "Chest Press machine"],
+  "One-Arm Dumbbell Row": ["Bent-Over Dumbbell Row, two-arm", "Band Row", "Seated Row machine"],
+  "Dumbbell Shoulder Press": ["Band Shoulder Press", "Pike Push-up", "Shoulder Press machine"],
+  "Dumbbell Chest Fly": ["Band Chest Fly", "Push-up, or knee push-up", "Pec Fly machine"],
+  "Band Row": ["One-Arm Dumbbell Row", "Bent-Over Dumbbell Row, two-arm", "Seated Row machine"],
+  "Dumbbell Biceps Curl": ["Hammer Curl", "Band Biceps Curl", "Biceps Curl machine"],
+  "Goblet Squat": ["Bodyweight Squat", "Split Squat", "Leg Press"],
+  "Romanian Deadlift": ["Dumbbell Deadlift", "Single-Leg Romanian Deadlift", "Seated Leg Curl machine"],
+  "Dumbbell Reverse Lunge": ["Split Squat", "Bulgarian Split Squat", "Leg Press"],
   "Glute Bridge": ["Hip Thrust", "Single-Leg Glute Bridge"],
-  "Standing Calf Raise": ["Seated Calf Raise", "Single-Leg Calf Raise"],
-  "Plank": ["Dead Bug", "Side Plank"],
+  "Standing Calf Raise": ["Seated Calf Raise", "Single-Leg Calf Raise", "Calf Raise machine"],
+  "Plank": ["Dead Bug", "Side Plank", "Abdominal machine"],
   "Bent-Over Dumbbell Row, two-arm": ["One-Arm Dumbbell Row", "Band Row"],
   "Dumbbell Incline Press": ["Dumbbell Bench Press", "Push-up, or knee push-up"],
   "Lateral Raise": ["Band Lateral Raise", "Dumbbell Shoulder Press"],
@@ -3738,7 +3748,16 @@ const STRENGTH_SWAPS = {
   "Band Lateral Raise": ["Lateral Raise", "Dumbbell Shoulder Press"],
   "Band Triceps Extension": ["Overhead Triceps Extension", "Dumbbell Kickback"],
   "Dumbbell Kickback": ["Overhead Triceps Extension", "Band Triceps Extension"],
-  "Seated Calf Raise": ["Standing Calf Raise", "Single-Leg Calf Raise"]
+  "Seated Calf Raise": ["Standing Calf Raise", "Single-Leg Calf Raise"],
+  "Chest Press machine": ["Dumbbell Bench Press", "Floor Press"],
+  "Seated Row machine": ["One-Arm Dumbbell Row", "Band Row"],
+  "Shoulder Press machine": ["Dumbbell Shoulder Press", "Band Shoulder Press"],
+  "Pec Fly machine": ["Dumbbell Chest Fly", "Band Chest Fly"],
+  "Biceps Curl machine": ["Dumbbell Biceps Curl", "Hammer Curl"],
+  "Leg Press": ["Goblet Squat", "Dumbbell Reverse Lunge"],
+  "Seated Leg Curl machine": ["Romanian Deadlift", "Dumbbell Deadlift"],
+  "Calf Raise machine": ["Standing Calf Raise", "Seated Calf Raise"],
+  "Abdominal machine": ["Plank", "Dead Bug"]
 };
 function getStrengthPlan() {
   return (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
