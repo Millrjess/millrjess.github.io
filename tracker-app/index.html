@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=084">
+<link rel="stylesheet" href="styles.css?v=085">
 </head>
 <body>
 
@@ -169,10 +169,10 @@
       <h2 class="card-title">Next shot</h2>
       <p id="next-injection-line">Set your shot day in Settings.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-small" id="goto-shots-btn">Log shot</button>
-        <button class="btn btn-small hidden" id="goto-shot-day-btn">Set shot day</button>
-        <button type="button" class="btn btn-small" id="qa-reminders">Reminders</button>
-        <button type="button" class="btn btn-small" id="qa-log-effect">Side effect</button>
+        <button class="btn btn-primary btn-small" id="goto-shots-btn" style="flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap">Log shot</button>
+        <button class="btn btn-small hidden" id="goto-shot-day-btn" style="flex:0 0 100%;padding-left:8px;padding-right:8px;white-space:nowrap;order:4">Set shot day</button>
+        <button type="button" class="btn btn-small" id="qa-reminders" style="flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap">Reminders</button>
+        <button type="button" class="btn btn-small" id="qa-log-effect" style="flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap">Side effects</button>
       </div>
       <p class="muted hidden" id="today-refill-line" style="margin:8px 0 0;font-size:.9rem"><span id="today-refill-text"></span> <button type="button" class="btn-link" id="today-refill-settings-btn">Change it in Settings</button></p>
     </div>
@@ -1501,13 +1501,13 @@
     <p class="muted">A simple summary of your weight, shots, and side effects, to show your clinician. It is not medical advice.</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px">
       <label style="flex:1 1 0;min-width:0">From
-        <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 8px">
+        <input type="date" id="doctor-from" aria-label="Summary from date" style="min-width:0;padding:10px 4px;font-size:.9rem">
       </label>
       <label style="flex:1 1 0;min-width:0">To
-        <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 8px">
+        <input type="date" id="doctor-to" aria-label="Summary to date" style="min-width:0;padding:10px 4px;font-size:.9rem">
       </label>
     </div>
-    <textarea id="doctor-text" readonly rows="14" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
+    <textarea id="doctor-text" readonly rows="10" aria-label="Doctor visit summary text" style="width:100%;white-space:pre-wrap;font-size:.9rem;line-height:1.6;background:var(--sage-tint);border:1px solid var(--sage-border);border-radius:12px;padding:14px 16px;font-family:inherit;resize:vertical"></textarea>
     <div class="form-actions" style="flex-wrap:wrap">
       <button type="button" class="btn btn-primary" id="doctor-copy">Copy summary</button>
       <button type="button" class="btn" id="doctor-download">Download (.txt)</button>
@@ -1704,7 +1704,7 @@
     </div>
   </div>
 
-<script src="app.js?v=084"></script>
+<script src="app.js?v=085"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
