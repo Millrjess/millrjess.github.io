@@ -9761,7 +9761,7 @@ const KITCHEN_RECIPES = [
     "time": 15,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 24, "carbs": 36, "fat": 13, "saturatedFat": 4.3, "calories": 357, "sodium": 800,
+    "protein": 24, "carbs": 33, "fat": 13, "saturatedFat": 4.3, "calories": 340, "sodium": 450,
     "tags": [
       "breakfast",
       "high-protein",
@@ -9775,8 +9775,8 @@ const KITCHEN_RECIPES = [
       "1 egg",
       "2 egg whites",
       "1 small corn tortilla",
-      "80 g canned black beans, drained (about 1/3 cup)",
-      "80 g salsa (about 1/3 cup)",
+      "80 g canned black beans, drained and rinsed (about 1/3 cup)",
+      "80 g fresh pico de gallo (tomato, onion, cilantro, lime, no added salt)",
       "14 g crumbled feta (about 1/2 oz)",
       "1 teaspoon olive oil",
       "A pinch of cumin and pepper"
@@ -9785,7 +9785,7 @@ const KITCHEN_RECIPES = [
       "Warm the beans in a small pan with the cumin.",
       "Warm the tortilla in a dry pan until soft.",
       "Fry the egg and egg whites in the olive oil the way you like them.",
-      "Lay the tortilla on a plate, spoon the beans over it, top with the eggs, salsa, and feta."
+      "Lay the tortilla on a plate, spoon the beans over it, top with the eggs, pico de gallo, and feta."
     ]
   },
   {
@@ -11279,7 +11279,7 @@ const KITCHEN_RECIPES = [
     "time": 10,
     "difficulty": "Easy",
     "servings": 1,
-    "protein": 17, "carbs": 29, "fat": 8, "saturatedFat": 3.5, "calories": 256, "sodium": 660,
+    "protein": 17, "carbs": 29, "fat": 8, "saturatedFat": 3.5, "calories": 256, "sodium": 300,
     "tags": [
       "breakfast",
       "high-protein",
@@ -11290,18 +11290,18 @@ const KITCHEN_RECIPES = [
     ],
     "ingredients": [
       "1 slice whole-grain bread",
-      "1/2 cup cottage cheese",
+      "1/2 cup low-sodium cottage cheese",
       "1 tomato, sliced",
       "4 fresh basil leaves",
       "1 teaspoon olive oil",
-      "A pinch of salt (optional) and pepper"
+      "Pepper"
     ],
     "steps": [
       "Toast the bread until golden.",
       "Spread the cottage cheese over the toast.",
       "Lay the tomato slices on top.",
       "Tear the basil over the top and drizzle with the olive oil.",
-      "Season lightly and eat right away."
+      "Season with pepper and eat right away."
     ]
   },
   {
