@@ -557,7 +557,7 @@ function saveStore() {
       storeDamaged = false;
       allowEmptySave = true;
       loadedGen = persistedGen;
-      showStorageWarning("Your data was deleted in another window or tab. This copy was cleared to match. If that was a mistake, a safety copy is in Settings, then Backup and restore.");
+      showStorageWarning("Your data was deleted in another window or tab. This copy was cleared to match. If that was a mistake, a safety copy is in Settings, then Backup & restore.");
       return true; // the delete stands; nothing to write
     }
     // (1) Another copy saved since this one loaded: merge instead of
@@ -596,7 +596,7 @@ function saveStore() {
     // let a save make the drop permanent before the user has seen the
     // warning and checked Settings, Backup and restore.
     if (storeDamaged) {
-      showStorageWarning("Some of your saved entries could not be read. Before adding new entries, check Settings, then Backup and restore, for a backup to restore.");
+      showStorageWarning("Some of your saved entries could not be read. Before adding new entries, check Settings, then Backup & restore, for a backup to restore.");
       return false;
     }
     // Second layer of the safety net: if this load could not read the saved
@@ -705,7 +705,7 @@ function saveAutoSnapshot() {
     localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
     localStorage.setItem("nct-sandbox-last-snapshot-day", todayStr());
   } catch {
-    showStorageWarning("A backup copy could not be saved inside this app. Your entries are still saved. Download a backup from Settings, then Backup and restore, to keep a copy.");
+    showStorageWarning("A backup copy could not be saved inside this app. Your entries are still saved. Download a backup from Settings, then Backup & restore, to keep a copy.");
   }
 }
 
@@ -853,7 +853,7 @@ const ENCOURAGEMENTS = [
   "Small habits, repeated daily, last.",
   "Progress is not always visible, but it is happening.",
   "You earned the wisdom. Your body is catching up.",
-  "Protein at every meal protects a lot.",
+  "Protein at every meal protects muscle.",
   "Water first. The rest of the day feels easier.",
   "Movement counts, even a short walk.",
   "Your routine keeps the progress steady.",
@@ -1654,7 +1654,7 @@ function renderTodayFocus() {
   const t = viewedDateStr();
   const due = nextShotDue();
   if (due && (due.daysUntil === 0 || due.overdueDays > 0)) {
-    el.textContent = due.overdueDays > 0 ? "Today's focus: your shot is due." : "Today's focus: your shot is due today.";
+    el.textContent = due.overdueDays > 0 ? "Today's focus: your shot is overdue." : "Today's focus: your shot is due today.";
     return;
   }
   const targets = macroTargets();
@@ -2024,7 +2024,7 @@ function renderMacros() {
     const pCal = targets.protein * 4, cCal = targets.carbs * 4, fCal = targets.fat * 9;
     const tCal = pCal + cCal + fCal;
     balanceEl.textContent = tCal > 0
-      ? "Target balance (share of target calories): " + Math.round(100 * pCal / tCal) + "% protein · " + Math.round(100 * cCal / tCal) + "% carbohydrates · " + Math.round(100 * fCal / tCal) + "% healthy fats"
+      ? "Target balance (share of target calories): " + Math.round(100 * pCal / tCal) + "% protein · " + Math.round(100 * cCal / tCal) + "% carbs · " + Math.round(100 * fCal / tCal) + "% fat"
       : "";
   }
   document.getElementById("macro-center-grams").textContent = totals[selectedMacro];
@@ -2484,7 +2484,7 @@ function renderFoodLibrary() {
     const sug = document.createElement("p");
     sug.className = "muted";
     sug.style.cssText = "font-size:.9em;margin:0 0 6px";
-    sug.textContent = "Your foods is getting long. Archive the ones you no longer use to keep it quick.";
+    sug.textContent = "Your foods are getting long. Archive the ones you no longer use to keep it quick.";
     list.appendChild(sug);
     const ab = document.createElement("button");
     ab.type = "button";
@@ -3527,7 +3527,7 @@ function renderMovementSummary() {
   const mins = sumForDate(store.exercise, date, "minutes");
   const goal = Number(store.settings.movementGoal) || 30;
   const count = (store.strength || []).filter((e) => e.date === date).length;
-  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength");
+  el.textContent = mins + " of " + goal + " min" + (count ? " · " + count + " strength" : " · No strength logged");
 }
 function setMovementSectionOpen(open) {
   movementSectionOpen = open;
@@ -3573,7 +3573,7 @@ function renderStrength() {
           <button class="btn btn-small btn-danger" data-del-strength="${e.id}" aria-label="Remove strength entry: ${escapeHtml(e.name)}">Remove</button>
         </div>
       </div>`).join("")
-    : '<p class="empty-state">No strength yet.</p>';
+    : '<p class="empty-state">No strength logged yet.</p>';
   list.querySelectorAll("[data-del-strength]").forEach((b) => b.addEventListener("click", () => {
     store.strength = (store.strength || []).filter((x) => x.id !== b.dataset.delStrength);
     saveStore();
@@ -3741,7 +3741,7 @@ document.getElementById("custom-ex-add").addEventListener("click", () => {
   const detailInput = document.getElementById("custom-ex-detail");
   const msg = document.getElementById("custom-ex-msg");
   const name = nameInput.value.trim();
-  if (!name) { setFormStatus(msg, "Type an exercise name first.", true); nameInput.focus(); return; }
+  if (!name) { setFormStatus(msg, "Give your exercise a name first.", true); nameInput.focus(); return; }
   const list = document.getElementById("movement-plan-list");
   let duplicate = false;
   list.querySelectorAll("input[type='checkbox']").forEach((cb) => {
@@ -4140,7 +4140,7 @@ function downloadShotReminder() {
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   try { localStorage.setItem(REMINDER_SHOT_DAY_KEY, shotDay); } catch {}
   if (note) {
-    note.textContent = "Reminder downloaded for " + shotDay + "s. Open the downloaded file to add it to your calendar. The reminder lives in your phone's calendar. Change or remove it there.";
+    note.textContent = "Reminder downloaded for " + shotDay + ". Open the downloaded file to add it to your calendar. The reminder lives in your phone's calendar. Change or remove it there.";
     note.classList.remove("hidden");
   }
   renderShotReminderMismatch();
@@ -4157,7 +4157,7 @@ function renderShotReminderMismatch() {
   const shotDay = store.settings.shotDay;
   const mismatch = saved && shotDay && saved !== shotDay;
   if (line) {
-    line.textContent = mismatch ? "Your downloaded reminder is for " + saved + "s. Your shot day is now " + shotDay + "s." : "";
+    line.textContent = mismatch ? "Your downloaded reminder is for " + saved + ". Your shot day is now " + shotDay + "." : "";
     line.classList.toggle("hidden", !mismatch);
   }
   if (btn) btn.classList.toggle("hidden", !mismatch);
@@ -4326,7 +4326,7 @@ function renderRotationGuide() {
   const last = lastInjection();
   const next = nextInjectionSite();
   if (!last || !next) {
-    el.textContent = "Log your first shot and I will suggest the next site to rotate to.";
+    el.textContent = "Log your first shot to get a suggestion for the next site to rotate to.";
     if (btn) btn.classList.add("hidden");
     return;
   }
@@ -4516,14 +4516,14 @@ function renderWeight() {
     /* Starting weight is frozen (K3). It is read from settings, not from
        the earliest weigh-in, so deleting or backdating entries never
        moves it. */
-    document.getElementById("starting-weight").textContent = start ? Number(start.value).toFixed(1) : "--";
+    document.getElementById("starting-weight").textContent = start ? Number(start.value).toFixed(1) : "-";
     document.getElementById("starting-weight-date").textContent = start ? formatDate(start.date) : "";
   } else {
     const curWEl2 = document.getElementById("current-weight");
-    if (curWEl2) curWEl2.textContent = "--";
+    if (curWEl2) curWEl2.textContent = "-";
     document.getElementById("weight-hero-value").textContent = "—";
     document.getElementById("weight-hero-date").textContent = "No weigh-ins yet";
-    document.getElementById("starting-weight").textContent = "--";
+    document.getElementById("starting-weight").textContent = "-";
     document.getElementById("starting-weight-date").textContent = "";
   }
   renderBMI();
@@ -4545,11 +4545,11 @@ function renderWeight() {
     noteEl.textContent = "";
   } else {
     document.getElementById("total-lost-label").textContent = "Total lost";
-    document.getElementById("total-lost").textContent = "--";
+    document.getElementById("total-lost").textContent = "-";
     document.getElementById("percent-lost-label").textContent = "Percent lost";
-    document.getElementById("percent-lost").textContent = "--";
+    document.getElementById("percent-lost").textContent = "-";
     noteEl.textContent = sorted.length === 1
-      ? "Log a second weigh-in to see your change."
+      ? "Log another weigh-in to see your change."
       : "Log a weigh-in to get started.";
   }
 
@@ -4994,7 +4994,7 @@ function downloadDoctorPdf() {
     }
     line("", { size: 11 });
     line("This summary is from your own log. It is not medical advice.", { size: 10 });
-    line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored.", { size: 10 });
+    line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored on our servers.", { size: 10 });
     doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
     setFormStatus(msg, "Downloaded as a PDF.", false);
   } catch (e) {
@@ -5061,14 +5061,14 @@ function renderWeightVisuals() {
   perWeekEl.textContent = "";
   goalDateEl.textContent = "";
   if (sorted.length < 2) {
-    perWeekEl.textContent = "Log two weigh-ins a week apart to see your pounds per week.";
+    perWeekEl.textContent = "Log two weigh-ins a week apart to see your weight change per week.";
     return;
   }
   const first = sorted[0];
   const last = sorted[sorted.length - 1];
   const days = (new Date(last.date + "T12:00:00") - new Date(first.date + "T12:00:00")) / 86400000;
   if (!(days >= 7)) {
-    perWeekEl.textContent = "Log two weigh-ins a week apart to see your pounds per week.";
+    perWeekEl.textContent = "Log two weigh-ins a week apart to see your weight change per week.";
     return;
   }
   const change = Number(first.value) - Number(last.value); // positive means lost
@@ -5078,14 +5078,14 @@ function renderWeightVisuals() {
     ? "Losing about " + absWeek + " lbs per week."
     : perWeek < -0.05
     ? "Gaining about " + absWeek + " lbs per week."
-    : "Holding steady, about 0 lbs per week.";
+    : "Holding steady, 0 lbs per week.";
   const goalW = Number(store.settings.goalWeight) || 0;
   const current = Number(last.value);
   if (perWeek > 0.05 && goalW > 0 && current > goalW) {
     const weeksToGo = (current - goalW) / perWeek;
     const d = new Date();
     d.setDate(d.getDate() + Math.round(weeksToGo * 7));
-    goalDateEl.textContent = "At this pace, about " + formatDate(localDateStr(d)) + " to reach " + goalW + " lbs.";
+    goalDateEl.textContent = "At this pace, you will reach " + goalW + " lbs around " + formatDate(localDateStr(d)) + ".";
   }
 }
 
@@ -5654,7 +5654,7 @@ seForm.addEventListener("submit", (e) => {
   const seMsg = document.getElementById("se-saved-msg");
   if (!entry.date) { setFormStatus(seMsg, "Add a date first.", true); return; }
   if (!entry.symptom) { setFormStatus(seMsg, "Add the symptom first.", true); return; }
-  if (!entry.severity) { setFormStatus(seMsg, "Choose how bad it was first.", true); return; }
+  if (!entry.severity) { setFormStatus(seMsg, "Choose the severity first.", true); return; }
   if (editingSeId) {
     const i = store.sideEffects.findIndex((x) => x.id === editingSeId);
     if (i === -1) {
@@ -11872,7 +11872,7 @@ function renderMealIdeas() {
             return "<div class=\"entry-row\" data-meal-idea=\"" + r.id + "\">"
               + "<div style=\"flex:1\"><strong>" + escapeHtml(r.name) + "</strong>"
               + " <span class=\"muted\" style=\"font-size:.85em\">" + r.protein + "g protein, " + r.carbs + "g carbs, " + r.fat + "g fat, " + r.calories + " cal</span></div>"
-              + "<button type=\"button\" class=\"btn btn-small btn-primary\" data-kitchen-add=\"" + r.id + "\">" + (added ? "Added to today \u2713" : "Add to Today's Nutrition") + "</button>"
+              + "<button type=\"button\" class=\"btn btn-small btn-primary\" data-kitchen-add=\"" + r.id + "\">" + (added ? "Added to today \u2713" : "Add to today") + "</button>"
               + "</div>";
           }).join("")
           + "<p class=\"muted\" style=\"font-size:.85em\">Per serving. Nutrition is estimated from USDA values.</p>";
@@ -12112,7 +12112,7 @@ document.querySelectorAll("#kitchen-filters [data-filter]").forEach((chip) => ch
   const moreSummary = document.getElementById("kitchen-more-filters-summary");
   if (moreSummary) {
     const dietary = ["fresh-picks", "quick-and-easy", "high-protein", "vegetarian", "vegan", "gluten-free", "dairy-free", "low-sodium", "nut-free", "egg-free"];
-    moreSummary.textContent = dietary.includes(kitchenFilter) ? "More filters · " + chip.textContent : "More filters";
+    moreSummary.textContent = dietary.includes(kitchenFilter) ? "More filters (" + chip.textContent + ")" : "More filters";
   }
   renderKitchen();
 }));
@@ -12587,7 +12587,7 @@ function openRecipeModal(id) {
       <p class="muted" style="font-size:.85em;margin:6px 0 0">Adds ${n} serving${n === 1 ? "" : "s"}: ${kr.protein * n}g protein, ${kr.carbs * n}g carbs, ${kr.fat * n}g fat, ${kr.calories * n} cal.</p>
       ${kr.credit ? `<p class="kitchen-credit">Photo: ${escapeHtml(kr.credit)}</p>` : ""}${recipeSourceHtml(kr)}
       <div class="kitchen-sticky-add">
-        <button type="button" class="btn btn-block btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button>
+        <button type="button" class="btn btn-block btn-primary" data-modal-kitchen-add="${kr.id}">${added ? "Added to today ✓" : "Add to today"}</button>
       </div>`;
   } else {
     const r = (store.recipes || []).find((x) => x.id === id);
@@ -12695,7 +12695,7 @@ function recipeMacrosHtml(r) {
     <div class="kitchen-macro"><b>${calories}</b><span>Calories</span></div>
   </div>
   <p class="muted" style="font-size:.8em;margin:6px 0 0">Per serving${r.servings ? " · Serves " + r.servings : ""}</p>
-  <div style="margin-top:8px"><button type="button" class="btn btn-small btn-primary" data-recipe-add="${r.id}">${added ? "Added to today ✓" : "Add to Today's Nutrition"}</button></div>`;
+  <div style="margin-top:8px"><button type="button" class="btn btn-small btn-primary" data-recipe-add="${r.id}">${added ? "Added to today ✓" : "Add to today"}</button></div>`;
 }
 /* Calories for a saved recipe card: the entered calories, or the 4/4/9
    calculation when they were not entered. Zero when it has no macros. */
@@ -13388,7 +13388,7 @@ async function redeemAccessCode() {
         return;
       }
       document.getElementById("set-companion-key").value = maskToken(data.token);
-      msg.textContent = "Your AI Wellness Companion is connected.";
+      msg.textContent = "Your AI Wellness Companion is connected and ready.";
       msg.classList.add("success");
       if (input) input.setAttribute("aria-invalid", "false");
       input.value = "";
@@ -14050,7 +14050,7 @@ function renderCorruptNotice() {
   if ((!loadFailed && !storeDamaged) || restoredFromSnapshot) { card.classList.add("hidden"); return; }
   if (storeDamaged) {
     document.getElementById("corrupt-notice-text").textContent =
-      "Some of your saved entries could not be read, so those entries are not showing. Your other entries are safe. Before adding new entries, check Settings, then Backup and restore, for a backup to restore. Nothing new will be saved until you tap Got it.";
+      "Some of your saved entries could not be read, so those entries are not showing. Your other entries are safe. Before adding new entries, check Settings, then Backup & restore, for a backup to restore. Nothing new will be saved until you tap Got it.";
   } else {
     document.getElementById("corrupt-notice-text").textContent =
       "Your saved entries could not be read, so the app started fresh to keep your old data safe. Your old data is still saved on this device. Before adding new entries, check Settings, then Backup & restore, for a backup to restore.";
