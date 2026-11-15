@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=095">
+<link rel="stylesheet" href="styles.css?v=096">
 </head>
 <body>
 
@@ -283,6 +283,23 @@
           </div>
         </div>
         </div>
+        <button type="button" class="fitness-row" id="steps-row" aria-expanded="false" aria-controls="steps-detail">
+          <span class="fitness-row-label">Steps</span>
+          <span class="fitness-row-status" id="steps-row-status">Not logged</span>
+          <span class="section-toggle-chevron" aria-hidden="true">▸</span>
+        </button>
+        <div id="steps-detail" hidden>
+          <h3 class="movement-subhead" style="margin-top:0">Steps</h3>
+          <p class="muted" style="margin:0 0 12px">Type the count from your phone.</p>
+          <div class="inline-add" id="steps-inline-add">
+            <div class="inline-add-row">
+              <input type="text" id="steps-inline-input" inputmode="numeric" autocomplete="off" placeholder="e.g. 8500" aria-label="Steps today">
+              <button type="button" class="btn btn-primary btn-small" id="steps-inline-save-btn">Save</button>
+              <button type="button" class="btn btn-small" id="steps-inline-clear-btn">Clear</button>
+            </div>
+            <p class="muted inline-add-preview" id="steps-inline-preview" aria-live="polite">Type a whole number.</p>
+          </div>
+        </div>
         <button type="button" class="fitness-row" id="strength-row" aria-expanded="false" aria-controls="strength-detail">
           <span class="fitness-row-label">Strength</span>
           <span class="fitness-row-status" id="strength-row-status">Rest day</span>
@@ -487,6 +504,7 @@
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button><button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px"><label class="muted" for="copy-food-date" style="font-size:.9rem">Or copy another day</label><input type="date" id="copy-food-date" aria-label="Day to copy food from" style="max-width:160px"><button type="button" class="btn btn-small" id="copy-food-day">Copy day</button></div>
       <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
@@ -1790,7 +1808,7 @@
     </div>
   </div>
 
-<script src="app.js?v=095"></script>
+<script src="app.js?v=096"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

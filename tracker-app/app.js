@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v095";
+const APP_VERSION = "v096";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -72,6 +72,7 @@ const DEFAULTS = {
     movementPlan: null, // v042: null or empty means no routine yet; the user picks their own moves; otherwise [{ name, detail }]
     strengthPlan: "4day", // v088: "4day" or "3day"; which strength routine shows on Today
     strengthCustom: {}, // v088: routine swaps and removals, { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }
+    fitnessRows: { movement: false, strength: false, steps: false }, // v094: which Fitness rows are open on Today; v096 adds steps
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
     refillDate: "",
@@ -97,6 +98,7 @@ const DEFAULTS = {
   sideEffects: [],  // { id, date, symptom, severity, notes }
   moods: {},        // { "YYYY-MM-DD": "Good" }
   movementDone: {}, // v168: { "YYYY-MM-DD": { done: [move names], bonus: true/false } }
+  steps: {}, // v096: { "YYYY-MM-DD": steps } typed in by hand; a web app cannot read iPhone Health data
   recipes: [],       // { id, title, body, date } saved recipes
   hiddenKitchen: [],  // [recipe id] built-in Kitchen recipes this user hid; ids only, never the recipes themselves
   foodLibrary: {},   // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
@@ -276,15 +278,15 @@ function validateStore(parsed, strict) {
     } else {
       out.settings.strengthCustom = {};
     }
-    // v094: Fitness card rows. Which of the Movement and Strength rows
-    // is open. { movement, strength } booleans; both start closed, so
-    // the card is short on first view. The Plan the week row is not
-    // stored: it opens fresh each load.
+    // v094: Fitness card rows. Which of the Movement, Strength, and
+    // Steps rows is open. { movement, strength, steps } booleans; all
+    // start closed, so the card is short on first view. The Plan the
+    // week row is not stored: it opens fresh each load.
     const fr = out.settings.fitnessRows;
     if (!fr || typeof fr !== "object" || Array.isArray(fr)) {
-      out.settings.fitnessRows = { movement: false, strength: false };
+      out.settings.fitnessRows = { movement: false, strength: false, steps: false };
     } else {
-      out.settings.fitnessRows = { movement: fr.movement === true, strength: fr.strength === true };
+      out.settings.fitnessRows = { movement: fr.movement === true, strength: fr.strength === true, steps: fr.steps === true };
     }
     // v169: the user's own exercises. Kept as [{ name, pattern, detail }]
     // only; anything else is dropped. A bad pattern falls back to Other.
@@ -364,6 +366,19 @@ function validateStore(parsed, strict) {
       };
     }
     out.movementDone = cleanDone;
+  }
+  // v096: steps typed in by hand, one count per day. Keep only real
+  // dates with a non-negative whole number; anything else is dropped.
+  if (parsed.steps !== undefined && (typeof parsed.steps !== "object" || Array.isArray(parsed.steps))) {
+    lastValidateDropped.push("steps");
+  } else if (parsed.steps && typeof parsed.steps === "object" && !Array.isArray(parsed.steps)) {
+    const cleanSteps = {};
+    for (const [d, n] of Object.entries(parsed.steps)) {
+      if (!isValidDateStr(d)) continue;
+      const v = Math.floor(Number(n));
+      if (Number.isFinite(v) && v >= 0) cleanSteps[d] = v;
+    }
+    out.steps = cleanSteps;
   }
   // v049: the Medicines tab was removed. Any stored entries and per-day
   // check-offs are dropped on load: they are never copied into the
@@ -547,6 +562,9 @@ function mergeStores(persisted, local) {
   // v168: routine done-state merges the same way: a day done in either
   // copy stays done.
   out.movementDone = Object.assign({}, local.movementDone || {}, persisted.movementDone || {});
+  // v096: steps merge the same way: a count in either copy is kept,
+  // and the persisted copy wins when both have the same day.
+  out.steps = Object.assign({}, local.steps || {}, persisted.steps || {});
   // v028: food library merges by barcode; a food saved in either copy
   // is kept, and the persisted copy wins when both have the same barcode.
   out.foodLibrary = Object.assign({}, local.foodLibrary || {}, persisted.foodLibrary || {});
@@ -2557,22 +2575,22 @@ document.getElementById("macro-food-form").addEventListener("submit", (e) => {
   sr2.innerHTML = "";
 });
 
-/* ---------- Copy yesterday (v071) ---------- */
-/* Copy yesterday's food into the day being viewed, as new entries.
-   Tapping twice does not duplicate: a food already copied today with
-   the same name and protein grams is skipped. */
-function copyYesterdayFoods() {
+/* ---------- Copy a day's food (v071, day picker v096) ---------- */
+/* Copy one day's food into the day being viewed, as new entries.
+   Tapping twice does not duplicate: a food already logged today with
+   the same name and protein grams is skipped. Copy yesterday is the
+   one-tap path; the day picker copies any earlier day. Foods only. */
+function copyFoodsFromDate(source, label) {
   const msg = document.getElementById("copy-yesterday-food-msg");
   const target = viewedDateStr();
-  const source = todayStr(viewOffset - 1);
-  const yesterdays = (store.protein || []).filter((e) => e.date === source);
-  if (!yesterdays.length) {
-    if (msg) msg.textContent = "Nothing logged yesterday.";
+  const sourceFoods = (store.protein || []).filter((e) => e.date === source);
+  if (!sourceFoods.length) {
+    if (msg) msg.textContent = "Nothing logged " + label + ".";
     return;
   }
   const todays = (store.protein || []).filter((e) => e.date === target);
   let copied = 0;
-  yesterdays.forEach((e) => {
+  sourceFoods.forEach((e) => {
     const already = todays.some((x) => (x.food || "").trim().toLowerCase() === (e.food || "").trim().toLowerCase() && Number(x.grams) === Number(e.grams));
     if (already) return;
     store.protein.push({ id: uid(), date: target, grams: e.grams, carbs: e.carbs, fat: e.fat, food: e.food, meal: e.meal, calories: e.calories, ...(e.serving ? { serving: e.serving } : {}) });
@@ -2584,9 +2602,26 @@ function copyYesterdayFoods() {
   }
   saveStore();
   renderToday();
-  if (msg) msg.textContent = "Copied " + copied + (copied === 1 ? " food" : " foods") + " from yesterday.";
+  if (msg) msg.textContent = "Copied " + copied + (copied === 1 ? " food" : " foods") + " from " + label + ".";
+}
+function copyYesterdayFoods() {
+  copyFoodsFromDate(todayStr(viewOffset - 1), "yesterday");
 }
 document.getElementById("copy-yesterday-food").addEventListener("click", copyYesterdayFoods);
+document.getElementById("copy-food-day").addEventListener("click", () => {
+  const input = document.getElementById("copy-food-date");
+  const picked = input ? input.value : "";
+  const msg = document.getElementById("copy-yesterday-food-msg");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(picked)) {
+    if (msg) msg.textContent = "Pick a day to copy from.";
+    return;
+  }
+  if (picked >= viewedDateStr()) {
+    if (msg) msg.textContent = "Pick an earlier day to copy from.";
+    return;
+  }
+  copyFoodsFromDate(picked, formatDateWeekdayShort(picked));
+});
 
 /* ---------- Food library (v028) ---------- */
 /* Foods already logged, saved on this device only and reused instantly.
@@ -3705,12 +3740,12 @@ function setMovementSectionOpen(open) {
    weekViewOpen. */
 function fitnessRows() {
   const fr = store.settings && store.settings.fitnessRows;
-  if (!fr || typeof fr !== "object" || Array.isArray(fr)) return { movement: false, strength: false };
-  return { movement: fr.movement === true, strength: fr.strength === true };
+  if (!fr || typeof fr !== "object" || Array.isArray(fr)) return { movement: false, strength: false, steps: false };
+  return { movement: fr.movement === true, strength: fr.strength === true, steps: fr.steps === true };
 }
 function setFitnessRow(key, open) {
   if (!store.settings.fitnessRows || typeof store.settings.fitnessRows !== "object" || Array.isArray(store.settings.fitnessRows)) {
-    store.settings.fitnessRows = { movement: false, strength: false };
+    store.settings.fitnessRows = { movement: false, strength: false, steps: false };
   }
   store.settings.fitnessRows[key] = !!open;
   saveStore();
@@ -3722,7 +3757,8 @@ function renderFitnessRows() {
   const rows = fitnessRows();
   const map = {
     movement: { btn: "movement-row", panel: "movement-detail" },
-    strength: { btn: "strength-row", panel: "strength-detail" }
+    strength: { btn: "strength-row", panel: "strength-detail" },
+    steps: { btn: "steps-row", panel: "steps-detail" }
   };
   Object.keys(map).forEach((key) => {
     const btn = document.getElementById(map[key].btn);
@@ -3768,6 +3804,32 @@ function updateFitnessRowStatus() {
       ? "3 workouts · Mon, Wed, Fri"
       : "4 workouts · Mon, Tue, Thu, Fri";
   }
+  renderStepsRow();
+}
+/* ---------- Steps, typed in by hand (v096) ---------- */
+/* A web app cannot read iPhone Health data, so steps are typed in by
+   hand: tap the Steps row on Today and type the count from the phone.
+   One count per day, stored as store.steps[date]. Saving zero clears
+   the day, so an empty day reads "Not logged" again. */
+function stepsForDate(date) {
+  const n = (store.steps || {})[date];
+  return typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+}
+function saveStepsForDate(date, count) {
+  if (!store.steps || typeof store.steps !== "object" || Array.isArray(store.steps)) store.steps = {};
+  if (!count || count <= 0) delete store.steps[date];
+  else store.steps[date] = Math.floor(count);
+  saveStore();
+}
+function renderStepsRow() {
+  const date = viewedDateStr();
+  const n = stepsForDate(date);
+  const status = document.getElementById("steps-row-status");
+  if (status) status.textContent = n > 0 ? n.toLocaleString("en-US") + " steps" : "Not logged";
+  const input = document.getElementById("steps-inline-input");
+  if (input && document.activeElement !== input) input.value = n > 0 ? String(n) : "";
+  const preview = document.getElementById("steps-inline-preview");
+  if (preview) preview.textContent = n > 0 ? n.toLocaleString("en-US") + " steps saved for " + formatDateWeekdayShort(date) + "." : "Type a whole number.";
 }
 function setStrengthFormOpen(open) {
   strengthFormOpen = open;
@@ -3788,6 +3850,25 @@ const movementRowBtn = document.getElementById("movement-row");
 if (movementRowBtn) movementRowBtn.addEventListener("click", () => setFitnessRow("movement", !fitnessRows().movement));
 const strengthRowBtn = document.getElementById("strength-row");
 if (strengthRowBtn) strengthRowBtn.addEventListener("click", () => setFitnessRow("strength", !fitnessRows().strength));
+const stepsRowBtn = document.getElementById("steps-row");
+if (stepsRowBtn) stepsRowBtn.addEventListener("click", () => setFitnessRow("steps", !fitnessRows().steps));
+const stepsSaveBtn = document.getElementById("steps-inline-save-btn");
+if (stepsSaveBtn) stepsSaveBtn.addEventListener("click", () => {
+  const input = document.getElementById("steps-inline-input");
+  const n = input ? Math.floor(Number(input.value)) : NaN;
+  const preview = document.getElementById("steps-inline-preview");
+  if (!Number.isFinite(n) || n < 0) {
+    if (preview) preview.textContent = "Type a whole number of steps.";
+    return;
+  }
+  saveStepsForDate(viewedDateStr(), n);
+  renderStepsRow();
+});
+const stepsClearBtn = document.getElementById("steps-inline-clear-btn");
+if (stepsClearBtn) stepsClearBtn.addEventListener("click", () => {
+  saveStepsForDate(viewedDateStr(), 0);
+  renderStepsRow();
+});
 document.querySelectorAll("[data-strength-tab]").forEach((b) => b.addEventListener("click", () => setStrengthTab(b.dataset.strengthTab)));
 
 /* ---------- Strength routine (v088) ---------- */
@@ -4087,14 +4168,17 @@ function lastWeightDisplay(name) {
   if (Number(w) === 0) return "";
   return String(w) + " lbs";
 }
-function logRoutineExercise(name) {
+function logRoutineExercise(name, weightOverride) {
   const eff = effectiveStrengthRoutine();
   if (!eff) return;
   const item = eff.exercises.find((e) => e.ex.name === name);
   if (!item) return;
   const ex = item.ex;
   clearStrengthStatus();
-  store.strength.push({ id: uid(), date: viewedDateStr(), name: ex.name.slice(0, 80), sets: ex.sets, reps: ex.reps, weight: lastWeightForExercise(ex.name) });
+  // v096: the weight comes from the row input when given, so it can be
+  // changed before logging; otherwise it is the last weight, as before.
+  const weight = weightOverride === undefined ? lastWeightForExercise(ex.name) : weightOverride;
+  store.strength.push({ id: uid(), date: viewedDateStr(), name: ex.name.slice(0, 80), sets: ex.sets, reps: ex.reps, weight });
   saveStore();
   renderStrength();
   const msg = document.getElementById("strength-saved-msg");
@@ -4111,8 +4195,13 @@ function routineRowHtml(item, eff, opts) {
       ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
       : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
     : "";
+  // v096: the weight is shown and can be changed before logging.
+  // It starts at the last weight for this exercise, or blank when
+  // the exercise was never logged with a weight. The week view never
+  // logs, so it gets no input.
+  const lastWVal = lastWeightForExercise(ex.name);
   const logBtn = opts.showLog
-    ? `<button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
+    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight (lbs) <input type="number" class="routine-weight-input" style="width:64px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(lastWVal))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
     : "";
   return `<div class="entry">
       <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${lastW ? ", " + escapeHtml(lastW) : ""}</p>
@@ -4224,7 +4313,12 @@ function renderStrengthRoutine() {
     const options = pickerOpen ? swapOptionsFor(ex.name, eff) : [];
     return routineRowHtml(item, eff, { showLog: true, alreadyLogged: already, pickerOpen, pickerOptions: options });
   }).join("");
-  list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => logRoutineExercise(b.dataset.logRoutine)));
+  list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => {
+    const entry = b.closest(".entry");
+    const input = entry ? entry.querySelector(".routine-weight-input") : null;
+    const raw = input ? input.value.trim() : "";
+    logRoutineExercise(b.dataset.logRoutine, raw === "" ? "" : raw);
+  }));
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.swapRoutine;
     if (strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === slot) {
@@ -4563,7 +4657,7 @@ document.getElementById("strength-cancel").addEventListener("click", () => {
   setStrengthFormOpen(false);
 });
 
-/* ---------- Copy yesterday for exercises (v071) ---------- */
+/* ---------- Copy yesterday for exercises (v071, warning v096) ---------- */
 /* Copy yesterday's movement minutes and strength entries into the day
    being viewed, as new entries. Same duplicate rule as foods: an entry
    already copied today is skipped, so a second tap adds nothing. */
@@ -4580,23 +4674,25 @@ function copyYesterdayExercises() {
   }
   const todaysEx = (store.exercise || []).filter((e) => e.date === target);
   const todaysSt = (store.strength || []).filter((e) => e.date === target);
-  let copied = 0;
-  yesterdaysEx.forEach((e) => {
-    const already = todaysEx.some((x) => (x.label || "") === (e.label || "") && Number(x.minutes) === Number(e.minutes));
-    if (already) return;
-    store.exercise.push({ id: uid(), date: target, minutes: e.minutes, label: e.label });
-    copied++;
-  });
-  yesterdaysSt.forEach((e) => {
-    const already = todaysSt.some((x) => (x.name || "") === (e.name || "") && Number(x.sets) === Number(e.sets) && Number(x.reps) === Number(e.reps) && String(x.weight) === String(e.weight));
-    if (already) return;
-    store.strength.push({ id: uid(), date: target, name: e.name, sets: e.sets, reps: e.reps, weight: e.weight });
-    copied++;
-  });
-  if (!copied) {
+  const pendingEx = yesterdaysEx.filter((e) => !todaysEx.some((x) => (x.label || "") === (e.label || "") && Number(x.minutes) === Number(e.minutes)));
+  const pendingSt = yesterdaysSt.filter((e) => !todaysSt.some((x) => (x.name || "") === (e.name || "") && Number(x.sets) === Number(e.sets) && Number(x.reps) === Number(e.reps) && String(x.weight) === String(e.weight)));
+  if (!pendingEx.length && !pendingSt.length) {
     if (msg) setStrengthStatus(msg, "Already copied. Nothing new to add.");
     return;
   }
+  // v096: copying yesterday's strength into today can work the same
+  // muscles two days in a row. Ask first when strength is in the copy;
+  // movement alone copies without a warning.
+  if (pendingSt.length && !window.confirm("You worked these muscles yesterday. Copy anyway?")) return;
+  let copied = 0;
+  pendingEx.forEach((e) => {
+    store.exercise.push({ id: uid(), date: target, minutes: e.minutes, label: e.label });
+    copied++;
+  });
+  pendingSt.forEach((e) => {
+    store.strength.push({ id: uid(), date: target, name: e.name, sets: e.sets, reps: e.reps, weight: e.weight });
+    copied++;
+  });
   saveStore();
   renderToday();
   if (msg) setStrengthStatus(msg, "Copied " + copied + (copied === 1 ? " entry" : " entries") + " from yesterday.");
@@ -5750,6 +5846,21 @@ function buildDoctorSummary(fromDate, toDate) {
     const stDays = new Set(recentSt.map((e) => e.date)).size;
     const stSets = recentSt.reduce((t, e) => t + (Number(e.sets) || 0), 0);
     lines.push("Strength: " + recentSt.length + " exercise" + (recentSt.length === 1 ? "" : "s") + " logged across " + stDays + " day" + (stDays === 1 ? "" : "s") + ", " + stSets + " sets in total.");
+    // v096: the count line stays as the header; underneath, one line
+    // per day naming what was lifted, with sets, reps, and weight,
+    // so the doctor can see the work itself, not just the count.
+    const byDay = {};
+    recentSt.forEach((e) => {
+      if (!byDay[e.date]) byDay[e.date] = [];
+      byDay[e.date].push(e);
+    });
+    Object.keys(byDay).sort().forEach((d) => {
+      const parts = byDay[d].map((e) => {
+        const w = e.weight !== "" && e.weight !== undefined && e.weight !== null && Number(e.weight) !== 0 ? ", " + e.weight + " lbs" : "";
+        return e.name + " " + (Number(e.sets) || 0) + "x" + (Number(e.reps) || 0) + w;
+      });
+      lines.push(formatDate(d) + ": " + parts.join("; ") + ".");
+    });
   }
   lines.push("");
   lines.push("This summary is from your own log. It is not medical advice.");
@@ -15150,6 +15261,7 @@ function countStoreEntries(s) {
   keys.forEach((k) => { if (Array.isArray(s[k])) total += s[k].length; });
   if (s.moods) total += Object.keys(s.moods).length;
   if (s.movementDone) total += Object.keys(s.movementDone).length;
+  if (s.steps) total += Object.keys(s.steps).length;
   return total;
 }
 function snapshotSummary(s) {
