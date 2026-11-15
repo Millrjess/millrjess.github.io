@@ -70,7 +70,7 @@ const DEFAULTS = {
     heightFt: "", // v168: feet, for BMI on the Weight tab
     heightIn: "", // v168: inches, for BMI on the Weight tab
     movementPlan: null, // v042: null or empty means no routine yet; the user picks their own moves; otherwise [{ name, detail }]
-    strengthPlan: "4day", // v088: "4day" or "3day"; which strength routine shows on Today
+    strengthPlan: "4day", // v088: "4day", "3day", or "ymca"; which strength routine shows on Today
     strengthCustom: {}, // v088: routine swaps and removals, { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }
     fitnessRows: { movement: false, strength: false, steps: false }, // v094: which Fitness rows are open on Today; v096 adds steps
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
@@ -243,9 +243,9 @@ function validateStore(parsed, strict) {
     } else {
       out.settings.movementPlan = null;
     }
-    // v088: the strength routine plan. "4day" or "3day"; anything else
+    // v088: the strength routine plan. "4day", "3day", or "ymca"; anything else
     // falls back to the 4-day split.
-    if (out.settings.strengthPlan !== "4day" && out.settings.strengthPlan !== "3day") out.settings.strengthPlan = "4day";
+    if (out.settings.strengthPlan !== "4day" && out.settings.strengthPlan !== "3day" && out.settings.strengthPlan !== "ymca") out.settings.strengthPlan = "4day";
     // v088: strength routine customizations. { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }.
     // v094: an exercise added to a day is stored as { add: "Name" } under
     // the slot "__add:Name", optionally with a swap: { add: "Name", swap: "Other" }.
@@ -257,7 +257,7 @@ function validateStore(parsed, strict) {
     } else if (typeof sc === "object" && !Array.isArray(sc)) {
       const clean = {};
       for (const [dayKey, dayCustom] of Object.entries(sc)) {
-        if (!/^(3day|4day):[0-6]$/.test(dayKey)) continue;
+        if (!/^(3day|4day|ymca):[0-6]$/.test(dayKey)) continue;
         if (!dayCustom || typeof dayCustom !== "object" || Array.isArray(dayCustom)) continue;
         const cleanDay = {};
         for (const [exName, c] of Object.entries(dayCustom)) {
@@ -3858,9 +3858,9 @@ function updateFitnessRowStatus() {
   }
   const wEl = document.getElementById("strength-week-row-status");
   if (wEl) {
-    wEl.textContent = getStrengthPlan() === "3day"
-      ? "3 workouts · Mon, Wed, Fri"
-      : "4 workouts · Mon, Tue, Thu, Fri";
+    wEl.textContent = getStrengthPlan() === "4day"
+      ? "4 workouts · Mon, Tue, Thu, Fri"
+      : "3 workouts · Mon, Wed, Fri";
   }
   renderStepsRow();
 }
@@ -3930,13 +3930,14 @@ if (stepsClearBtn) stepsClearBtn.addEventListener("click", () => {
 document.querySelectorAll("[data-strength-tab]").forEach((b) => b.addEventListener("click", () => setStrengthTab(b.dataset.strengthTab)));
 
 /* ---------- Strength routine (v088) ---------- */
-/* Built-in routine library: the 4-day upper/lower split and the 3-day
-   starter, from the research-based design (ACSM 2026 Position Stand:
+/* Built-in routine library: the 4-day upper/lower split, the 3-day
+   starter, and the YMCA machine routine, from the research-based
+   design (ACSM 2026 Position Stand:
    each muscle twice a week, about 10 sets per muscle per week, 2 to 3
    sets of 8 to 12 reps, stop 2 to 3 reps short of failure). Static
    data only. Logging reuses the existing strength store, so no new
    log model is needed. The day follows the weekday of the date being
-   viewed and the user's 3-day or 4-day choice in Settings
+   viewed and the user's plan choice in Settings
    (settings.strengthPlan, default 4-day). */
 const STRENGTH_ROUTINES = {
   "4day": {
@@ -3997,6 +3998,41 @@ const STRENGTH_ROUTINES = {
       { name: "Romanian Deadlift", muscle: "Hamstrings, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge at the hips, keep your back flat." },
       { name: "Dumbbell Shoulder Press", muscle: "Shoulders", sets: 2, reps: 10, detail: "2 x 10", cue: "Press overhead, ribs down, do not arch your back." },
       { name: "Plank", muscle: "Core", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Body in a straight line, breathe, do not let hips sag." }
+    ] }
+  },
+  /* v099: Jessica's YMCA routine on Precor machines, Mon Upper, Wed
+     Lower, Fri Full-body. Each exercise carries its planned starting
+     weight in pounds; the row shows it until she logs a weight for
+     that exercise, and the Log input pre-fills it. The same exercise
+     name can carry a different weight on a different day, so the
+     weight lives on the plan-day exercise, never on the name alone. */
+  "ymca": {
+    1: { name: "Upper", exercises: [
+      { name: "Chest Press machine", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Sit tall, press forward, control the return.", weight: 20 },
+      { name: "Seated Row machine", muscle: "Lats, upper back", sets: 3, reps: 12, detail: "3 x 12", cue: "Pull to your ribs, squeeze your shoulder blades.", weight: 30 },
+      { name: "Lat Pulldown", muscle: "Lats, upper back", sets: 3, reps: 12, detail: "3 x 12", cue: "Pull the bar to your chest, control the return, do not lean back.", weight: 30 },
+      { name: "Shoulder Press machine", muscle: "Shoulders", sets: 2, reps: 10, detail: "2 x 10", cue: "Press overhead, ribs down, do not arch your back.", weight: 10 },
+      { name: "Pec Fly machine", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Open wide, keep a soft bend in the elbows.", weight: 15 },
+      { name: "Biceps Curl machine", muscle: "Biceps", sets: 2, reps: 12, detail: "2 x 12", cue: "Elbows still, curl slowly, lower slowly.", weight: 10 },
+      { name: "Triceps Extension", muscle: "Triceps", sets: 2, reps: 12, detail: "2 x 12", cue: "Elbows close to your body, extend fully, control the return.", weight: 15 }
+    ] },
+    3: { name: "Lower", exercises: [
+      { name: "Leg Press", muscle: "Quads, glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Push through your heels, keep your back on the pad.", weight: 60 },
+      { name: "Seated Leg Curl machine", muscle: "Hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Curl slowly, control the return, keep your hips down.", weight: 20 },
+      { name: "Leg Extension", muscle: "Quads", sets: 2, reps: 12, detail: "2 x 12", cue: "Extend fully, lower slowly, do not lock your knees.", weight: 20 },
+      { name: "Hip Abduction", muscle: "Glutes, outer hips", sets: 3, reps: 15, detail: "3 x 15", cue: "Push out slowly, control the return.", weight: 30 },
+      { name: "Hip Adduction", muscle: "Inner thighs", sets: 2, reps: 12, detail: "2 x 12", cue: "Squeeze in slowly, control the return.", weight: 25 },
+      { name: "Glute Machine", muscle: "Glutes", sets: 2, reps: 12, detail: "2 x 12", cue: "Drive back slowly, squeeze at the top.", weight: 20 },
+      { name: "Abdominal Machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return.", weight: 20 }
+    ] },
+    5: { name: "Full-body", exercises: [
+      { name: "Leg Press", muscle: "Quads, glutes", sets: 2, reps: 12, detail: "2 x 12", cue: "Push through your heels, keep your back on the pad.", weight: 50 },
+      { name: "Chest Press machine", muscle: "Chest", sets: 2, reps: 12, detail: "2 x 12", cue: "Sit tall, press forward, control the return.", weight: 15 },
+      { name: "Seated Row machine", muscle: "Lats, upper back", sets: 2, reps: 12, detail: "2 x 12", cue: "Pull to your ribs, squeeze your shoulder blades.", weight: 25 },
+      { name: "Lat Pulldown", muscle: "Lats, upper back", sets: 2, reps: 12, detail: "2 x 12", cue: "Pull the bar to your chest, control the return, do not lean back.", weight: 25 },
+      { name: "Seated Leg Curl machine", muscle: "Hamstrings", sets: 2, reps: 12, detail: "2 x 12", cue: "Curl slowly, control the return, keep your hips down.", weight: 15 },
+      { name: "Shoulder Press machine", muscle: "Shoulders", sets: 2, reps: 10, detail: "2 x 10", cue: "Press overhead, ribs down, do not arch your back.", weight: 10 },
+      { name: "Abdominal Machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return.", weight: 15 }
     ] }
   }
 };
@@ -4090,10 +4126,17 @@ const STRENGTH_SWAPS = {
   "Leg Press": ["Goblet Squat", "Dumbbell Reverse Lunge"],
   "Seated Leg Curl machine": ["Romanian Deadlift", "Dumbbell Deadlift"],
   "Calf Raise machine": ["Standing Calf Raise", "Seated Calf Raise"],
-  "Abdominal machine": ["Plank", "Dead Bug"]
+  "Abdominal machine": ["Plank", "Dead Bug"],
+  "Lat Pulldown": ["Seated Row machine", "One-Arm Dumbbell Row"],
+  "Leg Extension": ["Goblet Squat", "Leg Press"],
+  "Hip Abduction": ["Glute Bridge", "Hip Thrust"],
+  "Hip Adduction": ["Glute Bridge", "Split Squat"],
+  "Glute Machine": ["Hip Thrust", "Glute Bridge"],
+  "Triceps Extension": ["Overhead Triceps Extension", "Band Triceps Extension"]
 };
 function getStrengthPlan() {
-  return (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
+  const p = store.settings && store.settings.strengthPlan;
+  return (p === "3day" || p === "ymca") ? p : "4day";
 }
 /* The routine for any ISO date under the current plan, or null on a
    rest day. Today is the day being viewed; the week view uses the
@@ -4226,6 +4269,18 @@ function lastWeightDisplay(name) {
   if (Number(w) === 0) return "";
   return String(w) + " lbs";
 }
+/* v099: whether a routine exercise was logged on a given date, by
+   name and sets and reps, the same match the Log button uses. */
+function isRoutineExerciseLogged(name, sets, reps, dateStr) {
+  return (store.strength || []).some((e) => e.date === dateStr && e.name === name && Number(e.sets) === sets && Number(e.reps) === reps);
+}
+/* v099: the day is complete when every exercise on the effective
+   routine was logged on that date. Checkmarks reset each day
+   because they come from that day's logged entries, not stored state. */
+function routineDayComplete(eff, dateStr) {
+  return !!eff && eff.exercises.length > 0 && eff.exercises.every((item) => isRoutineExerciseLogged(item.ex.name, item.ex.sets, item.ex.reps, dateStr));
+}
+const ROUTINE_COMPLETE_LINE = '<p class="routine-complete" style="margin:8px 0 0;font-weight:600">✓ Workout complete.</p>';
 function logRoutineExercise(name, weightOverride) {
   const eff = effectiveStrengthRoutine();
   if (!eff) return;
@@ -4243,26 +4298,38 @@ function logRoutineExercise(name, weightOverride) {
   if (msg) setStrengthStatus(msg, ex.name + " logged.");
 }
 /* One routine row, shared by Today and the week view. opts: showLog
-   (the week view never logs, so it passes false), alreadyLogged,
-   pickerOpen, pickerOptions. */
+   (the week view never logs, so it passes false), alreadyLogged
+   (whether this exercise was logged on the day shown), pickerOpen,
+   pickerOptions. */
 function routineRowHtml(item, eff, opts) {
   const ex = item.ex;
   const lastW = lastWeightDisplay(ex.name);
+  /* v099: a checkmark on a logged exercise, derived from the day's
+     logged entries; it resets each day because the entries do. */
+  const doneMark = opts.alreadyLogged ? '<span class="routine-done" role="img" aria-label="Logged today">✓</span> ' : "";
+  /* v099: a planned starting weight from the routine (the YMCA plan
+     carries one per exercise per day) shows when nothing was ever
+     logged for this exercise; a logged weight always wins. The
+     weight lives on the plan-day exercise, so the same name can show
+     a different starting weight on a different day. */
+  const plannedW = (ex.weight !== undefined && ex.weight !== null && Number(ex.weight) > 0) ? String(ex.weight) : "";
+  const showW = lastW || (plannedW ? plannedW + " lbs" : "");
   const picker = opts.pickerOpen
     ? (opts.pickerOptions.length
       ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
       : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
     : "";
   // v096: the weight is shown and can be changed before logging.
-  // It starts at the last weight for this exercise, or blank when
-  // the exercise was never logged with a weight. The week view never
-  // logs, so it gets no input.
+  // It starts at the last weight for this exercise, then at the
+  // planned starting weight for this day, or blank when neither
+  // exists. The week view never logs, so it gets no input.
   const lastWVal = lastWeightForExercise(ex.name);
+  const prefillW = lastWVal !== "" ? lastWVal : plannedW;
   const logBtn = opts.showLog
-    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight (lbs) <input type="number" class="routine-weight-input" style="width:64px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(lastWVal))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
+    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight (lbs) <input type="number" class="routine-weight-input" style="width:64px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
     : "";
   return `<div class="entry">
-      <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${lastW ? ", " + escapeHtml(lastW) : ""}</p>
+      <p class="entry-title">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</p>
       <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
       <p class="entry-sub">${escapeHtml(ex.cue)}</p>
       ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
@@ -4363,14 +4430,14 @@ function renderStrengthRoutine() {
   }
   if (!list) return;
   const date = viewedDateStr();
-  const logged = (store.strength || []).filter((e) => e.date === date);
   list.innerHTML = eff.exercises.map((item) => {
     const ex = item.ex;
-    const already = logged.some((e) => e.name === ex.name && Number(e.sets) === ex.sets && Number(e.reps) === ex.reps);
+    const already = isRoutineExerciseLogged(ex.name, ex.sets, ex.reps, date);
     const pickerOpen = strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === item.slot;
     const options = pickerOpen ? swapOptionsFor(ex.name, eff) : [];
     return routineRowHtml(item, eff, { showLog: true, alreadyLogged: already, pickerOpen, pickerOptions: options });
   }).join("");
+  if (routineDayComplete(eff, date)) list.innerHTML += ROUTINE_COMPLETE_LINE;
   list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => {
     const entry = b.closest(".entry");
     const input = entry ? entry.querySelector(".routine-weight-input") : null;
@@ -4523,8 +4590,10 @@ function renderWeekViewDay() {
   list.innerHTML = eff.exercises.map((item) => {
     const pickerOpen = weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === item.slot;
     const options = pickerOpen ? swapOptionsFor(item.ex.name, eff) : [];
-    return routineRowHtml(item, eff, { showLog: false, alreadyLogged: false, pickerOpen, pickerOptions: options });
+    const already = isRoutineExerciseLogged(item.ex.name, item.ex.sets, item.ex.reps, iso);
+    return routineRowHtml(item, eff, { showLog: false, alreadyLogged: already, pickerOpen, pickerOptions: options });
   }).join("");
+  if (routineDayComplete(eff, iso)) list.innerHTML += ROUTINE_COMPLETE_LINE;
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.swapRoutine;
     if (weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === slot) weekSwapPicker = null;
@@ -4847,7 +4916,7 @@ function showFitnessStrengthPlan() {
   if (!wrap) return;
   if (effectiveStrengthRoutine()) { wrap.classList.add("hidden"); return; }
   const sel = document.getElementById("fitness-strength-plan-select");
-  if (sel) sel.value = (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
+  if (sel) sel.value = getStrengthPlan();
   wrap.classList.remove("hidden");
 }
 function hideFitnessStrengthPlan() {
@@ -4856,7 +4925,8 @@ function hideFitnessStrengthPlan() {
 }
 const fitnessPlanSel = document.getElementById("fitness-strength-plan-select");
 if (fitnessPlanSel) fitnessPlanSel.addEventListener("change", () => {
-  store.settings.strengthPlan = fitnessPlanSel.value === "3day" ? "3day" : "4day";
+  const v = fitnessPlanSel.value;
+  store.settings.strengthPlan = (v === "3day" || v === "ymca") ? v : "4day";
   saveStore();
   const sp = document.getElementById("set-strength-plan");
   if (sp) sp.value = store.settings.strengthPlan;
@@ -14191,7 +14261,7 @@ function renderSettings() {
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   const sp = document.getElementById("set-strength-plan");
-  if (sp) sp.value = s.strengthPlan === "3day" ? "3day" : "4day";
+  if (sp) sp.value = (s.strengthPlan === "3day" || s.strengthPlan === "ymca") ? s.strengthPlan : "4day";
   const sra = document.getElementById("strength-reset-all");
   if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length;
   // v168: carbs and fat targets for the Your Macros card, and height
@@ -14430,10 +14500,10 @@ function collectSettingsFromForm() {
   store.settings.proteinGoal = keepMacroTarget(document.getElementById("set-protein-goal").value, store.settings.proteinGoal, 90);
   const mg = Number(document.getElementById("set-movement-goal").value);
   store.settings.movementGoal = mg > 0 ? mg : 30;
-  // v088: the strength routine plan. The select only offers the two
-  // valid values, so anything else falls back to the 4-day split.
+  // v088: the strength routine plan. The select only offers the valid
+  // values, so anything else falls back to the 4-day split.
   const spSel = document.getElementById("set-strength-plan");
-  if (spSel) store.settings.strengthPlan = spSel.value === "3day" ? "3day" : "4day";
+  if (spSel) store.settings.strengthPlan = (spSel.value === "3day" || spSel.value === "ymca") ? spSel.value : "4day";
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
@@ -14560,7 +14630,7 @@ if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
 
 /* ---------- Strength routine: plan change refreshes Today (v088) ---------- */
 /* The Settings autosave does not re-render Today, so switching the
-   3-day/4-day plan would leave the old routine showing until the
+   plan would leave the old routine showing until the
    next Today render. Re-render after the autosave flushes (300 ms),
    so Today shows the new plan the moment the user goes back to it. */
 const strengthPlanSel = document.getElementById("set-strength-plan");
