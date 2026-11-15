@@ -167,7 +167,21 @@
 
     <div class="card" style="margin-top:12px">
       <h2 class="card-title">Next shot</h2>
-      <p id="next-injection-line">Set your shot day in Settings.</p>
+      <p id="next-injection-line">Set your shot day below.</p>
+      <div id="next-shot-day-picker" class="hidden" style="margin:0 0 8px">
+        <label style="font-size:.9rem">Shot day
+          <select id="next-shot-day-select">
+            <option value="">Choose a day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+          </select>
+        </label>
+      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-small" id="goto-shots-btn" style="flex:1 1 0;padding-left:6px;padding-right:6px;white-space:nowrap">Log shot</button>
         <button class="btn btn-small hidden" id="goto-shot-day-btn" style="flex:0 0 100%;padding-left:8px;padding-right:8px;white-space:nowrap;order:4">Set shot day</button>
@@ -200,11 +214,11 @@
     </div>
 
     <div class="card" id="fitness-card" role="group" aria-label="Fitness">
-      <button type="button" class="section-toggle" id="movement-toggle" aria-expanded="true" aria-controls="movement-body">
+      <h2 style="margin:0;font-weight:normal" aria-label="Fitness"><button type="button" class="section-toggle" id="movement-toggle" aria-expanded="true" aria-controls="movement-body">
         <span class="section-toggle-title">Fitness</span>
         <span class="section-toggle-summary" id="movement-summary">0 of 30 min</span>
         <span class="section-toggle-chevron" aria-hidden="true">▸</span>
-      </button>
+      </button></h2>
       <div id="movement-body">
         <button type="button" class="fitness-row" id="movement-row" aria-expanded="false" aria-controls="movement-detail">
           <span class="fitness-row-label">Movement</span>
@@ -489,7 +503,6 @@
       <button class="btn btn-primary" id="macro-log-food" style="margin-top:12px;width:100%">Log food</button>
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
-      <p class="muted" style="margin:12px 0 0;font-size:.9rem">Scan my plate arrives in December.</p>
       <div id="scan-undo" role="status" style="display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:#FDF6E3;border:1px solid #E8B54A;align-items:center;justify-content:space-between;gap:8px">
         <span>Logged <strong id="scan-undo-food"></strong>.</span>
         <span style="display:flex;gap:8px;flex-shrink:0"><button type="button" class="btn btn-small" id="scan-undo-btn">Undo</button><button type="button" class="btn btn-small" id="scan-undo-dismiss-btn" aria-label="Dismiss this message">×</button></span>
@@ -557,6 +570,16 @@
       <summary style="cursor:pointer;font-weight:600">Your Companion noticed something</summary>
       <p style="margin:12px 0 0"><span id="coach-insight-text"></span></p>
       <button class="btn btn-link btn-small" data-goto="chat">Chat about it</button>
+    </details>
+
+    <details class="card" id="digest-details">
+      <summary style="cursor:pointer;font-weight:600">Your week at a glance</summary>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <button class="btn btn-small" id="digest-prev" aria-label="Previous week">←</button>
+        <h2 class="card-title" style="margin:0;font-size:1.2rem" id="digest-title">This week</h2>
+        <button class="btn btn-small" id="digest-next" aria-label="Next week">→</button>
+      </div>
+      <div id="digest-body" style="margin-top:12px"></div>
     </details>
 
   </section>
