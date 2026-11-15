@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v094";
+const APP_VERSION = "v095";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -5278,10 +5278,10 @@ function closeDoctorModal() {
   document.getElementById("doctor-modal").classList.add("hidden");
   returnDialogFocus("doctor-modal", "doctor-summary-btn");
 }
-/* v079: the summary button appears on Weight, Shots, and Side Effects,
-   so bind all of them by class. Focus returns to the button that
-   opened the modal (recordDialogOpener); the Weight button id is the
-   fallback only. */
+/* v095: one Doctor visit summary button, on Shots. The strength-area
+   link and the Today hint open the same modal, so bind by class.
+   Focus returns to the button that opened the modal
+   (recordDialogOpener); the Shots button id is the fallback only. */
 document.querySelectorAll(".doctor-summary-btn").forEach((b) => b.addEventListener("click", openDoctorModal));
 document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
 document.getElementById("doctor-x").addEventListener("click", closeDoctorModal);
