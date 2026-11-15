@@ -703,12 +703,15 @@ async function main() {
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore()) });
     await page.reload();
     await page.waitForTimeout(400);
+    await page.click("#movement-row");
+    await page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await page.waitForTimeout(200);
     const start = await page.evaluate(() => ({
       moves: document.querySelectorAll("#moves-list li").length,
       count: (document.getElementById("move-count") || {}).textContent || "",
       sub: (document.getElementById("movement-sub") || {}).textContent || ""
     }));
-    check("V168 movement card: five default moves, 0 of 5", start.moves === 5 && start.count.indexOf("0 of 5") !== -1 && start.sub.indexOf("5 minutes") !== -1, JSON.stringify(start));
+    check("V168 movement card: five default moves, 0 of 5", start.moves === 5 && start.count.indexOf("0 of 5") !== -1 && start.sub.indexOf("5 moves") !== -1, JSON.stringify(start));
     // Tap all five gold circles. Each tap re-renders the list, so the
     // buttons are re-queried every time instead of holding handles
     // across renders.
@@ -748,14 +751,17 @@ async function main() {
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore()) });
     await page.reload();
     await page.waitForTimeout(400);
+    await page.click("#movement-row");
+    await page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await page.waitForTimeout(200);
     await page.click("#movement-customize");
     await page.waitForTimeout(300);
     const editor = await page.evaluate(() => ({
-      open: !document.getElementById("movement-plan-modal").classList.contains("hidden"),
+      open: !document.getElementById("movement-plan-editor").classList.contains("hidden"),
       rows: document.querySelectorAll("#movement-plan-list .plan-row").length,
       checked: [...document.querySelectorAll("#movement-plan-list input[type='checkbox']")].filter((c) => c.checked).length
     }));
-    check("V168 plan editor: opens with 18 exercises, 5 checked", editor.open && editor.rows === 18 && editor.checked === 5, JSON.stringify(editor));
+    check("V168 plan editor: opens with 37 exercises, 5 checked", editor.open && editor.rows === 37 && editor.checked === 5, JSON.stringify(editor));
     await page.uncheck('input[data-plan-name="Gentle full-body stretch"]');
     await page.check('input[data-plan-name="Lunges"]');
     await page.fill('input[data-plan-detail="Lunges"]', "8 reps");
@@ -869,7 +875,8 @@ async function main() {
       ]
     })) });
     await page.reload();
-    await clickTab(page, "weight");
+    // v095: the Doctor visit summary button lives on Shots now.
+    await clickTab(page, "shots");
     await page.waitForTimeout(400);
     await page.click("#doctor-summary-btn");
     await page.waitForTimeout(300);
@@ -920,6 +927,8 @@ async function main() {
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore({ water: [{ id: "a1", date: today(0), oz: 16 }], exercise: [{ id: "a3", date: today(0), minutes: 5, label: "Movement" }] })) });
     await page.reload();
     await page.waitForTimeout(400);
+    await page.click("#movement-row");
+    await page.waitForTimeout(200);
     const numBtns = await page.evaluate(() => ({
       waterTag: (document.getElementById("water-num-btn") || {}).tagName || "",
       exTag: (document.getElementById("exercise-num-btn") || {}).tagName || "",
@@ -1152,6 +1161,9 @@ async function main() {
     await setStorage(page, { [MARK]: "1", [LS]: JSON.stringify(makeStore()) });
     await page.reload();
     await page.waitForTimeout(400);
+    await page.click("#movement-row");
+    await page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await page.waitForTimeout(200);
     await page.click("#movement-customize");
     await page.waitForTimeout(300);
     const picker = await page.evaluate(() => {
@@ -1185,16 +1197,16 @@ async function main() {
     await page.waitForTimeout(400);
     const survives = await page.evaluate(() => [...document.querySelectorAll("#moves-list .move-name")].map((el) => el.textContent));
     check("V169 plan editor: custom exercise survives reload", survives.includes("Step-ups"), JSON.stringify(survives));
-    // X closes the modal and focus returns to Customize.
+    // X closes the editor and focus returns to Customize.
     await page.click("#movement-customize");
     await page.waitForTimeout(300);
     await page.click("#movement-plan-x");
     await page.waitForTimeout(300);
     const xClosed = await page.evaluate(() => ({
-      closed: document.getElementById("movement-plan-modal").classList.contains("hidden"),
+      closed: document.getElementById("movement-plan-editor").classList.contains("hidden"),
       focusBack: document.activeElement.id || ""
     }));
-    check("V169 plan editor: X closes the modal, focus back on Customize", xClosed.closed && xClosed.focusBack === "movement-customize", JSON.stringify(xClosed));
+    check("V169 plan editor: X closes the editor, focus back on Customize", xClosed.closed && xClosed.focusBack === "movement-customize", JSON.stringify(xClosed));
     // Remove the custom exercise: gone from the picker, the plan, and Today.
     await page.click("#movement-customize");
     await page.waitForTimeout(300);
@@ -1262,14 +1274,14 @@ async function main() {
       const chart = document.getElementById("weight-chart-card");
       const stats = document.querySelector("#tab-weight .stats-row");
       const a = document.getElementById("show-weight-form").getBoundingClientRect();
-      const b = document.getElementById("doctor-summary-btn").getBoundingClientRect();
       return {
         chartBeforeStats: !!(chart.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING),
-        sameRow: Math.abs(a.top - b.top) <= 1,
-        heights: [Math.round(a.height), Math.round(b.height)]
+        logH: Math.round(a.height)
       };
     });
-    check("V169 weight layout: chart before the weight cards, buttons share a row at 44px or taller", layout.chartBeforeStats && layout.sameRow && layout.heights.every((h) => h >= 44), JSON.stringify(layout));
+    // v095: the Doctor visit summary button moved to Shots, so the
+    // Weight tab has only the Log button now; no side-by-side pair.
+    check("V169 weight layout: chart before the weight cards, Log button 44px or taller", layout.chartBeforeStats && layout.logH >= 44, JSON.stringify(layout));
     await ctx.close();
   } catch (e) { check("V169 weight layout", false, "error: " + e.message); }
 
