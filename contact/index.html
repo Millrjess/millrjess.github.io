@@ -173,8 +173,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
       <a href="../"><img src="../assets/img/logo-96.webp" alt="" class="brand-logo" aria-hidden="true" width="48" height="48"><span class="brand-text"><span class="brand-name">Jessica A. Miller</span>
       <span class="brand-tag">Website Operations Consultant</span></span></a>
     </div>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
-    <nav aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+    <nav id="site-nav" aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
   </div>
 </header>
 <main id="main" tabindex="-1" class="wrap page">
@@ -187,7 +187,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p><a class="btn btn-book" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 
 <h2>New or existing client?</h2>
-<p><strong>New inquiry:</strong> tell me what you need help with, using the form below or book a complimentary 15-minute discovery call. I will review your inquiry and confirm whether the work is a fit. If we decide to proceed, you will receive a written proposal covering scope, price, and timing. Work begins after the agreement is approved and any required initial payment is received.</p>
+<p><strong>New inquiry:</strong> Tell me what you need help with, using the form below or book a complimentary 15-minute discovery call. I will review your inquiry and confirm whether the work is a fit. If we decide to proceed, you will receive a written proposal covering scope, price, and timing. Work begins after the agreement is approved and any required initial payment is received.</p>
 <p><strong>Existing clients:</strong> For an active project or care plan, use the contact details and support arrangements in your agreement. If you cannot find those details, email me with your business name and website address. Care-plan support follows the hours, response arrangements, and escalation process in your agreement. This contact form is for general inquiries, not guaranteed emergency response.</p>
 
 <h2>Get in Touch</h2>
@@ -234,6 +234,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <script>
 document.getElementById('consult-form').addEventListener('submit', function(e){
   e.preventDefault();
+  if (e.target._honey && e.target._honey.value.trim()) return;
   var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note'), errBox = document.getElementById('consult-errors');
   var fields = [
     {el: f.name, label: 'Your name', hint: 'Please enter your full name.'},
@@ -243,14 +244,21 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   ];
   var errors = [];
   fields.forEach(function(item){
-    var bad = !item.el.value.trim() || (item.el.type === 'email' && item.el.value.trim().indexOf('@') < 1);
+    var bad = !item.el.value.trim() || (item.el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(item.el.value.trim()));
     item.el.setAttribute('aria-invalid', bad ? 'true' : 'false');
     if (bad) errors.push(item);
   });
+  var websiteBad = false;
+  if (f.website.value.trim()) {
+    try { new URL(f.website.value.trim()); } catch (err) { websiteBad = true; }
+  }
+  f.website.setAttribute('aria-invalid', websiteBad ? 'true' : 'false');
+  if (websiteBad) errors.push({el: f.website, label: 'Your website URL', hint: 'Please enter a valid website address, for example https://example.com.'});
   if (errors.length) {
     errBox.hidden = false;
     errBox.innerHTML = 'Please fix ' + errors.length + ' field' + (errors.length > 1 ? 's' : '') + ': ' + errors.map(function(item){ return item.label + ' - ' + item.hint; }).join(' ');
     fields.forEach(function(item){ item.el.setAttribute('aria-describedby', 'consult-errors'); });
+    if (websiteBad) f.website.setAttribute('aria-describedby', 'consult-errors');
     errors[0].el.focus();
     return;
   }
@@ -267,8 +275,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   var timer = setTimeout(function(){
     if (submitted) {
       timedOut = true; submitted = false;
-      var mailto = 'mailto:millrjess@gmail.com?subject=' + encodeURIComponent('New consultation request: ' + f.service.value) + '&body=' + encodeURIComponent(f.name.value.trim() + ' (' + f.email.value.trim() + ')' + (f.website.value.trim() ? '\nWebsite: ' + f.website.value.trim() : '') + '\n\n' + f.details.value.trim());
-      note.innerHTML = 'Something went wrong sending your message through the form service. <a href="' + mailto + '">Send this same message by email instead</a>, or email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
+      note.innerHTML = 'The form did not respond. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
       btn.disabled = false; btn.textContent = 'Send Request';
     }
   }, 30000);
