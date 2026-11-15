@@ -7,8 +7,12 @@
    expects no SpeechRecognition API in headless), so a nonzero exit
    from a suite is NOT itself a failure here. What matters is the
    pass count:
-     app  >= 72/96
-     demo >= 60/86
+     app  >= 72/98
+     demo >= 60/88
+   (Totals rose from 96/86: the v095 test edits restored checks the
+   v094 doctor-button move had been swallowing, and the suite fix
+   restored two more app checks the #movement-plan-modal TypeError
+   had been swallowing. Pass bars are unchanged.)
    Exit 0 only when both suites meet their baselines at the expected
    totals; anything else (a crash, a missing count line, a changed
    total, a pass count below baseline) exits 1. */
@@ -18,8 +22,8 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const BASELINES = {
-  app: { script: path.join(__dirname, "app", "runTests.js"), args: ["after"], pass: 72, total: 96, pattern: /(\d+)\/(\d+) passed \(after\)/ },
-  demo: { script: path.join(__dirname, "demo", "runTests.js"), args: [], pass: 60, total: 86, pattern: /(\d+)\/(\d+) checks passed\./ },
+  app: { script: path.join(__dirname, "app", "runTests.js"), args: ["after"], pass: 72, total: 98, pattern: /(\d+)\/(\d+) passed \(after\)/ },
+  demo: { script: path.join(__dirname, "demo", "runTests.js"), args: [], pass: 60, total: 88, pattern: /(\d+)\/(\d+) checks passed\./ },
 };
 
 function runSuite(name, cfg) {
