@@ -16046,13 +16046,12 @@ if (setupBackBtn) setupBackBtn.addEventListener("click", () => {
   if (setupStep > 1) showSetupStep(setupStep - 1);
 });
 if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => {
-  if (!setupTermsChecked()) { setupTermsMsg("Please agree to the Terms to continue."); return; }
-  setupTermsMsg("");
-  logTermsAcceptance();
+  /* Skip needs no Terms agreement: using the app is agreement under
+     the Terms. Only Finish on step 5 logs explicit acceptance. */
   finishSetup(false);
 });
-/* Escape acts as Skip: it triggers the Skip button, so the Terms
-   check still applies and nothing is marked done without it. */
+/* Escape acts as Skip: it triggers the Skip button, so it follows
+   the same path and needs no Terms agreement. */
 if (setupOverlayEl) setupOverlayEl.addEventListener("keydown", (e) => {
   if (e.key === "Escape") { e.preventDefault(); if (setupSkipBtn) setupSkipBtn.click(); }
 });
