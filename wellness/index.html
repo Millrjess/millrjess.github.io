@@ -83,6 +83,15 @@ hr{border:0; border-top:1px solid var(--border); margin:1.6em 0}
   font-size:.93rem; font-weight:500; text-decoration:none; transition:background .15s}
 .nav a:hover{background:var(--accent-soft); color:var(--sage); text-decoration:none}
 .nav a.active{background:var(--sage); color:#fff}
+.nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--sage)}
+@media (max-width:720px){
+  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between}
+  .nav-toggle{display:block}
+  .site-header nav{display:none; width:100%}
+  .site-header nav.open{display:block}
+  .site-header nav.open .nav{flex-direction:column; align-items:stretch}
+  .site-header nav.open .nav a{padding:.7em .5em}
+}
 
 /* page card */
 .page{padding-top:26px; padding-bottom:26px}
@@ -213,6 +222,8 @@ details[id],h2[id],h3[id]{scroll-margin-top:180px}
       <span class="brand-text"><span class="brand-name">A New Chapter</span>
       <span class="brand-tag">Wellness</span></span>
     </div>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+    <nav id="site-nav" aria-label="Main navigation"><ul class="nav"><li><a href="../">Home</a></li><li><a href="../services/">Services</a></li><li><a href="../portfolio/">Work &amp; Credentials</a></li><li><a href="../pricing/">Pricing</a></li><li><a href="../about/">About</a></li><li><a href="../faqs/">FAQs</a></li><li><a href="../contact/">Contact</a></li><li><a href="../booking/">Book a Discovery Call</a></li></ul></nav>
   </div>
 </header>
 <main id="main" tabindex="-1" class="wrap page">
@@ -430,6 +441,7 @@ window.addEventListener('resize',setOff);window.addEventListener('load',setOff);
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
   <div class="wrap footer-inner">
     <p>&copy; 2026 Jessica A. Miller. All rights reserved.</p>
+    <p><a href="../sitemap/">Sitemap</a></p>
     <p class="social"><a href="https://www.linkedin.com/in/millrjess" aria-label="Jessica A. Miller on LinkedIn">LinkedIn</a> &middot; <a href="https://github.com/Millrjess" aria-label="Jessica A. Miller on GitHub">GitHub</a> &middot; <a href="https://www.behance.net/jessicamiller20" aria-label="Jessica A. Miller on Behance">Behance</a> &middot; <a href="https://medium.com/@jessicamiller_59797" aria-label="Jessica A. Miller on Medium">Medium</a> &middot; <a href="https://www.amazon.com/author/millrjess" aria-label="Jessica A. Miller Amazon author page">Author</a> &middot; <a href="https://www.facebook.com/millrjess" aria-label="Jessica A. Miller on Facebook">Facebook</a> &middot; <a href="https://www.instagram.com/millrjess2026" aria-label="Jessica A. Miller on Instagram">Instagram</a> &middot; <a href="https://www.threads.com/@millrjess2026" aria-label="Jessica A. Miller on Threads">Threads</a> &middot; <a href="https://www.pinterest.com/millrjess/" aria-label="Jessica A. Miller on Pinterest">Pinterest</a> &middot; <a href="https://gmail.us8.list-manage.com/subscribe?u=9035fd3eb09dd3f2a7ba37939&amp;id=5352c60bbc" aria-label="Subscribe to the A New Chapter newsletter">Newsletter</a></p>
     <p>Zepbound, Mounjaro, Wegovy, and Ozempic are registered trademarks of their respective owners. New Chapter is not affiliated with or endorsed by Eli Lilly or Novo Nordisk.</p>
   </div>
@@ -453,6 +465,15 @@ window.addEventListener('resize',setOff);window.addEventListener('load',setOff);
     if(el){ requestAnimationFrame(function(){ el.scrollIntoView(); }); }
   });
 })();
+</script>
+<script>
+document.querySelectorAll(".nav-toggle").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var nav = btn.closest(".site-header").querySelector("nav");
+    var open = nav.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+});
 </script>
 
 </body>
