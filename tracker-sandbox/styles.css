@@ -1791,6 +1791,9 @@ canvas { max-width: 100%; height: auto; display: block; }
 .week-day.viewed { background:#5A6B52; border-color:#5A6B52; }
 .week-day.viewed .week-letter, .week-day.viewed .week-num { color:#FDFBF7; }
 .week-day:disabled { opacity:.4; cursor:default; }
+.week-day .week-plan-label { font-size:.65rem; color:var(--muted); line-height:1.25; text-align:center; }
+.week-day.viewed .week-plan-label { color:#FDFBF7; }
+
 .meal-row { border-top:1px solid var(--border); padding:10px 0 2px; }
 .meal-row:first-child { border-top:0; padding-top:2px; }
 .meal-head { display:flex; align-items:center; gap:8px; }
@@ -2005,3 +2008,16 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .pantry-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); }
 .pantry-row input[type="checkbox"] { width: 24px; height: 24px; flex: none; accent-color: var(--sage); }
 .pantry-row span { flex: 1; }
+
+/* Fitness card rows (v094): short summary rows that open their detail
+   one tap away. Brand colors only, no ads. */
+.fitness-row { display:flex; align-items:baseline; gap:10px; width:100%; padding:10px 0; background:none; border:none; border-top:1px solid var(--border); font:inherit; text-align:left; cursor:pointer; }
+.fitness-row-label { font-size:1rem; font-weight:700; color:var(--sage-dark); line-height:1.3; }
+.fitness-row-status { flex:1; font-size:.9rem; color:var(--muted); text-align:right; line-height:1.4; }
+.fitness-row .section-toggle-chevron { color:#87692B; font-size:1.1rem; line-height:1; flex:none; }
+.fitness-row:focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:4px; }
+/* Strength detail tabs (v094): My Exercises, History, All Exercises. */
+.strength-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin:12px 0 0; }
+.strength-tab { background:none; border:none; border-bottom:2px solid transparent; padding:8px 10px; font:inherit; font-size:.95rem; color:var(--muted); cursor:pointer; }
+.strength-tab[aria-selected="true"] { color:var(--sage-dark); font-weight:700; border-bottom-color:var(--sage); }
+.strength-tab:focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:4px; }
