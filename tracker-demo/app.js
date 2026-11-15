@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v099";
+const APP_VERSION = "v100";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -3137,7 +3137,8 @@ document.getElementById("plate-log-btn").addEventListener("click", () => {
    5 minutes to the Movement total; unticking a move takes it back. */
 /* The picker list: bodyweight, popular weights, and resistance bands,
    across the six movement patterns (squat, hinge, push, pull, carry,
-   core). Research-backed picks for adults over 50; defaults first. */
+   core), plus the cardio machines and activities people use most.
+   Research-backed picks for adults over 50; defaults first. */
 const EXERCISE_LIBRARY = [
   { name: "Sit-to-stands", detail: "10 reps", pattern: "Squat" },
   { name: "Wall push-ups", detail: "10 reps", pattern: "Push" },
@@ -3156,7 +3157,27 @@ const EXERCISE_LIBRARY = [
   { name: "Band chest press", detail: "12 reps", pattern: "Push" },
   { name: "Farmer's carry", detail: "1 minute", pattern: "Carry" },
   { name: "Calf raise", detail: "15 reps", pattern: "Squat" },
-  { name: "Lateral band walk", detail: "10 steps each way", pattern: "Squat" }
+  { name: "Lateral band walk", detail: "10 steps each way", pattern: "Squat" },
+  /* v100: cardio machines and activities people use most. */
+  { name: "Treadmill walk", detail: "10 minutes", pattern: "Other" },
+  { name: "Treadmill run", detail: "10 minutes", pattern: "Other" },
+  { name: "Elliptical", detail: "10 minutes", pattern: "Other" },
+  { name: "Stationary bike", detail: "10 minutes", pattern: "Other" },
+  { name: "Recumbent bike", detail: "10 minutes", pattern: "Other" },
+  { name: "Spin bike", detail: "10 minutes", pattern: "Other" },
+  { name: "Rowing machine", detail: "10 minutes", pattern: "Other" },
+  { name: "Stair climber", detail: "10 minutes", pattern: "Other" },
+  { name: "Swimming", detail: "10 minutes", pattern: "Other" },
+  { name: "Water aerobics", detail: "10 minutes", pattern: "Other" },
+  { name: "Outdoor walk", detail: "10 minutes", pattern: "Other" },
+  { name: "Outdoor run", detail: "10 minutes", pattern: "Other" },
+  { name: "Outdoor cycling", detail: "10 minutes", pattern: "Other" },
+  { name: "Hiking", detail: "10 minutes", pattern: "Other" },
+  { name: "Dance", detail: "10 minutes", pattern: "Other" },
+  { name: "Aerobics class", detail: "10 minutes", pattern: "Other" },
+  { name: "Jump rope", detail: "5 minutes", pattern: "Other" },
+  { name: "Yoga", detail: "10 minutes", pattern: "Other" },
+  { name: "Tai chi", detail: "10 minutes", pattern: "Other" },
 ];
 const MOVEMENT_BONUS_LABEL = "Daily movement routine";
 const MOVEMENT_BONUS_MINUTES = 5;
@@ -3541,7 +3562,7 @@ const STRENGTH_ROUTINES = {
 /* Swap-only alternatives: exercises that are not in any built-in day
    but can replace one. Merged into the exercise index below, so a
    swap target always resolves to full data. Dumbbell, band,
-   bodyweight, and machine options. */
+   bodyweight, machine, barbell, kettlebell, cable, and Smith machine options. */
 const STRENGTH_SWAP_ALTS = {
   "Floor Press": { name: "Floor Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lie on the floor, press up, lower until your elbows touch the floor." },
   "Band Chest Press": { name: "Band Chest Press", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Band behind your back, press forward, control the return." },
@@ -3566,7 +3587,52 @@ const STRENGTH_SWAP_ALTS = {
   "Leg Press": { name: "Leg Press", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Push through your heels. One leg at a time for a lunge replacement." },
   "Seated Leg Curl machine": { name: "Seated Leg Curl machine", muscle: "Hamstrings", sets: 3, reps: 10, detail: "3 x 10", cue: "Curl slowly, control the return, keep your hips down." },
   "Calf Raise machine": { name: "Calf Raise machine", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Rise onto your toes, lower slowly, full range." },
-  "Abdominal machine": { name: "Abdominal machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return." }
+  "Abdominal machine": { name: "Abdominal machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return." },
+  /* v100: the full gym library, so the All Exercises list and Swap have the whole gym to offer. */
+  "Cable Crossover": { name: "Cable Crossover", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand tall, bring the handles together in front of you, control the return." },
+  "Smith Machine Squat": { name: "Smith Machine Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Feet forward, sit back, drive up through your heels." },
+  "Smith Machine Bench Press": { name: "Smith Machine Bench Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower the bar to your chest, press up, keep your wrists straight." },
+  "Assisted Pull-up": { name: "Assisted Pull-up", muscle: "Lats, upper back", sets: 3, reps: 8, detail: "3 x 8", cue: "Kneel on the platform, pull your chest to the bar, lower slowly." },
+  "Assisted Dip": { name: "Assisted Dip", muscle: "Chest, triceps", sets: 3, reps: 10, detail: "3 x 10", cue: "Kneel on the platform, lower slowly, press up without locking your elbows." },
+  "Back Extension machine": { name: "Back Extension machine", muscle: "Lower back, glutes", sets: 2, reps: 12, detail: "2 x 12", cue: "Hinge at your hips, lift slowly, do not overextend." },
+  "Torso Rotation machine": { name: "Torso Rotation machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12 each side", cue: "Rotate slowly, keep your hips still, breathe out as you turn." },
+  "Lateral Raise machine": { name: "Lateral Raise machine", muscle: "Shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Lift to shoulder height, lower slowly, do not shrug." },
+  "Triceps Pushdown": { name: "Triceps Pushdown", muscle: "Triceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbows pinned to your sides, press down, control the return." },
+  "Cable Row": { name: "Cable Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10", cue: "Pull the handle to your ribs, squeeze your shoulder blades." },
+  "Preacher Curl machine": { name: "Preacher Curl machine", muscle: "Biceps", sets: 3, reps: 10, detail: "3 x 10", cue: "Upper arms on the pad, curl slowly, lower fully." },
+  "Hack Squat machine": { name: "Hack Squat machine", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Back flat on the pad, lower slowly, drive up through your heels." },
+  "Lying Leg Curl machine": { name: "Lying Leg Curl machine", muscle: "Hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Curl slowly, control the return, keep your hips down." },
+  "Incline Chest Press machine": { name: "Incline Chest Press machine", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Press up and slightly forward, control the return." },
+  "T-Bar Row": { name: "T-Bar Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge forward, pull the bar to your chest, squeeze your back." },
+  "Rear Delt Fly machine": { name: "Rear Delt Fly machine", muscle: "Rear shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Open wide, squeeze your shoulder blades, control the return." },
+  "Barbell Bench Press": { name: "Barbell Bench Press", muscle: "Chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower the bar to your chest, press up, keep your wrists straight." },
+  "Barbell Squat": { name: "Barbell Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Chest up, sit back, knees track over toes." },
+  "Barbell Deadlift": { name: "Barbell Deadlift", muscle: "Hamstrings, glutes, back", sets: 3, reps: 8, detail: "3 x 8", cue: "Hinge at your hips, keep your back flat, drive through your heels." },
+  "Barbell Row": { name: "Barbell Row", muscle: "Lats, upper back", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge forward, pull the bar to your ribs, keep your back flat." },
+  "Barbell Overhead Press": { name: "Barbell Overhead Press", muscle: "Shoulders", sets: 3, reps: 10, detail: "3 x 10", cue: "Press overhead, ribs down, do not arch your back." },
+  "Dumbbell Forward Lunge": { name: "Dumbbell Forward Lunge", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Step forward, lower straight down, push back through your front heel." },
+  "Dumbbell Walking Lunge": { name: "Dumbbell Walking Lunge", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Step forward and through, keep your torso tall." },
+  "Dumbbell Lateral Lunge": { name: "Dumbbell Lateral Lunge", muscle: "Inner thighs, glutes", sets: 3, reps: 10, detail: "3 x 10 each side", cue: "Step wide to the side, sit back into the hip, keep the other leg straight." },
+  "Dumbbell Front Raise": { name: "Dumbbell Front Raise", muscle: "Shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Lift to shoulder height, lower slowly, do not swing." },
+  "Concentration Curl": { name: "Concentration Curl", muscle: "Biceps", sets: 3, reps: 12, detail: "3 x 12", cue: "Elbow braced on your inner thigh, curl slowly, lower fully." },
+  "Dumbbell Pullover": { name: "Dumbbell Pullover", muscle: "Chest, lats", sets: 3, reps: 10, detail: "3 x 10", cue: "Lower the weight behind your head, pull back over your chest." },
+  "Kettlebell Swing": { name: "Kettlebell Swing", muscle: "Glutes, hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Hinge and snap your hips, let the bell float, do not lift with your arms." },
+  "Kettlebell Deadlift": { name: "Kettlebell Deadlift", muscle: "Hamstrings, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Hinge at your hips, keep your back flat, stand tall." },
+  "Band Pull-Apart": { name: "Band Pull-Apart", muscle: "Upper back, rear shoulders", sets: 3, reps: 15, detail: "3 x 15", cue: "Hold the band at shoulder height, pull apart, squeeze your shoulder blades." },
+  "Band Squat": { name: "Band Squat", muscle: "Quads, glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand on the band, squat down, drive up through your heels." },
+  "Band Pull-Through": { name: "Band Pull-Through", muscle: "Glutes, hamstrings", sets: 3, reps: 12, detail: "3 x 12", cue: "Hinge forward, pull the band through your legs, squeeze your glutes." },
+  "Step-ups": { name: "Step-ups", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10 each leg", cue: "Step up tall, drive through your heel, lower slowly." },
+  "Wall Sit": { name: "Wall Sit", muscle: "Quads", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Back flat on the wall, knees at 90 degrees, breathe." },
+  "Bird Dog": { name: "Bird Dog", muscle: "Core", sets: 2, reps: 10, detail: "2 x 10 each side", cue: "Opposite arm and leg out, keep your hips level." },
+  "Bench Dip": { name: "Bench Dip", muscle: "Triceps", sets: 3, reps: 10, detail: "3 x 10", cue: "Hands on the bench, lower slowly, press up." },
+  "Diamond Push-up": { name: "Diamond Push-up", muscle: "Triceps, chest", sets: 3, reps: 10, detail: "3 x 10", cue: "Hands together under your chest, lower slowly, press up." },
+  "Russian Twist": { name: "Russian Twist", muscle: "Core", sets: 3, reps: 15, detail: "3 x 15 each side", cue: "Lean back slightly, twist slowly, keep your chest up." },
+  "Bicycle Crunch": { name: "Bicycle Crunch", muscle: "Core", sets: 3, reps: 15, detail: "3 x 15 each side", cue: "Opposite elbow to knee, slow and controlled." },
+  "Hanging Knee Raise": { name: "Hanging Knee Raise", muscle: "Core", sets: 3, reps: 10, detail: "3 x 10", cue: "Hang still, lift your knees, lower slowly without swinging." },
+  "Leg Raise": { name: "Leg Raise", muscle: "Core", sets: 3, reps: 12, detail: "3 x 12", cue: "Legs straight, lift slowly, lower without letting your back arch." },
+  "Cable Kickback": { name: "Cable Kickback", muscle: "Glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Kick back slowly, squeeze at the top, keep your hips still." },
+  "Face Pull": { name: "Face Pull", muscle: "Rear shoulders, upper back", sets: 3, reps: 15, detail: "3 x 15", cue: "Pull the rope to your forehead, elbows high, squeeze your upper back." },
+  "Cable Lateral Raise": { name: "Cable Lateral Raise", muscle: "Shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Lift to shoulder height, lower slowly, do not shrug." },
 };
 /* Exercise index, built from the routine days plus the swap-only
    alternatives. A swap is stored by name; this index resolves it. */
@@ -3634,7 +3700,52 @@ const STRENGTH_SWAPS = {
   "Hip Abduction": ["Glute Bridge", "Hip Thrust"],
   "Hip Adduction": ["Glute Bridge", "Split Squat"],
   "Glute Machine": ["Hip Thrust", "Glute Bridge"],
-  "Triceps Extension": ["Overhead Triceps Extension", "Band Triceps Extension"]
+  "Triceps Extension": ["Overhead Triceps Extension", "Band Triceps Extension"],
+  /* v100: swaps for the full gym library. Every new exercise has two alternatives by muscle group. */
+  "Cable Crossover": ["Dumbbell Chest Fly", "Pec Fly machine"],
+  "Smith Machine Squat": ["Goblet Squat", "Leg Press"],
+  "Smith Machine Bench Press": ["Dumbbell Bench Press", "Chest Press machine"],
+  "Assisted Pull-up": ["Lat Pulldown", "Seated Row machine"],
+  "Assisted Dip": ["Push-up, or knee push-up", "Bench Dip"],
+  "Back Extension machine": ["Romanian Deadlift", "Glute Bridge"],
+  "Torso Rotation machine": ["Russian Twist", "Bicycle Crunch"],
+  "Lateral Raise machine": ["Lateral Raise", "Band Lateral Raise"],
+  "Triceps Pushdown": ["Overhead Triceps Extension", "Triceps Extension"],
+  "Cable Row": ["One-Arm Dumbbell Row", "Seated Row machine"],
+  "Preacher Curl machine": ["Dumbbell Biceps Curl", "Biceps Curl machine"],
+  "Hack Squat machine": ["Leg Press", "Goblet Squat"],
+  "Lying Leg Curl machine": ["Seated Leg Curl machine", "Romanian Deadlift"],
+  "Incline Chest Press machine": ["Dumbbell Incline Press", "Chest Press machine"],
+  "T-Bar Row": ["Bent-Over Dumbbell Row, two-arm", "Barbell Row"],
+  "Rear Delt Fly machine": ["Face Pull", "Band Pull-Apart"],
+  "Barbell Bench Press": ["Dumbbell Bench Press", "Smith Machine Bench Press"],
+  "Barbell Squat": ["Goblet Squat", "Smith Machine Squat"],
+  "Barbell Deadlift": ["Romanian Deadlift", "Dumbbell Deadlift"],
+  "Barbell Row": ["Bent-Over Dumbbell Row, two-arm", "T-Bar Row"],
+  "Barbell Overhead Press": ["Dumbbell Shoulder Press", "Shoulder Press machine"],
+  "Dumbbell Forward Lunge": ["Dumbbell Reverse Lunge", "Split Squat"],
+  "Dumbbell Walking Lunge": ["Dumbbell Forward Lunge", "Dumbbell Reverse Lunge"],
+  "Dumbbell Lateral Lunge": ["Dumbbell Forward Lunge", "Hip Adduction"],
+  "Dumbbell Front Raise": ["Lateral Raise", "Dumbbell Shoulder Press"],
+  "Concentration Curl": ["Dumbbell Biceps Curl", "Hammer Curl"],
+  "Dumbbell Pullover": ["Dumbbell Bench Press", "Lat Pulldown"],
+  "Kettlebell Swing": ["Romanian Deadlift", "Hip Thrust"],
+  "Kettlebell Deadlift": ["Dumbbell Deadlift", "Romanian Deadlift"],
+  "Band Pull-Apart": ["Face Pull", "Band Row"],
+  "Band Squat": ["Bodyweight Squat", "Goblet Squat"],
+  "Band Pull-Through": ["Glute Bridge", "Hip Thrust"],
+  "Step-ups": ["Split Squat", "Dumbbell Forward Lunge"],
+  "Wall Sit": ["Bodyweight Squat", "Leg Extension"],
+  "Bird Dog": ["Dead Bug", "Plank"],
+  "Bench Dip": ["Triceps Extension", "Overhead Triceps Extension"],
+  "Diamond Push-up": ["Push-up, or knee push-up", "Bench Dip"],
+  "Russian Twist": ["Bicycle Crunch", "Torso Rotation machine"],
+  "Bicycle Crunch": ["Russian Twist", "Leg Raise"],
+  "Hanging Knee Raise": ["Leg Raise", "Plank"],
+  "Leg Raise": ["Hanging Knee Raise", "Dead Bug"],
+  "Cable Kickback": ["Glute Machine", "Hip Thrust"],
+  "Face Pull": ["Band Pull-Apart", "Rear Delt Fly machine"],
+  "Cable Lateral Raise": ["Lateral Raise", "Lateral Raise machine"],
 };
 function getStrengthPlan() {
   const p = store.settings && store.settings.strengthPlan;
