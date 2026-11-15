@@ -276,7 +276,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     if (!submitted || timedOut) return;
     submitted = false; clearTimeout(timer);
     f.reset();
-    note.innerHTML = 'Thanks \u2014 your message is on its way. I read and reply to every inquiry personally.';
+    note.innerHTML = 'Thanks. Your message is on its way. I read and reply to every inquiry personally.';
     btn.disabled = false; btn.textContent = 'Send Request';
   };
   f.action = 'https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec';
