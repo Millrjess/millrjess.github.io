@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v097";
+const APP_VERSION = "v098";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -4928,13 +4928,17 @@ function renderNextInjection() {
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
   gotoBtn.style.display = alreadyLogged ? "none" : "";
   const shotDayBtn = document.getElementById("goto-shot-day-btn");
-  if (shotDayBtn) shotDayBtn.classList.toggle("hidden", alreadyLogged || !!shotDay);
+  // v098: the "Set shot day" button is superseded by the inline picker
+  // on this card, so it stays hidden. The picker is the path now.
+  if (shotDayBtn) shotDayBtn.classList.add("hidden");
+  const shotDayPicker = document.getElementById("next-shot-day-picker");
+  if (shotDayPicker) shotDayPicker.classList.toggle("hidden", alreadyLogged || !!shotDay);
   if (alreadyLogged) {
     el.textContent = "\u2713 Today's shot logged.";
     return;
   }
   if (!shotDay) {
-    el.textContent = "Set your shot day in Settings.";
+    el.textContent = "Set your shot day below.";
     return;
   }
   // v073 Phase 1 ticket 1: this week's shot day passed with no shot
@@ -4983,6 +4987,19 @@ document.getElementById("goto-shots-btn").addEventListener("click", () => {
   document.getElementById("show-injection-form").click();
 });
 document.getElementById("goto-shot-day-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
+// v098: the Next shot card has its own shot-day picker, so the day can
+// be set without leaving Today. It writes the same setting Settings
+// writes (store.settings.shotDay). renderSettings() keeps the Settings
+// form in sync, so leaving Settings later cannot autosave a stale
+// blank day over the day picked here.
+document.getElementById("next-shot-day-select").addEventListener("change", (e) => {
+  const v = e.target.value;
+  if (!v) return;
+  store.settings.shotDay = v;
+  saveStore();
+  renderSettings();
+  renderToday();
+});
 document.getElementById("today-refill-settings-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
 
 /* GLP-1 quick actions (v035): three links on Today to the flows
