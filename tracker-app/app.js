@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v100";
+const APP_VERSION = "v101";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -14919,14 +14919,15 @@ document.getElementById("resubscribe-btn").addEventListener("click", () => {
   updateResubscribeBtn();
 });
 /* Manage subscription opens the Stripe Billing portal in a new tab.
-   Any failure shows the coming-soon line; it never falls back to email. */
+   Any failure shows the email line; the portal itself lands with the
+   December update. */
 const manageSubscriptionBtn = document.getElementById("manage-subscription-btn");
 if (manageSubscriptionBtn) manageSubscriptionBtn.addEventListener("click", async () => {
   const btn = manageSubscriptionBtn;
   const msg = document.getElementById("portal-msg");
   const setMsg = (t) => { if (msg) msg.textContent = t; };
   const token = getAuthToken();
-  if (!token) { setMsg("One-tap cancel arrives with the December update."); return; }
+  if (!token) { setMsg("Email millrjess@gmail.com for cancellation help."); return; }
   btn.disabled = true;
   setMsg("Opening your billing page...");
   try {
@@ -14936,10 +14937,10 @@ if (manageSubscriptionBtn) manageSubscriptionBtn.addEventListener("click", async
       setMsg("");
       window.open(data.url, "_blank", "noopener");
     } else {
-      setMsg("One-tap cancel arrives with the December update.");
+      setMsg("Email millrjess@gmail.com for cancellation help.");
     }
   } catch {
-    setMsg("One-tap cancel arrives with the December update.");
+    setMsg("Email millrjess@gmail.com for cancellation help.");
   } finally {
     btn.disabled = false;
   }
@@ -16072,13 +16073,12 @@ if (setupBackBtn) setupBackBtn.addEventListener("click", () => {
   if (setupStep > 1) showSetupStep(setupStep - 1);
 });
 if (setupSkipBtn) setupSkipBtn.addEventListener("click", () => {
-  if (!setupTermsChecked()) { setupTermsMsg("Please agree to the Terms to continue."); return; }
-  setupTermsMsg("");
-  logTermsAcceptance();
+  /* Skip needs no Terms agreement: using the app is agreement under
+     the Terms. Only Finish on step 5 logs explicit acceptance. */
   finishSetup(false);
 });
-/* Escape acts as Skip: it triggers the Skip button, so the Terms
-   check still applies and nothing is marked done without it. */
+/* Escape acts as Skip: it triggers the Skip button, so it follows
+   the same path and needs no Terms agreement. */
 if (setupOverlayEl) setupOverlayEl.addEventListener("keydown", (e) => {
   if (e.key === "Escape") { e.preventDefault(); if (setupSkipBtn) setupSkipBtn.click(); }
 });
