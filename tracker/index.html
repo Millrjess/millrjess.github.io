@@ -101,11 +101,13 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/lotus-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/lotus-favicon-16.png">
 <link rel="apple-touch-icon" href="../assets/img/lotus-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/dm-sans-latin.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/libre-baskerville-latin.woff2" crossorigin>
   <title>New Chapter: GLP-1 Tracker™</title>
   <style>
+    @font-face{font-family:'DM Sans';font-style:normal;font-weight:100 1000;font-display:swap;src:url('../assets/fonts/dm-sans-latin.woff2') format('woff2')}
+    @font-face{font-family:'Libre Baskerville';font-style:normal;font-weight:400;font-display:swap;src:url('../assets/fonts/libre-baskerville-latin.woff2') format('woff2')}
+    @font-face{font-family:'Libre Baskerville';font-style:italic;font-weight:400;font-display:swap;src:url('../assets/fonts/libre-baskerville-italic-latin.woff2') format('woff2')}
     :root {
       color-scheme: light dark;
       --bg: #FDFBF7;
@@ -750,6 +752,7 @@
       var video = document.getElementById('walkthrough-video');
       var button = document.getElementById('walkthrough-sound');
       if (!video || !button) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { video.pause(); video.removeAttribute('autoplay'); }
       button.addEventListener('click', function () {
         video.muted = false;
         video.play();
