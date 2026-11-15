@@ -1539,6 +1539,121 @@ function renderWeekStrip() {
   }));
 }
 
+/* ---------- Weekly digest ---------- */
+/* A short weekly report: protein and water averages, movement total,
+   weight trend, shots, and side effects. Monday to Sunday, with
+   previous and next week navigation. Plain facts only, no failure
+   language. */
+let digestWeekStart = null; // Date of the Monday starting the shown week
+let digestAutoOpened = false; // the digest opens itself once, on first render, when there is something to celebrate
+function weekMonday(d) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = x.getDay(); // 0 Sunday, 1 Monday
+  x.setDate(x.getDate() - ((day + 6) % 7));
+  return x;
+}
+function dateStrOf(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function renderWeeklyDigest() {
+  const body = document.getElementById("digest-body");
+  if (!body) return;
+  const now = new Date();
+  if (!digestWeekStart) digestWeekStart = weekMonday(now);
+  const thisWeek = weekMonday(now);
+  if (digestWeekStart > thisWeek) digestWeekStart = thisWeek;
+  const start = new Date(digestWeekStart);
+  const end = new Date(start); end.setDate(end.getDate() + 6);
+  const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const isCurrent = dateStrOf(start) === dateStrOf(thisWeek);
+  document.getElementById("digest-title").textContent = isCurrent
+    ? "This week"
+    : fmt(start) + " to " + fmt(end);
+
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    days.push(dateStrOf(d));
+  }
+  const inWeek = (d) => d && days.includes(d);
+
+  const daysLogged = new Set();
+  ["water", "protein", "exercise", "weight", "injections", "journal", "sideEffects"].forEach((k) => {
+    (store[k] || []).forEach((e) => { if (inWeek(e.date)) daysLogged.add(e.date); });
+  });
+  Object.keys(store.moods || {}).forEach((d) => { if (inWeek(d)) daysLogged.add(d); });
+
+  const sumField = (key, field) => (store[key] || []).reduce((t, e) => inWeek(e.date) ? t + (Number(e[field]) || 0) : t, 0);
+  const proteinTotal = sumField("protein", "grams");
+  const waterTotal = sumField("water", "oz");
+  const moveTotal = sumField("exercise", "minutes");
+  const shots = (store.injections || []).filter((e) => inWeek(e.date)).length;
+  const effects = (store.sideEffects || []).filter((e) => inWeek(e.date));
+
+  const weights = (store.weight || []).filter((e) => inWeek(e.date)).sort(byDate);
+  let weightLine = "";
+  if (weights.length >= 2) {
+    const startW = Number(weights[0].value), endW = Number(weights[weights.length - 1].value);
+    const change = startW - endW;
+    weightLine = change > 0
+      ? "Weight went from " + startW + " to " + endW + " lbs, down " + change.toFixed(1) + "."
+      : change < 0
+        ? "Weight went from " + startW + " to " + endW + " lbs, up " + Math.abs(change).toFixed(1) + "."
+        : "Weight held steady at " + endW + " lbs.";
+  } else if (weights.length === 1) {
+    weightLine = "You logged your weight at " + weights[0].value + " lbs.";
+  }
+
+  let effectLine = "";
+  if (effects.length) {
+    const counts = {};
+    effects.forEach((e) => { const s = (e.symptom || "Side effect").trim(); counts[s] = (counts[s] || 0) + 1; });
+    const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+    effectLine = effects.length + " side effect" + (effects.length === 1 ? "" : "s") + " noted" +
+      (top ? ", most often " + top[0] + " (" + top[1] + ")." : ".");
+  }
+
+  const lines = [];
+  lines.push("You showed up " + daysLogged.size + " of 7 days.");
+  if (proteinTotal) lines.push("Protein averaged " + Math.round(proteinTotal / daysLogged.size) + " grams a day across the " + daysLogged.size + (daysLogged.size === 1 ? " day" : " days") + " you logged.");
+  if (waterTotal) lines.push("Water averaged " + Math.round(waterTotal / daysLogged.size) + " ounces a day across the " + daysLogged.size + (daysLogged.size === 1 ? " day" : " days") + " you logged.");
+  if (moveTotal) lines.push("Movement totaled " + moveTotal + " minutes.");
+  if (shots) lines.push(shots + " shot" + (shots === 1 ? "" : "s") + " logged.");
+  if (effectLine) lines.push(effectLine);
+  if (weightLine) lines.push(weightLine);
+
+  const closing = daysLogged.size === 0
+    ? "A quiet week. Next week is yours to write."
+    : isCurrent
+      ? "The week isn't over yet. Keep logging."
+      : "That's a week worth keeping.";
+
+  body.innerHTML = (lines.length ? `<ul style="margin:0 0 4px;padding-left:20px">${lines.map((l) => `<li style="margin:0 0 8px">${l}</li>`).join("")}</ul>` : "") +
+    `<p style="margin:12px 0 0;font-style:italic;color:var(--sage-deep)">${closing}</p>`;
+
+  document.getElementById("digest-next").style.visibility = isCurrent ? "hidden" : "";
+  // v049, PM-32: when there is something to celebrate (a streak of 3
+  // or more, or 3 or more days logged), the digest opens itself the
+  // first time it renders, so the good week is seen, not missed.
+  // v063: the auto-open respects a close she chose herself. If she
+  // closed the digest, it stays closed until she reopens it.
+  if (!digestAutoOpened && isCurrent && (currentStreak() >= 3 || daysLogged.size >= 3) && !sectionPersistedClosed("digest-details")) {
+    digestAutoOpened = true;
+    const d = document.getElementById("digest-details");
+    if (d) d.open = true;
+  }
+}
+
+document.getElementById("digest-prev").addEventListener("click", () => {
+  if (!digestWeekStart) digestWeekStart = weekMonday(new Date());
+  digestWeekStart.setDate(digestWeekStart.getDate() - 7);
+  renderWeeklyDigest();
+});
+document.getElementById("digest-next").addEventListener("click", () => {
+  if (!digestWeekStart) digestWeekStart = weekMonday(new Date());
+  digestWeekStart.setDate(digestWeekStart.getDate() + 7);
+  renderWeeklyDigest();
+});
 /* Weight card on Today: the latest weigh-in and the change since the
    one before it. Log weight goes to the Weight tab, where the weight
    is logged with the date. */
@@ -1631,6 +1746,7 @@ function renderToday() {
   if (saveFailed) showStorageWarning("Your latest change could not be saved on this device. It may be out of space. Try downloading a backup from Settings, then deleting a few old photos.");
   renderCoachInsight();
   renderMonthlyReview();
+  renderWeeklyDigest();
 }
 
 /* Streak count (v166): consecutive days with at least one logged entry
@@ -4862,7 +4978,15 @@ function renderNextInjection() {
   const el = document.getElementById("next-injection-line");
   const shotDay = store.settings.shotDay;
   if (!shotDay) {
-    el.textContent = "Set your shot day in Settings.";
+    el.textContent = "Set your shot day below.";
+    // v098: the picker toggle at the bottom of this function is never
+    // reached from this early return, so show the picker here too,
+    // unless a shot was already logged today.
+    const shotDayBtn = document.getElementById("goto-shot-day-btn");
+    if (shotDayBtn) shotDayBtn.classList.add("hidden");
+    const shotDayPicker = document.getElementById("next-shot-day-picker");
+    const alreadyLoggedToday = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
+    if (shotDayPicker) shotDayPicker.classList.toggle("hidden", alreadyLoggedToday);
     return;
   }
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -4894,7 +5018,11 @@ function renderNextInjection() {
   const alreadyLogged = store.injections.some((e) => e.date === todayStr() && (e.status || "On time") !== "Missed");
   gotoBtn.style.display = alreadyLogged ? "none" : "";
   const shotDayBtn = document.getElementById("goto-shot-day-btn");
-  if (shotDayBtn) shotDayBtn.classList.toggle("hidden", alreadyLogged || !!shotDay);
+  // v098: the "Set shot day" button is superseded by the inline picker
+  // on this card, so it stays hidden. The picker is the path now.
+  if (shotDayBtn) shotDayBtn.classList.add("hidden");
+  const shotDayPicker = document.getElementById("next-shot-day-picker");
+  if (shotDayPicker) shotDayPicker.classList.toggle("hidden", alreadyLogged || !!shotDay);
   // v073 Phase 1 ticket 1: this week's shot day passed with no shot
   // ever logged. Flag it gently, name the date, point to the Shots
   // tab, and suggest the prescribing doctor if unsure. Never dose
@@ -4918,6 +5046,19 @@ document.getElementById("goto-shots-btn").addEventListener("click", () => {
   document.getElementById("show-injection-form").click();
 });
 document.getElementById("goto-shot-day-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
+// v098: the Next shot card has its own shot-day picker, so the day can
+// be set without leaving Today. It writes the same setting Settings
+// writes (store.settings.shotDay). renderSettings() keeps the Settings
+// form in sync, so leaving Settings later cannot autosave a stale
+// blank day over the day picked here.
+document.getElementById("next-shot-day-select").addEventListener("change", (e) => {
+  const v = e.target.value;
+  if (!v) return;
+  store.settings.shotDay = v;
+  saveStore();
+  renderSettings();
+  renderToday();
+});
 document.getElementById("today-refill-settings-btn").addEventListener("click", () => openSettingsAt("settings-goals-card"));
 
 /* GLP-1 quick actions (v035): three links on Today to the flows
