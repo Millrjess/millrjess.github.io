@@ -216,7 +216,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2>Product</h2>
 <h3>New Chapter: GLP-1 Tracker™ (Independent Product, Founder)</h3>
 <p><a href="https://millrjess.github.io/tracker/"><img src="/assets/img/cards/card-new-chapter.jpg" alt="New Chapter: GLP-1 Tracker™ app" loading="lazy" style="width:100%; max-width:720px; border-radius:16px; display:block; margin:0.8em 0;"></a></p>
-<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset found about 40 percent for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">STEP-1 DXA subset data</a>). DXA scans measure lean tissue, which includes muscle, water, and organs, and older adults are most at risk. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job. People were tracking injections, protein, and movement across scattered notes and memory.</p>
+<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset found about 40 percent for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">STEP-1 DXA subset data</a>). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job. People were tracking injections, protein, and movement across scattered notes and memory.</p>
 <p class="role">Founder &middot; Designer and developer &middot; Live on the web</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-built-it-new-chapter-glp-1-tracker"><span class="entry-lede">How I built it: New Chapter: GLP-1 Tracker™</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
@@ -238,7 +238,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone. I built a custom design system around the brand gold and sage palette with a hand-designed app icon, gradient header, and refined card and button styling. The layout is mobile-first and responsive.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
+<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Delivered: a launched subscription web application, sales page, and export capability. Validation: usability testing with real users, including the Undo and Remove controls added after testing, and an accessibility audit against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-sources"><span class="entry-lede">Sources</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-sources" hidden>
@@ -257,10 +257,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-the-model-works-predictive-analytics-dashboard"><span class="entry-lede">How the model works: Predictive Analytics Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-the-model-works-predictive-analytics-dashboard" hidden>
-<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built regression models to isolate key drivers, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views, each tuned to its readers: for policymakers, ranked feature importance showing which factors matter most; for community organizers, protest activity patterns by day of week and month; for the general public, an accessible overview of trends and drivers. The feature importance chart had more than 70 one-hot-encoded city dummy variables burying the 11 factors that actually mattered, so an exclusion filter brought the real drivers forward.</p>
+<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built a negative binomial regression model to identify associations, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views, each tuned to its readers: for policymakers, the model coefficients showing how each factor relates to event counts; for community organizers, protest activity patterns by day of week and month; for the general public, an accessible overview of trends and drivers. I created a dashboard view that separates location indicators from the selected socioeconomic variables, making those variables easier to inspect.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> The model surfaced clear drivers (population impact 0.8017, unemployment impact 0.1131, positive temporal trend), and the automated pipeline keeps the reporting current. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
+<p><strong>Outcome:</strong> The model is a negative binomial regression on 3,523 state-month observations (ACLED event counts with BLS unemployment, data through January 2026). Log population exposure carries a coefficient of 0.8017, unemployment a coefficient of 0.1131, and the time trend 0.0342. These are associations, not proof of cause. The automated pipeline keeps the reporting current. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-protest-data-dashboard"><span class="entry-lede">Protest Data Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-protest-data-dashboard" hidden>
@@ -276,7 +276,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-dashboard-details"><span class="entry-lede">Dashboard details</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-dashboard-details" hidden>
-<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls. The dashboard helps leaders make smarter decisions and improve service while keeping customer information safe.</p>
+<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls. I designed the dashboard to help a call-center manager inspect repeat-call patterns, compare reasons by city, and distinguish first-time from repeat contacts.</p>
 </div>
 </div>
 </div>
@@ -289,7 +289,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-tiktok-views-and-likes"><span class="entry-lede">TikTok: Views and Likes</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-tiktok-views-and-likes" hidden>
-<p><strong>What it shows:</strong> Creators chase vanity metrics, so this analysis of a TikTok dataset reveals what actually drives views and likes. Stop guessing and ask better questions.</p>
+<p><strong>What it shows:</strong> An exploratory analysis of relationships between the engagement measures in the dataset. The dashboard lets viewers compare patterns and inspect outliers; it does not establish what causes a video to perform well.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" height="520" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TikTokViewsandLikes_17468027625160/Story12">View on Tableau Public</a></p>
 </div>
@@ -299,7 +299,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-what-drives-world-happiness"><span class="entry-lede">What Drives World Happiness</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-what-drives-world-happiness" hidden>
-<p><strong>What it shows:</strong> Single metrics can't explain wellbeing, so this dashboard tests every factor at once. Explore what actually drives happiness.</p>
+<p><strong>What it shows:</strong> An exploratory analysis of how the available factors relate to happiness scores. The dashboard lets viewers compare factors; it does not establish what causes wellbeing.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" height="520" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/BiggestContributorsforWorldHappiness/Dashboard1">View on Tableau Public</a></p>
 </div>
@@ -329,7 +329,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-co2-emissions-per-capita"><span class="entry-lede">CO2 Emissions Per Capita</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-co2-emissions-per-capita" hidden>
-<p><strong>What it shows:</strong> Total emissions mislead the climate conversation, so this map shows the per-person picture over time. See the fair comparison.</p>
+<p><strong>What it shows:</strong> A map of per-person emissions over time, so viewers can compare countries on the same basis.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/Project_17420726098930/Sheet1?:showVizHome=no" height="520" loading="lazy" title="CO2 Emissions Per Capita - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/Project_17420726098930/Sheet1">View on Tableau Public</a></p>
 </div>
@@ -349,7 +349,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-rental-map-of-athens"><span class="entry-lede">Rental Map of Athens</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-rental-map-of-athens" hidden>
-<p><strong>What it shows:</strong> Renters can't compare neighborhoods at a glance, so this map lays out average prices visually. Find where the value is.</p>
+<p><strong>What it shows:</strong> A map of average rental prices by neighborhood, so renters can compare areas at a glance.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood?:showVizHome=no" height="520" loading="lazy" title="Rental Map of Athens - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/RentalMapofAthens_17604639501470/AveragePriceperNeighborhood">View on Tableau Public</a></p>
 </div>
@@ -392,10 +392,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>Recipes are quick and easy, ready in 30 minutes or less.</li>
 <li>Each recipe includes step-by-step visual guides.</li>
 <li>Grocery lists build themselves from the recipes you choose.</li>
-<li>The app includes meal planning tools.</li>
-<li>The app includes community features for sharing recipes.</li>
+<li>The design includes meal planning tools.</li>
+<li>The design includes community features for sharing recipes.</li>
 </ul>
-<p>Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high-contrast mode and readable fonts, voice search and screen reader compatibility, and clear navigation with large tap targets.</p>
+<p>Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high-contrast mode and readable fonts, voice search and screen reader requirements for implementation, and clear navigation with large tap targets.</p>
 </div>
 </div>
 <p><strong>Outcome:</strong> I delivered a complete, research-backed mobile app design with a video walkthrough of every design decision. <a href="https://www.youtube.com/watch?v=3eY3yojcT4g">Case study video on YouTube</a> &middot; <a href="../case-study-mobile-app/">Full case study</a> &middot; <a href="../assets/presentations/Foodie_Explorer_Executive.pdf">Executive presentation (PDF)</a>.</p>
