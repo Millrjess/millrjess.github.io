@@ -53,7 +53,7 @@
     {
       "@type": "Question",
       "name": "Can I try it first?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. Free for 30 days." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. A subscription is free for 30 days, then $3.99 a month or $29.99 a year." }
     },
     {
       "@type": "Question",
@@ -96,7 +96,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="GLP-1 tracker app for Zepbound, Wegovy, Ozempic, and Mounjaro. Track injection days, doses, water, protein, weight, measurements, side effects, and daily reflections, all together.">
+  <meta name="description" content="GLP-1 tracker app for Zepbound, Wegovy, Ozempic, and Mounjaro. Track injection days, doses, water, protein, weight, side effects, and daily reflections.">
 <link rel="icon" type="image/png" sizes="96x96" href="../assets/img/lotus-96.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/lotus-favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/lotus-favicon-16.png">
@@ -366,7 +366,7 @@
       </div>
     </div>
   </nav></header>
-  <main id="main">
+  <main id="main" tabindex="-1">
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
@@ -383,7 +383,7 @@
         </div>
         <div class="phone-stage">
           <div class="halo"></div>
-          <div class="phone"><img src="assets/app-today-hero.png" alt="New Chapter: GLP-1 Tracker app showing the Today screen with the lotus"></div>
+          <div class="phone"><img src="assets/app-today-hero.png" alt="New Chapter: GLP-1 Tracker app showing the Today screen with the lotus" width="750" height="1550"></div>
           <div class="quote-note"><strong>The lotus opens a little each morning.</strong> The lotus blooms again, one day at a time.</div>
         </div>
 
@@ -403,7 +403,8 @@
           </video>
           <button id="walkthrough-sound" type="button" aria-label="Tap for sound" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:var(--sage);color:#FDFBF7;border:none;border-radius:999px;padding:12px 22px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(39,55,39,.35);white-space:nowrap">🔊 Tap for sound</button>
         </div>
-        <details style="text-align:left;max-width:68ch;margin:18px auto 0">
+        <p style="margin-top:12px"><a href="#walkthrough-transcript">Read the transcript</a></p>
+        <details id="walkthrough-transcript" style="text-align:left;max-width:68ch;margin:18px auto 0">
           <summary>Video transcript</summary>
           <p>The medicine works. But some weight you lose is lean mass, and lean mass includes muscle.</p>
           <p>One summary for your doctor at each refill. Your next shot date is always visible.</p>
@@ -569,7 +570,8 @@
               Your browser does not support the video tag.
             </video>
           </div>
-          <details style="text-align:left;max-width:68ch;margin:12px auto 0">
+          <p style="text-align:center;margin:12px 0 0"><a href="#getting-started-transcript">Read the transcript</a></p>
+          <details id="getting-started-transcript" style="text-align:left;max-width:68ch;margin:12px auto 0">
             <summary>Video transcript: Getting started</summary>
             <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. Free for 30 days. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
           </details>
@@ -581,7 +583,7 @@
       <div class="wrap faq-grid">
         <div class="faq-copy"><h2>Questions, answered.</h2><p>Clear information before you decide.</p></div>
         <div class="accordion">
-          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. Free for 30 days.</p></details>
+          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. A subscription is free for 30 days, then $3.99 a month or $29.99 a year.</p></details>
           <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Cancel in your Stripe portal (website subscriptions) or in the Play Store (Play subscriptions). Cancel anytime. Your cancellation takes effect at the end of the period you paid for, and you keep access until then.</p><p>Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription. The 30-day refund applies to your first subscription only. Renewals do not qualify. After 30 days, no partial refund for the current month or year.</p><p>Website subscriptions are refunded through Stripe. Play Store subscriptions are refunded through the Play Store, under Google Play rules, not by us directly.</p><p>Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. We answer refund requests within one business day. When the money reaches your bank depends on your payment provider and your bank.</p></details>
           <details><summary>What happens to my data if I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>When your paid period ends, the service locks, not your data. You can still view and export your entries. Cancellation does not delete your locally stored records. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime. Your tracked data lives on your device. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device. Your access code is tied to the device that first redeems it.</p></details>
           <details><summary>Is my data private?<span aria-hidden="true" class="faq-icon"></span></summary><p>Everything you track stays on your phone. I cannot see your entries. The only thing that leaves is what you choose to send, either to the Companion for a reply or to your doctor through your medical portal. Cloudflare, which runs the Companion, processes your messages to generate a reply. Messages are not stored on our servers afterward and are not used to train AI models.</p></details>
@@ -619,7 +621,6 @@
               </div>
             </form>
           </div>
-          <script src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
           <style>
             /* Local overrides for the Mailchimp signup form (v046): the
                Mailchimp stylesheet uses off-brand colors and an off-brand
@@ -631,7 +632,6 @@
             #mc_embed_signup input { border-color: #E8E2D4; font-family: "DM Sans", system-ui, sans-serif; }
             #mc_embed_signup .button { background: #E8B54A; color: #233027; font-family: "DM Sans", system-ui, sans-serif; }
           </style>
-          <script>if (typeof jQuery !== "undefined") { (function($){window.fnames=new Array();window.ftypes=new Array();fnames[0]='EMAIL';ftypes[0]='email';}(jQuery)); var $mcj=jQuery.noConflict(true); }</script>
         </div>
       </div>
     </section>
