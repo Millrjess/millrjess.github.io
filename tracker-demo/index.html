@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=100">
+<link rel="stylesheet" href="styles.css?v=101">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -922,7 +922,7 @@
   <!-- RECIPES TAB -->
   <section id="tab-recipes" class="tab-panel" role="tabpanel" aria-label="New Chapter Kitchen">
     <h2>New Chapter Kitchen</h2>
-    <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein, gentle on the stomach, and easy to make.</p>
+    <p class="muted" style="font-size:.9rem">Picked for GLP-1 eating: high protein and easy to make.</p>
     <div style="margin:0 0 10px">
       <input type="search" enterkeyhint="search" id="kitchen-search-input" placeholder="Search recipes" aria-label="Search recipes in the Kitchen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:16px">
     </div>
@@ -1066,6 +1066,7 @@
 
     <form id="settings-form">
       <h2 class="settings-group">Your goals</h2>
+      <p class="muted">Targets shown are starting values. Set your own, or use ones agreed with your clinician or dietitian.</p>
       <details class="card" id="settings-goals-card">
         <summary style="cursor:pointer;font-weight:600"><h3 style="display:inline;margin:0">Your goals</h3></summary>
         <div style="margin-top:12px">
@@ -1378,20 +1379,20 @@
       <p class="muted" id="last-backup-line" style="margin-top:10px"></p>
       <div id="snapshot-list" style="margin-top:14px"></div>
       <p class="code-msg" id="backup-msg" role="status" style="min-height:1.2em"></p>
-      <p class="muted" style="margin-top:14px;font-size:.9rem">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete all my data</button></p>
+      <p class="muted" style="margin-top:14px;font-size:.9rem">Starting fresh? <button type="button" class="btn btn-link" id="clear-all-data">Delete tracking data on this device</button></p>
     </div>
 
     <div id="reset-lotus-card" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-      <h3>Reset my lotus</h3>
+      <h3>Reset tracking history and lotus</h3>
       <p class="muted">Taking a break, or starting fresh? Resetting returns your lotus to a bud and clears your log.</p>
-      <button type="button" class="btn" id="reset-lotus-start">Reset my lotus</button>
+      <button type="button" class="btn" id="reset-lotus-start">Reset tracking history and lotus</button>
       <div id="reset-lotus-confirm" class="hidden" style="margin-top:12px">
         <p style="margin:0 0 8px"><strong>This clears:</strong> your lotus and your whole log. Water, protein, movement, strength, injections, weight, measurements, photos, journal, moods, and side effects.</p>
         <p class="muted" style="margin:0 0 8px"><strong>This stays:</strong> your settings and goals, and your Companion memory.</p>
         <p class="muted" style="margin:0 0 10px">Back up first if you want to keep a copy. You can restore it later from Backup &amp; restore.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button type="button" class="btn btn-primary" id="reset-lotus-backup">Download backup first</button>
-          <button type="button" class="btn" id="reset-lotus-confirm-btn">Yes, reset my lotus</button>
+          <button type="button" class="btn" id="reset-lotus-confirm-btn">Yes, reset my tracking history</button>
           <button type="button" class="btn" id="reset-lotus-cancel">Keep my log</button>
         </div>
       </div>
@@ -1411,7 +1412,7 @@
       <p class="muted">Developed by Jessica A. Miller, Founder, New Chapter.</p>
       <h4 style="margin:16px 0 8px">More than weight loss. A healthier way forward.</h4>
       <p><strong>Who it is for:</strong> Adults navigating GLP-1 treatment.</p>
-      <p><strong>Why it is different:</strong> Not another calorie-counting or food-diary app. No obsessing over food. No food guilt. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
+      <p><strong>Why it is different:</strong> More than a food diary: keep food, medication, symptoms, and everyday routines together. Just practical tools to help you stay informed, build healthy habits, and stay strong.</p>
       <p><strong>Why you need it:</strong> Appetite suppression can make it easy to undereat, lose muscle, and become dehydrated. The goal is to lose body fat while staying strong.</p>
       <h4 style="margin:16px 0 8px">Why protecting muscle matters</h4>
       <p>About 25 percent of the weight lost on Zepbound can be lean mass, not just fat. For semaglutide, the STEP-1 DXA subset found about 40 percent was lean mass. DXA measures lean mass, which includes water and organ tissue along with muscle. It is not pure muscle.</p>
@@ -1421,7 +1422,7 @@
         <li>SURMOUNT-1 body composition, Diabetes, Obesity and Metabolism, 2025 (PMID 39996356; PMC11965027): about 75 percent fat mass and 25 percent lean mass.</li>
         <li>Tinsley and Nadolsky, 2025 (PMC12536186), reporting trial data from the STEP-1 DXA subset: about 40 percent lean soft tissue.</li>
       </ul>
-      <p><strong>Whole-body support:</strong> Protein and muscle, bones and strength, heart and brain, skin and digestion, hydration and energy.</p>
+      <p><strong>What it keeps together:</strong> Protein, strength, shots, weight, side effects, and everyday routines.</p>
       <p>Track injections, weight, protein, hydration, movement, and side effects. Get support from an AI Wellness Companion that can remember your preferences and goals.</p>
       <h4 style="margin:16px 0 8px">Medical Disclaimer</h4>
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
@@ -1629,7 +1630,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=100"></script>
+<script src="demo-seed.js?v=101"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Log food from a photo" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Log food from a photo</h2>
@@ -1668,7 +1669,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=100"></script>
+<script src="app.js?v=101"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
