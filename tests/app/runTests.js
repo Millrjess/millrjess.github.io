@@ -890,12 +890,15 @@ async function main() {
     await setStorage(t.page, { [LS]: JSON.stringify(makeStore()) });
     await t.page.reload();
     await t.page.waitForTimeout(400);
+    await t.page.click("#movement-row");
+    await t.page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await t.page.waitForTimeout(200);
     const start = await t.page.evaluate(() => ({
       moves: document.querySelectorAll("#moves-list li").length,
       count: (document.getElementById("move-count") || {}).textContent || "",
       sub: (document.getElementById("movement-sub") || {}).textContent || ""
     }));
-    check("V168 movement card: five default moves, 0 of 5", start.moves === 5 && start.count.indexOf("0 of 5") !== -1 && start.sub.indexOf("5 minutes") !== -1, JSON.stringify(start));
+    check("V168 movement card: five default moves, 0 of 5", start.moves === 5 && start.count.indexOf("0 of 5") !== -1 && start.sub.indexOf("5 moves") !== -1, JSON.stringify(start));
     // Tap all five gold circles. Each tap re-renders the list, so the
     // buttons are re-queried every time instead of holding handles
     // across renders.
@@ -935,14 +938,17 @@ async function main() {
     await setStorage(t.page, { [LS]: JSON.stringify(makeStore()) });
     await t.page.reload();
     await t.page.waitForTimeout(400);
+    await t.page.click("#movement-row");
+    await t.page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await t.page.waitForTimeout(200);
     await t.page.click("#movement-customize");
     await t.page.waitForTimeout(300);
     const editor = await t.page.evaluate(() => ({
-      open: !document.getElementById("movement-plan-modal").classList.contains("hidden"),
+      open: !document.getElementById("movement-plan-editor").classList.contains("hidden"),
       rows: document.querySelectorAll("#movement-plan-list .plan-row").length,
       checked: [...document.querySelectorAll("#movement-plan-list input[type='checkbox']")].filter((c) => c.checked).length
     }));
-    check("V168 plan editor: opens with 18 exercises, 5 checked", editor.open && editor.rows === 18 && editor.checked === 5, JSON.stringify(editor));
+    check("V168 plan editor: opens with 37 exercises, 5 checked", editor.open && editor.rows === 37 && editor.checked === 5, JSON.stringify(editor));
     await t.page.uncheck('input[data-plan-name="Gentle full-body stretch"]');
     await t.page.check('input[data-plan-name="Lunges"]');
     await t.page.fill('input[data-plan-detail="Lunges"]', "8 reps");
@@ -1057,7 +1063,8 @@ async function main() {
       ]
     })) });
     await t.page.reload();
-    await clickTab(t.page, "weight");
+    // v095: the Doctor visit summary button lives on Shots now.
+    await clickTab(t.page, "shots");
     await t.page.waitForTimeout(400);
     await t.page.click("#doctor-summary-btn");
     await t.page.waitForTimeout(300);
@@ -1112,6 +1119,8 @@ async function main() {
     await setStorage(t.page, { [LS]: JSON.stringify(makeStore({ water: [{ id: "w1", date: today(0), oz: 43 }] })) });
     await t.page.reload();
     await t.page.waitForTimeout(400);
+    await t.page.click("#movement-row");
+    await t.page.waitForTimeout(200);
     const ringBtns = await t.page.evaluate(() => ({
       waterIsButton: (document.getElementById("water-num-btn") || {}).tagName === "BUTTON",
       moveIsButton: (document.getElementById("exercise-num-btn") || {}).tagName === "BUTTON",
@@ -1387,12 +1396,15 @@ async function main() {
   } catch (e) { check("V169 macro target type-in", false, "error: " + e.message); }
 
   try {
-    // Movement plan editor: 18 rows in a scrollable picker, X closes,
+    // Movement plan editor: 37 rows in a scrollable picker, X closes,
     // a custom exercise can be added, saved, and removed.
     const t = await newPage(browser, url);
     await setStorage(t.page, { [LS]: JSON.stringify(makeStore()) });
     await t.page.reload();
     await t.page.waitForTimeout(400);
+    await t.page.click("#movement-row");
+    await t.page.waitForFunction(() => { const el = document.getElementById("movement-detail"); return !!el && !el.hidden; });
+    await t.page.waitForTimeout(200);
     await t.page.click("#movement-customize");
     await t.page.waitForTimeout(300);
     const picker = await t.page.evaluate(() => {
@@ -1405,7 +1417,7 @@ async function main() {
         hasX: !!document.getElementById("movement-plan-x")
       };
     });
-    check("V169 plan picker: 18 rows, scrolls inside a fixed height, X present", picker.rows === 18 && picker.scrolls && picker.maxHeight === "264px" && picker.hasX, JSON.stringify(picker));
+    check("V169 plan picker: 37 rows, scrolls inside a fixed height, X present", picker.rows === 37 && picker.scrolls && picker.maxHeight === "264px" && picker.hasX, JSON.stringify(picker));
     // Add a custom exercise.
     await t.page.fill("#custom-ex-name", "Step-ups");
     await t.page.selectOption("#custom-ex-pattern", "Squat");
@@ -1421,7 +1433,7 @@ async function main() {
         customName: custom ? (custom.querySelector("input[type='checkbox']").dataset.planName || "") : ""
       };
     });
-    check("V169 custom exercise added and checked in the picker", afterAdd.rows === 19 && afterAdd.customChecked && afterAdd.customName === "Step-ups", JSON.stringify(afterAdd));
+    check("V169 custom exercise added and checked in the picker", afterAdd.rows === 38 && afterAdd.customChecked && afterAdd.customName === "Step-ups", JSON.stringify(afterAdd));
     await t.page.click("#movement-plan-save");
     await t.page.waitForTimeout(400);
     const onCard = await t.page.evaluate(() => ({
@@ -1434,13 +1446,13 @@ async function main() {
     await t.page.waitForTimeout(400);
     const afterReload = await t.page.evaluate(() => [...document.querySelectorAll("#moves-list .move-name")].map((el) => el.textContent));
     check("V169 custom exercise survives reload", afterReload.length === 6 && afterReload.includes("Step-ups"), JSON.stringify(afterReload));
-    // The X closes the modal and focus returns to Customize.
+    // The X closes the editor and focus returns to Customize.
     await t.page.click("#movement-customize");
     await t.page.waitForTimeout(300);
     await t.page.click("#movement-plan-x");
     await t.page.waitForTimeout(300);
     const afterX = await t.page.evaluate(() => ({
-      closed: document.getElementById("movement-plan-modal").classList.contains("hidden"),
+      closed: document.getElementById("movement-plan-editor").classList.contains("hidden"),
       focused: (document.activeElement || {}).id || "",
       moves: document.querySelectorAll("#moves-list li").length
     }));
@@ -1451,7 +1463,7 @@ async function main() {
     await t.page.click('[data-remove-custom="Step-ups"]');
     await t.page.waitForTimeout(200);
     const afterRemove = await t.page.evaluate(() => document.querySelectorAll("#movement-plan-list .plan-row").length);
-    check("V169 remove takes the custom row out of the picker", afterRemove === 18, "rows=" + afterRemove);
+    check("V169 remove takes the custom row out of the picker", afterRemove === 37, "rows=" + afterRemove);
     await t.page.click("#movement-plan-save");
     await t.page.waitForTimeout(400);
     const afterSave = await t.page.evaluate(() => [...document.querySelectorAll("#moves-list .move-name")].map((el) => el.textContent));
@@ -1526,18 +1538,15 @@ async function main() {
       const order = chart.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING ? "chart-first" : "stats-first";
       const heroOrder = hero.compareDocumentPosition(chart) & Node.DOCUMENT_POSITION_FOLLOWING ? "hero-first" : "chart-first";
       const logBtn = document.getElementById("show-weight-form");
-      const docBtn = document.getElementById("doctor-summary-btn");
       const lb = logBtn.getBoundingClientRect();
-      const db = docBtn.getBoundingClientRect();
       return {
         order, heroOrder,
-        sameRow: Math.abs(lb.top - db.top) < 2,
-        docAfterLog: db.left > lb.right,
-        logH: Math.round(lb.height),
-        docH: Math.round(db.height)
+        logH: Math.round(lb.height)
       };
     });
-    check("V169 weight layout: chart after hero, before cards; buttons side by side, 44px or taller", layout.order === "chart-first" && layout.heroOrder === "hero-first" && layout.sameRow && layout.docAfterLog && layout.logH >= 44 && layout.docH >= 44, JSON.stringify(layout));
+    // v095: the Doctor visit summary button moved to Shots, so the
+    // Weight tab has only the Log button now; no side-by-side pair.
+    check("V169 weight layout: chart after hero, before cards; Log button 44px or taller", layout.order === "chart-first" && layout.heroOrder === "hero-first" && layout.logH >= 44, JSON.stringify(layout));
     await t.ctx.close();
   } catch (e) { check("V169 weight layout", false, "error: " + e.message); }
 
