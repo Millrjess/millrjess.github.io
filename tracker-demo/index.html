@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=095">
+<link rel="stylesheet" href="styles.css?v=096">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -271,6 +271,23 @@
           </div>
         </div>
         </div>
+        <button type="button" class="fitness-row" id="steps-row" aria-expanded="false" aria-controls="steps-detail">
+          <span class="fitness-row-label">Steps</span>
+          <span class="fitness-row-status" id="steps-row-status">Not logged</span>
+          <span class="section-toggle-chevron" aria-hidden="true">▸</span>
+        </button>
+        <div id="steps-detail" hidden>
+          <h3 class="movement-subhead" style="margin-top:0">Steps</h3>
+          <p class="muted" style="margin:0 0 12px">Type the count from your phone.</p>
+          <div class="inline-add" id="steps-inline-add">
+            <div class="inline-add-row">
+              <input type="text" id="steps-inline-input" inputmode="numeric" autocomplete="off" placeholder="e.g. 8500" aria-label="Steps today">
+              <button type="button" class="btn btn-primary btn-small" id="steps-inline-save-btn">Save</button>
+              <button type="button" class="btn btn-small" id="steps-inline-clear-btn">Clear</button>
+            </div>
+            <p class="muted inline-add-preview" id="steps-inline-preview" aria-live="polite">Type a whole number.</p>
+          </div>
+        </div>
         <button type="button" class="fitness-row" id="strength-row" aria-expanded="false" aria-controls="strength-detail">
           <span class="fitness-row-label">Strength</span>
           <span class="fitness-row-status" id="strength-row-status">Rest day</span>
@@ -469,6 +486,7 @@
       <h2 class="card-title">Food</h2>
       <p class="muted" style="margin:0 0 12px">Log by meal, or under Other foods.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button type="button" class="btn btn-small" data-goto="recipes">Browse recipes</button><button type="button" class="btn btn-small" id="copy-yesterday-food">Copy yesterday</button></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px"><label class="muted" for="copy-food-date" style="font-size:.9rem">Or copy another day</label><input type="date" id="copy-food-date" aria-label="Day to copy food from" style="max-width:160px"><button type="button" class="btn btn-small" id="copy-food-day">Copy day</button></div>
       <p class="muted" id="copy-yesterday-food-msg" role="status" style="margin:0;font-size:.9rem"></p>
       <form id="macro-food-form" class="hidden" aria-label="Log food" novalidate style="margin-top:12px">
         <label>Food
@@ -1588,7 +1606,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=095"></script>
+<script src="demo-seed.js?v=096"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Log food from a photo" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Log food from a photo</h2>
@@ -1627,7 +1645,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=095"></script>
+<script src="app.js?v=096"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>
