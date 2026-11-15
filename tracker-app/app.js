@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v094";
+const APP_VERSION = "v095";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1705,6 +1705,7 @@ function renderToday() {
   syncGoalSlider("exercise-slider", "exercise-today", "exercise-num-btn", "Movement", "minutes", exMin, moveGoal);
 
   renderMacros();
+  renderScanUndo();
   renderMovement();
   clearStrengthStatus();
   renderStrength();
@@ -3115,6 +3116,10 @@ async function lookupBarcode(code) {
     document.getElementById("scan-fat").value = saved.fat || "";
     document.getElementById("scan-result").classList.remove("hidden");
     status.textContent = "Found in your foods.";
+    // v095: a known food logs itself, so the macros and calories
+    // update at once. All-zero values fall back to the manual form:
+    // logScanForm leaves the form open when there is nothing to log.
+    logScanForm(name);
     return;
   }
   status.textContent = "Looking up barcode, free from Open Food Facts...";
@@ -3150,9 +3155,12 @@ async function lookupBarcode(code) {
       ? "This adds about " + scanCals + " calories to your day."
       : "";
     document.getElementById("scan-result").classList.remove("hidden");
-    status.textContent = hasServing
-      ? "Found. Check the label and edit the grams before logging."
-      : "Found, but only per 100 g values were available. Scale them to your portion before logging.";
+    // v095: per-serving values log themselves, so the macros and
+    // calories update at once. Per-100 g values stay manual: the user
+    // must scale them to the portion first, so they are never logged
+    // as if they were the portion.
+    if (hasServing) { logScanForm(name); return; }
+    status.textContent = "Found, but only per 100 g values were available. Scale them to your portion before logging.";
   } catch (e) {
     status.textContent = "The food database is temporarily unavailable. Try again, or enter the grams by hand.";
   }
@@ -3334,16 +3342,42 @@ document.getElementById("scan-action-btn").addEventListener("click", () => {
   else captureBarcodeFrame();
 });
 document.getElementById("scan-barcode-input").addEventListener("input", updateScanActionBtn);
-document.getElementById("scan-log-btn").addEventListener("click", () => {
+/* v095: the last barcode auto-log, for the Undo banner on Today. Only
+   the most recent auto-log can be undone; a manual Log never sets it. */
+let lastScanLog = null;
+function renderScanUndo() {
+  const banner = document.getElementById("scan-undo");
+  if (!banner) return;
+  banner.style.display = lastScanLog ? "flex" : "none";
+  if (lastScanLog) document.getElementById("scan-undo-food").textContent = lastScanLog.food;
+}
+document.getElementById("scan-undo-btn").addEventListener("click", () => {
+  if (!lastScanLog) return;
+  store.protein = store.protein.filter((e) => e.id !== lastScanLog.id);
+  lastScanLog = null;
+  saveStore();
+  renderToday();
+});
+document.getElementById("scan-undo-dismiss-btn").addEventListener("click", () => {
+  lastScanLog = null;
+  renderScanUndo();
+});
+/* Log the food in the scan form, exactly as the Log button did. Returns
+   the new entry id, or null when there is nothing to log. When autoFood
+   is given, the log came from a barcode lookup (v095) and the Undo
+   banner on Today offers to take it back. */
+function logScanForm(autoFood) {
   const food = document.getElementById("scan-food").value.trim() || "Scanned food";
   const grams = Math.max(0, Math.round(Number(document.getElementById("scan-protein").value) || 0));
   const carbs = Math.max(0, Math.round(Number(document.getElementById("scan-carbs").value) || 0));
   const fat = Math.max(0, Math.round(Number(document.getElementById("scan-fat").value) || 0));
   if (!grams && !carbs && !fat) {
     document.getElementById("scan-status").textContent = "Add at least one macro above zero first.";
-    return;
+    return null;
   }
-  store.protein.push({ id: uid(), date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9), ...(scanServing ? { serving: scanServing } : {}) });
+  const id = uid();
+  store.protein.push({ id, date: viewedDateStr(), grams, carbs, fat, food, calories: Math.round(grams * 4 + carbs * 4 + fat * 9), ...(scanServing ? { serving: scanServing } : {}) });
+  if (autoFood) lastScanLog = { id, food: autoFood };
   // Save the logged values to Your foods, so an edit made here wins
   // over the lookup values saved earlier. Uses the barcode when there
   // is one, otherwise saves by name.
@@ -3353,7 +3387,9 @@ document.getElementById("scan-log-btn").addEventListener("click", () => {
   closeScanModal();
   document.getElementById("scan-result").classList.add("hidden");
   document.getElementById("scan-barcode-input").value = "";
-});
+  return id;
+}
+document.getElementById("scan-log-btn").addEventListener("click", () => { logScanForm(); });
 
 /* Scan form: the calories line follows the macros (4/4/9) as they
    are edited, so it always matches what is about to be logged. */
@@ -5776,10 +5812,10 @@ function closeDoctorModal() {
   document.getElementById("doctor-modal").classList.add("hidden");
   returnDialogFocus("doctor-modal", "doctor-summary-btn");
 }
-/* v079: the summary button appears on Weight, Shots, and Side Effects,
-   so bind all of them by class. Focus returns to the button that
-   opened the modal (recordDialogOpener); the Weight button id is the
-   fallback only. */
+/* v095: one Doctor visit summary button, on Shots. The strength-area
+   link and the Today hint open the same modal, so bind by class.
+   Focus returns to the button that opened the modal
+   (recordDialogOpener); the Shots button id is the fallback only. */
 document.querySelectorAll(".doctor-summary-btn").forEach((b) => b.addEventListener("click", openDoctorModal));
 document.getElementById("doctor-close").addEventListener("click", closeDoctorModal);
 document.getElementById("doctor-x").addEventListener("click", closeDoctorModal);
