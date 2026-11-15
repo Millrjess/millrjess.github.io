@@ -475,6 +475,10 @@
       <button class="btn" id="open-progress" style="margin-top:12px;width:100%">Your week</button>
       <button class="btn btn-small" id="macro-scan-food" style="margin-top:12px">Scan barcode</button>
       <p class="muted" style="margin:12px 0 0;font-size:.9rem">Scan my plate arrives in December.</p>
+      <div id="scan-undo" role="status" style="display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:#FDF6E3;border:1px solid #E8B54A;align-items:center;justify-content:space-between;gap:8px">
+        <span>Logged <strong id="scan-undo-food"></strong>.</span>
+        <span style="display:flex;gap:8px;flex-shrink:0"><button type="button" class="btn btn-small" id="scan-undo-btn">Undo</button><button type="button" class="btn btn-small" id="scan-undo-dismiss-btn" aria-label="Dismiss this message">×</button></span>
+      </div>
 
     </div>
 
@@ -591,7 +595,7 @@
     <div class="shots-actions" style="flex-wrap:wrap">
       <button class="btn btn-primary" id="show-injection-form">+ Log shot</button>
       <button class="btn" id="add-shot-reminder">🔔 Shot reminder</button>
-      <button class="btn doctor-summary-btn" type="button">Doctor visit summary</button>
+      <button class="btn doctor-summary-btn" id="doctor-summary-btn" type="button">Doctor visit summary</button>
     </div>
     <p class="muted" style="font-size:.9rem;margin-top:6px">Adds a weekly reminder to your phone's calendar.</p>
     <p class="muted hidden" id="shot-reminder-note" style="font-size:.9rem;margin:6px 0 0"></p>
@@ -687,7 +691,6 @@
     <h2>My Body Profile</h2>
     <div class="weight-actions">
       <button class="btn btn-primary" id="show-weight-form">+ Log weigh-in</button>
-      <button class="btn doctor-summary-btn" id="doctor-summary-btn">Doctor visit summary</button>
     </div>
 
     <div class="weight-hero">
@@ -866,7 +869,6 @@
     <p class="muted">Always share symptoms and side effects with your prescribing doctor. This app does not give medical advice.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 6px">
       <button class="btn btn-primary" id="show-sideeffect-form">+ Log side effect</button>
-      <button class="btn doctor-summary-btn" type="button">Doctor visit summary</button>
     </div>
 
     <form id="sideeffect-form" class="card hidden" aria-label="Log side effect" novalidate>
