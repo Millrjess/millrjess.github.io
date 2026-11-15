@@ -1082,6 +1082,31 @@ async function main() {
     await page.click("#movement-plan-cancel");
     await sleep(200);
 
+    // Section 23 (v101): Skip personalization closes first-run setup
+    // without the Terms box ticked. Fresh context, so no setup-done key
+    // is set and the overlay must appear. The demo has no setup overlay.
+    const freshCtx = await browser.newContext();
+    const fresh = await freshCtx.newPage();
+    fresh.on("dialog", (d) => d.accept());
+    await fresh.goto(url, { waitUntil: "load" });
+    const hasOverlay = await fresh.evaluate(() => !!document.getElementById("setup-overlay"));
+    if (!hasOverlay) {
+      check("no setup overlay in this copy", LABEL === "demo");
+    } else {
+      await fresh.waitForFunction(() => {
+        const o = document.getElementById("setup-overlay");
+        return !!o && !o.classList.contains("hidden");
+      }, null, { timeout: 10000 });
+      check("setup overlay shows on a fresh install", true);
+      check("Skip button reads Skip personalization", (await fresh.evaluate(() => { const b = document.getElementById("setup-skip"); return b ? b.textContent.trim() : null; })) === "Skip personalization");
+      check("Terms box starts unchecked", await fresh.evaluate(() => { const b = document.getElementById("setup-terms"); return b ? !b.checked : false; }));
+      await fresh.click("#setup-skip");
+      await sleep(300);
+      check("Skip closes setup without the Terms box", await fresh.evaluate(() => { const o = document.getElementById("setup-overlay"); return !!o && o.classList.contains("hidden"); }));
+      check("Skip marks setup done", await fresh.evaluate((key) => { try { return localStorage.getItem(key) === "1"; } catch { return false; } }, SETUP_KEY));
+    }
+    await freshCtx.close();
+
   } finally {
     await browser.close();
     server.close();
