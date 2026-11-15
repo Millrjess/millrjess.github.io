@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v093";
+const APP_VERSION = "v094";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -246,6 +246,8 @@ function validateStore(parsed, strict) {
     // falls back to the 4-day split.
     if (out.settings.strengthPlan !== "4day" && out.settings.strengthPlan !== "3day") out.settings.strengthPlan = "4day";
     // v088: strength routine customizations. { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }.
+    // v094: an exercise added to a day is stored as { add: "Name" } under
+    // the slot "__add:Name", optionally with a swap: { add: "Name", swap: "Other" }.
     // Shape only: a swap target that names no known exercise is
     // ignored when the routine renders, so it can never break Today.
     const sc = out.settings.strengthCustom;
@@ -260,6 +262,12 @@ function validateStore(parsed, strict) {
         for (const [exName, c] of Object.entries(dayCustom)) {
           if (!c || typeof c !== "object" || Array.isArray(c)) continue;
           if (c.removed === true) { cleanDay[String(exName).slice(0, 80)] = { removed: true }; continue; }
+          if (typeof c.add === "string" && c.add.trim() !== "") {
+            const entry = { add: c.add.trim().slice(0, 80) };
+            if (typeof c.swap === "string" && c.swap.trim() !== "" && c.swap.trim() !== entry.add) entry.swap = c.swap.trim().slice(0, 80);
+            cleanDay[String(exName).slice(0, 80)] = entry;
+            continue;
+          }
           if (typeof c.swap === "string" && c.swap.trim() !== "") cleanDay[String(exName).slice(0, 80)] = { swap: c.swap.trim().slice(0, 80) };
         }
         if (Object.keys(cleanDay).length) clean[dayKey] = cleanDay;
@@ -267,6 +275,16 @@ function validateStore(parsed, strict) {
       out.settings.strengthCustom = clean;
     } else {
       out.settings.strengthCustom = {};
+    }
+    // v094: Fitness card rows. Which of the Movement and Strength rows
+    // is open. { movement, strength } booleans; both start closed, so
+    // the card is short on first view. The Plan the week row is not
+    // stored: it opens fresh each load.
+    const fr = out.settings.fitnessRows;
+    if (!fr || typeof fr !== "object" || Array.isArray(fr)) {
+      out.settings.fitnessRows = { movement: false, strength: false };
+    } else {
+      out.settings.fitnessRows = { movement: fr.movement === true, strength: fr.strength === true };
     }
     // v169: the user's own exercises. Kept as [{ name, pattern, detail }]
     // only; anything else is dropped. A bad pattern falls back to Other.
@@ -1073,7 +1091,7 @@ document.addEventListener("keydown", (e) => {
     const sheet = document.getElementById("more-sheet");
     if (sheet && !sheet.classList.contains("hidden")) { e.preventDefault(); closeMoreSheet(); return; }
     const planEditor = document.getElementById("movement-plan-editor");
-    if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); hideFitnessStrengthPlan(); return; }
+    if (planEditor && !planEditor.classList.contains("hidden")) { e.preventDefault(); closeMovementPlanEditor(); return; }
     const doctorModal = document.getElementById("doctor-modal");
     if (doctorModal && !doctorModal.classList.contains("hidden")) { e.preventDefault(); closeDoctorModal(); return; }
     if (inlineAddKey) { e.preventDefault(); closeInlineAdd(); return; }
@@ -3627,6 +3645,7 @@ function renderMovementSummary() {
   const mins = sumForDate(store.exercise, date, "minutes");
   const goal = Number(store.settings.movementGoal) || 30;
   el.textContent = mins + " of " + goal + " min";
+  renderFitnessRows();
 }
 function setMovementSectionOpen(open) {
   movementSectionOpen = open;
@@ -3639,6 +3658,81 @@ function setMovementSectionOpen(open) {
     if (chev) chev.textContent = open ? "▾" : "▸";
   }
 }
+
+/* ---------- Fitness card rows (v094) ---------- */
+/* The Fitness card shows three short summary rows (Movement, Strength,
+   Plan the week). Each row opens its detail one tap away, so the card
+   is short on first view. Movement and Strength remember whether they
+   are open in settings.fitnessRows, so a row stays as the user left
+   it across reloads. Plan the week is not stored: it opens fresh each
+   load, and the week view itself is still the module variable
+   weekViewOpen. */
+function fitnessRows() {
+  const fr = store.settings && store.settings.fitnessRows;
+  if (!fr || typeof fr !== "object" || Array.isArray(fr)) return { movement: false, strength: false };
+  return { movement: fr.movement === true, strength: fr.strength === true };
+}
+function setFitnessRow(key, open) {
+  if (!store.settings.fitnessRows || typeof store.settings.fitnessRows !== "object" || Array.isArray(store.settings.fitnessRows)) {
+    store.settings.fitnessRows = { movement: false, strength: false };
+  }
+  store.settings.fitnessRows[key] = !!open;
+  saveStore();
+  renderFitnessRows();
+}
+/* Show or hide the Movement and Strength detail panels from the
+   stored row state, and refresh the one-line status on each row. */
+function renderFitnessRows() {
+  const rows = fitnessRows();
+  const map = {
+    movement: { btn: "movement-row", panel: "movement-detail" },
+    strength: { btn: "strength-row", panel: "strength-detail" }
+  };
+  Object.keys(map).forEach((key) => {
+    const btn = document.getElementById(map[key].btn);
+    const panel = document.getElementById(map[key].panel);
+    const open = !!rows[key];
+    if (btn) {
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      const chev = btn.querySelector(".section-toggle-chevron");
+      if (chev) chev.textContent = open ? "▾" : "▸";
+    }
+    if (panel) panel.hidden = !open;
+  });
+  updateFitnessRowStatus();
+}
+/* The one-line status on each row: Movement minutes and moves done,
+   the Strength routine and how much is logged, and the week's workout
+   count. All in our own words. */
+function updateFitnessRowStatus() {
+  const date = viewedDateStr();
+  const mEl = document.getElementById("movement-row-status");
+  if (mEl) {
+    const mins = sumForDate(store.exercise, date, "minutes");
+    const goal = Number(store.settings.movementGoal) || 30;
+    const plan = getMovementPlan();
+    const state = movementDayState(date);
+    const done = state.done.filter((n) => plan.some((m) => m.name === n));
+    mEl.textContent = plan.length
+      ? mins + " of " + goal + " min · " + done.length + " of " + plan.length + " moves"
+      : mins + " of " + goal + " min";
+  }
+  const sEl = document.getElementById("strength-row-status");
+  if (sEl) {
+    const eff = effectiveStrengthRoutine();
+    if (!eff) sEl.textContent = "Rest day";
+    else {
+      const logged = (store.strength || []).filter((e) => e.date === date).length;
+      sEl.textContent = eff.name + " · " + eff.exercises.length + " exercises" + (logged > 0 ? " · " + logged + " logged" : "");
+    }
+  }
+  const wEl = document.getElementById("strength-week-row-status");
+  if (wEl) {
+    wEl.textContent = getStrengthPlan() === "3day"
+      ? "3 workouts · Mon, Wed, Fri"
+      : "4 workouts · Mon, Tue, Thu, Fri";
+  }
+}
 function setStrengthFormOpen(open) {
   strengthFormOpen = open;
   const form = document.getElementById("strength-form");
@@ -3648,11 +3742,17 @@ function setStrengthFormOpen(open) {
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     toggle.classList.toggle("hidden", open);
   }
+  if (open) setStrengthTab("history");
 }
 const movementToggleBtn = document.getElementById("movement-toggle");
 if (movementToggleBtn) movementToggleBtn.addEventListener("click", () => setMovementSectionOpen(!movementSectionOpen));
 const strengthToggleBtn = document.getElementById("strength-toggle");
 if (strengthToggleBtn) strengthToggleBtn.addEventListener("click", () => setStrengthFormOpen(!strengthFormOpen));
+const movementRowBtn = document.getElementById("movement-row");
+if (movementRowBtn) movementRowBtn.addEventListener("click", () => setFitnessRow("movement", !fitnessRows().movement));
+const strengthRowBtn = document.getElementById("strength-row");
+if (strengthRowBtn) strengthRowBtn.addEventListener("click", () => setFitnessRow("strength", !fitnessRows().strength));
+document.querySelectorAll("[data-strength-tab]").forEach((b) => b.addEventListener("click", () => setStrengthTab(b.dataset.strengthTab)));
 
 /* ---------- Strength routine (v088) ---------- */
 /* Built-in routine library: the 4-day upper/lower split and the 3-day
@@ -3820,21 +3920,30 @@ const STRENGTH_SWAPS = {
 function getStrengthPlan() {
   return (store.settings && store.settings.strengthPlan === "3day") ? "3day" : "4day";
 }
-function todaysStrengthRoutine() {
+/* The routine for any ISO date under the current plan, or null on a
+   rest day. Today is the day being viewed; the week view uses the
+   same lookup for any day of the week. */
+function strengthRoutineForDate(iso) {
   const plan = STRENGTH_ROUTINES[getStrengthPlan()];
-  const parts = todayStr(viewOffset).split("-");
+  const parts = String(iso).split("-");
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return plan[d.getDay()] || null;
+}
+function todaysStrengthRoutine() {
+  return strengthRoutineForDate(viewedDateStr());
 }
 /* ---------- Strength routine customization (v088) ---------- */
 /* Swaps and removals persist in settings.strengthCustom, keyed by
    routine day ("4day:1" is Monday Upper A) and by the built-in
    exercise name in that slot. The built-in routine stays the
    default; customizations only change what shows. */
-function strengthDayKey() {
-  const parts = todayStr(viewOffset).split("-");
+function strengthDayKeyForDate(iso) {
+  const parts = String(iso).split("-");
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return getStrengthPlan() + ":" + d.getDay();
+}
+function strengthDayKey() {
+  return strengthDayKeyForDate(viewedDateStr());
 }
 function getStrengthCustom(dayKey) {
   const all = (store.settings && store.settings.strengthCustom) || {};
@@ -3854,10 +3963,13 @@ function setStrengthCustom(dayKey, slot, value) {
 /* The routine for the day being viewed, with the user's swaps and
    removals applied. Each entry carries the exercise and the slot
    (the built-in exercise name), so a swap still knows its slot. */
-function effectiveStrengthRoutine() {
-  const base = todaysStrengthRoutine();
+/* The routine for any ISO date, with the user's swaps, removals, and
+   added exercises applied. Added exercises are stored under the slot
+   "__add:Name" and are appended after the built-in exercises. */
+function effectiveRoutineForDate(iso) {
+  const base = strengthRoutineForDate(iso);
   if (!base) return null;
-  const dayKey = strengthDayKey();
+  const dayKey = strengthDayKeyForDate(iso);
   const custom = getStrengthCustom(dayKey);
   const exercises = [];
   base.exercises.forEach((ex) => {
@@ -3869,7 +3981,18 @@ function effectiveStrengthRoutine() {
     }
     exercises.push({ ex, slot: ex.name, swappedFrom: null });
   });
+  Object.keys(custom).forEach((slot) => {
+    if (slot.indexOf("__add:") !== 0) return;
+    const c = custom[slot];
+    if (!c || typeof c.add !== "string" || !STRENGTH_EXERCISES[c.add]) return;
+    if (c.removed) return;
+    const current = (typeof c.swap === "string" && STRENGTH_EXERCISES[c.swap]) ? STRENGTH_EXERCISES[c.swap] : STRENGTH_EXERCISES[c.add];
+    exercises.push({ ex: current, slot, swappedFrom: current.name === c.add ? null : c.add, added: true });
+  });
   return { name: base.name, dayKey, exercises };
+}
+function effectiveStrengthRoutine() {
+  return effectiveRoutineForDate(viewedDateStr());
 }
 /* Swap options for an exercise, excluding anything already in
    today's routine, so a day never shows the same exercise twice. */
@@ -3879,14 +4002,38 @@ function swapOptionsFor(name, eff) {
 }
 /* The exercise whose swap picker is open: { dayKey, slot }, or null. */
 let strengthSwapPicker = null;
+/* A swap that keeps an added exercise added: swapping an exercise
+   that was added to a day stores { add, swap }, never just { swap },
+   so the added exercise survives the store validation. */
+function setRoutineSwap(dayKey, slot, target) {
+  if (slot.indexOf("__add:") === 0) {
+    const original = slot.slice("__add:".length);
+    if (target === original) setStrengthCustom(dayKey, slot, { add: original });
+    else setStrengthCustom(dayKey, slot, { add: original, swap: target });
+  } else {
+    setStrengthCustom(dayKey, slot, { swap: target });
+  }
+}
+/* Removing an added exercise deletes its entry; removing a built-in
+   exercise records { removed: true } so Reset can bring it back. */
+function removeRoutineExercise(dayKey, slot, isAdded) {
+  if (isAdded) setStrengthCustom(dayKey, slot, null);
+  else setStrengthCustom(dayKey, slot, { removed: true });
+}
+/* Reset one day to the built-in exercises. The label reads as the
+   day: "today's" for Today, "Monday" for a week view day. */
+function resetRoutineDay(dayKey, label, rerender) {
+  if (!window.confirm("Reset " + label + " routine to the built-in exercises?")) return;
+  if (store.settings.strengthCustom) delete store.settings.strengthCustom[dayKey];
+  strengthSwapPicker = null;
+  weekSwapPicker = null;
+  saveStore();
+  rerender();
+}
 function resetStrengthDay() {
   const eff = effectiveStrengthRoutine();
   if (!eff) return;
-  if (!window.confirm("Reset today's routine to the built-in exercises?")) return;
-  if (store.settings.strengthCustom) delete store.settings.strengthCustom[eff.dayKey];
-  strengthSwapPicker = null;
-  saveStore();
-  renderStrength();
+  resetRoutineDay(eff.dayKey, "today's", renderStrength);
 }
 /* Last weight logged for an exercise, so a routine Log tap can
    pre-fill it. Blank when the exercise was never logged with a weight. */
@@ -3895,6 +4042,14 @@ function lastWeightForExercise(name) {
   if (!entries.length) return "";
   entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   return entries[entries.length - 1].weight;
+}
+/* Last weight to show on a routine row, as "20 lbs", or blank when the
+   exercise was never logged with a weight. Zero counts as no weight. */
+function lastWeightDisplay(name) {
+  const w = lastWeightForExercise(name);
+  if (w === "" || w === undefined || w === null) return "";
+  if (Number(w) === 0) return "";
+  return String(w) + " lbs";
 }
 function logRoutineExercise(name) {
   const eff = effectiveStrengthRoutine();
@@ -3909,9 +4064,93 @@ function logRoutineExercise(name) {
   const msg = document.getElementById("strength-saved-msg");
   if (msg) setStrengthStatus(msg, ex.name + " logged.");
 }
+/* One routine row, shared by Today and the week view. opts: showLog
+   (the week view never logs, so it passes false), alreadyLogged,
+   pickerOpen, pickerOptions. */
+function routineRowHtml(item, eff, opts) {
+  const ex = item.ex;
+  const lastW = lastWeightDisplay(ex.name);
+  const picker = opts.pickerOpen
+    ? (opts.pickerOptions.length
+      ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
+      : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
+    : "";
+  const logBtn = opts.showLog
+    ? `<button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
+    : "";
+  return `<div class="entry">
+      <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${lastW ? ", " + escapeHtml(lastW) : ""}</p>
+      <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
+      <p class="entry-sub">${escapeHtml(ex.cue)}</p>
+      ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
+      <div class="entry-actions">
+        ${logBtn}
+        <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
+        <button type="button" class="btn btn-small btn-danger" data-remove-routine="${escapeHtml(item.slot)}" aria-label="Remove ${escapeHtml(ex.name)} from this routine">Remove</button>
+      </div>
+      ${picker}
+    </div>`;
+}
+/* ---------- Strength detail tabs (v094) ---------- */
+/* The Strength detail has three tabs, in our own words: My Exercises
+   (the routine for the day being viewed), History (the strength logged
+   for that day), and All Exercises (the full library, with an Add
+   button for each exercise). My Exercises is the default tab. */
+let strengthTab = "mine"; // "mine" | "history" | "all"
+function setStrengthTab(tab) {
+  strengthTab = tab;
+  document.querySelectorAll("[data-strength-tab]").forEach((b) => {
+    const selected = b.dataset.strengthTab === tab;
+    b.setAttribute("aria-selected", selected ? "true" : "false");
+    b.tabIndex = selected ? 0 : -1;
+  });
+  const panels = { mine: "strength-tab-panel-mine", history: "strength-tab-panel-history", all: "strength-tab-panel-all" };
+  Object.keys(panels).forEach((key) => {
+    const p = document.getElementById(panels[key]);
+    if (p) p.hidden = key !== tab;
+  });
+  if (tab === "all") renderStrengthAllExercises();
+}
+/* The full exercise library, with an Add button for each exercise not
+   already in the day's routine. Adding puts the exercise in the day's
+   routine (the same { add } store as the week view), then shows the
+   My Exercises tab so the addition is visible. */
+function renderStrengthAllExercises() {
+  const wrap = document.getElementById("strength-all-exercises");
+  if (!wrap) return;
+  const eff = effectiveStrengthRoutine();
+  if (!eff) {
+    wrap.innerHTML = '<p class="muted" style="margin:0">Rest day. Pick a workout day to add an exercise.</p>';
+    return;
+  }
+  const inRoutine = {};
+  eff.exercises.forEach((item) => { inRoutine[item.ex.name] = true; });
+  const all = Object.values(STRENGTH_EXERCISES).sort((a, b) => a.name.localeCompare(b.name));
+  wrap.innerHTML = all.map((ex) => {
+    const added = !!inRoutine[ex.name];
+    return `<div class="entry">
+      <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</p>
+      <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
+      <p class="entry-sub">${escapeHtml(ex.cue)}</p>
+      <div class="entry-actions">
+        <button type="button" class="btn btn-small"${added ? " disabled" : ""} data-add-all-exercise="${escapeHtml(ex.name)}" aria-label="Add ${escapeHtml(ex.name)} to today's routine">${added ? "Added" : "Add"}</button>
+      </div>
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll("[data-add-all-exercise]").forEach((b) => b.addEventListener("click", () => {
+    const name = b.dataset.addAllExercise;
+    if (!name || !STRENGTH_EXERCISES[name]) return;
+    setStrengthCustom(eff.dayKey, "__add:" + name, { add: name });
+    saveStore();
+    renderStrength();
+    setStrengthTab("mine");
+  }));
+}
+
 function renderStrengthRoutine() {
   const wrap = document.getElementById("strength-routine");
   if (!wrap) return;
+  showFitnessStrengthPlan();
   const title = document.getElementById("strength-routine-title");
   const warmup = document.getElementById("strength-routine-warmup");
   const list = document.getElementById("strength-routine-list");
@@ -3926,6 +4165,7 @@ function renderStrengthRoutine() {
     if (note) note.hidden = true;
     if (shot) shot.hidden = true;
     if (resetWrap) resetWrap.innerHTML = "";
+    if (weekViewOpen) renderWeekView();
     return;
   }
   if (title) title.textContent = "Today's routine: " + eff.name;
@@ -3946,23 +4186,7 @@ function renderStrengthRoutine() {
     const already = logged.some((e) => e.name === ex.name && Number(e.sets) === ex.sets && Number(e.reps) === ex.reps);
     const pickerOpen = strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === item.slot;
     const options = pickerOpen ? swapOptionsFor(ex.name, eff) : [];
-    const picker = pickerOpen
-      ? (options.length
-        ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + options.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
-        : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
-      : "";
-    return `<div class="entry">
-        <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</p>
-        <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
-        <p class="entry-sub">${escapeHtml(ex.cue)}</p>
-        ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
-        <div class="entry-actions">
-          <button type="button" class="btn btn-small"${already ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${already ? "Logged" : "Log"}</button>
-          <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
-          <button type="button" class="btn btn-small btn-danger" data-remove-routine="${escapeHtml(item.slot)}" aria-label="Remove ${escapeHtml(ex.name)} from this routine">Remove</button>
-        </div>
-        ${picker}
-      </div>`;
+    return routineRowHtml(item, eff, { showLog: true, alreadyLogged: already, pickerOpen, pickerOptions: options });
   }).join("");
   list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => logRoutineExercise(b.dataset.logRoutine)));
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
@@ -3975,7 +4199,7 @@ function renderStrengthRoutine() {
     renderStrengthRoutine();
   }));
   list.querySelectorAll("[data-swap-to]").forEach((b) => b.addEventListener("click", () => {
-    setStrengthCustom(eff.dayKey, b.dataset.swapSlot, { swap: b.dataset.swapTo });
+    setRoutineSwap(eff.dayKey, b.dataset.swapSlot, b.dataset.swapTo);
     strengthSwapPicker = null;
     saveStore();
     renderStrength();
@@ -3984,12 +4208,204 @@ function renderStrengthRoutine() {
     const slot = b.dataset.removeRoutine;
     const item = eff.exercises.find((e) => e.slot === slot);
     if (!window.confirm("Remove " + (item ? item.ex.name : "this exercise") + " from today's routine?")) return;
-    setStrengthCustom(eff.dayKey, slot, { removed: true });
+    removeRoutineExercise(eff.dayKey, slot, !!(item && item.added));
     strengthSwapPicker = null;
     saveStore();
     renderStrength();
   }));
+  /* The week view shows the same routine data, so it refreshes with
+     Today: a plan switch or an edit on Today updates it too. */
+  if (weekViewOpen) renderWeekView();
 }
+
+/* ---------- Strength week view (v094) ---------- */
+/* Plan the week ahead: Mon to Sun with workout or rest labels, and a
+   day's routine can be opened and edited in advance. Planning only:
+   Log is never offered here, so a workout can never be logged before
+   it happens. Edits use the same settings.strengthCustom store as
+   Today, keyed by plan and weekday, so a swap made on Saturday for
+   Monday is still there on Monday. */
+let weekViewOpen = false;
+let weekViewDate = null; // ISO date of the day shown in the week view
+let weekSwapPicker = null; // { dayKey, slot } or null
+let weekAddPickerOpen = false;
+/* Monday of the week holding an ISO date, as a local Date. */
+function weekMondayFor(iso) {
+  const parts = String(iso).split("-");
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+/* The routine for a weekday number under the current plan, or null
+   on a rest day. */
+function routineForWeekday(weekday) {
+  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  return plan[weekday] || null;
+}
+/* The next workout day from today, as an ISO date, so the week view
+   opens on the day the user most likely wants to plan. */
+function nextWorkoutDayIso() {
+  for (let i = 0; i < 7; i++) {
+    const iso = todayStr(i);
+    const parts = iso.split("-");
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    if (routineForWeekday(d.getDay())) return iso;
+  }
+  return todayStr(0);
+}
+function renderWeekView() {
+  const panel = document.getElementById("strength-week-view");
+  const btn = document.getElementById("strength-week-row");
+  if (!panel || !btn) return;
+  panel.hidden = !weekViewOpen;
+  btn.setAttribute("aria-expanded", weekViewOpen ? "true" : "false");
+  const chev = btn.querySelector(".section-toggle-chevron");
+  if (chev) chev.textContent = weekViewOpen ? "▾" : "▸";
+  if (!weekViewOpen) return;
+  if (!weekViewDate) weekViewDate = nextWorkoutDayIso();
+  const monday = weekMondayFor(weekViewDate);
+  const titleEl = document.getElementById("strength-week-title");
+  if (titleEl) {
+    const thisMonday = weekMondayFor(todayStr(0));
+    titleEl.textContent = (localDateStr(monday) === localDateStr(thisMonday))
+      ? "This week"
+      : "Week of " + monday.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  }
+  const daysWrap = document.getElementById("strength-week-days");
+  const todayS = todayStr(0);
+  const letters = "SMTWTFS";
+  let html = "";
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = localDateStr(d);
+    const weekday = d.getDay();
+    const routine = routineForWeekday(weekday);
+    const label = routine ? routine.name : "Rest";
+    const isSelected = iso === weekViewDate;
+    const isToday = iso === todayS;
+    html += '<button type="button" class="week-day' + (isSelected ? " viewed" : "") + (isToday ? " today" : "") + '" data-week-view-day="' + iso + '"' + (isSelected ? ' aria-current="date"' : "") + ' aria-label="' + d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) + ", " + label + '"><span class="week-letter">' + letters[weekday] + '</span><span class="week-num">' + d.getDate() + '</span><span class="week-plan-label">' + label + "</span></button>";
+  }
+  daysWrap.innerHTML = html;
+  daysWrap.querySelectorAll("[data-week-view-day]").forEach((b) => b.addEventListener("click", () => {
+    weekViewDate = b.dataset.weekViewDay;
+    weekSwapPicker = null;
+    weekAddPickerOpen = false;
+    renderWeekView();
+  }));
+  renderWeekViewDay();
+}
+function renderWeekViewDay() {
+  const title = document.getElementById("strength-week-day-title");
+  const warmup = document.getElementById("strength-week-day-warmup");
+  const list = document.getElementById("strength-week-day-list");
+  const addWrap = document.getElementById("strength-week-day-add");
+  const resetWrap = document.getElementById("strength-week-day-reset");
+  const note = document.getElementById("strength-week-day-note");
+  const shot = document.getElementById("strength-week-day-shot");
+  if (!title || !list) return;
+  const iso = weekViewDate || nextWorkoutDayIso();
+  const parts = iso.split("-");
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  const weekday = d.getDay();
+  const dayKey = getStrengthPlan() + ":" + weekday;
+  const dayName = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const eff = effectiveRoutineForDate(iso);
+  if (!eff) {
+    title.textContent = dayName + ": Rest day";
+    if (warmup) warmup.hidden = true;
+    list.innerHTML = '<p class="muted" style="margin:0">Rest day. Walking counts today.</p>';
+    if (addWrap) addWrap.innerHTML = "";
+    if (resetWrap) resetWrap.innerHTML = "";
+    if (note) note.hidden = true;
+    if (shot) shot.hidden = true;
+    return;
+  }
+  title.textContent = dayName + ": " + eff.name;
+  if (warmup) warmup.hidden = false;
+  if (note) note.hidden = false;
+  if (shot) shot.hidden = false;
+  if (resetWrap) {
+    const hasCustom = Object.keys(getStrengthCustom(dayKey)).length > 0;
+    resetWrap.innerHTML = hasCustom ? '<button type="button" class="btn btn-small" id="strength-week-day-reset-btn">Reset routine</button>' : "";
+    const rb = document.getElementById("strength-week-day-reset-btn");
+    if (rb) rb.addEventListener("click", () => resetRoutineDay(dayKey, d.toLocaleDateString("en-US", { weekday: "long" }), renderStrength));
+  }
+  list.innerHTML = eff.exercises.map((item) => {
+    const pickerOpen = weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === item.slot;
+    const options = pickerOpen ? swapOptionsFor(item.ex.name, eff) : [];
+    return routineRowHtml(item, eff, { showLog: false, alreadyLogged: false, pickerOpen, pickerOptions: options });
+  }).join("");
+  list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.swapRoutine;
+    if (weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === slot) weekSwapPicker = null;
+    else weekSwapPicker = { dayKey, slot };
+    weekAddPickerOpen = false;
+    renderWeekViewDay();
+  }));
+  list.querySelectorAll("[data-swap-to]").forEach((b) => b.addEventListener("click", () => {
+    setRoutineSwap(dayKey, b.dataset.swapSlot, b.dataset.swapTo);
+    weekSwapPicker = null;
+    saveStore();
+    renderStrength();
+  }));
+  list.querySelectorAll("[data-remove-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.removeRoutine;
+    const item = eff.exercises.find((e) => e.slot === slot);
+    if (!window.confirm("Remove " + (item ? item.ex.name : "this exercise") + " from this routine?")) return;
+    removeRoutineExercise(dayKey, slot, !!(item && item.added));
+    weekSwapPicker = null;
+    weekAddPickerOpen = false;
+    saveStore();
+    renderStrength();
+  }));
+  if (addWrap) {
+    const addOptions = Object.values(STRENGTH_EXERCISES)
+      .filter((ex) => !eff.exercises.some((e) => e.ex.name === ex.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    if (weekAddPickerOpen) {
+      addWrap.innerHTML = '<label style="display:block">Add an exercise to this routine <select id="strength-week-add-select" style="margin-top:4px">' + addOptions.map((o) => `<option value="${escapeHtml(o.name)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</option>`).join("") + '</select></label><div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="btn btn-small btn-primary" id="strength-week-add-btn">Add</button><button type="button" class="btn btn-small" id="strength-week-add-cancel">Cancel</button></div>';
+      const addBtn = document.getElementById("strength-week-add-btn");
+      if (addBtn) addBtn.addEventListener("click", () => {
+        const sel = document.getElementById("strength-week-add-select");
+        const name = sel ? sel.value : "";
+        if (!name || !STRENGTH_EXERCISES[name]) return;
+        setStrengthCustom(dayKey, "__add:" + name, { add: name });
+        weekAddPickerOpen = false;
+        saveStore();
+        renderStrength();
+      });
+      const cancelBtn = document.getElementById("strength-week-add-cancel");
+      if (cancelBtn) cancelBtn.addEventListener("click", () => { weekAddPickerOpen = false; renderWeekViewDay(); });
+    } else {
+      addWrap.innerHTML = '<button type="button" class="btn btn-small" id="strength-week-add-open">Add exercise</button>';
+      const openBtn = document.getElementById("strength-week-add-open");
+      if (openBtn) openBtn.addEventListener("click", () => { weekAddPickerOpen = true; weekSwapPicker = null; renderWeekViewDay(); });
+    }
+  }
+}
+const weekBtn = document.getElementById("strength-week-row");
+if (weekBtn) weekBtn.addEventListener("click", () => {
+  weekViewOpen = !weekViewOpen;
+  if (weekViewOpen) {
+    weekViewDate = nextWorkoutDayIso();
+    weekSwapPicker = null;
+    weekAddPickerOpen = false;
+    renderWeekView();
+    const panel = document.getElementById("strength-week-view");
+    if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    renderWeekView();
+  }
+});
+const weekCloseBtn = document.getElementById("strength-week-close");
+if (weekCloseBtn) weekCloseBtn.addEventListener("click", () => {
+  weekViewOpen = false;
+  weekSwapPicker = null;
+  weekAddPickerOpen = false;
+  renderWeekView();
+});
 
 /* ---------- Strength status messages (v087) ---------- */
 /* The Strength card shows one short-lived status at a time. A new
@@ -4230,7 +4646,7 @@ function closeMovementPlanEditor() {
 document.getElementById("movement-customize").addEventListener("click", () => {
   const editor = document.getElementById("movement-plan-editor");
   if (editor && editor.classList.contains("hidden")) { openMovementPlanEditor(); showFitnessStrengthPlan(); }
-  else { closeMovementPlanEditor(); hideFitnessStrengthPlan(); }
+  else { closeMovementPlanEditor(); }
 });
 /* v091: the merged Fitness card has one Customize button for the day.
    On rest days it also shows the strength plan switcher, so the plan
@@ -4340,7 +4756,6 @@ document.getElementById("movement-plan-save").addEventListener("click", () => {
   }
   saveStore();
   closeMovementPlanEditor();
-  hideFitnessStrengthPlan();
   renderToday();
 });
 
@@ -13915,9 +14330,9 @@ document.getElementById("settings-form").addEventListener("change", () => {
 });
 
 /* ---------- Strength routine: reset all changes (v088) ---------- */
-/* Clears every routine swap and removal, so all days show the
-   built-in routine again. Disabled in Settings when there is
-   nothing to reset. */
+/* Clears every routine swap, removal, and added exercise, so all
+   days show the built-in routine again. Disabled in Settings when
+   there is nothing to reset. */
 const strengthResetAllBtn = document.getElementById("strength-reset-all");
 if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
   const msg = document.getElementById("strength-reset-msg");
@@ -13925,7 +14340,7 @@ if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
     if (msg) msg.textContent = "No routine changes to reset.";
     return;
   }
-  if (!window.confirm("Remove all routine swaps and removals?")) return;
+  if (!window.confirm("Remove all routine changes?")) return;
   store.settings.strengthCustom = {};
   saveStore();
   renderSettings();
