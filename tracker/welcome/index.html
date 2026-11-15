@@ -13,6 +13,7 @@
 <title>Welcome to New Chapter: GLP-1 Tracker™</title>
 <meta name="description" content="Welcome to New Chapter: GLP-1 Tracker™. Get your access code and start tracking shots, protein, water, and movement.">
 <meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://millrjess.github.io/tracker/welcome/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
@@ -34,7 +35,9 @@ p { color: var(--muted); margin-bottom: 16px; }
 .steps li:last-child { border: none; }
 .step-num { background: var(--sage-dark); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; font-weight: 700; flex-shrink: 0; }
 .note { font-size: .9rem; background: var(--surface-soft); border-radius: 12px; padding: 16px; margin-top: 20px; }
-a:focus-visible, button:focus-visible{outline:3px solid var(--sage-dark); outline-offset:2px; border-radius:4px}
+a:focus-visible, button:focus-visible, input:focus-visible{outline:3px solid var(--sage-dark); outline-offset:2px; border-radius:4px}
+.skip-link{position:absolute;left:-9999px;top:8px;background:#0b1a30;color:#f0dfae;padding:.6em 1em;z-index:200;border-radius:8px}
+.skip-link:focus{left:8px}
 body{overflow-wrap:break-word}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
@@ -43,6 +46,8 @@ body{overflow-wrap:break-word}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<main id="main" tabindex="-1">
 <div class="card">
   <h1>You're in. Welcome.</h1>
   <p>Completed your purchase? Here is how to connect your AI Wellness Companion in the app, using the email address from your receipt:</p>
@@ -134,5 +139,6 @@ body{overflow-wrap:break-word}
   })();
   </script>
 </div>
+</main>
 </body>
 </html>
