@@ -631,14 +631,15 @@ label textarea {
 
 /* v106: routine buttons share one line, equal widths. */
 .routine-actions {
-  gap: 6px;
+  gap: 4px;
 }
 
 .routine-actions .btn {
   flex: 1 1 0;
   min-width: 0;
-  padding: 10px 6px;
+  padding: 10px 4px;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .badge {
