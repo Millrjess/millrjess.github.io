@@ -7,13 +7,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {analytics_storage: 'denied', ad_storage: 'denied'});
   gtag('config', 'G-SHDGWWFBV7');
 </script>
+<script src="/assets/js/consent.js?v=1" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact | Jessica A. Miller</title>
 <meta name="description" content="Contact Jessica Miller about website management, malware removal, technical SEO, or a site health audit. North Andover, MA and remote clients welcome.">
-<link rel="icon" href="../assets/img/favicon-96.webp">
-<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+<link rel="icon" href="../assets/img/favicon-96.webp?v=2">
+<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png?v=2">
 <link rel="canonical" href="https://millrjess.github.io/contact/">
 <meta property="og:title" content="Contact | Jessica Miller">
 <meta property="og:description" content="Contact Jessica Miller about website management, malware removal, technical SEO, or a site health audit. North Andover, MA and remote clients welcome.">
@@ -191,20 +193,20 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>New or existing client?</h2>
 <p><strong>New inquiry:</strong> Use the form below or book a free 15-minute discovery call. I will review your inquiry and confirm whether the work is a fit. If we decide to proceed, you will receive a written proposal covering scope, price, and timing. Work begins after the agreement is approved and any required initial payment is received.</p>
-<p><strong>Existing clients:</strong> For an active project or care plan, use the contact details and support arrangements in your agreement. If you cannot find those details, email me with your business name and website address. Care-plan support uses the hours, response arrangements, and escalation process set out there. This contact form is for general inquiries, not guaranteed emergency response.</p>
+<p><strong>Existing clients:</strong> For an active project or care plan, use the contact details and support arrangements in your agreement. If you cannot find those details, email me with your business name and website address. Care-plan support uses the hours, response arrangements, and escalation process set out there. This contact form is for general inquiries and does not guarantee an emergency response.</p>
 
 <h2>Get in Touch</h2>
 
 <ul>
 <li>Email: <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a></li>
 
-<li>Phone: (978) 267-5304</li>
+<li>Phone: <a href="tel:+19782675304">(978) 267-5304</a></li>
 
 <li>LinkedIn: <a href="https://www.linkedin.com/in/millrjess">Connect with Jessica A. Miller</a></li>
 </ul>
 
 <h2>Project Inquiry</h2>
-<p>Tell me about your project, and I will personally read and reply to every inquiry. Fields marked * are required.</p>
+<p>Describe your project below, and I personally read and reply to every inquiry. Fields marked * are required.</p>
 <form id="consult-form" class="consult-form" novalidate>
 <label>Your name *
 <input type="text" name="name" required autocomplete="name"></label>
@@ -273,20 +275,30 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     document.body.appendChild(iframe);
   }
   var submitted = true; var timedOut = false;
+  var onReply = function(ev){
+    if (!submitted || timedOut) return;
+    if (typeof ev.origin !== 'string' || ev.origin.indexOf('https://script.google') !== 0) return;
+    var data = ev.data;
+    if (!data || typeof data.success !== 'boolean') return;
+    submitted = false; clearTimeout(timer);
+    window.removeEventListener('message', onReply);
+    if (data.success) {
+      f.reset();
+      note.innerHTML = 'Thanks. Your message is on its way. I personally read and reply to every inquiry.';
+    } else {
+      note.innerHTML = 'The form did not send your message. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
+    }
+    btn.disabled = false; btn.textContent = 'Send Request';
+  };
   var timer = setTimeout(function(){
     if (submitted) {
       timedOut = true; submitted = false;
+      window.removeEventListener('message', onReply);
       note.innerHTML = 'The form did not respond. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
       btn.disabled = false; btn.textContent = 'Send Request';
     }
   }, 30000);
-  iframe.onload = function(){
-    if (!submitted || timedOut) return;
-    submitted = false; clearTimeout(timer);
-    f.reset();
-    note.innerHTML = 'Thanks. Your message is on its way. I read and reply to every inquiry personally.';
-    btn.disabled = false; btn.textContent = 'Send Request';
-  };
+  window.addEventListener('message', onReply);
   f.action = 'https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec';
   f.method = 'POST'; f.target = 'consult-iframe';
   f.submit();
@@ -312,7 +324,7 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
   });
 });
 </script>
-<script src="../assets/js/help-chat.js?v=7"></script>
+<script src="../assets/js/help-chat.js?v=8"></script>
 <script src="../assets/js/ga-events.js?v=1"></script>
 </body>
 </html>
