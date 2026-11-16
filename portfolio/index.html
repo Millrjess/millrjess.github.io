@@ -213,20 +213,20 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>Work &amp; Credentials</h1>
 <p>This is selected work in product, data, and design, with the problem, approach, and outcome for each one.</p>
-<p>My work and credentials are in one place: this page, <a href="../certifications/">course certificates</a>, and <a href="../testimonials/">recommendations</a>, including one from a paid engagement.</p>
+<p>My work and credentials are in one place: this page, <a href="../certifications/">course certificates</a>, and <a href="../testimonials/">recommendations</a>, including a recommendation from a paid engagement.</p>
 <p><button type="button" class="expand-all" id="expand-all" aria-expanded="false">Expand all</button></p>
 
 <h2>Product</h2>
 <h3>New Chapter: GLP-1 Tracker™ (Independent Product, Founder)</h3>
 <p><a href="https://millrjess.github.io/tracker/"><img src="/assets/img/cards/card-new-chapter.jpg" alt="New Chapter: GLP-1 Tracker™ app" width="1200" height="630" loading="lazy" style="width:100%; max-width:720px; border-radius:16px; display:block; margin:0.8em 0;"></a></p>
-<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset found about 40 percent for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">STEP-1 DXA subset data</a>). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job. People were tracking injections, protein, and movement across scattered notes and memory.</p>
+<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset reported about 40 percent of weight lost as lean mass for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">STEP-1 DXA subset data</a>). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job.</p>
 <p class="role">Founder &middot; Designer and developer &middot; Live on the web</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-built-it-new-chapter-glp-1-tracker"><span class="entry-lede">How I built it: New Chapter: GLP-1 Tracker™</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-built-it-new-chapter-glp-1-tracker" hidden>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot.</p>
 <p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android. It uses no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
-<p>I built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI with opt-in memory that remembers the user's name, goals, and preferences, rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
+<p>I built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI. It has opt-in memory that remembers the user's name, goals, and preferences. It is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
 <p><strong>Design decisions:</strong> I iterated the interface based on real user testing. I added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. I ran an accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
 <ul>
 <li>I checked text contrast ratios.</li>
@@ -238,10 +238,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <li>The app has no orientation lock.</li>
 <li>The app does not block zoom.</li>
 </ul>
-<p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone. I built a custom design system around the brand's gold-and-sage palette with a hand-designed app icon, gradient header, and refined card and button styling. The layout is mobile-first and responsive.</p>
+<p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone, and a custom design system around the brand's gold-and-sage palette with a hand-designed app icon, gradient header, and refined card and button styling. The layout is mobile-first and responsive.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Delivered: a launched subscription web application, sales page, and export capability. Validation: usability testing with real users, including the Undo and Remove controls added after testing, and an accessibility audit against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
+<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Validation: usability testing with real users and an accessibility audit against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-sources"><span class="entry-lede">Sources</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-sources" hidden>
@@ -256,14 +256,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2>Data and business intelligence</h2>
 <h3>Predictive Analytics Dashboard Pipeline (SQL / Tableau)</h3>
 <p class="role">Data science and visualization &middot; Python, SQL, Tableau, BigQuery</p>
-<p><strong>Problem:</strong> Manual reporting is slow and error-prone, and decision makers needed a data-driven view of what drives protest activity in the US.</p>
+<p><strong>Problem:</strong> Manual reporting was slow and error-prone, and decision makers needed a data-driven view of what drives protest activity in the US.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-the-model-works-predictive-analytics-dashboard"><span class="entry-lede">How the model works: Predictive Analytics Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-the-model-works-predictive-analytics-dashboard" hidden>
-<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built a negative binomial regression model to identify associations, and piped the results into an automated Tableau dashboard, so the reporting refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views, each tuned to its readers: for policymakers, the model coefficients showing how each factor relates to event counts; for community organizers, protest activity patterns by day of week and month; for the general public, an accessible overview of trends and drivers. I created a dashboard view that separates location indicators from the selected socioeconomic variables, making those variables easier to inspect.</p>
+<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built a negative binomial regression model to identify associations, and piped the results into an automated Tableau dashboard. The reporting now refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views, each tuned to its readers. For policymakers, it shows the model coefficients for each factor. For community organizers, it shows protest activity patterns by day of week and month. For the general public, it gives an accessible overview of trends and drivers. I created a dashboard view that separates location indicators from the selected socioeconomic variables, making those variables easier to inspect.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> The model is a negative binomial regression on 3,523 state-month observations (ACLED event counts with BLS unemployment, data through January 2026). Log population exposure carries a coefficient of 0.8017, unemployment a coefficient of 0.1131, and the time trend 0.0342. These are associations, not proof of cause. The automated pipeline keeps the reporting current. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
+<p><strong>Outcome:</strong> The model is a negative binomial regression on 3,523 state-month observations (ACLED event counts with BLS unemployment, data through January 2026). Log population exposure carries a coefficient of 0.8017, unemployment 0.1131, and the time trend 0.0342. These are associations, not proof of cause. The automated pipeline keeps the reporting current. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-protest-data-dashboard"><span class="entry-lede">Protest Data Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-protest-data-dashboard" hidden>
@@ -279,7 +279,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-dashboard-details"><span class="entry-lede">Dashboard details</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-dashboard-details" hidden>
-<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls. I designed the dashboard to help a call-center manager inspect repeat-call patterns, compare reasons by city, and distinguish first-time from repeat contacts.</p>
+<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls, so a call-center manager can inspect repeat-call patterns and compare reasons by city.</p>
 </div>
 </div>
 </div>
@@ -389,16 +389,15 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-got-there-foodie-explorer"><span class="entry-lede">How I got there: Foodie Explorer</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-got-there-foodie-explorer" hidden>
 <p><strong>What I learned from users:</strong> I ran user research through surveys and usability tests. The persona was David Miller, a 42-year-old freelance photographer whose goals were to save time, enjoy family time, explore new foods, support local businesses, and simplify life. His frustrations were time constraints, grocery store hassle, limited cooking time, difficulty finding quality ingredients, and inconsistent quality. The pain points were complex navigation in existing apps and limited tailored recipe recommendations.</p>
-<p><strong>Approach:</strong> a full UX lifecycle covering user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds. The design centered on the following:</p>
+<p><strong>Approach:</strong> I followed a full UX lifecycle covering user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds. The design centered on the following:</p>
 <ul>
 <li>Users can discover recipes by ingredients, dietary needs, cuisine, or cooking time.</li>
 <li>Recipes are quick and easy, ready in 30 minutes or less.</li>
 <li>Each recipe includes step-by-step visual guides.</li>
 <li>Grocery lists build themselves from the recipes you choose.</li>
-<li>The design includes meal planning tools.</li>
-<li>The design includes community features for sharing recipes.</li>
+<li>The design includes meal planning tools and community features for sharing recipes.</li>
 </ul>
-<p>Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high-contrast mode and readable fonts, voice search and screen reader requirements for implementation, and clear navigation with large tap targets.</p>
+<p>Usability testing confirmed intuitive search, visual guides that raised user confidence, and streamlined navigation. I refined the mockups for personalization and accessibility, with high-contrast mode and readable fonts, voice search and screen reader support, and clear navigation with large tap targets.</p>
 </div>
 </div>
 <p><strong>Outcome:</strong> I delivered a complete, research-backed mobile app design with a video walkthrough of every design decision. <a href="https://www.youtube.com/watch?v=3eY3yojcT4g">Case study video on YouTube</a> &middot; <a href="../case-study-mobile-app/">Full case study</a> &middot; <a href="../assets/presentations/Foodie_Explorer_Executive.pdf">Executive presentation (PDF)</a>.</p>
