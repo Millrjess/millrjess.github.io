@@ -7,13 +7,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {analytics_storage: 'denied', ad_storage: 'denied'});
   gtag('config', 'G-SHDGWWFBV7');
 </script>
+<script src="/assets/js/consent.js?v=1" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy | Jessica A. Miller</title>
 <meta name="description" content="Privacy policy for millrjess.github.io, the portfolio site of Website Operations Consultant Jessica Miller.">
-<link rel="icon" href="../assets/img/favicon-96.webp">
-<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+<link rel="icon" href="../assets/img/favicon-96.webp?v=2">
+<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png?v=2">
 <link rel="canonical" href="https://millrjess.github.io/privacy-policy/">
 <meta property="og:title" content="Privacy Policy | millrjess.github.io">
 <meta property="og:description" content="Privacy policy for millrjess.github.io, the portfolio site of Website Operations Consultant Jessica Miller.">
@@ -181,9 +183,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <main id="main" tabindex="-1" class="wrap page">
 <article>
 <h1>Privacy Policy</h1>
-<p class="muted">Last updated: November 15, 2026.</p>
+<p class="muted">Last updated: November 16, 2026.</p>
 <h2>Analytics and embedded content</h2>
-<p>This website uses Google Analytics to understand visits in aggregate, and the portfolio page embeds Tableau Public visualizations. Google Analytics may set cookies and collect usage data under Google's privacy policy, and embedded Tableau Public visualizations may set cookies and collect usage data under Tableau's privacy policy. This site does not run its own analytics or store visitor information on its own servers.</p>
+<p>This website uses Google Analytics to understand visits in aggregate, and the portfolio page embeds Tableau Public visualizations. Google Analytics may set cookies and collect usage data under Google's privacy policy, and embedded Tableau Public visualizations may set cookies and collect usage data under Tableau's privacy policy. This site does not run its own analytics or store visitor information on its own servers. Analytics only loads after you accept it in the banner at the bottom of any page. You can change your choice at any time.</p>
+<p><button class="btn" type="button" onclick="resetAnalyticsConsent()">Change my analytics choice</button></p>
 <h2>Consultation form</h2>
 <p>The consultation request form sends your message to my inbox via Google Apps Script. Your name, email address, website URL, service topic, and message are transmitted to my email and are not stored on this site; Google&rsquo;s handling of that data is governed by its own privacy policy.</p>
 <h2>Help chat</h2>
@@ -191,9 +194,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2>Payments</h2>
 <p>Payments for strategy sessions and tracker subscriptions are processed by Stripe. Your card details go to Stripe, not to this site, and Stripe&rsquo;s handling of that data is governed by its own privacy policy.</p>
 <h2>Newsletter</h2>
-<p>The tracker sales page has a newsletter signup that collects the visitor&rsquo;s email address and sends it to Mailchimp. Mailchimp handles subscription data under its own privacy policy.</p>
+<p>The tracker sales page has a newsletter signup that collects the visitor&rsquo;s email address and sends it to Mailchimp. The wellness page links to a Mailchimp signup as well. Mailchimp handles subscription data under its own privacy policy.</p>
 <h2>Tracker access codes</h2>
-<p>On the tracker welcome page, a visitor enters a purchase email address. It is sent to Cloudflare Worker endpoints to recover a purchase and request a six-digit access code.</p>
+<p>On the tracker welcome page, a visitor enters a purchase email address. That address is sent to Cloudflare Worker endpoints to recover a purchase and request a six-digit access code. Messages sent to the AI Wellness Companion go to Cloudflare Workers AI for a reply. They are not stored on our servers.</p>
 <h2>Booking a discovery call</h2>
 <p>Booking a free discovery call shares the visitor&rsquo;s name and email with Google through Google Calendar.</p>
 <h2>Tracker terms acceptance</h2>
@@ -221,7 +224,7 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
   });
 });
 </script>
-<script src="../assets/js/help-chat.js?v=7"></script>
+<script src="../assets/js/help-chat.js?v=8"></script>
 <script src="../assets/js/ga-events.js?v=1"></script>
 </body>
 </html>
