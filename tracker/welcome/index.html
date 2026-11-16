@@ -6,8 +6,10 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {analytics_storage: 'denied', ad_storage: 'denied'});
   gtag('config', 'G-SHDGWWFBV7');
 </script>
+<script src="/assets/js/consent.js?v=1" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcome to New Chapter: GLP-1 Tracker™</title>
@@ -129,7 +131,7 @@ body{overflow-wrap:break-word}
             msg.textContent = data2.error || 'Something went wrong. Try again.';
           }
         } else if (data.found === false) {
-          msg.textContent = 'No purchase found for that email. Check the spelling or reply to your receipt email.';
+          msg.textContent = 'Something went wrong. Try again.';
         } else {
           msg.textContent = data.error || 'Something went wrong. Try again.';
         }
