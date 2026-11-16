@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v102";
+const APP_VERSION = "v103";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -1477,7 +1477,7 @@ function renderProgress() {
     const daysWith = values.filter((v) => v !== null).length;
     const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
     const big = document.getElementById("progress-" + def.key + "-big");
-    if (big) big.textContent = String(avg);
+    if (big) big.textContent = daysWith > 0 ? String(avg) : "-";
     const note = document.getElementById("progress-" + def.key + "-note");
     if (note) {
       const goalPart = def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "";
