@@ -225,9 +225,9 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-built-it-new-chapter-glp-1-tracker"><span class="entry-lede">How I built it: New Chapter: GLP-1 Tracker™</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-built-it-new-chapter-glp-1-tracker" hidden>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot.</p>
-<p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android. It uses no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
-<p>I built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI. It has opt-in memory that remembers the user's name, goals, and preferences. It is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
-<p><strong>Design decisions:</strong> I iterated the interface based on real user testing. I added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. I ran an accessibility audit against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
+<p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android, using no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
+<p>I built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI. The assistant has opt-in memory that remembers the user's name, goals, and preferences, and is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
+<p><strong>Design decisions:</strong> I iterated the interface based on real user testing. I added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. I ran a self-assessment against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
 <ul>
 <li>I checked text contrast ratios.</li>
 <li>I used legible type sizes.</li>
@@ -241,7 +241,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone, and a custom design system around the brand's gold-and-sage palette with a hand-designed app icon, gradient header, and refined card and button styling. The layout is mobile-first and responsive.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Validation: usability testing with real users and an accessibility audit against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
+<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Validation: usability testing with real users and a self-assessment against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-sources"><span class="entry-lede">Sources</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-sources" hidden>
@@ -279,7 +279,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-dashboard-details"><span class="entry-lede">Dashboard details</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-dashboard-details" hidden>
-<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. It shows trends over time, call reasons by city, and first-time versus repeat calls, so a call-center manager can inspect repeat-call patterns and compare reasons by city.</p>
+<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. The dashboard shows trends over time, call reasons by city, and first-time versus repeat calls, so a call-center manager can inspect repeat-call patterns and compare reasons by city.</p>
 </div>
 </div>
 </div>
