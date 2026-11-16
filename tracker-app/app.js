@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v105";
+const APP_VERSION = "v106";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -4379,14 +4379,14 @@ function routineRowHtml(item, eff, opts) {
   const lastWVal = lastWeightForExercise(ex.name);
   const prefillW = lastWVal !== "" ? lastWVal : plannedW;
   const logBtn = opts.showLog
-    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight (lbs) <input type="number" class="routine-weight-input" style="width:64px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
+    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight <input type="number" class="routine-weight-input" style="width:56px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
     : "";
   return `<div class="entry">
       <p class="entry-title">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</p>
       <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
       <p class="entry-sub">${escapeHtml(ex.cue)}</p>
       ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
-      <div class="entry-actions">
+      <div class="entry-actions routine-actions">
         ${logBtn}
         <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
         <button type="button" class="btn btn-small btn-danger" data-remove-routine="${escapeHtml(item.slot)}" aria-label="Remove ${escapeHtml(ex.name)} from this routine">Remove</button>

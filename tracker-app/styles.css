@@ -600,6 +600,11 @@ label textarea {
   box-shadow: var(--shadow);
 }
 
+/* v106: clear space between stacked entry cards. */
+.entry + .entry {
+  margin-top: 14px;
+}
+
 .entry-title {
   font-weight: 700;
   margin: 0 0 2px;
@@ -622,6 +627,18 @@ label textarea {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
+}
+
+/* v106: routine buttons share one line, equal widths. */
+.routine-actions {
+  gap: 6px;
+}
+
+.routine-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 6px;
+  font-size: 0.85rem;
 }
 
 .badge {
