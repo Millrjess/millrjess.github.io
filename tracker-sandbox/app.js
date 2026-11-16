@@ -1364,7 +1364,7 @@ function renderProgress() {
     const daysWith = values.filter((v) => v !== null).length;
     const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
     const big = document.getElementById("progress-" + def.key + "-big");
-    if (big) big.textContent = String(avg);
+    if (big) big.textContent = daysWith > 0 ? String(avg) : "-";
     const note = document.getElementById("progress-" + def.key + "-note");
     if (note) {
       const goalPart = def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "";
