@@ -36,6 +36,23 @@
     try { window.localStorage.removeItem(KEY); } catch (e) {}
     showBanner();
   };
+  /* Show the banner only after the visitor scrolls or after 15 seconds, so the first screen stays clear. */
+  function showBannerWhenEngaged(){
+    var shown = false;
+    var timer = null;
+    function show(){
+      if (shown) return;
+      shown = true;
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('scroll', onScroll);
+      showBanner();
+    }
+    function onScroll(){
+      if (window.scrollY > 100) show();
+    }
+    timer = setTimeout(show, 15000);
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
   var choice = stored();
   if (choice === 'granted') {
     if (typeof window.gtag === 'function') {
@@ -43,9 +60,9 @@
     }
   } else if (choice !== 'denied') {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', showBanner);
+      document.addEventListener('DOMContentLoaded', showBannerWhenEngaged);
     } else {
-      showBanner();
+      showBannerWhenEngaged();
     }
   }
 })();
