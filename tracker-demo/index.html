@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=102">
+<link rel="stylesheet" href="styles.css?v=103">
     <style>
       .demo-banner{background:#5A6B52;color:#FDFBF7;padding:14px 16px;text-align:left;font-size:1rem;line-height:1.5;position:sticky;top:0;z-index:100}
       .demo-banner strong{color:#FDFBF7}
@@ -867,6 +867,7 @@
 
     <details class="card" id="review-details">
       <summary style="cursor:pointer;font-weight:600">Your month as a story</summary>
+      <p class="muted" style="margin:8px 0 0">A summary of the month from your logs: days logged, days you met your protein, water, and movement goals, shots, journal entries, and how your weight changed.</p>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
         <button class="btn btn-small" id="review-prev" aria-label="Previous month">←</button>
         <h2 class="card-title" style="margin:0;font-size:1.2rem" id="review-title">This month</h2>
@@ -1428,7 +1429,7 @@
       <p>This app is for personal tracking only. It does not provide medical advice, diagnosis, or treatment. Always consult your healthcare provider about your medication, dosing, and health decisions. Never change your dose based on this app.</p>
       <h4 style="margin:16px 0 8px">Privacy</h4>
       <p><strong>Stays on this device:</strong> everything you track, including water, protein, injections, weight, measurements, photos, journal entries, side effects, moods, and your settings. This data is stored in your browser's local storage on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored on our servers.</p>
-      <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your message and a short summary of today leave this device and are processed by Cloudflare to generate a reply. The summary is not your full log. Messages are not stored on our servers afterward. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
+      <p><strong>AI Wellness Companion messages:</strong> when you chat with your AI Wellness Companion, your message and a short summary of today leave this device and are processed by Cloudflare to generate a reply. The summary is not your full log. It includes your medication and dose, your shot day, today's protein logged and protein target, movement minutes, and water, any weight change, and recent side effects. It never includes food names, journal text, moods, photos, measurements, or injection timing. Messages are not stored on our servers afterward. Your recent chat messages are kept on this device (the last 20) so the conversation has context.</p>
       <p><strong>Companion memory:</strong> Companion Memory is different. It is optional, and it is off by default. If you turn it on, it stores your name, goals, preferences, medication, dose, and shot day, so the Companion can personalize its replies. That saved memory is kept until you delete it with Forget me in Settings.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <a class="btn btn-small" href="privacy.html" style="text-decoration:none;display:inline-flex;align-items:center">Privacy Policy</a>
@@ -1630,7 +1631,7 @@
   <button type="button" class="more-item more-close" id="more-sheet-close">Close</button>
 </div>
 
-<script src="demo-seed.js?v=102"></script>
+<script src="demo-seed.js?v=103"></script>
   <div id="plate-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Log food from a photo" style="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px">
     <div style="background:var(--card-bg);border-radius:16px;padding:16px;max-width:420px;width:100%;max-height:90vh;overflow:auto">
       <h2 style="margin-top:0">Log food from a photo</h2>
@@ -1669,7 +1670,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=102"></script>
+<script src="app.js?v=103"></script>
 <script src="demo-labels.js"></script>
 </body>
 </html>

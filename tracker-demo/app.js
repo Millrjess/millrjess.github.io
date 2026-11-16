@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v102";
+const APP_VERSION = "v103";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -1279,7 +1279,7 @@ function renderProgress() {
     const daysWith = values.filter((v) => v !== null).length;
     const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
     const big = document.getElementById("progress-" + def.key + "-big");
-    if (big) big.textContent = String(avg);
+    if (big) big.textContent = daysWith > 0 ? String(avg) : "-";
     const note = document.getElementById("progress-" + def.key + "-note");
     if (note) {
       const goalPart = def.goal > 0 ? " Your target is " + def.goal + " grams a day." : "";
