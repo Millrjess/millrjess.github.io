@@ -7,13 +7,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {analytics_storage: 'denied', ad_storage: 'denied'});
   gtag('config', 'G-SHDGWWFBV7');
 </script>
+<script src="/assets/js/consent.js?v=1" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Work &amp; Credentials | Jessica A. Miller</title>
 <meta name="description" content="Work by Jessica Miller: an independent product, analytics pipeline, business intelligence case study, and design case studies. Website Operations Consultant.">
-<link rel="icon" href="../assets/img/favicon-96.webp">
-<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+<link rel="icon" href="../assets/img/favicon-96.webp?v=2">
+<link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png?v=2">
 <link rel="canonical" href="https://millrjess.github.io/portfolio/">
 <meta property="og:title" content="Work &amp; Credentials | Website Operations Consultant">
 <meta property="og:description" content="Selected work by Jessica Miller: an independent product, analytics pipeline, business intelligence case study, and design case studies. Website Operations Consultant.">
@@ -219,13 +221,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <h2>Product</h2>
 <h3>New Chapter: GLP-1 Tracker™ (Independent Product, Founder)</h3>
 <p><a href="https://millrjess.github.io/tracker/"><img src="/assets/img/cards/card-new-chapter.jpg" alt="New Chapter: GLP-1 Tracker™ app" width="1200" height="630" loading="lazy" style="width:100%; max-width:720px; border-radius:16px; display:block; margin:0.8em 0;"></a></p>
-<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11965027/">SURMOUNT-1</a>), and the STEP-1 DXA subset reported about 40 percent of weight lost as lean mass for semaglutide (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12536186/">STEP-1 DXA subset data</a>). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job.</p>
+<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (SURMOUNT-1), and the STEP-1 DXA subset reported about 40 percent of weight lost as lean mass for semaglutide in separate trials (STEP-1 DXA subset data). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job.</p>
 <p class="role">Founder &middot; Designer and developer &middot; Live on the web</p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-built-it-new-chapter-glp-1-tracker"><span class="entry-lede">How I built it: New Chapter: GLP-1 Tracker™</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-built-it-new-chapter-glp-1-tracker" hidden>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot.</p>
-<p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android, using no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export.</p>
+<p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android, using no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export. Subscriptions and analytics sync when the device is online, while logging works offline.</p>
 <p>I built an in-app assistant with defined safeguards on Cloudflare Workers and Workers AI. The assistant has opt-in memory that remembers the user's name, goals, and preferences, and is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
 <p><strong>Design decisions:</strong> I iterated the interface based on real user testing. I added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. I ran a self-assessment against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
 <ul>
@@ -286,13 +288,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 </div>
 <h2>Data Visualizations</h2>
-<p>Eight interactive dashboards and analyses I built in Tableau, each with a plain-language summary of what the data shows. Open any dashboard to explore the live chart.</p>
+<p>Here are eight interactive dashboards and analyses I built in Tableau, each with a plain-language summary of what the data shows. Open any dashboard to explore the live chart.</p>
 <div class="post-list">
 <div class="post-card viz-card">
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-tiktok-views-and-likes"><span class="entry-lede">TikTok: Views and Likes</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-tiktok-views-and-likes" hidden>
-<p><strong>What it shows:</strong> An exploratory analysis of relationships between the engagement measures in the dataset. The dashboard lets viewers compare patterns and inspect outliers; it does not establish what causes a video to perform well.</p>
+<p><strong>What it shows:</strong> This is an exploratory analysis of relationships between the engagement measures in the dataset. The dashboard lets viewers compare patterns and inspect outliers; it does not establish what causes a video to perform well.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" height="520" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TikTokViewsandLikes_17468027625160/Story12">View on Tableau Public</a></p>
 </div>
@@ -302,7 +304,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-what-drives-world-happiness"><span class="entry-lede">What Drives World Happiness</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-what-drives-world-happiness" hidden>
-<p><strong>What it shows:</strong> An exploratory analysis of how the available factors relate to happiness scores. The dashboard lets viewers compare factors; it does not establish what causes wellbeing.</p>
+<p><strong>What it shows:</strong> This is an exploratory analysis of how the available factors relate to happiness scores. The dashboard lets viewers compare factors; it does not establish what causes wellbeing.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" height="520" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/BiggestContributorsforWorldHappiness/Dashboard1">View on Tableau Public</a></p>
 </div>
@@ -406,7 +408,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <section class="cta-band">
 <h2>Like what you see?</h2>
-<p><a class="btn" href="../contact/">Request a Consultation</a></p>
+<p><a class="btn" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 </section>
 </main>
 <footer class="site-footer" role="contentinfo" aria-label="Site footer">
@@ -462,7 +464,7 @@ document.querySelectorAll(".nav-toggle").forEach(function(btn){
   syncExpandAll();
 })();
 </script>
-<script src="../assets/js/help-chat.js?v=7"></script>
+<script src="../assets/js/help-chat.js?v=8"></script>
 <script src="../assets/js/ga-events.js?v=1"></script>
 </body>
 </html>
