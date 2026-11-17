@@ -7,11 +7,11 @@
   var answers=[
     {k:["how we work together","how do we work together","how does this work"],a:HOW_WE_WORK_ANSWER},
     {k:["strategy session","strategy"],a:"A 1-hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
-    {k:["price","cost","fee","charge","rate"],a:"A 1-hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full pricing page for every price."},
+    {k:["price","cost","fee","charge","rate"],a:"A 1-hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full <a href='../pricing/'>pricing page</a> for every price."},
     {k:["book","consultation","session","appointment"],a:BOOK_ANSWER},
     {k:["free"],a:"The 15-minute discovery call is free, with no charge and no obligation. It is a phone call to discuss your website, your goals, and the problem you want to solve."},
     {k:["200","paid","pay","stripe","refund"],a:"A 1-hour strategy session is $200, paid in advance through Stripe, with a receipt. No session starts until payment is received. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
-    {k:["care plan","maintenance","support","monthly"],a:"Essential, $150 per month, includes CMS updates, daily off site backups, uptime monitoring, and a monthly site health report. Professional, $300 per month, adds security hardening and malware scanning, performance checks, one hour of content or design updates, and priority support."},
+    {k:["care plan","maintenance","support","monthly"],a:"Essential, $150 per month, includes CMS updates, daily off site backups, uptime monitoring, and a monthly site health report. Professional, $300 per month, adds security hardening and malware scanning, performance checks, one hour of content or design updates, and priority support. See <a href='../pricing/'>Pricing</a>."},
     {k:["audit","health"],a:"A Site Health Audit starts from $500 and reviews technical SEO, security configuration, and website performance, with a prioritized action plan."},
     {k:["seo"],a:"Technical SEO starts from $1,000. Work may include structured data, crawl and indexing fixes, page speed improvements, and GA4 measurement setup. Search rankings are not guaranteed."},
     {k:["accessib","wcag"],a:"A WCAG Accessibility Audit and Remediation starts from $750, with prioritized fixes to meet WCAG 2.1 AA, the legal benchmark version. A Website Standards Pass starts from $750 and corrects against WCAG 2.2 AA, the practice standard."},
@@ -106,39 +106,67 @@
   function isResched(q){
     return q.indexOf("reschedule")>-1||q.indexOf("move my")>-1||q.indexOf("change my call")>-1||q.indexOf("different time")>-1||q.indexOf("move it")>-1;
   }
-  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; clearChoiceButtons(hcLog()); }
+  /* Human fallback for validation re-prompts and the reschedule
+     not-found message: a stuck visitor can reach a human. */
+  var HUMAN_FALLBACK="Or email millrjess@gmail.com / call (978) 267-5304.";
+  /* A strategy question ("How much is a strategy session?") gets an
+     answer. A strategy intent ("Strategy", "book a strategy session")
+     goes through qualification before any payment link is shown. */
+  function isStrategyQuestion(q){
+    if(q.indexOf("how much")>-1||q.indexOf("cost")>-1||q.indexOf("price")>-1||q.indexOf("fee")>-1||q.indexOf("what is")>-1||q.indexOf("what does")>-1||q.indexOf("how does")>-1||q.indexOf("tell me")>-1) return true;
+    if(q.slice(-1)==="?"&&(q.indexOf("what")===0||q.indexOf("how")===0||q.indexOf("why")===0||q.indexOf("when")===0||q.indexOf("where")===0||q.indexOf("is ")===0||q.indexOf("are ")===0||q.indexOf("can ")===0||q.indexOf("do ")===0)) return true;
+    return false;
+  }
+  /* After a turn-away, a reply that says the website is the real need
+     restarts qualification. A question ("What is in a care plan?") is
+     not a need, so it falls through to a normal answer. */
+  function isTurnawayWebsiteNeed(q){
+    if(q.indexOf("what")===0||q.indexOf("how")===0||q.indexOf("why")===0||q.indexOf("when")===0||q.indexOf("where")===0||q.indexOf("which")===0||q.indexOf("is ")===0||q.indexOf("are ")===0||q.indexOf("can ")===0||q.indexOf("do ")===0||q.indexOf("does ")===0) return false;
+    if(isYes(q)||q.indexOf("book")>-1) return true;
+    if(q.indexOf("my website")>-1||q.indexOf("my site")>-1||q.indexOf("website needs")>-1||q.indexOf("site needs")>-1||q.indexOf("needs care")>-1||q.indexOf("care plan")>-1||q.indexOf("i need")>-1) return true;
+    return qualTextService(q)>-1;
+  }
+  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; removeChoiceButtons(); }
   function bkGet(url,cb){
     fetch(url).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
   function bkPost(data,cb){
     fetch(BOOKING_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)}).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
-  function clearChoiceButtons(log){
-    var old=log.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual]");
+  /* Choice buttons live in their own container below the log and after
+     the input in DOM order, so forward Tab reaches them. A picked set is
+     removed from the panel instead of left faded and dead. A keyboard
+     user on a button that is removed gets focus back in the input. */
+  function hcChoices(){ return document.getElementById("hc-choices"); }
+  function removeChoiceButtons(){
+    var box=hcChoices();
+    if(!box) return;
+    var old=box.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual]");
     var focused=document.activeElement;
     var focusLost=false;
-    for(var i=0;i<old.length;i++){ if(old[i]===focused) focusLost=true; old[i].disabled=true; old[i].style.opacity="0.45"; }
-    /* A keyboard user on a button that just got disabled would lose focus
-       to a dead end. Return focus to the input, from where Shift+Tab
-       reaches the next set of choices. */
+    for(var i=0;i<old.length;i++){ if(old[i]===focused) focusLost=true; old[i].remove(); }
     if(focusLost){ var inp=document.getElementById("hc-q"); if(inp) inp.focus(); }
   }
   function renderSlots(log,slots){
-    clearChoiceButtons(log);
+    removeChoiceButtons();
+    var box=hcChoices();
     var d=document.createElement("div");
     var html="";
     for(var i=0;i<slots.length;i++){
       html+="<button type='button' data-hc-slot='"+i+"' style='display:block;width:100%;text-align:left;background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.7em .9em;margin:6px 0;cursor:pointer;font:inherit'>"+esc(slots[i].label)+"</button>";
     }
     d.innerHTML=html;
-    log.appendChild(d);
+    box.appendChild(d);
+    box.scrollTop=0;
     scrollLog(log);
   }
   function renderConfirm(log,yesLabel){
-    clearChoiceButtons(log);
+    removeChoiceButtons();
+    var box=hcChoices();
     var d=document.createElement("div");
     d.innerHTML="<button type='button' data-hc-confirm='yes' style='background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 6px 6px 0;cursor:pointer;font:inherit;font-weight:700'>"+yesLabel+"</button><button type='button' data-hc-confirm='no' style='background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 0;cursor:pointer;font:inherit'>No, pick another time</button>";
-    log.appendChild(d);
+    box.appendChild(d);
+    box.scrollTop=0;
     scrollLog(log);
   }
   /* Lead qualification: four questions before the booking flow.
@@ -152,14 +180,16 @@
   var QUAL_OUT_OF_SCOPE=["logo","social media","graphic design","copywriting","video editing","photography"];
   function qualIsOneTime(s){ return QUAL_ONE_TIME.indexOf(s)>-1; }
   function renderQual(log,group,options){
-    clearChoiceButtons(log);
+    removeChoiceButtons();
+    var box=hcChoices();
     var d=document.createElement("div");
     var html="";
     for(var i=0;i<options.length;i++){
       html+="<button type='button' data-hc-qual='"+group+":"+i+"' style='display:block;width:100%;text-align:left;background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.7em .9em;margin:6px 0;cursor:pointer;font:inherit'>"+esc(options[i])+"</button>";
     }
     d.innerHTML=html;
-    log.appendChild(d);
+    box.appendChild(d);
+    box.scrollTop=0;
     scrollLog(log);
   }
   function qualEcho(log,text){
@@ -173,11 +203,17 @@
     if(free){ say(log,"I do not do free work. My prices are on the <a href='"+PRICING_PAGE+"'>pricing page</a>."); }
     else { say(log,"One time work starts at $500. That is the floor for an audit, SEO, accessibility, or a new site or app."); }
     say(log,"A care plan starts at $150 a month. A 1-hour strategy session is $200. <a href='"+PRICING_PAGE+"'>Pricing</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
+    /* The visitor can still come back: a reply that says the website is
+       the real need restarts qualification instead of hitting the fallback. */
+    bk.step="turnaway";
+    syncSendButton();
   }
   function qualScopeTurnAway(log){
     bkReset();
     say(log,"I do website work. That request is outside it. Prices are on the <a href='"+PRICING_PAGE+"'>pricing page</a>.");
     say(log,"If your website is the real need, say so and I can book a call.");
+    bk.step="turnaway";
+    syncSendButton();
   }
   function qualStart(log){
     bk.step="qual-service";
@@ -220,11 +256,15 @@
     if(!label) return;
     qualEcho(log,label);
     bk.qualTimeline=label;
-    bk.step="qual-website";
-    say(log,"What is your website? Type skip if you do not have one.");
+    bk.qualified=true;
+    /* Open times come next, before any contact details, so the visitor
+       sees value before being asked for name, email, and phone. */
+    bk.step="slots";
+    bkLoadSlots(log);
   }
   function hcQualPick(group,i){
     var log=hcLog();
+    removeChoiceButtons();
     if(group==="service"&&bk.step==="qual-service"){ qualServicePick(log,i); }
     else if(group==="budget"&&bk.step==="qual-budget"){ qualBudgetPick(log,i); }
     else if(group==="timeline"&&bk.step==="qual-timeline"){ qualTimelinePick(log,i); }
@@ -288,7 +328,7 @@
         bk.booked=true;
         bk.eventLabel=res.label||bk.slot.label;
         bk.step=null;
-        clearChoiceButtons(log);
+        removeChoiceButtons();
         say(log,"You are booked for "+esc(bk.eventLabel)+". Jessica will call you at "+esc(bk.phone)+".");
         say(log,"Would you like a 1-hour strategy session next? It is $200, paid at booking through Stripe. <a href='"+BOOKING_PAGE+"'>Booking page</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
       } else {
@@ -305,12 +345,22 @@
       if(res&&res.success){
         bk.eventLabel=res.label||bk.slot.label;
         bk.step=null;
-        clearChoiceButtons(log);
+        removeChoiceButtons();
         say(log,"Your call moved to "+esc(bk.eventLabel)+".");
       } else {
-        say(log,esc(res&&res.message?res.message:"Something went wrong. Please try again."));
-        bk.step="resched-slots";
-        bkLoadSlots(log);
+        var msg=res&&res.message?res.message:"Something went wrong. Please try again.";
+        if(msg.indexOf("could not find a booking")>-1){
+          /* No booking for that email. Do not send the visitor back to
+             pick times for a dead email: say so at once, with the human
+             fallback, and ask for the email again. */
+          bk.step="resched-email";
+          say(log,esc(msg)+" Or call (978) 267-5304.");
+          say(log,"What email did you book with?");
+        } else {
+          say(log,esc(msg));
+          bk.step="resched-slots";
+          bkLoadSlots(log);
+        }
       }
     });
   }
@@ -319,11 +369,19 @@
     if(bk.step!=="slots"&&bk.step!=="resched-slots") return;
     var slot=bk.slots[i];
     if(!slot) return;
+    removeChoiceButtons();
     bk.slot=slot;
     if(bk.step==="slots"){
-      say(log,"You picked "+esc(slot.label)+". Jessica will call "+esc(bk.phone)+". Shall I book it?");
-      bk.step="confirm";
-      renderConfirm(log,"Yes, book it");
+      if(bk.name&&bk.email&&bk.phone){
+        /* Contact details are already collected, after a failed booking
+           or a "No" at confirm. Go straight to the repeat-back. */
+        bk.step="confirm";
+        say(log,"You picked "+esc(slot.label)+". Jessica will call "+esc(bk.phone)+". Shall I book it?");
+        renderConfirm(log,"Yes, book it");
+      } else {
+        bk.step="name";
+        say(log,"You picked "+esc(slot.label)+". What is your name?");
+      }
     } else {
       say(log,"You picked "+esc(slot.label)+". Shall I move your call to this time?");
       bk.step="resched-confirm";
@@ -332,6 +390,7 @@
   }
   function hcConfirm(v){
     var log=hcLog();
+    removeChoiceButtons();
     if(bk.step==="confirm"){
       if(v==="yes"){ bkDoBook(log); return; }
       bk.step="slots";
@@ -350,9 +409,8 @@
     if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
     if(bk.step==="offer"){
       if(q.indexOf("strategy")>-1){
-        bkReset();
-        say(log,find(q));
-        say(log,"Pay for a 1-hour strategy session here: <a href='"+STRIPE_STRATEGY_URL+"'>Stripe payment link</a>.");
+        if(isStrategyQuestion(q)){ bkReset(); say(log,find(q)); return; }
+        qualStart(log);
         return;
       }
       if(isYes(q)||q.indexOf("book")>-1){
@@ -366,20 +424,28 @@
     }
     if(bk.step==="name"){ bk.name=raw; bk.step="email"; say(log,"What email should I use?"); return; }
     if(bk.step==="email"){
-      if(!validEmail(raw)){ say(log,"That email does not look right. What email should I use?"); return; }
+      if(!validEmail(raw)){ say(log,"That email does not look right. What email should I use? "+HUMAN_FALLBACK); return; }
       bk.email=raw; bk.step="phone"; say(log,"What phone number should Jessica call?"); return;
     }
     if(bk.step==="phone"){
-      if(!validPhone(raw)){ say(log,"That phone number does not look right. What phone number should Jessica call?"); return; }
+      if(!validPhone(raw)){ say(log,"That phone number does not look right. What phone number should Jessica call? "+HUMAN_FALLBACK); return; }
       bk.phone=raw;
-      if(bk.qualified){ bk.step="topic"; say(log,"What do you want help with?"); return; }
       bk.step="website"; say(log,"What is your website? Type skip if you do not have one."); return;
     }
     if(bk.step==="website"){
-      if(q!=="skip"&&q!=="none"&&q!=="no"&&q!=="no website"){ bk.website=raw; }
+      if(q==="skip"||q==="none"||q==="no"||q==="no website"){ bk.website=""; }
+      else if(/\S+\.\S{2,}/.test(raw)){ bk.website=raw; }
+      else { say(log,"That does not look like a website address. Please type the address, like example.com, or type skip."); return; }
       bk.step="topic"; say(log,"What do you want help with?"); return;
     }
-    if(bk.step==="topic"){ bk.topic=qualFoldTopic(raw); bk.step="slots"; bkLoadSlots(log); return; }
+    if(bk.step==="topic"){
+      bk.topic=qualFoldTopic(raw);
+      if(!bk.slot){ bk.step="slots"; bkLoadSlots(log); return; }
+      bk.step="confirm";
+      say(log,"You picked "+esc(bk.slot.label)+". Jessica will call "+esc(bk.phone)+". Shall I book it?");
+      renderConfirm(log,"Yes, book it");
+      return;
+    }
     if(bk.step==="qual-service"){
       var si=qualTextService(q);
       if(si>-1){ qualServicePick(log,si); return; }
@@ -409,13 +475,6 @@
       say(log,"Please tap one of the choices above, or type when you need it.");
       return;
     }
-    if(bk.step==="qual-website"){
-      if(q!=="skip"&&q!=="none"&&q!=="no"&&q!=="no website"){ bk.website=raw; }
-      bk.qualified=true;
-      bk.step="name";
-      say(log,"What is your name?");
-      return;
-    }
     if(bk.step==="slots"){ say(log,"Please tap one of the times above."); return; }
     if(bk.step==="confirm"){
       if(isYes(q)){ bkDoBook(log); return; }
@@ -424,7 +483,7 @@
       return;
     }
     if(bk.step==="resched-email"){
-      if(!validEmail(raw)){ say(log,"That email does not look right. What email did you book with?"); return; }
+      if(!validEmail(raw)){ say(log,"That email does not look right. What email did you book with? "+HUMAN_FALLBACK); return; }
       bk.reschedEmail=raw; bk.step="resched-slots"; bkLoadSlots(log); return;
     }
     if(bk.step==="resched-slots"){ say(log,"Please tap one of the times above."); return; }
@@ -444,11 +503,13 @@
   var panel=document.createElement("div");
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Help chat");
-  panel.style.cssText="display:none;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am Jessica's website agent. I answer from published pages, ask a few questions first, then book a free discovery call or send you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
-  var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
+  panel.style.cssText="display:none;flex-direction:column;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I answer from published pages, ask a few questions first, then book a free discovery call or send you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:6'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
+  var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
-  document.getElementById("hc-log").addEventListener("click",function(e){
+  /* Choice buttons live in #hc-choices, a sibling of the log, so the
+     delegated click listener sits on the panel that holds both. */
+  panel.addEventListener("click",function(e){
     var t=e.target;
     while(t&&t!==this){
       if(t.getAttribute){
@@ -470,10 +531,16 @@
     var q=raw.toLowerCase();
     var log=document.getElementById("hc-log");
     var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(raw)+"</p>"; log.appendChild(d); scrollLog(log); inp.value="";
+    if(bk.step==="turnaway"){
+      if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+      if(isTurnawayWebsiteNeed(q)){ qualStart(log); return; }
+      bk.step=null;
+      syncSendButton();
+    }
     if(bk.step){ bkHandle(q,raw,log); return; }
     if(q.indexOf("strategy")>-1){
-      say(log,find(q));
-      say(log,"Pay for a 1-hour strategy session here: <a href='"+STRIPE_STRATEGY_URL+"'>Stripe payment link</a>.");
+      if(isStrategyQuestion(q)){ say(log,find(q)); return; }
+      qualStart(log);
       return;
     }
     if(isResched(q)){
@@ -496,7 +563,7 @@
       say(log,"Shall I book a discovery call for you?");
     }
   }
-  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "block" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
+  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "flex" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
   document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); };
   document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
   document.getElementById("hc-send").onclick=ask;
@@ -505,7 +572,7 @@
      booking offer, the same offer the chat gives for "book a discovery call".
      If a booking or qualification is already in progress, just open the panel. */
   window.hcBookCall=function(){
-    panel.style.display="block";
+    panel.style.display="flex";
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
@@ -521,7 +588,7 @@
      never books. If a booking or qualification is already in progress,
      just open the panel. */
   window.hcStrategy=function(){
-    panel.style.display="block";
+    panel.style.display="flex";
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
@@ -534,7 +601,7 @@
      Send button reads Send. If a booking or qualification is already in
      progress, just open the panel. */
   window.hcHowWeWork=function(){
-    panel.style.display="block";
+    panel.style.display="flex";
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
