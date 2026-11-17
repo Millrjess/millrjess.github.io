@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v108";
+const APP_VERSION = "v109";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -72,6 +72,7 @@ const DEFAULTS = {
     movementPlan: null, // v042: null or empty means no routine yet; the user picks their own moves; otherwise [{ name, detail }]
     strengthPlan: "4day", // v088: "4day", "3day", or "ymca"; which strength routine shows on Today
     strengthCustom: {}, // v088: routine swaps and removals, { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }
+    strengthDateRoutine: {}, // v109: routine picked for one date, { "2026-11-13": "Upper A" }
     fitnessRows: { movement: false, strength: false, steps: false }, // v094: which Fitness rows are open on Today; v096 adds steps
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
@@ -258,7 +259,9 @@ function validateStore(parsed, strict) {
     } else if (typeof sc === "object" && !Array.isArray(sc)) {
       const clean = {};
       for (const [dayKey, dayCustom] of Object.entries(sc)) {
-        if (!/^(3day|4day|ymca):[0-6]$/.test(dayKey)) continue;
+        // v109: a date key ("date:2026-11-13") holds a one-day swap,
+        // removal, or add, the same shape as a weekday key.
+        if (!/^(3day|4day|ymca):[0-6]$/.test(dayKey) && !(dayKey.indexOf("date:") === 0 && isValidDateStr(dayKey.slice(5)))) continue;
         if (!dayCustom || typeof dayCustom !== "object" || Array.isArray(dayCustom)) continue;
         const cleanDay = {};
         for (const [exName, c] of Object.entries(dayCustom)) {
@@ -277,6 +280,23 @@ function validateStore(parsed, strict) {
       out.settings.strengthCustom = clean;
     } else {
       out.settings.strengthCustom = {};
+    }
+    // v109: the routine picked for one date. { "2026-11-13": "Upper A" }.
+    // A bad date or a blank name is dropped; an unknown routine name is
+    // kept and ignored when the routine renders.
+    const sdr = out.settings.strengthDateRoutine;
+    if (sdr === null || sdr === undefined) {
+      out.settings.strengthDateRoutine = {};
+    } else if (typeof sdr === "object" && !Array.isArray(sdr)) {
+      const cleanSdr = {};
+      for (const [iso, name] of Object.entries(sdr)) {
+        if (!isValidDateStr(iso)) continue;
+        if (typeof name !== "string" || name.trim() === "") continue;
+        cleanSdr[iso] = name.trim().slice(0, 80);
+      }
+      out.settings.strengthDateRoutine = cleanSdr;
+    } else {
+      out.settings.strengthDateRoutine = {};
     }
     // v094: Fitness card rows. Which of the Movement, Strength, and
     // Steps rows is open. { movement, strength, steps } booleans; all
@@ -4027,7 +4047,6 @@ const STRENGTH_SWAP_ALTS = {
   "Leg Press": { name: "Leg Press", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Push through your heels. One leg at a time for a lunge replacement." },
   "Seated Leg Curl machine": { name: "Seated Leg Curl machine", muscle: "Hamstrings", sets: 3, reps: 10, detail: "3 x 10", cue: "Curl slowly, control the return, keep your hips down." },
   "Calf Raise machine": { name: "Calf Raise machine", muscle: "Calves", sets: 3, reps: 12, detail: "3 x 12", cue: "Rise onto your toes, lower slowly, full range." },
-  "Abdominal machine": { name: "Abdominal machine", muscle: "Core", sets: 2, reps: 12, detail: "2 x 12", cue: "Crunch slowly, breathe out on the lift, control the return." },
   /* v100: the full gym library, so the All Exercises list and Swap have the whole gym to offer. */
   "Cable Crossover": { name: "Cable Crossover", muscle: "Chest", sets: 3, reps: 12, detail: "3 x 12", cue: "Stand tall, bring the handles together in front of you, control the return." },
   "Smith Machine Squat": { name: "Smith Machine Squat", muscle: "Quads, glutes", sets: 3, reps: 10, detail: "3 x 10", cue: "Feet forward, sit back, drive up through your heels." },
@@ -4083,6 +4102,30 @@ Object.values(STRENGTH_ROUTINES).forEach((plan) => {
   });
 });
 Object.values(STRENGTH_SWAP_ALTS).forEach((ex) => { STRENGTH_EXERCISES[ex.name] = ex; });
+/* v109: renamed exercises keep working for saved swaps. A stored
+   swap names the exercise it points at; if the name changed, the
+   alias maps it to the current name. */
+const STRENGTH_NAME_ALIASES = { "Abdominal machine": "Abdominal Machine" };
+function strengthExercise(name) {
+  if (!name) return null;
+  return STRENGTH_EXERCISES[name] || STRENGTH_EXERCISES[STRENGTH_NAME_ALIASES[name]] || null;
+}
+
+/* v109: muscle groups for the library chips and the swap picker.
+   Each exercise's muscle list maps to one group, so the library
+   filters to a short row of chips. */
+function strengthMuscleGroup(muscle) {
+  const m = String(muscle || "").toLowerCase();
+  if (m.indexOf("quad") !== -1 || m.indexOf("hamstring") !== -1 || m.indexOf("calf") !== -1 || m.indexOf("thigh") !== -1) return "Legs";
+  if (m.indexOf("glute") !== -1 || m.indexOf("hip") !== -1) return "Glutes";
+  if (m.indexOf("chest") !== -1) return "Chest";
+  if (m.indexOf("lat") !== -1 || m.indexOf("back") !== -1) return "Back";
+  if (m.indexOf("shoulder") !== -1) return "Shoulders";
+  if (m.indexOf("bicep") !== -1 || m.indexOf("tricep") !== -1 || m.indexOf("forearm") !== -1) return "Arms";
+  if (m.indexOf("core") !== -1 || m.indexOf("abdominal") !== -1) return "Core";
+  return "Other";
+}
+const STRENGTH_MUSCLE_GROUPS = ["Chest", "Back", "Shoulders", "Arms", "Legs", "Glutes", "Core"];
 /* Sensible swaps for each exercise. Most exercises have two
    options; exercises with a machine alternative have three, so
    swapping can continue from a swapped-in exercise. */
@@ -4098,7 +4141,7 @@ const STRENGTH_SWAPS = {
   "Dumbbell Reverse Lunge": ["Split Squat", "Bulgarian Split Squat", "Leg Press"],
   "Glute Bridge": ["Hip Thrust", "Single-Leg Glute Bridge"],
   "Standing Calf Raise": ["Seated Calf Raise", "Single-Leg Calf Raise", "Calf Raise machine"],
-  "Plank": ["Dead Bug", "Side Plank", "Abdominal machine"],
+  "Plank": ["Dead Bug", "Side Plank", "Abdominal Machine"],
   "Bent-Over Dumbbell Row, two-arm": ["One-Arm Dumbbell Row", "Band Row"],
   "Dumbbell Incline Press": ["Dumbbell Bench Press", "Push-up, or knee push-up"],
   "Lateral Raise": ["Band Lateral Raise", "Dumbbell Shoulder Press"],
@@ -4134,7 +4177,7 @@ const STRENGTH_SWAPS = {
   "Leg Press": ["Goblet Squat", "Dumbbell Reverse Lunge"],
   "Seated Leg Curl machine": ["Romanian Deadlift", "Dumbbell Deadlift"],
   "Calf Raise machine": ["Standing Calf Raise", "Seated Calf Raise"],
-  "Abdominal machine": ["Plank", "Dead Bug"],
+  "Abdominal Machine": ["Plank", "Dead Bug"],
   "Lat Pulldown": ["Seated Row machine", "One-Arm Dumbbell Row"],
   "Leg Extension": ["Goblet Squat", "Leg Press"],
   "Hip Abduction": ["Glute Bridge", "Hip Thrust"],
@@ -4237,17 +4280,56 @@ function setStrengthCustom(dayKey, slot, value) {
 /* The routine for any ISO date, with the user's swaps, removals, and
    added exercises applied. Added exercises are stored under the slot
    "__add:Name" and are appended after the built-in exercises. */
-function effectiveRoutineForDate(iso) {
-  const base = strengthRoutineForDate(iso);
+/* v109: the routine picked for one date. The picker at the top of
+   Strength loads a different routine for the day being viewed only;
+   the plan and the week pattern do not change. Stored by ISO date
+   under settings.strengthDateRoutine, as the routine name. */
+function strengthDateRoutine(iso) {
+  const all = (store.settings && store.settings.strengthDateRoutine) || {};
+  return (typeof all[iso] === "string" && all[iso]) ? all[iso] : null;
+}
+function setStrengthDateRoutine(iso, name) {
+  if (!store.settings.strengthDateRoutine || typeof store.settings.strengthDateRoutine !== "object" || Array.isArray(store.settings.strengthDateRoutine)) store.settings.strengthDateRoutine = {};
+  const weekdayRoutine = strengthRoutineForDate(iso);
+  if (!name || !weekdayRoutine || weekdayRoutine.name === name) {
+    delete store.settings.strengthDateRoutine[iso];
+    if (!Object.keys(store.settings.strengthDateRoutine).length) delete store.settings.strengthDateRoutine;
+  } else {
+    store.settings.strengthDateRoutine[iso] = name;
+  }
+}
+/* v109: the routine for one date, with the user's swaps, removals,
+   and added exercises applied. A date override (from the routine
+   picker) loads that routine for the date only; the week view
+   passes ignoreOverride so the weekday pattern stays the plan. */
+function effectiveRoutineForDate(iso, ignoreOverride) {
+  const plan = getStrengthPlan();
+  const planDays = STRENGTH_ROUTINES[plan];
+  const parts = String(iso).split("-");
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  let weekday = d.getDay();
+  let base = null;
+  if (!ignoreOverride) {
+    const overrideName = strengthDateRoutine(iso);
+    if (overrideName) {
+      for (const k of Object.keys(planDays)) {
+        if (planDays[k].name === overrideName) { base = planDays[k]; weekday = Number(k); break; }
+      }
+    }
+  }
+  if (!base) base = planDays[weekday] || null;
   if (!base) return null;
-  const dayKey = strengthDayKeyForDate(iso);
-  const custom = getStrengthCustom(dayKey);
+  const dayKey = plan + ":" + weekday;
+  /* v109: a date-keyed swap wins over the weekday entry for that
+     date, so a one-day swap never leaks into the week. */
+  const custom = Object.assign({}, getStrengthCustom(dayKey), getStrengthCustom("date:" + iso));
   const exercises = [];
   base.exercises.forEach((ex) => {
     const c = custom[ex.name];
     if (c && c.removed) return;
-    if (c && typeof c.swap === "string" && STRENGTH_EXERCISES[c.swap]) {
-      exercises.push({ ex: STRENGTH_EXERCISES[c.swap], slot: ex.name, swappedFrom: ex.name });
+    const swapEx = (c && typeof c.swap === "string") ? strengthExercise(c.swap) : null;
+    if (swapEx) {
+      exercises.push({ ex: swapEx, slot: ex.name, swappedFrom: ex.name });
       return;
     }
     exercises.push({ ex, slot: ex.name, swappedFrom: null });
@@ -4255,9 +4337,11 @@ function effectiveRoutineForDate(iso) {
   Object.keys(custom).forEach((slot) => {
     if (slot.indexOf("__add:") !== 0) return;
     const c = custom[slot];
-    if (!c || typeof c.add !== "string" || !STRENGTH_EXERCISES[c.add]) return;
+    if (!c || typeof c.add !== "string") return;
+    const addedEx = strengthExercise(c.add);
+    if (!addedEx) return;
     if (c.removed) return;
-    const current = (typeof c.swap === "string" && STRENGTH_EXERCISES[c.swap]) ? STRENGTH_EXERCISES[c.swap] : STRENGTH_EXERCISES[c.add];
+    const current = (typeof c.swap === "string" && strengthExercise(c.swap)) ? strengthExercise(c.swap) : addedEx;
     exercises.push({ ex: current, slot, swappedFrom: current.name === c.add ? null : c.add, added: true });
   });
   return { name: base.name, dayKey, exercises };
@@ -4268,11 +4352,24 @@ function effectiveStrengthRoutine() {
 /* Swap options for an exercise, excluding anything already in
    today's routine, so a day never shows the same exercise twice. */
 function swapOptionsFor(name, eff) {
-  const names = (STRENGTH_SWAPS[name] || []).filter((n) => STRENGTH_EXERCISES[n] && !eff.exercises.some((e) => e.ex.name === n));
-  return names.map((n) => STRENGTH_EXERCISES[n]);
+  const names = (STRENGTH_SWAPS[name] || []).filter((n) => strengthExercise(n) && !eff.exercises.some((e) => e.ex.name === n));
+  return names.map((n) => strengthExercise(n));
 }
 /* The exercise whose swap picker is open: { dayKey, slot }, or null. */
 let strengthSwapPicker = null;
+/* v109: a swap whose scope question is open: { dayKey, slot,
+   target, date }. The scope decides whether the swap is for this
+   date only or every week. */
+let strengthSwapPending = null;
+/* v109: the routine row expanded by hand: { dayKey, slot }. An
+   empty slot means the first unlogged exercise opens by itself;
+   "__none" means the user closed every row. */
+let strengthExpanded = { dayKey: "", slot: "" };
+/* v109: the library search text, muscle-group chip, and expanded
+   row, so the All Exercises tab keeps its filters across renders. */
+let strengthLibSearch = "";
+let strengthLibChip = "All";
+let strengthLibExpanded = "";
 /* A swap that keeps an added exercise added: swapping an exercise
    that was added to a day stores { add, swap }, never just { swap },
    so the added exercise survives the store validation. */
@@ -4290,6 +4387,37 @@ function setRoutineSwap(dayKey, slot, target) {
     setStrengthCustom(dayKey, slot, { swap: target });
   }
 }
+/* v109: a swap for one date only. Date-keyed swaps live under
+   "date:YYYY-MM-DD" in settings.strengthCustom, the same shape as
+   the weekday keys, and win over the weekday entry for that date. */
+function setRoutineSwapForDate(iso, dayKey, slot, target) {
+  if (slot.indexOf("__add:") === 0) {
+    const original = slot.slice("__add:".length);
+    if (target === original) setStrengthCustom("date:" + iso, slot, null);
+    else setStrengthCustom("date:" + iso, slot, { add: original, swap: target });
+  } else if (target === slot) {
+    setStrengthCustom("date:" + iso, slot, null);
+  } else {
+    setStrengthCustom("date:" + iso, slot, { swap: target });
+  }
+}
+/* v109: undo a swap, whichever key holds it. An added exercise
+   comes back; a built-in exercise goes back to itself. */
+function clearRoutineSwap(dayKey, iso, slot) {
+  if (slot.indexOf("__add:") === 0) {
+    const original = slot.slice("__add:".length);
+    setStrengthCustom(dayKey, slot, { add: original });
+  } else {
+    setStrengthCustom(dayKey, slot, null);
+  }
+  if (iso) setStrengthCustom("date:" + iso, slot, null);
+}
+/* v109: the key a change without an explicit scope writes to. While
+   a date override is active, edits belong to that date, not to the
+   weekday the routine normally runs on. */
+function strengthEditKeyForDate(iso, dayKey) {
+  return strengthDateRoutine(iso) ? "date:" + iso : dayKey;
+}
 /* Removing an added exercise deletes its entry; removing a built-in
    exercise records { removed: true } so Reset can bring it back. */
 function removeRoutineExercise(dayKey, slot, isAdded) {
@@ -4302,6 +4430,7 @@ function resetRoutineDay(dayKey, label, rerender) {
   if (!window.confirm("Reset " + label + " routine to the built-in exercises?")) return;
   if (store.settings.strengthCustom) delete store.settings.strengthCustom[dayKey];
   strengthSwapPicker = null;
+  strengthSwapPending = null;
   weekSwapPicker = null;
   saveStore();
   rerender();
@@ -4310,6 +4439,25 @@ function resetStrengthDay() {
   const eff = effectiveStrengthRoutine();
   if (!eff) return;
   resetRoutineDay(eff.dayKey, "today's", renderStrength);
+}
+/* v109: reset the day being viewed. The weekday routine, any
+   one-date changes, and a picked routine for this date all go, so
+   the day returns to the plan. */
+function resetTodayRoutine() {
+  const eff = effectiveStrengthRoutine();
+  if (!eff) return;
+  if (!window.confirm("Reset today's routine to the built-in exercises?")) return;
+  const iso = viewedDateStr();
+  if (store.settings.strengthCustom) {
+    delete store.settings.strengthCustom[eff.dayKey];
+    delete store.settings.strengthCustom["date:" + iso];
+  }
+  if (store.settings.strengthDateRoutine) delete store.settings.strengthDateRoutine[iso];
+  strengthSwapPicker = null;
+  strengthSwapPending = null;
+  strengthExpanded = { dayKey: "", slot: "" };
+  saveStore();
+  renderStrength();
 }
 /* Last weight logged for an exercise, so a routine Log tap can
    pre-fill it. Blank when the exercise was never logged with a weight. */
@@ -4378,10 +4526,66 @@ function unlogRoutineExercise(name) {
   const msg = document.getElementById("strength-saved-msg");
   if (msg) setStrengthStatus(msg, ex.name + " unlogged.");
 }
-/* One routine row, shared by Today and the week view. opts: showLog
-   (the week view never logs, so it passes false), alreadyLogged
-   (whether this exercise was logged on the day shown), pickerOpen,
-   pickerOptions. */
+/* v109: one compact routine row, shared by Today and the week view.
+   opts: showLog (the week view never logs, so it passes false),
+   alreadyLogged (whether this exercise was logged on the day shown),
+   pickerOpen, dateStr (the ISO date the row belongs to), expanded
+   (whether the detail is open). */
+/* v109: which routine row is expanded. The first unlogged exercise
+   opens by itself; tapping a row opens it by hand and the choice
+   sticks until the day changes or the row is tapped again. A
+   logged exercise can be opened too, so its Swap and Remove stay
+   reachable. */
+function firstUnloggedSlot(eff, dateStr) {
+  const first = eff.exercises.find((e) => !isRoutineExerciseLogged(e.ex.name, e.ex.sets, e.ex.reps, dateStr));
+  return first ? first.slot : "";
+}
+function expandedSlotFor(eff, dateStr) {
+  if (strengthExpanded.dayKey !== eff.dayKey) return firstUnloggedSlot(eff, dateStr);
+  if (strengthExpanded.slot === "__none") return "";
+  if (!strengthExpanded.slot) return firstUnloggedSlot(eff, dateStr);
+  const item = eff.exercises.find((e) => e.slot === strengthExpanded.slot);
+  if (!item) return firstUnloggedSlot(eff, dateStr);
+  return strengthExpanded.slot;
+}
+/* v109: the swap picker, Hevy style. Same-muscle alternatives
+   first, then a search over the full library. Picking one asks
+   whether the swap is for this date only or every week. */
+function swapPickerHtml(item, eff, dateStr) {
+  const ex = item.ex;
+  if (strengthSwapPending && strengthSwapPending.slot === item.slot && strengthSwapPending.dayKey === eff.dayKey && strengthSwapPending.date === dateStr) {
+    return `<div class="swap-scope">
+      <p class="muted">Apply to just this date or every week?</p>
+      <div class="swap-scope-actions">
+        <button type="button" class="btn btn-small" data-swap-scope="date" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-target="${escapeHtml(strengthSwapPending.target)}" data-swap-date="${escapeHtml(strengthSwapPending.date)}">Just this date</button>
+        <button type="button" class="btn btn-small" data-swap-scope="week" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-target="${escapeHtml(strengthSwapPending.target)}" data-swap-date="${escapeHtml(strengthSwapPending.date)}">Every week</button>
+        <button type="button" class="btn btn-small" data-swap-cancel="1">Cancel</button>
+      </div>
+    </div>`;
+  }
+  const curated = swapOptionsFor(ex.name, eff);
+  const curGroup = strengthMuscleGroup(ex.muscle);
+  const same = curated.filter((o) => strengthMuscleGroup(o.muscle) === curGroup);
+  const other = curated.filter((o) => strengthMuscleGroup(o.muscle) !== curGroup);
+  const inRoutine = {};
+  eff.exercises.forEach((e) => { inRoutine[e.ex.name] = true; });
+  const shown = {};
+  curated.forEach((o) => { shown[o.name] = true; });
+  if (item.swappedFrom) shown[item.swappedFrom] = true;
+  const lib = Object.values(STRENGTH_EXERCISES).filter((o) => !inRoutine[o.name] && !shown[o.name]).sort((a, b) => a.name.localeCompare(b.name));
+  const optBtn = (o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-date="${escapeHtml(dateStr)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`;
+  const undoBtn = item.swappedFrom
+    ? `<button type="button" class="btn btn-small" data-swap-undo="1" data-swap-to="${escapeHtml(item.swappedFrom)}" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-date="${escapeHtml(dateStr)}">Undo swap: ${escapeHtml(item.swappedFrom)}</button>`
+    : "";
+  return `<div class="swap-picker">
+    ${undoBtn}
+    ${same.length ? `<p class="muted">Same muscle</p><div class="swap-options">${same.map(optBtn).join("")}</div>` : ""}
+    ${other.length ? `<p class="muted">Other options</p><div class="swap-options">${other.map(optBtn).join("")}</div>` : ""}
+    ${!curated.length && !item.swappedFrom ? `<p class="muted">No other alternatives for this exercise.</p>` : ""}
+    <label class="swap-search-label">Search exercises <input type="search" class="swap-search" data-swap-search placeholder="Search exercises" aria-label="Search exercises"></label>
+    <div class="swap-library">${lib.map(optBtn).join("")}</div>
+  </div>`;
+}
 function routineRowHtml(item, eff, opts) {
   const ex = item.ex;
   const lastW = lastWeightDisplay(ex.name);
@@ -4395,42 +4599,40 @@ function routineRowHtml(item, eff, opts) {
      a different starting weight on a different day. */
   const plannedW = (ex.weight !== undefined && ex.weight !== null && Number(ex.weight) > 0) ? String(ex.weight) : "";
   const showW = lastW || (plannedW ? plannedW + " lbs" : "");
-  /* v108: undo a swap from the picker. The swapped-from exercise is the
-     slot's own exercise, so picking it clears the swap (setRoutineSwap)
-     and the row returns to the built-in exercise. */
-  const undoSwapBtn = (opts.pickerOpen && item.swappedFrom)
-    ? `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(item.swappedFrom)}" data-swap-slot="${escapeHtml(item.slot)}">Undo swap: ${escapeHtml(item.swappedFrom)}</button>`
-    : "";
-  const picker = opts.pickerOpen
-    ? (opts.pickerOptions.length || undoSwapBtn
-      ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + undoSwapBtn + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
-      : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
-    : "";
-  // v096: the weight is shown and can be changed before logging.
-  // It starts at the last weight for this exercise, then at the
-  // planned starting weight for this day, or blank when neither
-  // exists. The week view never logs, so it gets no input.
+  /* v109: one compact line. The title is a button that opens the
+     detail; the weight and Log stay on the row so logging never
+     needs the row opened. The cue, Swap, and Remove live in the
+     detail. */
   const lastWVal = lastWeightForExercise(ex.name);
   const prefillW = lastWVal !== "" ? lastWVal : plannedW;
   /* v108: a logged exercise offers Undo instead of a disabled Logged
      button. The checkmark in the title still shows it is logged, and
      tapping Undo removes today's entry for the exercise. The weight
      input stays visible but disabled, showing the logged weight. */
-  const logBtn = opts.showLog
+  const logPart = opts.showLog
     ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight <input type="number" class="routine-weight-input" style="width:44px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label>${opts.alreadyLogged ? `<button type="button" class="btn btn-small" data-unlog-routine="${escapeHtml(ex.name)}" aria-label="Undo log for ${escapeHtml(ex.name)}">Undo</button>` : `<button type="button" class="btn btn-small" data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">Log</button>`}`
     : "";
-  return `<div class="entry">
-      <p class="entry-title">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</p>
+  const expanded = !!opts.expanded;
+  const detail = expanded
+    ? `<div class="routine-row-detail">
       <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
       <p class="entry-sub">${escapeHtml(ex.cue)}</p>
       ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
       <div class="entry-actions routine-actions">
-        ${logBtn}
         <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
         <button type="button" class="btn btn-small btn-danger" data-remove-routine="${escapeHtml(item.slot)}" aria-label="Remove ${escapeHtml(ex.name)} from this routine">Remove</button>
       </div>
-      ${picker}
-    </div>`;
+    </div>`
+    : "";
+  const picker = opts.pickerOpen ? swapPickerHtml(item, eff, opts.dateStr) : "";
+  return `<div class="entry routine-row">
+    <div class="routine-row-head">
+      <button type="button" class="routine-row-toggle entry-title" data-expand-routine="${escapeHtml(item.slot)}" aria-expanded="${expanded}">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</button>
+      ${logPart}
+    </div>
+    ${detail}
+    ${picker}
+  </div>`;
 }
 /* ---------- Strength detail tabs (v094) ---------- */
 /* The Strength detail has three tabs, in our own words: My Exercises
@@ -4452,10 +4654,10 @@ function setStrengthTab(tab) {
   });
   if (tab === "all") renderStrengthAllExercises();
 }
-/* The full exercise library, with an Add button for each exercise not
-   already in the day's routine. Adding puts the exercise in the day's
-   routine (the same { add } store as the week view), then shows the
-   My Exercises tab so the addition is visible. */
+/* v109: the full exercise library, with a search field and
+   muscle-group chips over the same compact rows. Adding puts the
+   exercise in the day's routine (the same { add } store as the week
+   view), then shows the My Exercises tab so the addition is visible. */
 function renderStrengthAllExercises() {
   const wrap = document.getElementById("strength-all-exercises");
   if (!wrap) return;
@@ -4467,27 +4669,93 @@ function renderStrengthAllExercises() {
   const inRoutine = {};
   eff.exercises.forEach((item) => { inRoutine[item.ex.name] = true; });
   const all = Object.values(STRENGTH_EXERCISES).sort((a, b) => a.name.localeCompare(b.name));
-  wrap.innerHTML = all.map((ex) => {
+  /* v109: search and muscle-group chips over the compact rows. The
+     search filters live without a re-render, so the typed text and
+     focus are never lost; a chip re-renders with both filters. */
+  const groups = STRENGTH_MUSCLE_GROUPS.filter((g) => all.some((ex) => strengthMuscleGroup(ex.muscle) === g));
+  const chips = ["All"].concat(groups);
+  const q = strengthLibSearch.trim().toLowerCase();
+  const filtered = all.filter((ex) => (!q || ex.name.toLowerCase().indexOf(q) !== -1 || ex.muscle.toLowerCase().indexOf(q) !== -1) && (strengthLibChip === "All" || strengthMuscleGroup(ex.muscle) === strengthLibChip));
+  wrap.innerHTML = `<div class="lib-tools">
+    <input type="search" id="strength-lib-search" placeholder="Search exercises" value="${escapeHtml(strengthLibSearch)}" aria-label="Search exercises">
+    <div class="lib-chips" role="group" aria-label="Muscle group">${chips.map((g) => `<button type="button" class="btn btn-small lib-chip${g === strengthLibChip ? " lib-chip-active" : ""}" data-lib-chip="${escapeHtml(g)}" aria-pressed="${g === strengthLibChip}">${escapeHtml(g)}</button>`).join("")}</div>
+  </div>` + (filtered.length ? filtered.map((ex) => {
     const added = !!inRoutine[ex.name];
-    return `<div class="entry">
-      <p class="entry-title">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</p>
-      <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
-      <p class="entry-sub">${escapeHtml(ex.cue)}</p>
-      <div class="entry-actions">
+    const expanded = strengthLibExpanded === ex.name;
+    return `<div class="entry routine-row" data-lib-name="${escapeHtml(ex.name)}" data-lib-muscle="${escapeHtml(ex.muscle)}">
+      <div class="routine-row-head">
+        <button type="button" class="routine-row-toggle entry-title" data-expand-lib="${escapeHtml(ex.name)}" aria-expanded="${expanded}">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</button>
         <button type="button" class="btn btn-small"${added ? " disabled" : ""} data-add-all-exercise="${escapeHtml(ex.name)}" aria-label="Add ${escapeHtml(ex.name)} to today's routine">${added ? "Added" : "Add"}</button>
       </div>
+      ${expanded ? `<div class="routine-row-detail"><p class="entry-sub">${escapeHtml(ex.muscle)}</p><p class="entry-sub">${escapeHtml(ex.cue)}</p></div>` : ""}
     </div>`;
-  }).join("");
+  }).join("") : `<p class="muted">No exercises match.</p>`);
+  const searchInput = wrap.querySelector("#strength-lib-search");
+  if (searchInput) searchInput.addEventListener("input", () => {
+    strengthLibSearch = searchInput.value;
+    const sq = strengthLibSearch.trim().toLowerCase();
+    wrap.querySelectorAll(".routine-row").forEach((row) => {
+      const name = (row.dataset.libName || "").toLowerCase();
+      const muscle = (row.dataset.libMuscle || "").toLowerCase();
+      row.style.display = (!sq || name.indexOf(sq) !== -1 || muscle.indexOf(sq) !== -1) ? "" : "none";
+    });
+  });
+  wrap.querySelectorAll("[data-lib-chip]").forEach((b) => b.addEventListener("click", () => {
+    strengthLibChip = b.dataset.libChip;
+    renderStrengthAllExercises();
+  }));
+  wrap.querySelectorAll("[data-expand-lib]").forEach((b) => b.addEventListener("click", () => {
+    const name = b.dataset.expandLib;
+    strengthLibExpanded = (strengthLibExpanded === name) ? "" : name;
+    renderStrengthAllExercises();
+  }));
   wrap.querySelectorAll("[data-add-all-exercise]").forEach((b) => b.addEventListener("click", () => {
     const name = b.dataset.addAllExercise;
-    if (!name || !STRENGTH_EXERCISES[name]) return;
-    setStrengthCustom(eff.dayKey, "__add:" + name, { add: name });
+    if (!name || !strengthExercise(name)) return;
+    const effNow = effectiveStrengthRoutine();
+    if (!effNow) return;
+    setStrengthCustom(strengthEditKeyForDate(viewedDateStr(), effNow.dayKey), "__add:" + name, { add: name });
     saveStore();
     renderStrength();
     setStrengthTab("mine");
   }));
 }
 
+/* v109: the routine picker. The current plan's routine names as a
+   visible row, with the loaded routine marked. Tapping a name
+   loads that routine for the day being viewed only. */
+function routineNamesForPlan() {
+  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  const names = [];
+  Object.keys(plan).sort((a, b) => Number(a) - Number(b)).forEach((k) => {
+    if (names.indexOf(plan[k].name) === -1) names.push(plan[k].name);
+  });
+  return names;
+}
+function renderStrengthPicker() {
+  const list = document.getElementById("strength-routine-list");
+  if (!list || !list.parentNode) return;
+  let wrap = document.getElementById("strength-routine-picker");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "strength-routine-picker";
+    wrap.className = "routine-picker";
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", "Choose a routine for this day");
+    list.parentNode.insertBefore(wrap, list);
+  }
+  const eff = effectiveStrengthRoutine();
+  const loaded = eff ? eff.name : null;
+  wrap.innerHTML = routineNamesForPlan().map((n) => `<button type="button" class="btn btn-small routine-pick${n === loaded ? " routine-pick-active" : ""}" data-routine-pick="${escapeHtml(n)}" aria-pressed="${n === loaded}">${escapeHtml(n)}</button>`).join("");
+  wrap.querySelectorAll("[data-routine-pick]").forEach((b) => b.addEventListener("click", () => {
+    setStrengthDateRoutine(viewedDateStr(), b.dataset.routinePick);
+    strengthSwapPicker = null;
+    strengthSwapPending = null;
+    strengthExpanded = { dayKey: "", slot: "" };
+    saveStore();
+    renderStrength();
+  }));
+}
 function renderStrengthRoutine() {
   const wrap = document.getElementById("strength-routine");
   if (!wrap) return;
@@ -4499,6 +4767,7 @@ function renderStrengthRoutine() {
   const shot = document.getElementById("strength-routine-shot");
   const resetWrap = document.getElementById("strength-routine-reset");
   const eff = effectiveStrengthRoutine();
+  renderStrengthPicker();
   if (!eff) {
     if (title) title.textContent = "Today's routine: Rest day";
     if (warmup) warmup.hidden = true;
@@ -4514,19 +4783,19 @@ function renderStrengthRoutine() {
   if (note) note.hidden = false;
   if (shot) shot.hidden = false;
   if (resetWrap) {
-    const hasCustom = Object.keys(getStrengthCustom(eff.dayKey)).length > 0;
+    const hasCustom = Object.keys(getStrengthCustom(eff.dayKey)).length > 0 || Object.keys(getStrengthCustom("date:" + viewedDateStr())).length > 0 || !!strengthDateRoutine(viewedDateStr());
     resetWrap.innerHTML = hasCustom ? '<button type="button" class="btn btn-small" id="strength-routine-reset-btn">Reset routine</button>' : "";
     const rb = document.getElementById("strength-routine-reset-btn");
-    if (rb) rb.addEventListener("click", resetStrengthDay);
+    if (rb) rb.addEventListener("click", resetTodayRoutine);
   }
   if (!list) return;
   const date = viewedDateStr();
+  const expandedSlot = expandedSlotFor(eff, date);
   list.innerHTML = eff.exercises.map((item) => {
     const ex = item.ex;
     const already = isRoutineExerciseLogged(ex.name, ex.sets, ex.reps, date);
     const pickerOpen = strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === item.slot;
-    const options = pickerOpen ? swapOptionsFor(ex.name, eff) : [];
-    return routineRowHtml(item, eff, { showLog: true, alreadyLogged: already, pickerOpen, pickerOptions: options });
+    return routineRowHtml(item, eff, { showLog: true, alreadyLogged: already, pickerOpen, dateStr: date, expanded: expandedSlot === item.slot });
   }).join("");
   if (routineDayComplete(eff, date)) list.innerHTML += ROUTINE_COMPLETE_LINE;
   list.querySelectorAll("[data-log-routine]").forEach((b) => b.addEventListener("click", () => {
@@ -4538,6 +4807,12 @@ function renderStrengthRoutine() {
   list.querySelectorAll("[data-unlog-routine]").forEach((b) => b.addEventListener("click", () => {
     unlogRoutineExercise(b.dataset.unlogRoutine);
   }));
+  list.querySelectorAll("[data-expand-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.expandRoutine;
+    if (strengthExpanded.dayKey === eff.dayKey && strengthExpanded.slot === slot) strengthExpanded = { dayKey: eff.dayKey, slot: "__none" };
+    else strengthExpanded = { dayKey: eff.dayKey, slot };
+    renderStrengthRoutine();
+  }));
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.swapRoutine;
     if (strengthSwapPicker && strengthSwapPicker.dayKey === eff.dayKey && strengthSwapPicker.slot === slot) {
@@ -4545,20 +4820,51 @@ function renderStrengthRoutine() {
     } else {
       strengthSwapPicker = { dayKey: eff.dayKey, slot };
     }
+    strengthSwapPending = null;
     renderStrengthRoutine();
   }));
-  list.querySelectorAll("[data-swap-to]").forEach((b) => b.addEventListener("click", () => {
-    setRoutineSwap(eff.dayKey, b.dataset.swapSlot, b.dataset.swapTo);
+  list.querySelectorAll("[data-swap-undo]").forEach((b) => b.addEventListener("click", () => {
+    clearRoutineSwap(b.dataset.swapDay, b.dataset.swapDate, b.dataset.swapSlot);
     strengthSwapPicker = null;
+    strengthSwapPending = null;
     saveStore();
     renderStrength();
+  }));
+  list.querySelectorAll("[data-swap-to]").forEach((b) => {
+    if (b.hasAttribute("data-swap-undo")) return;
+    b.addEventListener("click", () => {
+      strengthSwapPending = { dayKey: b.dataset.swapDay, slot: b.dataset.swapSlot, target: b.dataset.swapTo, date: b.dataset.swapDate };
+      renderStrengthRoutine();
+    });
+  });
+  list.querySelectorAll("[data-swap-scope]").forEach((b) => b.addEventListener("click", () => {
+    const dayKey = b.dataset.swapDay, slot = b.dataset.swapSlot, target = b.dataset.swapTarget, iso = b.dataset.swapDate;
+    if (b.dataset.swapScope === "date") setRoutineSwapForDate(iso, dayKey, slot, target);
+    else { setRoutineSwap(dayKey, slot, target); setStrengthCustom("date:" + iso, slot, null); }
+    strengthSwapPicker = null;
+    strengthSwapPending = null;
+    saveStore();
+    renderStrength();
+  }));
+  list.querySelectorAll("[data-swap-cancel]").forEach((b) => b.addEventListener("click", () => {
+    strengthSwapPending = null;
+    renderStrengthRoutine();
+  }));
+  list.querySelectorAll("[data-swap-search]").forEach((inp) => inp.addEventListener("input", () => {
+    const q = inp.value.trim().toLowerCase();
+    const picker = inp.closest(".swap-picker");
+    if (!picker) return;
+    picker.querySelectorAll(".swap-library [data-swap-to]").forEach((opt) => {
+      opt.style.display = (!q || opt.textContent.toLowerCase().indexOf(q) !== -1) ? "" : "none";
+    });
   }));
   list.querySelectorAll("[data-remove-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.removeRoutine;
     const item = eff.exercises.find((e) => e.slot === slot);
     if (!window.confirm("Remove " + (item ? item.ex.name : "this exercise") + " from today's routine?")) return;
-    removeRoutineExercise(eff.dayKey, slot, !!(item && item.added));
+    removeRoutineExercise(strengthEditKeyForDate(date, eff.dayKey), slot, !!(item && item.added));
     strengthSwapPicker = null;
+    strengthSwapPending = null;
     saveStore();
     renderStrength();
   }));
@@ -4660,7 +4966,7 @@ function renderWeekViewDay() {
   const weekday = d.getDay();
   const dayKey = getStrengthPlan() + ":" + weekday;
   const dayName = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  const eff = effectiveRoutineForDate(iso);
+  const eff = effectiveRoutineForDate(iso, true);
   if (!eff) {
     title.textContent = dayName + ": Rest day";
     if (warmup) warmup.hidden = true;
@@ -4681,25 +4987,61 @@ function renderWeekViewDay() {
     const rb = document.getElementById("strength-week-day-reset-btn");
     if (rb) rb.addEventListener("click", () => resetRoutineDay(dayKey, d.toLocaleDateString("en-US", { weekday: "long" }), renderStrength));
   }
+  const expandedSlot = expandedSlotFor(eff, iso);
   list.innerHTML = eff.exercises.map((item) => {
     const pickerOpen = weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === item.slot;
-    const options = pickerOpen ? swapOptionsFor(item.ex.name, eff) : [];
     const already = isRoutineExerciseLogged(item.ex.name, item.ex.sets, item.ex.reps, iso);
-    return routineRowHtml(item, eff, { showLog: false, alreadyLogged: already, pickerOpen, pickerOptions: options });
+    return routineRowHtml(item, eff, { showLog: false, alreadyLogged: already, pickerOpen, dateStr: iso, expanded: expandedSlot === item.slot });
   }).join("");
   if (routineDayComplete(eff, iso)) list.innerHTML += ROUTINE_COMPLETE_LINE;
+  list.querySelectorAll("[data-expand-routine]").forEach((b) => b.addEventListener("click", () => {
+    const slot = b.dataset.expandRoutine;
+    if (strengthExpanded.dayKey === dayKey && strengthExpanded.slot === slot) strengthExpanded = { dayKey, slot: "__none" };
+    else strengthExpanded = { dayKey, slot };
+    renderWeekViewDay();
+  }));
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.swapRoutine;
     if (weekSwapPicker && weekSwapPicker.dayKey === dayKey && weekSwapPicker.slot === slot) weekSwapPicker = null;
     else weekSwapPicker = { dayKey, slot };
+    strengthSwapPending = null;
     weekAddPickerOpen = false;
     renderWeekViewDay();
   }));
-  list.querySelectorAll("[data-swap-to]").forEach((b) => b.addEventListener("click", () => {
-    setRoutineSwap(dayKey, b.dataset.swapSlot, b.dataset.swapTo);
+  list.querySelectorAll("[data-swap-undo]").forEach((b) => b.addEventListener("click", () => {
+    clearRoutineSwap(b.dataset.swapDay, b.dataset.swapDate, b.dataset.swapSlot);
     weekSwapPicker = null;
+    strengthSwapPending = null;
     saveStore();
     renderStrength();
+  }));
+  list.querySelectorAll("[data-swap-to]").forEach((b) => {
+    if (b.hasAttribute("data-swap-undo")) return;
+    b.addEventListener("click", () => {
+      strengthSwapPending = { dayKey: b.dataset.swapDay, slot: b.dataset.swapSlot, target: b.dataset.swapTo, date: b.dataset.swapDate };
+      renderWeekViewDay();
+    });
+  });
+  list.querySelectorAll("[data-swap-scope]").forEach((b) => b.addEventListener("click", () => {
+    const wk = b.dataset.swapDay, slot = b.dataset.swapSlot, target = b.dataset.swapTarget, d2 = b.dataset.swapDate;
+    if (b.dataset.swapScope === "date") setRoutineSwapForDate(d2, wk, slot, target);
+    else { setRoutineSwap(wk, slot, target); setStrengthCustom("date:" + d2, slot, null); }
+    weekSwapPicker = null;
+    strengthSwapPending = null;
+    saveStore();
+    renderStrength();
+  }));
+  list.querySelectorAll("[data-swap-cancel]").forEach((b) => b.addEventListener("click", () => {
+    strengthSwapPending = null;
+    renderWeekViewDay();
+  }));
+  list.querySelectorAll("[data-swap-search]").forEach((inp) => inp.addEventListener("input", () => {
+    const q = inp.value.trim().toLowerCase();
+    const picker = inp.closest(".swap-picker");
+    if (!picker) return;
+    picker.querySelectorAll(".swap-library [data-swap-to]").forEach((opt) => {
+      opt.style.display = (!q || opt.textContent.toLowerCase().indexOf(q) !== -1) ? "" : "none";
+    });
   }));
   list.querySelectorAll("[data-remove-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.removeRoutine;
@@ -4707,6 +5049,7 @@ function renderWeekViewDay() {
     if (!window.confirm("Remove " + (item ? item.ex.name : "this exercise") + " from this routine?")) return;
     removeRoutineExercise(dayKey, slot, !!(item && item.added));
     weekSwapPicker = null;
+    strengthSwapPending = null;
     weekAddPickerOpen = false;
     saveStore();
     renderStrength();
@@ -4721,7 +5064,7 @@ function renderWeekViewDay() {
       if (addBtn) addBtn.addEventListener("click", () => {
         const sel = document.getElementById("strength-week-add-select");
         const name = sel ? sel.value : "";
-        if (!name || !STRENGTH_EXERCISES[name]) return;
+        if (!name || !strengthExercise(name)) return;
         setStrengthCustom(dayKey, "__add:" + name, { add: name });
         weekAddPickerOpen = false;
         saveStore();
@@ -14358,7 +14701,7 @@ function renderSettings() {
   const sp = document.getElementById("set-strength-plan");
   if (sp) sp.value = (s.strengthPlan === "3day" || s.strengthPlan === "ymca") ? s.strengthPlan : "4day";
   const sra = document.getElementById("strength-reset-all");
-  if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length;
+  if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length && !Object.keys(s.strengthDateRoutine || {}).length;
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || "";
@@ -14722,12 +15065,13 @@ document.getElementById("settings-form").addEventListener("change", () => {
 const strengthResetAllBtn = document.getElementById("strength-reset-all");
 if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
   const msg = document.getElementById("strength-reset-msg");
-  if (!Object.keys(store.settings.strengthCustom || {}).length) {
+  if (!Object.keys(store.settings.strengthCustom || {}).length && !Object.keys(store.settings.strengthDateRoutine || {}).length) {
     if (msg) msg.textContent = "No routine changes to reset.";
     return;
   }
   if (!window.confirm("Remove all routine changes?")) return;
   store.settings.strengthCustom = {};
+  if (store.settings.strengthDateRoutine) delete store.settings.strengthDateRoutine;
   saveStore();
   renderSettings();
   renderToday();
