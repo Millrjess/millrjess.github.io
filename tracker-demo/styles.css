@@ -2093,3 +2093,24 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .strength-tab { background:none; border:none; border-bottom:2px solid transparent; padding:8px 10px; font:inherit; font-size:.95rem; color:var(--muted); cursor:pointer; }
 .strength-tab[aria-selected="true"] { color:var(--sage-dark); font-weight:700; border-bottom-color:var(--sage); }
 .strength-tab:focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+/* v109: compact strength rows, the routine picker, the swap picker,
+   and the library search and chips. */
+.routine-picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.routine-pick-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }
+.routine-row-head { display: flex; align-items: center; gap: 8px; }
+.routine-row-toggle { flex: 1 1 auto; min-width: 0; text-align: left; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.routine-row-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.routine-row-head label { flex: 0 0 auto; margin: 0; }
+.routine-row-head .btn { flex: 0 0 auto; }
+.routine-row-detail { margin-top: 8px; }
+.swap-picker { margin-top: 8px; }
+.swap-picker .muted { margin: 8px 0 4px; }
+.swap-options, .swap-library { display: flex; flex-wrap: wrap; gap: 8px; }
+.swap-search-label { display: block; margin: 8px 0 4px; font-size: 0.9rem; }
+.swap-search { display: block; width: 100%; margin-top: 4px; }
+.swap-scope-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.lib-tools { margin-bottom: 12px; }
+#strength-lib-search { display: block; width: 100%; margin-bottom: 8px; }
+.lib-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lib-chip-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }
