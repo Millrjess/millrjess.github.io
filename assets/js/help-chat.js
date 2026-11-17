@@ -3,7 +3,7 @@
   var BOOKING_PAGE="../booking/";
   var STRIPE_STRATEGY_URL="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02";
   var BOOK_ANSWER="I can book the free 15-minute discovery call right here. It is free, by phone, with no obligation, on a Tuesday or Thursday. A 1-hour strategy session is $200, paid in advance at booking through Stripe.";
-  var HOW_WE_WORK_ANSWER="Ongoing care: compare care plans, book a call, then receive onboarding.<br>Projects: choose a service, check its starting price, then book a call.<br>Strategy Session: one hour, $200, payable at booking.";
+  var HOW_WE_WORK_ANSWER="Ongoing care: compare care plans, book a call, then receive onboarding at no extra charge.<br>Projects: choose a service, check its starting price, then book a call.<br>Strategy Session: one hour, $200, payable at booking.";
   var answers=[
     {k:["how we work together","how do we work together","how does this work"],a:HOW_WE_WORK_ANSWER},
     {k:["strategy session","strategy"],a:"A 1-hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
@@ -19,6 +19,7 @@
     {k:["location","where","boston","andover","remote","onsite","zoom"],a:"Based in North Andover, MA 01845, serving Boston, Greater Boston's North Shore, and the Merrimack Valley, plus remote clients nationwide. Sessions are on Zoom, nationwide, and on-site by arrangement in Boston, Greater Boston's North Shore, and the Merrimack Valley, including the Andovers."},
     {k:["wordpress","drupal","joomla","platform"],a:"Ongoing care covers WordPress, Drupal, Joomla, and custom database driven websites."},
     {k:["start","begin","contact","email","phone"],a:"Start on the booking page, or email millrjess@gmail.com, or call (978) 267-5304. I read and reply to every inquiry personally."},
+    {k:["website agent","what are you","who are you","can i get one","build me an agent","want an agent","one for my website"],a:"I am Jessica's website agent. She builds agents like me for client websites, starting from $2,500. See <a href='../services/#website-agents'>Website Agents</a>."},
     {k:["agent","website agent","chatbot"],a:"Website Agents start from $2,500, for lead qualification, customer support, data processing, and multi step workflows. Integrations, permitted actions, and human review requirements are defined before development begins."}
   ];
 
@@ -65,11 +66,20 @@
   var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",booked:false,qualService:"",qualBudget:"",qualTimeline:"",qualOther:"",qualified:false};
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function hcLog(){ return document.getElementById("hc-log"); }
+  /* Scroll the log to the newest message. On iOS Safari a scrollTop set
+     while the keyboard is dismissing after a tap can be dropped, leaving
+     the newest message below the fold. Re-assert on the next frame and
+     after a short delay so the answer is actually visible. */
+  function scrollLog(log){
+    log.scrollTop=log.scrollHeight;
+    requestAnimationFrame(function(){ log.scrollTop=log.scrollHeight; });
+    setTimeout(function(){ log.scrollTop=log.scrollHeight; },100);
+  }
   function say(log,html){
     var d=document.createElement("div");
     d.innerHTML="<p style='margin:8px 0'>"+html+"</p>";
     log.appendChild(d);
-    log.scrollTop=log.scrollHeight;
+    scrollLog(log);
     syncSendButton();
   }
   /* The send button reads Send while the chat is asking a booking
@@ -122,14 +132,14 @@
     }
     d.innerHTML=html;
     log.appendChild(d);
-    log.scrollTop=log.scrollHeight;
+    scrollLog(log);
   }
   function renderConfirm(log,yesLabel){
     clearChoiceButtons(log);
     var d=document.createElement("div");
     d.innerHTML="<button type='button' data-hc-confirm='yes' style='background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 6px 6px 0;cursor:pointer;font:inherit;font-weight:700'>"+yesLabel+"</button><button type='button' data-hc-confirm='no' style='background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 0;cursor:pointer;font:inherit'>No, pick another time</button>";
     log.appendChild(d);
-    log.scrollTop=log.scrollHeight;
+    scrollLog(log);
   }
   /* Lead qualification: four questions before the booking flow.
      Service, budget, timeline, website. Pass or fail by her published
@@ -150,13 +160,13 @@
     }
     d.innerHTML=html;
     log.appendChild(d);
-    log.scrollTop=log.scrollHeight;
+    scrollLog(log);
   }
   function qualEcho(log,text){
     var d=document.createElement("div");
     d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(text)+"</p>";
     log.appendChild(d);
-    log.scrollTop=log.scrollHeight;
+    scrollLog(log);
   }
   function qualBudgetTurnAway(log,free){
     bkReset();
@@ -435,7 +445,7 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Help chat");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>This help chat is not Jessica. It answers from published pages, asks a few questions first, then books a free discovery call or sends you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>I am Jessica's website agent. I answer from published pages, ask a few questions first, then book a free discovery call or send you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
   var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   document.getElementById("hc-log").addEventListener("click",function(e){
@@ -459,7 +469,7 @@
     var inp=document.getElementById("hc-q"); var raw=inp.value.trim(); if(!raw) return;
     var q=raw.toLowerCase();
     var log=document.getElementById("hc-log");
-    var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(raw)+"</p>"; log.appendChild(d); log.scrollTop=log.scrollHeight; inp.value="";
+    var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(raw)+"</p>"; log.appendChild(d); scrollLog(log); inp.value="";
     if(bk.step){ bkHandle(q,raw,log); return; }
     if(q.indexOf("strategy")>-1){
       say(log,find(q));
