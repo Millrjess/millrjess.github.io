@@ -101,13 +101,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .hero h2{color:#fff; border:0}
 .hero .lede{font-size:1.1rem; max-width:62ch; color:#d7e2ef}
 .hero-cta{margin-top:1.5em; display:flex; gap:.7em; flex-wrap:wrap}
+.hero-cta .btn{text-align:center}
 .hero .fine{font-size:.9rem; color:#d7e2ef; margin-top:.8em}
 .hero .btn-book:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae}
 .hero-inner{display:flex; gap:2em; align-items:center}
 .hero-text{flex:1; min-width:0}
 .hero-photo{width:clamp(120px,18vw,180px); height:clamp(120px,18vw,180px); border-radius:50%;
   object-fit:cover; border:3px solid #f0dfae; flex-shrink:0}
-@media (max-width:640px){.hero-inner{flex-direction:column; text-align:left}.hero-photo{align-self:flex-start}.hide-mobile{display:none}}
+@media (max-width:640px){.hero-inner{flex-direction:column; text-align:left}.hero-photo{align-self:flex-start; width:140px; height:140px}.hero-cta{margin-bottom:0}.hide-mobile{display:none}}
 .btn{display:inline-block; background:var(--accent-dark); color:#fff !important; font-weight:600;
   padding:.7em 1.6em; border-radius:999px; text-decoration:none !important;
   box-shadow:0 8px 18px -8px rgba(15,35,64,.35); transition:transform .15s, background .15s}
@@ -202,10 +203,10 @@ button.btn{font:inherit; cursor:pointer}
 <section class="hero">
 <div class="hero-inner">
 <div class="hero-text">
-<h1>Your website, run like critical infrastructure.</h1>
+<h1>Your website, run like critical&nbsp;infrastructure.</h1>
 <p class="lede">I keep business websites fast, secure, and easy to use.</p>
 <p class="lede">You get one accountable website operator with 20 years of experience. Changes are backed up, tested, and documented in plain English.</p>
-<p class="hero-cta"><a class="btn btn-book" href="booking/">Book a Free 15-Minute Discovery Call</a> <a class="btn" href="pricing/#care-plans">Compare Care Plans and Pricing</a></p>
+<p class="hero-cta"><a class="btn btn-book" href="booking/">Book a Free Discovery Call</a> <a class="btn" href="pricing/#care-plans">Compare Care Plans and Pricing</a></p>
 </div>
 <img class="hero-photo" src="assets/img/jessica-miller-headshot.jpg" fetchpriority="high" decoding="async" alt="Jessica A. Miller" width="180" height="180">
 </div>
