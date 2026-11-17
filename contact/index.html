@@ -186,8 +186,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 </header>
 <main id="main" tabindex="-1" class="wrap page">
 <article>
-<h1>Contact</h1>
-<h2>Let’s Work Together</h2>
+<h1>Let's work together</h1>
 
 <p>I help businesses keep their websites fast, secure, and reliable through ongoing care plans, contract engagements, and one-time projects.</p>
 <p>Tell me about your website, what you need help with, and any deadlines. If you are unsure where to start, book a free 15-minute discovery call.</p>
@@ -195,7 +194,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>New or existing client?</h2>
 <p><strong>New inquiry:</strong> Use the form below or book a free 15-minute discovery call. I will review your inquiry and confirm whether the work is a fit. If we decide to proceed, you will receive a written proposal covering scope, price, and timing. Work begins after the agreement is approved and any required initial payment is received.</p>
-<p><strong>Existing clients:</strong> For an active project or care plan, use the contact details and support arrangements in your agreement. If you cannot find those details, email me with your business name and website address. Care-plan support uses the hours, response arrangements, and escalation process set out there. This contact form is for general inquiries and does not guarantee an emergency response.</p>
+<p><strong>Existing clients:</strong> For an active project or care plan, use the contact details and support arrangements in your agreement. If you cannot find those details, email me with your business name and website address. Care-plan support uses the hours, response arrangements, and escalation process set out there.</p>
 
 <h2>Get in Touch</h2>
 
@@ -251,7 +250,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 <p id="consult-errors" role="alert" aria-live="assertive" hidden></p>
 <p id="consult-turnaway" class="consult-turnaway" role="alert" aria-live="assertive" tabindex="-1" hidden></p>
-<p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
+<p><button class="btn" type="submit" id="consult-submit">Send My Request</button></p>
+<p>This contact form is for general inquiries and does not guarantee an emergency response.</p>
 <p class="muted" id="consult-note" role="status" aria-live="polite">Your message goes straight to my inbox. Nothing is stored on this site.</p>
 <p>Please do not include passwords, payment information, or other sensitive details in your initial message.</p>
 </form>
@@ -334,14 +334,14 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     } else {
       note.innerHTML = 'The form did not send your message. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
     }
-    btn.disabled = false; btn.textContent = 'Send Request';
+    btn.disabled = false; btn.textContent = 'Send My Request';
   };
   var timer = setTimeout(function(){
     if (submitted) {
       timedOut = true; submitted = false;
       window.removeEventListener('message', onReply);
       note.innerHTML = 'The form did not respond. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
-      btn.disabled = false; btn.textContent = 'Send Request';
+      btn.disabled = false; btn.textContent = 'Send My Request';
     }
   }, 30000);
   window.addEventListener('message', onReply);
