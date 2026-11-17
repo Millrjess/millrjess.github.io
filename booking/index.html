@@ -110,6 +110,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .btn:hover{background:var(--accent-dark); transform:translateY(-2px); text-decoration:none !important}
 .btn-book{background:#f0dfae !important; color:#0b1a30 !important; border:2px solid #f0dfae; box-shadow:0 10px 22px -8px rgba(15,35,64,.35)}
 .btn-book:hover{background:#f0dfae !important; color:#0b1a30 !important}
+button.btn{font:inherit; cursor:pointer}
 
 /* cards */
 .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px; margin:1.4em 0}
@@ -186,7 +187,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>Free 15-Minute Discovery Call</h2>
 <p>A phone call to discuss your website, your goals, and the problem you want to solve. We establish whether the work is a good fit and identify a practical next step. There is no charge and no obligation. The discovery call is for fit, scope, and next steps. Detailed assessment, troubleshooting, and recommendations belong in a paid session or scoped project.</p>
-<p><a class="btn btn-book" href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ1lH5DMaF1DJGIWdLszIoWgLG1Jj2yttDQU3pZ288dj31s7vw89PVS0x4RBpSWWm2DepzAfIReS">Book a Free 15-Minute Discovery Call</a></p>
+<p><button type="button" class="btn btn-book" onclick="window.hcBookCall&&window.hcBookCall()">Book a Free 15-Minute Discovery Call</button></p>
 <p class="muted">Choose an available time.</p>
 
 <h2>1-Hour Strategy Session, $200, Payment at Booking</h2>
