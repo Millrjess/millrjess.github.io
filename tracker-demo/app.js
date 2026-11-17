@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v107";
+const APP_VERSION = "v108";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -3841,6 +3841,11 @@ function setRoutineSwap(dayKey, slot, target) {
     const original = slot.slice("__add:".length);
     if (target === original) setStrengthCustom(dayKey, slot, { add: original });
     else setStrengthCustom(dayKey, slot, { add: original, swap: target });
+  } else if (target === slot) {
+    /* v108: undoing a swap back to the slot's own exercise clears the
+       swap instead of storing { swap: <itself> }, so the row stops
+       showing "Swapped from ..." for its own exercise. */
+    setStrengthCustom(dayKey, slot, null);
   } else {
     setStrengthCustom(dayKey, slot, { swap: target });
   }
@@ -3910,6 +3915,29 @@ function logRoutineExercise(name, weightOverride) {
   const msg = document.getElementById("strength-saved-msg");
   if (msg) setStrengthStatus(msg, ex.name + " logged.");
 }
+/* v108: undo a routine log. Removes the most recent strength entry for
+   the exercise on the day being viewed, so the checkmark clears and
+   the row offers Log again. */
+function unlogRoutineExercise(name) {
+  const eff = effectiveStrengthRoutine();
+  if (!eff) return;
+  const item = eff.exercises.find((e) => e.ex.name === name);
+  if (!item) return;
+  const ex = item.ex;
+  const date = viewedDateStr();
+  for (let i = (store.strength || []).length - 1; i >= 0; i--) {
+    const e = store.strength[i];
+    if (e.date === date && e.name === name && Number(e.sets) === ex.sets && Number(e.reps) === ex.reps) {
+      store.strength.splice(i, 1);
+      break;
+    }
+  }
+  clearStrengthStatus();
+  saveStore();
+  renderStrength();
+  const msg = document.getElementById("strength-saved-msg");
+  if (msg) setStrengthStatus(msg, ex.name + " unlogged.");
+}
 /* One routine row, shared by Today and the week view. opts: showLog
    (the week view never logs, so it passes false), alreadyLogged
    (whether this exercise was logged on the day shown), pickerOpen,
@@ -3927,9 +3955,15 @@ function routineRowHtml(item, eff, opts) {
      a different starting weight on a different day. */
   const plannedW = (ex.weight !== undefined && ex.weight !== null && Number(ex.weight) > 0) ? String(ex.weight) : "";
   const showW = lastW || (plannedW ? plannedW + " lbs" : "");
+  /* v108: undo a swap from the picker. The swapped-from exercise is the
+     slot's own exercise, so picking it clears the swap (setRoutineSwap)
+     and the row returns to the built-in exercise. */
+  const undoSwapBtn = (opts.pickerOpen && item.swappedFrom)
+    ? `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(item.swappedFrom)}" data-swap-slot="${escapeHtml(item.slot)}">Undo swap: ${escapeHtml(item.swappedFrom)}</button>`
+    : "";
   const picker = opts.pickerOpen
-    ? (opts.pickerOptions.length
-      ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
+    ? (opts.pickerOptions.length || undoSwapBtn
+      ? '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' + undoSwapBtn + opts.pickerOptions.map((o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-slot="${escapeHtml(item.slot)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`).join("") + "</div>"
       : '<p class="muted" style="margin:8px 0 0">No other alternatives for this exercise.</p>')
     : "";
   // v096: the weight is shown and can be changed before logging.
@@ -3938,8 +3972,12 @@ function routineRowHtml(item, eff, opts) {
   // exists. The week view never logs, so it gets no input.
   const lastWVal = lastWeightForExercise(ex.name);
   const prefillW = lastWVal !== "" ? lastWVal : plannedW;
+  /* v108: a logged exercise offers Undo instead of a disabled Logged
+     button. The checkmark in the title still shows it is logged, and
+     tapping Undo removes today's entry for the exercise. The weight
+     input stays visible but disabled, showing the logged weight. */
   const logBtn = opts.showLog
-    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight <input type="number" class="routine-weight-input" style="width:48px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label><button type="button" class="btn btn-small"${opts.alreadyLogged ? " disabled" : ""} data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">${opts.alreadyLogged ? "Logged" : "Log"}</button>`
+    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight <input type="number" class="routine-weight-input" style="width:44px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label>${opts.alreadyLogged ? `<button type="button" class="btn btn-small" data-unlog-routine="${escapeHtml(ex.name)}" aria-label="Undo log for ${escapeHtml(ex.name)}">Undo</button>` : `<button type="button" class="btn btn-small" data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">Log</button>`}`
     : "";
   return `<div class="entry">
       <p class="entry-title">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</p>
@@ -4056,6 +4094,9 @@ function renderStrengthRoutine() {
     const input = entry ? entry.querySelector(".routine-weight-input") : null;
     const raw = input ? input.value.trim() : "";
     logRoutineExercise(b.dataset.logRoutine, raw === "" ? "" : raw);
+  }));
+  list.querySelectorAll("[data-unlog-routine]").forEach((b) => b.addEventListener("click", () => {
+    unlogRoutineExercise(b.dataset.unlogRoutine);
   }));
   list.querySelectorAll("[data-swap-routine]").forEach((b) => b.addEventListener("click", () => {
     const slot = b.dataset.swapRoutine;
