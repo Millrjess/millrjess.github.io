@@ -2113,4 +2113,6 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .lib-tools { margin-bottom: 12px; }
 #strength-lib-search { display: block; width: 100%; margin-bottom: 8px; }
 .lib-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ex-tag { display: inline-block; font-size: 0.75rem; line-height: 1.2; padding: 2px 6px; margin-left: 6px; border: 1px solid var(--sage); border-radius: 999px; color: var(--sage-dark); background: var(--sage-tint); white-space: nowrap; }
+.ex-tag-adv { border-color: var(--gold-dark); color: var(--gold-dark); }
 .lib-chip-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }

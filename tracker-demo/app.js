@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v109";
+const APP_VERSION = "v110";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -63,6 +63,8 @@ const DEFAULTS = {
     strengthPlan: "4day", // v088: "4day", "3day", or "ymca"; which strength routine shows on Today
     strengthCustom: {}, // v088: routine swaps and removals, { "4day:1": { "Band Row": { swap: "Floor Press" } | { removed: true } } }
     strengthDateRoutine: {}, // v109: routine picked for one date, { "2026-11-13": "Upper A" }
+    strengthCustomPlan: null, // v110: the user's own plan { days: { "1": { name, exercises: [{ name, sets, reps, weight? }] } } }
+    strengthCustomPlanActive: false, // v110: true while "My plan" is the plan in use
     fitnessRows: { movement: false, strength: false, steps: false }, // v094: which Fitness rows are open on Today; v096 adds steps
     routineMinutes: 5, // v004: minutes the daily routine is worth when finished
     customExercises: [], // v169: the user's own exercises [{ name, pattern, detail }], shown in the plan picker
@@ -240,7 +242,7 @@ function validateStore(parsed, strict) {
       for (const [dayKey, dayCustom] of Object.entries(sc)) {
         // v109: a date key ("date:2026-11-13") holds a one-day swap,
         // removal, or add, the same shape as a weekday key.
-        if (!/^(3day|4day|ymca):[0-6]$/.test(dayKey) && !(dayKey.indexOf("date:") === 0 && isValidDateStr(dayKey.slice(5)))) continue;
+        if (!/^(3day|4day|ymca|custom):[0-6]$/.test(dayKey) && !(dayKey.indexOf("date:") === 0 && isValidDateStr(dayKey.slice(5)))) continue;
         if (!dayCustom || typeof dayCustom !== "object" || Array.isArray(dayCustom)) continue;
         const cleanDay = {};
         for (const [exName, c] of Object.entries(dayCustom)) {
@@ -259,6 +261,45 @@ function validateStore(parsed, strict) {
       out.settings.strengthCustom = clean;
     } else {
       out.settings.strengthCustom = {};
+    }
+    // v110: "My plan", the user's own plan. One plan only, days keyed
+    // by weekday number. Anything that does not resolve to a real
+    // exercise is dropped; a plan with no usable days is dropped.
+    if (out.settings.strengthCustomPlan && typeof out.settings.strengthCustomPlan === "object" && !Array.isArray(out.settings.strengthCustomPlan)) {
+      const rawPlan = out.settings.strengthCustomPlan;
+      const cleanDays = {};
+      if (rawPlan.days && typeof rawPlan.days === "object" && !Array.isArray(rawPlan.days)) {
+        Object.keys(rawPlan.days).forEach((k) => {
+          const wk = Number(k);
+          if (!Number.isInteger(wk) || wk < 0 || wk > 6) return;
+          const day = rawPlan.days[k];
+          if (!day || typeof day !== "object") return;
+          const exercises = (Array.isArray(day.exercises) ? day.exercises : []).map((e) => {
+            if (!e || typeof e !== "object" || typeof e.name !== "string") return null;
+            const name = e.name.trim();
+            if (!name || name.length > 200) return null;
+            if (!strengthExercise(name)) return null;
+            const sets = Math.max(1, Math.min(6, Math.round(Number(e.sets)) || 2));
+            const reps = Math.max(1, Math.min(30, Math.round(Number(e.reps)) || 10));
+            const w = (e.weight === "" || e.weight === undefined || e.weight === null) ? undefined : Number(e.weight);
+            const entry = { name, sets, reps };
+            if (w !== undefined && Number.isFinite(w) && w > 0) entry.weight = w;
+            return entry;
+          }).filter(Boolean);
+          if (!exercises.length) return;
+          cleanDays[String(wk)] = { name: String(day.name || "").slice(0, 20) || defaultCustomDayName(exercises), exercises };
+        });
+      }
+      if (Object.keys(cleanDays).length) {
+        out.settings.strengthCustomPlan = { days: cleanDays };
+        out.settings.strengthCustomPlanActive = out.settings.strengthCustomPlanActive === true;
+      } else {
+        out.settings.strengthCustomPlan = null;
+        out.settings.strengthCustomPlanActive = false;
+      }
+    } else {
+      out.settings.strengthCustomPlan = null;
+      out.settings.strengthCustomPlanActive = false;
     }
     // v109: the routine picked for one date. { "2026-11-13": "Upper A" }.
     // A bad date or a blank name is dropped; an unknown routine name is
@@ -3179,25 +3220,28 @@ const EXERCISE_LIBRARY = [
   { name: "Calf raise", detail: "15 reps", pattern: "Squat" },
   { name: "Lateral band walk", detail: "10 steps each way", pattern: "Squat" },
   /* v100: cardio machines and activities people use most. */
-  { name: "Treadmill walk", detail: "10 minutes", pattern: "Other" },
-  { name: "Treadmill run", detail: "10 minutes", pattern: "Other" },
-  { name: "Elliptical", detail: "10 minutes", pattern: "Other" },
-  { name: "Stationary bike", detail: "10 minutes", pattern: "Other" },
-  { name: "Recumbent bike", detail: "10 minutes", pattern: "Other" },
-  { name: "Spin bike", detail: "10 minutes", pattern: "Other" },
-  { name: "Rowing machine", detail: "10 minutes", pattern: "Other" },
-  { name: "Stair climber", detail: "10 minutes", pattern: "Other" },
-  { name: "Swimming", detail: "10 minutes", pattern: "Other" },
-  { name: "Water aerobics", detail: "10 minutes", pattern: "Other" },
-  { name: "Outdoor walk", detail: "10 minutes", pattern: "Other" },
-  { name: "Outdoor run", detail: "10 minutes", pattern: "Other" },
-  { name: "Outdoor cycling", detail: "10 minutes", pattern: "Other" },
-  { name: "Hiking", detail: "10 minutes", pattern: "Other" },
-  { name: "Dance", detail: "10 minutes", pattern: "Other" },
-  { name: "Aerobics class", detail: "10 minutes", pattern: "Other" },
-  { name: "Jump rope", detail: "5 minutes", pattern: "Other" },
-  { name: "Yoga", detail: "10 minutes", pattern: "Other" },
-  { name: "Tai chi", detail: "10 minutes", pattern: "Other" },
+  // v110: the core menu first, then the vigorous moves, then balance.
+  // Every cardio entry carries its intensity, shown as a chip.
+  { name: "Brisk walk", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Outdoor walk", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Treadmill walk", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Stationary bike", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Recumbent bike", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Elliptical", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Rowing machine", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Swimming", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Water aerobics", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Outdoor cycling, flat", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Hiking", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Dance", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Aerobics class", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Stair climber", detail: "10 minutes", pattern: "Other", intensity: "Moderate" },
+  { name: "Treadmill run", detail: "10 minutes", pattern: "Other", intensity: "Vigorous" },
+  { name: "Outdoor run", detail: "10 minutes", pattern: "Other", intensity: "Vigorous" },
+  { name: "Spin bike", detail: "10 minutes", pattern: "Other", intensity: "Vigorous" },
+  { name: "Jump rope", detail: "5 minutes", pattern: "Other", intensity: "Vigorous" },
+  { name: "Yoga", detail: "10 minutes", pattern: "Other", intensity: "Balance" },
+  { name: "Tai chi", detail: "10 minutes", pattern: "Other", intensity: "Balance" },
 ];
 const MOVEMENT_BONUS_LABEL = "Daily movement routine";
 const MOVEMENT_BONUS_MINUTES = 5;
@@ -3262,6 +3306,19 @@ function removeMovementBonus(date) {
   return false;
 }
 
+/* v110: minutes logged this week (Mon-Sun), for the weekly total line
+   on the Movement section. */
+function exerciseMinutesForWeek(iso) {
+  const monday = weekMondayFor(iso);
+  let total = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    total += sumForDate(store.exercise, localDateStr(d), "minutes");
+  }
+  return total;
+}
+
 function renderMovement() {
   const card = document.getElementById("movement-routine");
   if (!card) return;
@@ -3298,7 +3355,7 @@ function renderMovement() {
   if (totalEl) {
     const mins = sumForDate(store.exercise, date, "minutes");
     const goal = Number(store.settings.movementGoal) || 30;
-    totalEl.textContent = mins + " of " + goal + " minutes logged today, from the routine and anything else.";
+    totalEl.textContent = mins + " of " + goal + " minutes logged today, from the routine and anything else. This week: " + exerciseMinutesForWeek(date) + " of 150 minutes.";
   }
   renderMovementSummary();
 }
@@ -3652,6 +3709,15 @@ const STRENGTH_SWAP_ALTS = {
   "Cable Kickback": { name: "Cable Kickback", muscle: "Glutes", sets: 3, reps: 12, detail: "3 x 12", cue: "Kick back slowly, squeeze at the top, keep your hips still." },
   "Face Pull": { name: "Face Pull", muscle: "Rear shoulders, upper back", sets: 3, reps: 15, detail: "3 x 15", cue: "Pull the rope to your forehead, elbows high, squeeze your upper back." },
   "Cable Lateral Raise": { name: "Cable Lateral Raise", muscle: "Shoulders", sets: 3, reps: 12, detail: "3 x 12", cue: "Lift to shoulder height, lower slowly, do not shrug." },
+  // v110: the missing beginner moves, plus the two Lighter-day entries.
+  "Sit-to-stand": { name: "Sit-to-stand", muscle: "Quads, glutes", sets: 2, reps: 10, detail: "2 x 10", cue: "Feet flat, lean forward, stand tall, sit back down slowly." },
+  "Pallof press with band": { name: "Pallof press with band", muscle: "Core", sets: 2, reps: 10, detail: "2 x 10 each side", cue: "Hold the band at your chest, press straight out, do not let it pull you sideways." },
+  "Farmer's carry": { name: "Farmer's carry", muscle: "Grip, core, legs", sets: 2, reps: 30, detail: "2 x 30 seconds", cue: "Weights at your sides, stand tall, walk slowly." },
+  "Suitcase carry": { name: "Suitcase carry", muscle: "Core, grip", sets: 2, reps: 30, detail: "2 x 30 seconds each side", cue: "One weight at your side, stay upright, walk slowly." },
+  "Hip hinge to a chair or wall": { name: "Hip hinge to a chair or wall", muscle: "Hamstrings, glutes", sets: 2, reps: 10, detail: "2 x 10", cue: "Hinge at your hips, touch the chair with your hips, stand tall." },
+  "Chair squat": { name: "Chair squat", muscle: "Quads, glutes", sets: 2, reps: 10, detail: "2 x 10", cue: "Sit back to the chair, stand up, keep your chest up." },
+  "5-minute walk": { name: "5-minute walk", muscle: "Quads, calves", sets: 1, reps: 1, detail: "5 minutes", cue: "Easy pace, arms swinging." },
+  "Gentle full-body stretch": { name: "Gentle full-body stretch", muscle: "Full body", sets: 1, reps: 1, detail: "1 minute", cue: "Slow and easy, breathe out as you stretch." },
 };
 /* Exercise index, built from the routine days plus the swap-only
    alternatives. A swap is stored by name; this index resolves it. */
@@ -3669,6 +3735,97 @@ const STRENGTH_NAME_ALIASES = { "Abdominal machine": "Abdominal Machine" };
 function strengthExercise(name) {
   if (!name) return null;
   return STRENGTH_EXERCISES[name] || STRENGTH_EXERCISES[STRENGTH_NAME_ALIASES[name]] || null;
+}
+
+/* v110: the strength index as a sorted list, for the custom-plan
+   add picker. */
+function strengthExerciseList() {
+  return Object.values(STRENGTH_EXERCISES).sort((a, b) => a.name.localeCompare(b.name));
+}
+/* v110: movement pattern and modality tags for the strength index,
+   plus the Advanced gate. The name carries most of it: a machine,
+   dumbbell, band, barbell, cable, or kettlebell name says its own
+   modality, and the pattern follows from the movement. The map covers
+   the names the keyword rules would get wrong. */
+const STRENGTH_ADVANCED = ["Barbell Squat", "Barbell Deadlift", "Barbell Bench Press", "Barbell Row", "Barbell Overhead Press", "Kettlebell Swing", "Hanging Knee Raise"];
+const STRENGTH_TAG_OVERRIDES = {
+  "Goblet Squat": { modality: "Dumbbell" },
+  "Romanian Deadlift": { modality: "Dumbbell" },
+  "Leg Press": { modality: "Machine" },
+  "Leg Extension": { modality: "Machine" },
+  "Seated Leg Curl": { modality: "Machine" },
+  "Lying Leg Curl": { modality: "Machine" },
+  "Standing Calf Raise": { modality: "Machine" },
+  "Seated Calf Raise": { modality: "Machine" },
+  "Seated Row": { modality: "Machine" },
+  "Triceps Extension": { modality: "Dumbbell" },
+  "Pallof press with band": { modality: "Band", pattern: "Core" },
+  "Farmer's carry": { modality: "Dumbbell" },
+  "Suitcase carry": { modality: "Dumbbell" },
+  "Triceps Pushdown": { modality: "Cable" },
+  "T-Bar Row": { modality: "Barbell" },
+  "Glute Machine": { pattern: "Hinge" },
+  "Face Pull": { modality: "Band" },
+  "Floor Press": { modality: "Dumbbell" },
+  "Overhead Triceps Extension": { modality: "Dumbbell" },
+  "Single-Leg Romanian Deadlift": { modality: "Dumbbell" },
+  "Lateral Raise": { modality: "Dumbbell" },
+  "Concentration Curl": { modality: "Dumbbell" },
+  "Cable Kickback": { pattern: "Hinge" },
+};
+function strengthTags(name) {
+  const over = STRENGTH_TAG_OVERRIDES[name] || {};
+  const n = String(name || "").toLowerCase();
+  let modality = "Bodyweight";
+  if (over.modality) modality = over.modality;
+  else if (/machine|smith|assisted|precor|pec deck|lat pulldown/.test(n)) modality = "Machine";
+  else if (/dumbbell|hammer curl/.test(n)) modality = "Dumbbell";
+  else if (/band/.test(n)) modality = "Band";
+  else if (/barbell/.test(n)) modality = "Barbell";
+  else if (/cable/.test(n)) modality = "Cable";
+  else if (/kettlebell/.test(n)) modality = "Kettlebell";
+  let pattern = "Core";
+  if (over.pattern) pattern = over.pattern;
+  else if (/carry/.test(n)) pattern = "Carry";
+  else if (/plank|crunch|twist|dead bug|bird dog|leg raise|knee raise|abdominal|torso|stretch/.test(n)) pattern = "Core";
+  else if (/deadlift|romanian|hip thrust|glute bridge|back extension|hip hinge|pull-through|kettlebell swing/.test(n)) pattern = "Hinge";
+  else if (/squat|lunge|step-up|step up|leg press|leg extension|leg curl|calf|wall sit|hip abduction|hip adduction|lateral band walk|clamshell|sit-to-stand|chair squat|5-minute walk/.test(n)) pattern = "Squat";
+  else if (/row|pulldown|pull-up|pull up|pull-apart|face pull|pullover|curl|\blat\b|chin-up|rear delt/.test(n)) pattern = "Pull";
+  else if (/press|push-up|pushup|fly|raise|dip|kickback|triceps|bench|pec|crossover/.test(n)) pattern = "Push";
+  return { modality, pattern, advanced: STRENGTH_ADVANCED.indexOf(name) !== -1, beginner: STRENGTH_ADVANCED.indexOf(name) === -1 && (modality === "Machine" || modality === "Bodyweight" || modality === "Band" || modality === "Cable") };
+}
+function strengthTagChips(name) {
+  const tags = strengthTags(name);
+  return ' <span class="ex-tag">' + tags.modality + '</span> <span class="ex-tag">' + tags.pattern + '</span>' + (tags.advanced ? ' <span class="ex-tag">Advanced</span>' : "");
+}
+/* The default name for a custom-plan day, from its exercises: legs
+   only is Lower, upper body only is Upper, anything mixed is
+   Full-body. */
+function defaultCustomDayName(exercises) {
+  let lower = 0, upper = 0;
+  (exercises || []).forEach((e) => {
+    const ex = strengthExercise(e.name);
+    if (!ex) return;
+    const group = strengthMuscleGroup(ex.muscle);
+    if (group === "Legs" || group === "Glutes") lower++;
+    else if (group === "Chest" || group === "Back" || group === "Shoulders" || group === "Arms") upper++;
+  });
+  if (lower > 0 && upper === 0) return "Lower";
+  if (upper > 0 && lower === 0) return "Upper";
+  return "Full-body";
+}
+/* v110: when the user logged every set of an exercise at 12 reps with
+   a weight, the next time that row shows it hints that the smallest
+   next weight is ready. A hint only, never an auto-change. */
+function progressionHintFor(ex) {
+  if (!ex || Number(ex.reps) !== 12) return "";
+  const logged = (store.strength || []).filter((e) => e.name === ex.name);
+  if (!logged.length) return "";
+  const last = logged[logged.length - 1];
+  if (Number(last.reps) !== 12) return "";
+  const w = Number(last.weight);
+  if (!Number.isFinite(w) || w <= 0) return "";
+  return "Ready for the smallest next weight.";
 }
 
 /* v109: muscle groups for the library chips and the swap picker.
@@ -3790,15 +3947,77 @@ const STRENGTH_SWAPS = {
   "Face Pull": ["Band Pull-Apart", "Rear Delt Fly machine"],
   "Cable Lateral Raise": ["Lateral Raise", "Lateral Raise machine"],
 };
+/* Which strength plan is active, from Settings, defaulting to the
+   4-day split. "My plan" wins while a saved custom plan is active. */
+function customPlanActive() {
+  const p = store.settings && store.settings.strengthCustomPlan;
+  return !!(p && p.days && Object.keys(p.days).length && store.settings.strengthCustomPlanActive === true);
+}
 function getStrengthPlan() {
+  if (customPlanActive()) return "custom";
   const p = store.settings && store.settings.strengthPlan;
   return (p === "3day" || p === "ymca") ? p : "4day";
+}
+/* The plan's days: the built-in table, or the custom plan's days
+   resolved to full exercise entries. The shape matches
+   STRENGTH_ROUTINES, so the routine, picker, and week view read it
+   the same way. */
+function strengthPlanDays() {
+  if (getStrengthPlan() === "custom") {
+    const plan = store.settings.strengthCustomPlan;
+    const days = {};
+    Object.keys(plan.days).sort((a, b) => Number(a) - Number(b)).forEach((k) => {
+      const day = plan.days[k];
+      days[k] = {
+        name: day.name,
+        exercises: (day.exercises || []).map((e) => {
+          const resolved = strengthExercise(e.name);
+          return {
+            name: e.name,
+            muscle: resolved ? (resolved.muscle || "") : "",
+            sets: e.sets,
+            reps: e.reps,
+            detail: e.sets + " x " + e.reps,
+            cue: resolved ? (resolved.cue || "") : "",
+            weight: (e.weight !== undefined && e.weight !== "") ? e.weight : (resolved && resolved.weight !== undefined ? resolved.weight : undefined),
+          };
+        }),
+      };
+    });
+    return days;
+  }
+  return STRENGTH_ROUTINES[getStrengthPlan()];
+}
+/* One tap on a plan select: "My plan" activates the saved custom
+   plan, any built-in plan deactivates it and becomes the plan. */
+function setActiveStrengthPlan(value) {
+  if (value === "custom" && store.settings.strengthCustomPlan) {
+    store.settings.strengthCustomPlanActive = true;
+  } else {
+    store.settings.strengthCustomPlanActive = false;
+    store.settings.strengthPlan = (value === "3day" || value === "ymca") ? value : "4day";
+  }
+  saveStore();
+}
+/* The "My plan" option exists on a plan select only while a custom
+   plan is saved. */
+function syncStrengthPlanOptions(sel) {
+  if (!sel) return;
+  let customOpt = sel.querySelector('option[value="custom"]');
+  if (store.settings.strengthCustomPlan && !customOpt) {
+    customOpt = document.createElement("option");
+    customOpt.value = "custom";
+    customOpt.textContent = "My plan";
+    sel.appendChild(customOpt);
+  } else if (!store.settings.strengthCustomPlan && customOpt) {
+    customOpt.remove();
+  }
 }
 /* The routine for any ISO date under the current plan, or null on a
    rest day. Today is the day being viewed; the week view uses the
    same lookup for any day of the week. */
 function strengthRoutineForDate(iso) {
-  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  const plan = strengthPlanDays();
   const parts = String(iso).split("-");
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   return plan[d.getDay()] || null;
@@ -3858,13 +4077,42 @@ function setStrengthDateRoutine(iso, name) {
     store.settings.strengthDateRoutine[iso] = name;
   }
 }
+/* v110: a lighter day for when the body is tired or sore. A short
+   walk, chair sit-to-stands, and a gentle stretch, for that date
+   only, through the same date-routine mechanism as the picker.
+   Only the date-keyed changes apply, so a swap made on a lighter
+   day stays on that date and never leaks into the weekday routine. */
+function lighterDayRoutine(plan, weekday, iso) {
+  const dayKey = plan + ":" + weekday;
+  const custom = getStrengthCustom("date:" + iso);
+  const base = ["5-minute walk", "Sit-to-stand", "Gentle full-body stretch"].map((n) => strengthExercise(n)).filter(Boolean);
+  const exercises = [];
+  base.forEach((ex) => {
+    const c = custom[ex.name];
+    if (c && c.removed) return;
+    const swapEx = (c && typeof c.swap === "string") ? strengthExercise(c.swap) : null;
+    if (swapEx) { exercises.push({ ex: swapEx, slot: ex.name, swappedFrom: ex.name }); return; }
+    exercises.push({ ex, slot: ex.name, swappedFrom: null });
+  });
+  Object.keys(custom).forEach((slot) => {
+    if (slot.indexOf("__add:") !== 0) return;
+    const c = custom[slot];
+    if (!c || typeof c.add !== "string") return;
+    const addedEx = strengthExercise(c.add);
+    if (!addedEx) return;
+    if (c.removed) return;
+    const current = (typeof c.swap === "string" && strengthExercise(c.swap)) ? strengthExercise(c.swap) : addedEx;
+    exercises.push({ ex: current, slot, swappedFrom: current.name === c.add ? null : c.add, added: true });
+  });
+  return { name: "Lighter day", exercises, dayKey };
+}
 /* v109: the routine for one date, with the user's swaps, removals,
    and added exercises applied. A date override (from the routine
    picker) loads that routine for the date only; the week view
    passes ignoreOverride so the weekday pattern stays the plan. */
 function effectiveRoutineForDate(iso, ignoreOverride) {
   const plan = getStrengthPlan();
-  const planDays = STRENGTH_ROUTINES[plan];
+  const planDays = strengthPlanDays();
   const parts = String(iso).split("-");
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   let weekday = d.getDay();
@@ -3872,6 +4120,7 @@ function effectiveRoutineForDate(iso, ignoreOverride) {
   if (!ignoreOverride) {
     const overrideName = strengthDateRoutine(iso);
     if (overrideName) {
+      if (overrideName === "Lighter day") return lighterDayRoutine(plan, weekday, iso);
       for (const k of Object.keys(planDays)) {
         if (planDays[k].name === overrideName) { base = planDays[k]; weekday = Number(k); break; }
       }
@@ -3912,7 +4161,7 @@ function effectiveStrengthRoutine() {
 /* Swap options for an exercise, excluding anything already in
    today's routine, so a day never shows the same exercise twice. */
 function swapOptionsFor(name, eff) {
-  const names = (STRENGTH_SWAPS[name] || []).filter((n) => strengthExercise(n) && !eff.exercises.some((e) => e.ex.name === n));
+  const names = (STRENGTH_SWAPS[name] || []).filter((n) => strengthExercise(n) && STRENGTH_ADVANCED.indexOf(n) === -1 && !eff.exercises.some((e) => e.ex.name === n));
   return names.map((n) => strengthExercise(n));
 }
 /* The exercise whose swap picker is open: { dayKey, slot }, or null. */
@@ -4133,7 +4382,7 @@ function swapPickerHtml(item, eff, dateStr) {
   curated.forEach((o) => { shown[o.name] = true; });
   if (item.swappedFrom) shown[item.swappedFrom] = true;
   const lib = Object.values(STRENGTH_EXERCISES).filter((o) => !inRoutine[o.name] && !shown[o.name]).sort((a, b) => a.name.localeCompare(b.name));
-  const optBtn = (o) => `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-date="${escapeHtml(dateStr)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}</button>`;
+  const optBtn = (o) => { const tags = strengthTags(o.name); return `<button type="button" class="btn btn-small" data-swap-to="${escapeHtml(o.name)}" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-date="${escapeHtml(dateStr)}">${escapeHtml(o.name)}, ${escapeHtml(o.detail)}${tags.advanced ? ' <span class="ex-tag">Advanced</span>' : ""}</button>`; };
   const undoBtn = item.swappedFrom
     ? `<button type="button" class="btn btn-small" data-swap-undo="1" data-swap-to="${escapeHtml(item.swappedFrom)}" data-swap-day="${escapeHtml(eff.dayKey)}" data-swap-slot="${escapeHtml(item.slot)}" data-swap-date="${escapeHtml(dateStr)}">Undo swap: ${escapeHtml(item.swappedFrom)}</button>`
     : "";
@@ -4177,6 +4426,7 @@ function routineRowHtml(item, eff, opts) {
     ? `<div class="routine-row-detail">
       <p class="entry-sub">${escapeHtml(ex.muscle)}</p>
       <p class="entry-sub">${escapeHtml(ex.cue)}</p>
+      <p class="entry-sub">Finish each set with 2-3 good reps left.</p>
       ${item.swappedFrom ? `<p class="entry-sub">Swapped from ${escapeHtml(item.swappedFrom)}.</p>` : ""}
       <div class="entry-actions routine-actions">
         <button type="button" class="btn btn-small" data-swap-routine="${escapeHtml(item.slot)}" aria-label="Swap ${escapeHtml(ex.name)}">Swap</button>
@@ -4184,12 +4434,15 @@ function routineRowHtml(item, eff, opts) {
       </div>
     </div>`
     : "";
+  const progHint = progressionHintFor(ex);
+  const progHintHtml = progHint ? '<p class="muted" style="margin:4px 0 0;font-size:.9rem">' + progHint + "</p>" : "";
   const picker = opts.pickerOpen ? swapPickerHtml(item, eff, opts.dateStr) : "";
   return `<div class="entry routine-row">
     <div class="routine-row-head">
       <button type="button" class="routine-row-toggle entry-title" data-expand-routine="${escapeHtml(item.slot)}" aria-expanded="${expanded}">${doneMark}${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${showW ? ", " + escapeHtml(showW) : ""}</button>
       ${logPart}
     </div>
+    ${progHintHtml}
     ${detail}
     ${picker}
   </div>`;
@@ -4244,7 +4497,7 @@ function renderStrengthAllExercises() {
     const expanded = strengthLibExpanded === ex.name;
     return `<div class="entry routine-row" data-lib-name="${escapeHtml(ex.name)}" data-lib-muscle="${escapeHtml(ex.muscle)}">
       <div class="routine-row-head">
-        <button type="button" class="routine-row-toggle entry-title" data-expand-lib="${escapeHtml(ex.name)}" aria-expanded="${expanded}">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}</button>
+        <button type="button" class="routine-row-toggle entry-title" data-expand-lib="${escapeHtml(ex.name)}" aria-expanded="${expanded}">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${strengthTagChips(ex.name)}</button>
         <button type="button" class="btn btn-small"${added ? " disabled" : ""} data-add-all-exercise="${escapeHtml(ex.name)}" aria-label="Add ${escapeHtml(ex.name)} to today's routine">${added ? "Added" : "Add"}</button>
       </div>
       ${expanded ? `<div class="routine-row-detail"><p class="entry-sub">${escapeHtml(ex.muscle)}</p><p class="entry-sub">${escapeHtml(ex.cue)}</p></div>` : ""}
@@ -4285,7 +4538,7 @@ function renderStrengthAllExercises() {
    visible row, with the loaded routine marked. Tapping a name
    loads that routine for the day being viewed only. */
 function routineNamesForPlan() {
-  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  const plan = strengthPlanDays();
   const names = [];
   Object.keys(plan).sort((a, b) => Number(a) - Number(b)).forEach((k) => {
     if (names.indexOf(plan[k].name) === -1) names.push(plan[k].name);
@@ -4335,10 +4588,12 @@ function renderStrengthRoutine() {
     if (note) note.hidden = true;
     if (shot) shot.hidden = true;
     if (resetWrap) resetWrap.innerHTML = "";
+    const lighterWrapRest = document.getElementById("strength-lighter-day");
+    if (lighterWrapRest) lighterWrapRest.innerHTML = "";
     if (weekViewOpen) renderWeekView();
     return;
   }
-  if (title) title.textContent = "Today's routine: " + eff.name;
+  if (title) title.textContent = "Today's routine: " + eff.name + (getStrengthPlan() === "custom" ? " · My plan" : "");
   if (warmup) warmup.hidden = false;
   if (note) note.hidden = false;
   if (shot) shot.hidden = false;
@@ -4348,6 +4603,30 @@ function renderStrengthRoutine() {
     const rb = document.getElementById("strength-routine-reset-btn");
     if (rb) rb.addEventListener("click", resetTodayRoutine);
   }
+  const lighterWrap = document.getElementById("strength-lighter-day");
+  if (lighterWrap) {
+    const isLighter = eff.name === "Lighter day";
+    lighterWrap.innerHTML = isLighter
+      ? '<button type="button" class="btn btn-small" id="strength-lighter-day-back">Back to planned routine</button>'
+      : '<button type="button" class="btn btn-small" id="strength-lighter-day-btn">Lighter day</button>';
+    const lb = document.getElementById("strength-lighter-day-btn");
+    if (lb) lb.addEventListener("click", () => {
+      setStrengthDateRoutine(viewedDateStr(), "Lighter day");
+      strengthSwapPicker = null;
+      strengthSwapPending = null;
+      strengthExpanded = { dayKey: "", slot: "" };
+      saveStore();
+      renderStrength();
+    });
+    const lback = document.getElementById("strength-lighter-day-back");
+    if (lback) lback.addEventListener("click", () => {
+      setStrengthDateRoutine(viewedDateStr(), null);
+      saveStore();
+      renderStrength();
+    });
+  }
+  const myPlanBtn = document.getElementById("strength-my-plan-btn");
+  if (myPlanBtn) myPlanBtn.textContent = store.settings.strengthCustomPlan ? "Edit my plan" : "My plan";
   if (!list) return;
   const date = viewedDateStr();
   const expandedSlot = expandedSlotFor(eff, date);
@@ -4434,6 +4713,316 @@ function renderStrengthRoutine() {
 }
 
 /* ---------- Strength week view (v094) ---------- */
+/* ---------- "My plan": the user's own strength plan (v110) ---------- */
+/* One custom plan, days keyed by weekday number, each day a name and
+   a list of exercises. The editor reuses the Movement editor pattern:
+   days first, then one section per day with compact rows, Add from the
+   library, Remove, and up/down reorder. Saving activates the plan;
+   switching back to a built-in plan deactivates it without deleting
+   it. This is the manual plan; it never touches the AI workout plan
+   flow. */
+let strengthCustomEditorOpen = false;
+let strengthCustomDraft = null; // { days: { "1": { name, exercises: [{ name, sets, reps, weight? }] } }, lighter: false }
+let strengthCustomEditorDay = null; // weekday key whose Add picker is open
+let strengthCustomAddSearch = "";
+let strengthCustomAddChip = "All";
+const CUSTOM_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const CUSTOM_DAY_DEFAULT = { 1: "Upper", 3: "Lower", 5: "Full-body" };
+function customPlanTemplate() {
+  const days = {};
+  Object.keys(STRENGTH_ROUTINES["3day"]).forEach((k) => {
+    const day = STRENGTH_ROUTINES["3day"][k];
+    days[k] = { name: day.name, exercises: day.exercises.map((e) => ({ name: e.name, sets: e.sets, reps: e.reps })) };
+  });
+  return { days };
+}
+function openStrengthCustomEditor() {
+  strengthCustomEditorOpen = true;
+  const saved = store.settings.strengthCustomPlan;
+  strengthCustomDraft = saved ? JSON.parse(JSON.stringify(saved)) : customPlanTemplate();
+  strengthCustomDraft.lighter = false;
+  strengthCustomEditorDay = null;
+  strengthCustomAddSearch = "";
+  strengthCustomAddChip = "All";
+  const ed = document.getElementById("strength-custom-plan-editor");
+  if (ed) { ed.classList.remove("hidden"); ed.scrollIntoView({ block: "nearest" }); }
+  renderStrengthCustomEditor();
+}
+function closeStrengthCustomEditor() {
+  strengthCustomEditorOpen = false;
+  strengthCustomDraft = null;
+  const ed = document.getElementById("strength-custom-plan-editor");
+  if (ed) ed.classList.add("hidden");
+}
+/* Checked days in week order, Monday first. */
+function customDraftDays() {
+  return Object.keys(strengthCustomDraft.days).map(Number).sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b));
+}
+function customHasAdjacentDays() {
+  const days = customDraftDays();
+  return days.some((d) => days.indexOf((d + 1) % 7) !== -1);
+}
+function customAddListHtml() {
+  const q = strengthCustomAddSearch.trim().toLowerCase();
+  const list = strengthExerciseList().filter((ex) => {
+    if (strengthCustomAddChip !== "All" && strengthMuscleGroup(ex.muscle) !== strengthCustomAddChip) return false;
+    if (q && ex.name.toLowerCase().indexOf(q) === -1 && ex.muscle.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  return list.map((ex) => {
+    const tags = strengthTags(ex.name);
+    return `<button type="button" class="btn btn-small" data-custom-add="${escapeHtml(ex.name)}" style="text-align:left">${escapeHtml(ex.name)} <span class="muted">${escapeHtml(ex.muscle)}</span>${tags.advanced ? ' <span class="ex-tag">Advanced</span>' : ""}</button>`;
+  }).join("") || '<p class="muted">No exercises match.</p>';
+}
+function customAddPickerHtml() {
+  const chips = ["All", "Chest", "Back", "Shoulders", "Arms", "Legs", "Glutes", "Core", "Other"];
+  return `<div class="custom-add-picker" style="margin-top:8px">
+    <input type="search" placeholder="Search exercises" value="${escapeHtml(strengthCustomAddSearch)}" data-custom-add-search aria-label="Search exercises to add" style="width:100%;margin-bottom:6px">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">${chips.map((c) => `<button type="button" class="btn btn-small lib-chip${strengthCustomAddChip === c ? " lib-chip-active" : ""}" data-custom-add-chip="${c}" aria-pressed="${strengthCustomAddChip === c}">${c}</button>`).join("")}</div>
+    <div class="custom-add-list" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto">${customAddListHtml()}</div>
+  </div>`;
+}
+function renderStrengthCustomEditor() {
+  if (!strengthCustomDraft) return;
+  const daysEl = document.getElementById("strength-custom-days");
+  const warnEl = document.getElementById("strength-custom-48h");
+  const sectionsEl = document.getElementById("strength-custom-day-sections");
+  const msgEl = document.getElementById("strength-custom-msg");
+  if (!daysEl || !sectionsEl) return;
+  const checked = customDraftDays();
+  daysEl.innerHTML = [1, 2, 3, 4, 5, 6, 0].map((d) => {
+    const short = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d];
+    return `<label style="display:inline-block;margin:0 10px 6px 0"><input type="checkbox" data-custom-day="${d}"${checked.indexOf(d) !== -1 ? " checked" : ""}> ${short}</label>`;
+  }).join("");
+  if (warnEl) warnEl.hidden = !customHasAdjacentDays();
+  const lighterEl = document.getElementById("strength-custom-lighter");
+  if (lighterEl) lighterEl.checked = !!strengthCustomDraft.lighter;
+  sectionsEl.innerHTML = checked.map((d) => {
+    const day = strengthCustomDraft.days[String(d)];
+    const rows = (day.exercises || []).map((e, i) => {
+      const tags = strengthTags(e.name);
+      return `<li class="entry" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="entry-title" style="flex:1;min-width:120px">${escapeHtml(e.name)}${tags.advanced ? ' <span class="ex-tag">Advanced</span>' : ""}</span>
+        <label style="font-size:.9rem">Sets <input type="number" min="1" max="6" value="${e.sets}" data-custom-sets="${d}:${i}" style="width:44px" aria-label="Sets for ${escapeHtml(e.name)}"></label>
+        <label style="font-size:.9rem">Reps <input type="number" min="1" max="30" value="${e.reps}" data-custom-reps="${d}:${i}" style="width:44px" aria-label="Reps for ${escapeHtml(e.name)}"></label>
+        <button type="button" class="btn btn-small" data-custom-up="${d}:${i}" aria-label="Move ${escapeHtml(e.name)} up"${i === 0 ? " disabled" : ""}>↑</button>
+        <button type="button" class="btn btn-small" data-custom-down="${d}:${i}" aria-label="Move ${escapeHtml(e.name)} down"${i === day.exercises.length - 1 ? " disabled" : ""}>↓</button>
+        <button type="button" class="btn btn-small" data-custom-remove="${d}:${i}">Remove</button>
+      </li>`;
+    }).join("");
+    const addOpen = strengthCustomEditorDay === d;
+    return `<div class="custom-day" data-custom-day-section="${d}" style="margin-top:12px">
+      <label style="display:block;margin-bottom:6px">Day name <input type="text" value="${escapeHtml(day.name || "")}" maxlength="20" data-custom-day-name="${d}" style="width:140px" aria-label="Name for ${CUSTOM_DAY_NAMES[d]}"></label>
+      <ul style="list-style:none;margin:0;padding:0">${rows || '<li class="muted">No exercises yet. Add one below.</li>'}</ul>
+      <button type="button" class="btn btn-small" data-custom-add-open="${d}" style="margin-top:6px">${addOpen ? "Close" : "Add exercise"}</button>
+      ${addOpen ? customAddPickerHtml() : ""}
+    </div>`;
+  }).join("");
+  const saved = store.settings.strengthCustomPlan;
+  const backBuiltin = document.getElementById("strength-custom-back-builtin");
+  const backMyPlan = document.getElementById("strength-custom-back-myplan");
+  if (backBuiltin) backBuiltin.hidden = !customPlanActive();
+  if (backMyPlan) backMyPlan.hidden = !(saved && !customPlanActive());
+  if (msgEl) msgEl.textContent = "";
+}
+/* The editor's buttons and inputs, wired once at load. The editor
+   re-renders from the draft, so handlers read the draft, never the
+   DOM, for the plan itself. */
+const customEditorEl = document.getElementById("strength-custom-plan-editor");
+if (customEditorEl) {
+  customEditorEl.addEventListener("click", (e) => {
+    const up = e.target.closest("[data-custom-up]");
+    if (up) {
+      const parts = up.dataset.customUp.split(":").map(Number);
+      const day = strengthCustomDraft.days[String(parts[0])];
+      if (day && parts[1] > 0) { const t = day.exercises[parts[1] - 1]; day.exercises[parts[1] - 1] = day.exercises[parts[1]]; day.exercises[parts[1]] = t; }
+      renderStrengthCustomEditor();
+      return;
+    }
+    const down = e.target.closest("[data-custom-down]");
+    if (down) {
+      const parts = down.dataset.customDown.split(":").map(Number);
+      const day = strengthCustomDraft.days[String(parts[0])];
+      if (day && parts[1] < day.exercises.length - 1) { const t = day.exercises[parts[1] + 1]; day.exercises[parts[1] + 1] = day.exercises[parts[1]]; day.exercises[parts[1]] = t; }
+      renderStrengthCustomEditor();
+      return;
+    }
+    const rm = e.target.closest("[data-custom-remove]");
+    if (rm) {
+      const parts = rm.dataset.customRemove.split(":").map(Number);
+      const day = strengthCustomDraft.days[String(parts[0])];
+      if (day) day.exercises.splice(parts[1], 1);
+      renderStrengthCustomEditor();
+      return;
+    }
+    const addOpen = e.target.closest("[data-custom-add-open]");
+    if (addOpen) {
+      const d = Number(addOpen.dataset.customAddOpen);
+      strengthCustomEditorDay = (strengthCustomEditorDay === d) ? null : d;
+      renderStrengthCustomEditor();
+      return;
+    }
+    const chip = e.target.closest("[data-custom-add-chip]");
+    if (chip) {
+      strengthCustomAddChip = chip.dataset.customAddChip;
+      renderStrengthCustomEditor();
+      return;
+    }
+    const add = e.target.closest("[data-custom-add]");
+    if (add) {
+      const section = add.closest("[data-custom-day-section]");
+      const d = section ? Number(section.dataset.customDaySection) : null;
+      const day = (d !== null && !Number.isNaN(d)) ? strengthCustomDraft.days[String(d)] : null;
+      if (day) {
+        const name = add.dataset.customAdd;
+        if (!day.exercises.some((x) => x.name === name)) {
+          day.exercises.push(strengthCustomDraft.lighter ? { name, sets: 1, reps: 12 } : { name, sets: 2, reps: 10 });
+        }
+      }
+      renderStrengthCustomEditor();
+      return;
+    }
+  });
+  customEditorEl.addEventListener("input", (e) => {
+    const search = e.target.closest("[data-custom-add-search]");
+    if (search) {
+      strengthCustomAddSearch = search.value;
+      const picker = search.closest(".custom-add-picker");
+      const listEl = picker ? picker.querySelector(".custom-add-list") : null;
+      if (listEl) listEl.innerHTML = customAddListHtml();
+      return;
+    }
+    const dayName = e.target.closest("[data-custom-day-name]");
+    if (dayName) {
+      const d = Number(dayName.dataset.customDayName);
+      const day = strengthCustomDraft.days[String(d)];
+      if (day) day.name = dayName.value.slice(0, 20);
+      return;
+    }
+    const sets = e.target.closest("[data-custom-sets]");
+    if (sets) {
+      const parts = sets.dataset.customSets.split(":").map(Number);
+      const day = strengthCustomDraft.days[String(parts[0])];
+      if (day && day.exercises[parts[1]]) day.exercises[parts[1]].sets = Math.max(1, Math.min(6, Math.round(Number(sets.value)) || 2));
+      return;
+    }
+    const reps = e.target.closest("[data-custom-reps]");
+    if (reps) {
+      const parts = reps.dataset.customReps.split(":").map(Number);
+      const day = strengthCustomDraft.days[String(parts[0])];
+      if (day && day.exercises[parts[1]]) day.exercises[parts[1]].reps = Math.max(1, Math.min(30, Math.round(Number(reps.value)) || 10));
+      return;
+    }
+  });
+  customEditorEl.addEventListener("change", (e) => {
+    const dayCb = e.target.closest("[data-custom-day]");
+    if (dayCb) {
+      const d = Number(dayCb.dataset.customDay);
+      if (dayCb.checked) {
+        if (!strengthCustomDraft.days[String(d)]) strengthCustomDraft.days[String(d)] = { name: CUSTOM_DAY_DEFAULT[d] || defaultCustomDayName([]), exercises: [] };
+      } else {
+        delete strengthCustomDraft.days[String(d)];
+        if (strengthCustomEditorDay === d) strengthCustomEditorDay = null;
+      }
+      renderStrengthCustomEditor();
+      return;
+    }
+    if (e.target.id === "strength-custom-lighter") {
+      strengthCustomDraft.lighter = e.target.checked === true;
+    }
+  });
+}
+const customSaveBtn = document.getElementById("strength-custom-save");
+if (customSaveBtn) customSaveBtn.addEventListener("click", () => {
+  const msg = document.getElementById("strength-custom-msg");
+  const days = {};
+  let total = 0;
+  Object.keys(strengthCustomDraft.days).forEach((k) => {
+    const day = strengthCustomDraft.days[k];
+    const exercises = (day.exercises || []).filter((e) => strengthExercise(e.name)).map((e) => ({ name: e.name, sets: Math.max(1, Math.min(6, Math.round(Number(e.sets)) || 2)), reps: Math.max(1, Math.min(30, Math.round(Number(e.reps)) || 10)) }));
+    if (!exercises.length) return;
+    days[k] = { name: String(day.name || "").slice(0, 20) || defaultCustomDayName(exercises), exercises };
+    total += exercises.length;
+  });
+  if (!Object.keys(days).length || !total) {
+    if (msg) msg.textContent = "Pick at least one day with an exercise.";
+    return;
+  }
+  store.settings.strengthCustomPlan = { days };
+  store.settings.strengthCustomPlanActive = true;
+  saveStore();
+  closeStrengthCustomEditor();
+  renderStrength();
+  renderSettings();
+});
+const customBackBuiltinBtn = document.getElementById("strength-custom-back-builtin");
+if (customBackBuiltinBtn) customBackBuiltinBtn.addEventListener("click", () => {
+  setActiveStrengthPlan(store.settings.strengthPlan);
+  closeStrengthCustomEditor();
+  renderStrength();
+  renderSettings();
+});
+const customBackMyPlanBtn = document.getElementById("strength-custom-back-myplan");
+if (customBackMyPlanBtn) customBackMyPlanBtn.addEventListener("click", () => {
+  setActiveStrengthPlan("custom");
+  closeStrengthCustomEditor();
+  renderStrength();
+  renderSettings();
+});
+const customStartOverBtn = document.getElementById("strength-custom-startover");
+if (customStartOverBtn) customStartOverBtn.addEventListener("click", () => {
+  strengthCustomDraft = customPlanTemplate();
+  strengthCustomDraft.lighter = false;
+  strengthCustomEditorDay = null;
+  strengthCustomAddSearch = "";
+  strengthCustomAddChip = "All";
+  renderStrengthCustomEditor();
+});
+const customCancelBtn = document.getElementById("strength-custom-cancel");
+if (customCancelBtn) customCancelBtn.addEventListener("click", closeStrengthCustomEditor);
+const myPlanBtn = document.getElementById("strength-my-plan-btn");
+if (myPlanBtn) myPlanBtn.addEventListener("click", () => {
+  if (strengthCustomEditorOpen) closeStrengthCustomEditor();
+  else openStrengthCustomEditor();
+});
+
+/* ---------- Reset one week (v110) ---------- */
+/* Clears the current plan's weekday changes and every date change
+   inside the viewed week (Mon-Sun), so the week shows the built-in
+   plan again. Logged entries are never touched, and the plan choice
+   does not change. A weekday change is the change for that weekday,
+   so it goes with the week. */
+function weekHasStrengthChanges() {
+  const monday = weekMondayFor(weekViewDate || todayStr(0));
+  const plan = getStrengthPlan();
+  const custom = store.settings.strengthCustom || {};
+  if (Object.keys(custom).some((k) => k.indexOf(plan + ":") === 0)) return true;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = localDateStr(d);
+    if (custom["date:" + iso]) return true;
+    if (store.settings.strengthDateRoutine && store.settings.strengthDateRoutine[iso]) return true;
+  }
+  return false;
+}
+function resetStrengthWeek() {
+  const monday = weekMondayFor(weekViewDate || todayStr(0));
+  const plan = getStrengthPlan();
+  const custom = store.settings.strengthCustom || {};
+  Object.keys(custom).forEach((k) => {
+    if (k.indexOf(plan + ":") === 0) delete custom[k];
+  });
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = localDateStr(d);
+    delete custom["date:" + iso];
+    if (store.settings.strengthDateRoutine) delete store.settings.strengthDateRoutine[iso];
+  }
+  saveStore();
+}
+
 /* Plan the week ahead: Mon to Sun with workout or rest labels, and a
    day's routine can be opened and edited in advance. Planning only:
    Log is never offered here, so a workout can never be logged before
@@ -4455,7 +5044,7 @@ function weekMondayFor(iso) {
 /* The routine for a weekday number under the current plan, or null
    on a rest day. */
 function routineForWeekday(weekday) {
-  const plan = STRENGTH_ROUTINES[getStrengthPlan()];
+  const plan = strengthPlanDays();
   return plan[weekday] || null;
 }
 /* The next workout day from today, as an ISO date, so the week view
@@ -4509,6 +5098,17 @@ function renderWeekView() {
     weekAddPickerOpen = false;
     renderWeekView();
   }));
+  // v110: "Reset week" clears this week's changes, when there are any.
+  const weekResetWrap = document.getElementById("strength-week-reset");
+  if (weekResetWrap) {
+    weekResetWrap.innerHTML = weekHasStrengthChanges() ? '<button type="button" class="btn btn-small" id="strength-week-reset-btn">Reset week</button>' : "";
+    const weekResetBtn = document.getElementById("strength-week-reset-btn");
+    if (weekResetBtn) weekResetBtn.addEventListener("click", () => {
+      if (!window.confirm("Reset this week to the plan?")) return;
+      resetStrengthWeek();
+      renderWeekView();
+    });
+  }
   renderWeekViewDay();
 }
 function renderWeekViewDay() {
@@ -4858,7 +5458,7 @@ function toggleMove(name) {
 function movementPlanRowHtml(item, checked, detail, isCustom) {
   return `<label class="plan-row"${isCustom ? ` data-custom="true" data-pattern="${escapeHtml(item.pattern || "Other")}"` : ""}>
       <input type="checkbox" data-plan-name="${escapeHtml(item.name)}"${checked ? " checked" : ""}>
-      <span class="plan-name">${escapeHtml(item.name)}<span class="plan-pattern">${escapeHtml(item.pattern || "")}</span></span>
+      <span class="plan-name">${escapeHtml(item.name)}<span class="plan-pattern">${escapeHtml(item.pattern || "")}</span>${item.intensity ? `<span class="plan-pattern">${escapeHtml(item.intensity)}</span>` : ""}</span>
       <input type="text" class="plan-detail" data-plan-detail="${escapeHtml(item.name)}" value="${escapeHtml(detail)}" maxlength="40" aria-label="Reps/time for ${escapeHtml(item.name)}">
       ${isCustom ? `<button type="button" class="plan-remove" data-remove-custom="${escapeHtml(item.name)}" aria-label="Remove ${escapeHtml(item.name)} from your exercises">×</button>` : ""}
     </label>`;
@@ -4913,7 +5513,7 @@ function showFitnessStrengthPlan() {
   if (!wrap) return;
   if (effectiveStrengthRoutine()) { wrap.classList.add("hidden"); return; }
   const sel = document.getElementById("fitness-strength-plan-select");
-  if (sel) sel.value = getStrengthPlan();
+  if (sel) { syncStrengthPlanOptions(sel); sel.value = getStrengthPlan(); }
   wrap.classList.remove("hidden");
 }
 function hideFitnessStrengthPlan() {
@@ -4923,10 +5523,9 @@ function hideFitnessStrengthPlan() {
 const fitnessPlanSel = document.getElementById("fitness-strength-plan-select");
 if (fitnessPlanSel) fitnessPlanSel.addEventListener("change", () => {
   const v = fitnessPlanSel.value;
-  store.settings.strengthPlan = (v === "3day" || v === "ymca") ? v : "4day";
-  saveStore();
+  setActiveStrengthPlan(v);
   const sp = document.getElementById("set-strength-plan");
-  if (sp) sp.value = store.settings.strengthPlan;
+  if (sp) { syncStrengthPlanOptions(sp); sp.value = getStrengthPlan(); }
   renderStrengthRoutine();
   if (effectiveStrengthRoutine()) hideFitnessStrengthPlan();
   else showFitnessStrengthPlan();
@@ -14274,9 +14873,14 @@ function renderSettings() {
   document.getElementById("set-protein-goal").value = s.proteinGoal || 90;
   document.getElementById("set-movement-goal").value = s.movementGoal || 30;
   const sp = document.getElementById("set-strength-plan");
-  if (sp) sp.value = (s.strengthPlan === "3day" || s.strengthPlan === "ymca") ? s.strengthPlan : "4day";
+  if (sp) {
+    // v110: "My plan" is offered while a custom plan is saved, and is
+    // the selected value while it is active.
+    syncStrengthPlanOptions(sp);
+    sp.value = customPlanActive() ? "custom" : ((s.strengthPlan === "3day" || s.strengthPlan === "ymca") ? s.strengthPlan : "4day");
+  }
   const sra = document.getElementById("strength-reset-all");
-  if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length && !Object.keys(s.strengthDateRoutine || {}).length;
+  if (sra) sra.disabled = !Object.keys(s.strengthCustom || {}).length && !Object.keys(s.strengthDateRoutine || {}).length && !customPlanActive();
   // v168: carbs and fat targets for the Your Macros card, and height
   // in feet and inches for BMI.
   document.getElementById("set-carbs-goal").value = s.carbGoal || 150;
@@ -14525,7 +15129,7 @@ function collectSettingsFromForm() {
   // v088: the strength routine plan. The select only offers the valid
   // values, so anything else falls back to the 4-day split.
   const spSel = document.getElementById("set-strength-plan");
-  if (spSel) store.settings.strengthPlan = (spSel.value === "3day" || spSel.value === "ymca") ? spSel.value : "4day";
+  if (spSel) setActiveStrengthPlan(spSel.value);
   // v168: carbs and fat targets for the Your Macros card, and height
   // for BMI. A height with no feet and no inches stays blank.
   // (Number("") is 0, so the raw field value is checked first.)
@@ -14627,13 +15231,14 @@ document.getElementById("settings-form").addEventListener("change", () => {
 const strengthResetAllBtn = document.getElementById("strength-reset-all");
 if (strengthResetAllBtn) strengthResetAllBtn.addEventListener("click", () => {
   const msg = document.getElementById("strength-reset-msg");
-  if (!Object.keys(store.settings.strengthCustom || {}).length && !Object.keys(store.settings.strengthDateRoutine || {}).length) {
+  if (!Object.keys(store.settings.strengthCustom || {}).length && !Object.keys(store.settings.strengthDateRoutine || {}).length && !customPlanActive()) {
     if (msg) msg.textContent = "No routine changes to reset.";
     return;
   }
   if (!window.confirm("Remove all routine changes?")) return;
   store.settings.strengthCustom = {};
   if (store.settings.strengthDateRoutine) delete store.settings.strengthDateRoutine;
+  store.settings.strengthCustomPlanActive = false; // v110: Reset all deactivates "My plan" but never deletes it.
   saveStore();
   renderSettings();
   renderToday();
