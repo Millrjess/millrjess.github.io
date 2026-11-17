@@ -60,7 +60,7 @@
   /* Booking agent: books the free 15-minute discovery call in the chat.
      The call is free, by phone, Tuesday and Thursday, 10 AM to noon and
      1 to 3 PM Eastern. Strategy sessions are never booked here. */
-  var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",booked:false};
+  var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",booked:false,qualService:"",qualBudget:"",qualTimeline:"",qualOther:"",qualified:false};
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function hcLog(){ return document.getElementById("hc-log"); }
   function say(log,html){
@@ -94,7 +94,7 @@
   function isResched(q){
     return q.indexOf("reschedule")>-1||q.indexOf("move my")>-1||q.indexOf("change my call")>-1||q.indexOf("different time")>-1||q.indexOf("move it")>-1;
   }
-  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; }
+  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; }
   function bkGet(url,cb){
     fetch(url).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
@@ -102,7 +102,7 @@
     fetch(BOOKING_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)}).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
   function clearChoiceButtons(log){
-    var old=log.querySelectorAll("button[data-hc-slot],button[data-hc-confirm]");
+    var old=log.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual]");
     for(var i=0;i<old.length;i++){ old[i].disabled=true; old[i].style.opacity="0.45"; }
   }
   function renderSlots(log,slots){
@@ -123,13 +123,135 @@
     log.appendChild(d);
     log.scrollTop=log.scrollHeight;
   }
+  /* Lead qualification: four questions before the booking flow.
+     Service, budget, timeline, website. Pass or fail by her published
+     prices. Runs entirely in the chat. No endpoint change. */
+  var PRICING_PAGE="../pricing/";
+  var QUAL_SERVICE=["Care plan","Site Health Audit","Technical SEO","Accessibility","New site or app","Website agent","Strategy session","Something else"];
+  var QUAL_BUDGET=["Under $500","$500 to $1,500","$1,500 to $5,000","Over $5,000","Not sure yet","I need it free"];
+  var QUAL_TIMELINE=["This month","Next month or two","No rush","Just exploring"];
+  var QUAL_ONE_TIME=["Site Health Audit","Technical SEO","Accessibility","New site or app","Website agent"];
+  var QUAL_OUT_OF_SCOPE=["logo","social media","graphic design","copywriting","video editing","photography"];
+  function qualIsOneTime(s){ return QUAL_ONE_TIME.indexOf(s)>-1; }
+  function renderQual(log,group,options){
+    clearChoiceButtons(log);
+    var d=document.createElement("div");
+    var html="";
+    for(var i=0;i<options.length;i++){
+      html+="<button type='button' data-hc-qual='"+group+":"+i+"' style='display:block;width:100%;text-align:left;background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.7em .9em;margin:6px 0;cursor:pointer;font:inherit'>"+esc(options[i])+"</button>";
+    }
+    d.innerHTML=html;
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  }
+  function qualEcho(log,text){
+    var d=document.createElement("div");
+    d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(text)+"</p>";
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  }
+  function qualBudgetTurnAway(log,free){
+    bkReset();
+    if(free){ say(log,"I do not do free work. My prices are on the <a href='"+PRICING_PAGE+"'>pricing page</a>."); }
+    else { say(log,"One time work starts at $500. That is the floor for an audit, SEO, accessibility, or a new site or app."); }
+    say(log,"A care plan starts at $150 a month. A 1-hour strategy session is $200. <a href='"+PRICING_PAGE+"'>Pricing</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
+  }
+  function qualScopeTurnAway(log){
+    bkReset();
+    say(log,"I do website work. That request is outside it. Prices are on the <a href='"+PRICING_PAGE+"'>pricing page</a>.");
+    say(log,"If your website is the real need, say so and I can book a call.");
+  }
+  function qualStart(log){
+    bk.step="qual-service";
+    say(log,"What do you need help with?");
+    renderQual(log,"service",QUAL_SERVICE);
+  }
+  function qualServicePick(log,i){
+    var label=QUAL_SERVICE[i];
+    if(!label) return;
+    qualEcho(log,label);
+    if(label==="Strategy session"){
+      bkReset();
+      say(log,find("strategy session"));
+      say(log,"Pay for a 1-hour strategy session here: <a href='"+STRIPE_STRATEGY_URL+"'>Stripe payment link</a>.");
+      return;
+    }
+    bk.qualService=label;
+    if(label==="Something else"){
+      bk.step="qual-other";
+      say(log,"What do you need help with?");
+      return;
+    }
+    bk.step="qual-budget";
+    say(log,"What is your budget?");
+    renderQual(log,"budget",QUAL_BUDGET);
+  }
+  function qualBudgetPick(log,i){
+    var label=QUAL_BUDGET[i];
+    if(!label) return;
+    qualEcho(log,label);
+    if(label==="I need it free"){ qualBudgetTurnAway(log,true); return; }
+    if(label==="Under $500"&&qualIsOneTime(bk.qualService)){ qualBudgetTurnAway(log,false); return; }
+    bk.qualBudget=label;
+    bk.step="qual-timeline";
+    say(log,"When do you need it?");
+    renderQual(log,"timeline",QUAL_TIMELINE);
+  }
+  function qualTimelinePick(log,i){
+    var label=QUAL_TIMELINE[i];
+    if(!label) return;
+    qualEcho(log,label);
+    bk.qualTimeline=label;
+    bk.step="qual-website";
+    say(log,"What is your website? Type skip if you do not have one.");
+  }
+  function hcQualPick(group,i){
+    var log=hcLog();
+    if(group==="service"&&bk.step==="qual-service"){ qualServicePick(log,i); return; }
+    if(group==="budget"&&bk.step==="qual-budget"){ qualBudgetPick(log,i); return; }
+    if(group==="timeline"&&bk.step==="qual-timeline"){ qualTimelinePick(log,i); return; }
+  }
+  function qualTextService(q){
+    if(q.indexOf("care")>-1||q.indexOf("maintenance")>-1) return 0;
+    if(q.indexOf("audit")>-1||q.indexOf("health")>-1) return 1;
+    if(q.indexOf("seo")>-1) return 2;
+    if(q.indexOf("accessib")>-1||q.indexOf("wcag")>-1) return 3;
+    if(q.indexOf("new site")>-1||q.indexOf("new website")>-1||q.indexOf("new app")>-1) return 4;
+    if(q.indexOf("agent")>-1||q.indexOf("automat")>-1) return 5;
+    if(q.indexOf("strategy")>-1) return 6;
+    if(q.indexOf("something else")>-1||q.indexOf("other")>-1||q.indexOf("else")>-1) return 7;
+    return -1;
+  }
+  function qualTextBudget(q){
+    if(q.indexOf("free")>-1) return 5;
+    if(q.indexOf("not sure")>-1||q.indexOf("unsure")>-1||q.indexOf("do not know")>-1||q.indexOf("don't know")>-1) return 4;
+    if(q.indexOf("under")>-1||q.indexOf("less than")>-1) return 0;
+    if(q.indexOf("over")>-1||q.indexOf("more than")>-1||q.indexOf("5000")>-1||q.indexOf("5,000")>-1) return 3;
+    if(q.indexOf("1500")>-1||q.indexOf("1,500")>-1) return 2;
+    if(q.indexOf("500")>-1) return 1;
+    return -1;
+  }
+  function qualTextTimeline(q){
+    if(q.indexOf("this month")>-1) return 0;
+    if(q.indexOf("next month")>-1) return 1;
+    if(q.indexOf("no rush")>-1) return 2;
+    if(q.indexOf("explor")>-1) return 3;
+    return -1;
+  }
+  function qualFoldTopic(topic){
+    if(!bk.qualified) return topic;
+    var service=bk.qualService;
+    if(service==="Something else"&&bk.qualOther) service="Something else: "+bk.qualOther;
+    return "Service: "+service+". Budget: "+bk.qualBudget+". Timeline: "+bk.qualTimeline+". Topic: "+topic;
+  }
   function bkLoadSlots(log){
     bkGet(BOOKING_ENDPOINT+"?action=slots",function(res){
-      if(!res||!res.success){ say(log,"Something went wrong. Please try again, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); bkReset(); return; }
+      if(!res||!res.success){ bkReset(); say(log,"Something went wrong. Please try again, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
       if(!res.slots||!res.slots.length){
+        bkReset();
         say(log,"There are no open times in the next two weeks.");
         say(log,"You can book on the <a href='"+BOOKING_PAGE+"'>booking page</a>, email millrjess@gmail.com, or call (978) 267-5304.");
-        bkReset(); return;
+        return;
       }
       bk.slots=res.slots;
       say(log,"Here are the open times. Pick one:");
@@ -142,9 +264,9 @@
       if(res&&res.success){
         bk.booked=true;
         bk.eventLabel=res.label||bk.slot.label;
+        bk.step=null;
         say(log,"You are booked for "+esc(bk.eventLabel)+". Jessica will call you at "+esc(bk.phone)+".");
         say(log,"Would you like a 1-hour strategy session next? It is $200, paid at booking through Stripe. <a href='"+BOOKING_PAGE+"'>Booking page</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
-        bk.step=null;
       } else {
         say(log,esc(res&&res.message?res.message:"Something went wrong. Please try again."));
         bk.step="slots";
@@ -158,8 +280,8 @@
     bkPost({action:"reschedule",email:email,start:bk.slot.start},function(res){
       if(res&&res.success){
         bk.eventLabel=res.label||bk.slot.label;
-        say(log,"Your call moved to "+esc(bk.eventLabel)+".");
         bk.step=null;
+        say(log,"Your call moved to "+esc(bk.eventLabel)+".");
       } else {
         say(log,esc(res&&res.message?res.message:"Something went wrong. Please try again."));
         bk.step="resched-slots";
@@ -210,8 +332,7 @@
       }
       if(isYes(q)||q.indexOf("book")>-1){
         if(!BOOKING_ENDPOINT){ say(log,"Booking in the chat is not set up yet. Please use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); bkReset(); return; }
-        bk.step="name";
-        say(log,"What is your name?");
+        qualStart(log);
         return;
       }
       bkReset();
@@ -225,13 +346,51 @@
     }
     if(bk.step==="phone"){
       if(!validPhone(raw)){ say(log,"That phone number does not look right. What phone number should Jessica call?"); return; }
-      bk.phone=raw; bk.step="website"; say(log,"What is your website? Type skip if you do not have one."); return;
+      bk.phone=raw;
+      if(bk.qualified){ bk.step="topic"; say(log,"What do you want help with?"); return; }
+      bk.step="website"; say(log,"What is your website? Type skip if you do not have one."); return;
     }
     if(bk.step==="website"){
       if(q!=="skip"&&q!=="none"&&q!=="no"&&q!=="no website"){ bk.website=raw; }
       bk.step="topic"; say(log,"What do you want help with?"); return;
     }
-    if(bk.step==="topic"){ bk.topic=raw; bk.step="slots"; bkLoadSlots(log); return; }
+    if(bk.step==="topic"){ bk.topic=qualFoldTopic(raw); bk.step="slots"; bkLoadSlots(log); return; }
+    if(bk.step==="qual-service"){
+      var si=qualTextService(q);
+      if(si>-1){ qualServicePick(log,si); return; }
+      say(log,"Please tap one of the choices above, or type what you need.");
+      return;
+    }
+    if(bk.step==="qual-other"){
+      var low=raw.toLowerCase();
+      for(var i=0;i<QUAL_OUT_OF_SCOPE.length;i++){
+        if(low.indexOf(QUAL_OUT_OF_SCOPE[i])>-1){ qualScopeTurnAway(log); return; }
+      }
+      bk.qualOther=raw;
+      bk.step="qual-budget";
+      say(log,"What is your budget?");
+      renderQual(log,"budget",QUAL_BUDGET);
+      return;
+    }
+    if(bk.step==="qual-budget"){
+      var bi=qualTextBudget(q);
+      if(bi>-1){ qualBudgetPick(log,bi); return; }
+      say(log,"Please tap one of the choices above, or type your budget.");
+      return;
+    }
+    if(bk.step==="qual-timeline"){
+      var ti=qualTextTimeline(q);
+      if(ti>-1){ qualTimelinePick(log,ti); return; }
+      say(log,"Please tap one of the choices above, or type when you need it.");
+      return;
+    }
+    if(bk.step==="qual-website"){
+      if(q!=="skip"&&q!=="none"&&q!=="no"&&q!=="no website"){ bk.website=raw; }
+      bk.qualified=true;
+      bk.step="name";
+      say(log,"What is your name?");
+      return;
+    }
     if(bk.step==="slots"){ say(log,"Please tap one of the times above."); return; }
     if(bk.step==="confirm"){
       if(isYes(q)){ bkDoBook(log); return; }
@@ -272,6 +431,8 @@
         if(s!==null){ hcSlotPick(Number(s)); return; }
         var c=t.getAttribute("data-hc-confirm");
         if(c!==null){ hcConfirm(c); return; }
+        var g=t.getAttribute("data-hc-qual");
+        if(g!==null){ var parts=g.split(":"); hcQualPick(parts[0],Number(parts[1])); return; }
       }
       t=t.parentNode;
     }
@@ -297,17 +458,17 @@
     }
     if(isBookIntent(q)){
       if(!BOOKING_ENDPOINT){ say(log,"You can book a free discovery call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+      bk.step="offer";
       say(log,BOOK_ANSWER);
       say(log,"Shall I book a discovery call for you?");
-      bk.step="offer";
       return;
     }
     var reply=find(q);
     say(log,reply);
     if(reply===BOOK_ANSWER){
       if(!BOOKING_ENDPOINT) return;
-      say(log,"Shall I book a discovery call for you?");
       bk.step="offer";
+      say(log,"Shall I book a discovery call for you?");
     }
   }
   btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "block" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
