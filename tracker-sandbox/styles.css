@@ -630,16 +630,45 @@ label textarea {
 }
 
 /* v106: routine buttons share one line, equal widths. */
+/* v108: center the row's items instead of stretching them, so the
+   buttons sit at their own height instead of the row's height. */
 .routine-actions {
   gap: 4px;
+  align-items: center;
 }
 
 .routine-actions .btn {
   flex: 1 1 0;
   min-width: 0;
   padding: 10px 4px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   white-space: nowrap;
+}
+
+/* v108: the generic label rule gives the Weight label 12px margins top
+   and bottom, which stretched the routine row to 78px tall and the
+   buttons stretched with it. Zero them so the row is the input's
+   height. Narrow the weight input's side padding so three digits fit
+   in its 44px width. */
+.routine-actions label {
+  margin: 0;
+}
+
+.routine-actions .routine-weight-input {
+  margin: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+/* v108: tighten the Weight tab so more fits on one screen. Cards keep
+   clear separation; nothing touches. */
+#tab-weight .card {
+  margin: 8px 0;
+  padding: 16px;
+}
+
+#tab-weight .stats-row {
+  gap: 8px;
 }
 
 .badge {
