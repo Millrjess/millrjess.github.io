@@ -86,6 +86,27 @@ async function main() {
       if (hidden) { await page.click("#strength-row"); await sleep(200); }
     };
 
+    // v109: expand a routine row by hand when it is collapsed, so a
+    // Swap or Remove button inside the detail can be clicked.
+    const expandRow = async (slot, scope) => {
+      const sel = (scope || "#strength-routine-list") + ' [data-expand-routine="' + slot + '"]';
+      const expanded = await page.evaluate((s) => {
+        const b = document.querySelector(s);
+        return b ? b.getAttribute("aria-expanded") === "true" : null;
+      }, sel);
+      if (expanded === false) { await page.click(sel); await sleep(200); }
+    };
+
+    // v109: Split Squat is shown only when the swap really applied:
+    // "Bulgarian Split Squat" contains "Split Squat" as a substring,
+    // so a plain indexOf on the whole list would pass with the swap
+    // missing. Read the row titles, where the swapped-from line
+    // cannot hide the built-in name.
+    const splitShown = async () => {
+      const titles = await page.evaluate(() => Array.from(document.querySelectorAll("#strength-routine-list .entry-title")).map((el) => el.textContent));
+      return titles.some((t) => t.indexOf("Split Squat, 3 x 10 each leg") !== -1 && t.indexOf("Bulgarian Split Squat") === -1);
+    };
+
     // 1. Today is Saturday Nov 14, 2026: rest day in both plans.
     check("rest day title", (await txt("#strength-routine-title")) === "Today's routine: Rest day", await txt("#strength-routine-title"));
     check("rest day message", (await txt("#strength-routine-list")).indexOf("Rest day. Walking counts today.") !== -1);
@@ -106,27 +127,77 @@ async function main() {
     await page.click('[data-log-routine="Dumbbell Deadlift"]');
     await sleep(300);
     check("Deadlift logged in strength list", (await txt("#strength-list")).indexOf("Dumbbell Deadlift") !== -1);
-    check("Deadlift button now Logged and disabled", await page.evaluate(() => {
-      const b = document.querySelector('[data-log-routine="Dumbbell Deadlift"]');
-      return b && b.textContent === "Logged" && b.disabled;
+    // v108: a logged exercise offers Undo instead of a disabled Logged button.
+    check("Deadlift button now Undo and enabled", await page.evaluate(() => {
+      const b = document.querySelector('[data-unlog-routine="Dumbbell Deadlift"]');
+      return b && b.textContent === "Undo" && !b.disabled;
     }));
     const st1 = await store();
     check("strength entry in store", st1 && st1.strength && st1.strength.some((e) => e.name === "Dumbbell Deadlift" && e.sets === 3 && e.reps === 10));
 
+    // 3b. v108: undo the log, then log again so later sections still
+    // see one logged exercise.
+    await page.click('[data-unlog-routine="Dumbbell Deadlift"]');
+    await sleep(300);
+    check("Deadlift unlogged, Log button back", await page.evaluate(() => {
+      const b = document.querySelector('[data-log-routine="Dumbbell Deadlift"]');
+      return b && b.textContent === "Log" && !b.disabled;
+    }));
+    check("no checkmark on Deadlift after undo", (await txt("#strength-routine-list")).indexOf("✓ Dumbbell Deadlift") === -1);
+    const st1b = await store();
+    check("Deadlift entry removed from store", !(st1b && st1b.strength && st1b.strength.some((e) => e.name === "Dumbbell Deadlift")));
+    await page.click('[data-log-routine="Dumbbell Deadlift"]');
+    await sleep(300);
+    check("Deadlift logged again after undo", await page.evaluate(() => {
+      const b = document.querySelector('[data-unlog-routine="Dumbbell Deadlift"]');
+      return b && b.textContent === "Undo" && !b.disabled;
+    }));
+
     // 4. Swap Bulgarian Split Squat to Split Squat (Jessica's example).
+    await expandRow("Bulgarian Split Squat");
     await page.click('[data-swap-routine="Bulgarian Split Squat"]');
     await sleep(200);
     check("swap picker offers Split Squat", (await count('[data-swap-to="Split Squat"]')) === 1);
     check("swap picker offers Goblet Squat", (await count('[data-swap-to="Goblet Squat"]')) === 1);
     await page.click('[data-swap-to="Split Squat"]');
     await sleep(300);
-    check("Split Squat now shown", (await txt("#strength-routine-list")).indexOf("Split Squat, 3 x 10 each leg") !== -1);
+    check("swap scope question shown", (await count('[data-swap-scope="week"]')) === 1);
+    await page.click('[data-swap-scope="week"]');
+    await sleep(300);
+    check("Split Squat now shown", await splitShown());
     check("swapped-from note shown", (await txt("#strength-routine-list")).indexOf("Swapped from Bulgarian Split Squat.") !== -1);
     check("Reset routine button appears", (await count("#strength-routine-reset-btn")) === 1);
     const st2 = await store();
     check("swap persisted in settings", st2 && st2.settings && st2.settings.strengthCustom && st2.settings.strengthCustom["4day:5"] && st2.settings.strengthCustom["4day:5"]["Bulgarian Split Squat"] && st2.settings.strengthCustom["4day:5"]["Bulgarian Split Squat"].swap === "Split Squat");
 
+    // 4b. v108: undo the swap from the picker, then swap again so the
+    // reload section still sees Split Squat swapped in.
+    await page.click('[data-swap-routine="Bulgarian Split Squat"]');
+    await sleep(300);
+    check("swap picker offers Undo swap", await page.evaluate(() => {
+      const bs = Array.from(document.querySelectorAll('[data-swap-to="Bulgarian Split Squat"]'));
+      return bs.some((b) => b.textContent === "Undo swap: Bulgarian Split Squat");
+    }));
+    await page.evaluate(() => {
+      const bs = Array.from(document.querySelectorAll('[data-swap-to="Bulgarian Split Squat"]'));
+      const u = bs.find((b) => b.textContent === "Undo swap: Bulgarian Split Squat");
+      if (u) u.click();
+    });
+    await sleep(300);
+    check("Bulgarian Split Squat back after undo swap", (await txt("#strength-routine-list")).indexOf("Bulgarian Split Squat, 3 x 10 each leg") !== -1);
+    check("swapped-from note gone after undo swap", (await txt("#strength-routine-list")).indexOf("Swapped from Bulgarian Split Squat.") === -1);
+    const st2b = await store();
+    check("swap cleared after undo swap", !(st2b && st2b.settings.strengthCustom && st2b.settings.strengthCustom["4day:5"] && st2b.settings.strengthCustom["4day:5"]["Bulgarian Split Squat"]));
+    await page.click('[data-swap-routine="Bulgarian Split Squat"]');
+    await sleep(300);
+    await page.click('[data-swap-to="Split Squat"]');
+    await sleep(300);
+    await page.click('[data-swap-scope="week"]');
+    await sleep(300);
+    check("Split Squat swapped in again after undo", await splitShown());
+
     // 5. Remove Hip Thrust: gone, Reset still there.
+    await expandRow("Hip Thrust");
     await page.click('[data-remove-routine="Hip Thrust"]');
     await sleep(300);
     check("Hip Thrust removed", (await txt("#strength-routine-list")).indexOf("Hip Thrust") === -1);
@@ -174,9 +245,12 @@ async function main() {
     check("Full-body has 6 exercises", (await count("#strength-routine-list .entry")) === 6);
 
     // 9. Settings reset-all clears every customization.
+    await expandRow("Goblet Squat");
     await page.click('[data-swap-routine="Goblet Squat"]');
     await sleep(200);
     await page.click('[data-swap-to="Bodyweight Squat"]');
+    await sleep(300);
+    await page.click('[data-swap-scope="week"]');
     await sleep(300);
     await page.click('.tab-btn[data-tab="more"]');
     await page.click('.more-item[data-more-goto="settings"]');
@@ -226,10 +300,13 @@ async function main() {
     check("week Monday has 6 exercises", (await count("#strength-week-day-list .entry")) === 6);
     check("week view has no Log buttons", (await count("#strength-week-day-list [data-log-routine]")) === 0);
     // 10b. Swap Bench Press to Chest Press machine on Monday.
+    await expandRow("Dumbbell Bench Press", "#strength-week-day-list");
     await page.click('#strength-week-day-list [data-swap-routine="Dumbbell Bench Press"]');
     await sleep(200);
     check("week swap offers Chest Press machine", (await count('#strength-week-day-list [data-swap-to="Chest Press machine"]')) === 1);
     await page.click('#strength-week-day-list [data-swap-to="Chest Press machine"]');
+    await sleep(300);
+    await page.click('[data-swap-scope="week"]');
     await sleep(300);
     check("Chest Press machine shown on Monday", (await txt("#strength-week-day-list")).indexOf("Chest Press machine, 3 x 10") !== -1);
     check("swapped-from note shown on Monday", (await txt("#strength-week-day-list")).indexOf("Swapped from Dumbbell Bench Press.") !== -1);
@@ -339,8 +416,9 @@ async function main() {
     check("Plan the week row status is 4 workouts", (await txt("#strength-week-row-status")) === "4 workouts · Mon, Tue, Thu, Fri");
     check("strength detail hidden on first view", await page.evaluate(() => document.getElementById("strength-detail").hidden));
     check("movement detail hidden on first view", await page.evaluate(() => document.getElementById("movement-detail").hidden));
-    check("Log button not visible while collapsed", await page.evaluate(() => {
-      const b = document.querySelector('[data-log-routine="Dumbbell Deadlift"]');
+    // v108: Deadlift is logged at this point, so its row button is Undo.
+    check("Undo button not visible while collapsed", await page.evaluate(() => {
+      const b = document.querySelector('[data-unlog-routine="Dumbbell Deadlift"]');
       return b && b.offsetParent === null;
     }));
     const cardH1 = await page.evaluate(() => document.getElementById("fitness-card").getBoundingClientRect().height);
@@ -352,8 +430,8 @@ async function main() {
     check("History tab present", (await count("#strength-tab-history")) === 1);
     check("All Exercises tab present", (await count("#strength-tab-all")) === 1);
     check("routine shows Lower B", (await txt("#strength-routine-title")) === "Today's routine: Lower B");
-    check("Log button visible after opening the row", await page.evaluate(() => {
-      const b = document.querySelector('[data-log-routine="Dumbbell Deadlift"]');
+    check("Undo button visible after opening the row", await page.evaluate(() => {
+      const b = document.querySelector('[data-unlog-routine="Dumbbell Deadlift"]');
       return b && b.offsetParent !== null;
     }));
     const cardH2 = await page.evaluate(() => document.getElementById("fitness-card").getBoundingClientRect().height);
@@ -621,9 +699,10 @@ async function main() {
     await page.fill('.routine-weight-input[data-weight-for="Hip Thrust"]', "40");
     await page.click('[data-log-routine="Hip Thrust"]');
     await sleep(300);
+    // v108: a logged exercise offers Undo instead of a disabled Logged button.
     check("Hip Thrust logged with the new weight", await page.evaluate(() => {
-      const b = document.querySelector('[data-log-routine="Hip Thrust"]');
-      return b && b.textContent === "Logged" && b.disabled;
+      const b = document.querySelector('[data-unlog-routine="Hip Thrust"]');
+      return b && b.textContent === "Undo" && !b.disabled;
     }));
     check("Hip Thrust row shows 40 lbs right away", (await routineTitles()).some((t) => t.includes("Hip Thrust, 3 x 12, 40 lbs")));
     const stWeight = await store();
@@ -867,16 +946,20 @@ async function main() {
     check("Monday Chest Press input pre-fills 20", await page.evaluate(() => { const i = document.querySelector('.routine-weight-input[data-weight-for="Chest Press machine"]'); return !!i && i.value === "20"; }));
     // Swap Lat Pulldown: Seated Row machine is already on Monday, so
     // only One-Arm Dumbbell Row is offered.
+    await expandRow("Lat Pulldown");
     await page.click('[data-swap-routine="Lat Pulldown"]');
     await sleep(200);
     check("swap picker offers One-Arm Dumbbell Row", (await count('[data-swap-to="One-Arm Dumbbell Row"]')) === 1);
     check("swap picker skips Seated Row machine already on Monday", (await count('[data-swap-to="Seated Row machine"]')) === 0);
     await page.click('[data-swap-to="One-Arm Dumbbell Row"]');
     await sleep(300);
+    await page.click('[data-swap-scope="week"]');
+    await sleep(300);
     check("One-Arm Dumbbell Row swapped in", (await txt("#strength-routine-list")).indexOf("Swapped from Lat Pulldown.") !== -1);
     const stSwap = await store();
     check("ymca swap persisted", !!(stSwap && stSwap.settings.strengthCustom && stSwap.settings.strengthCustom["ymca:1"] && stSwap.settings.strengthCustom["ymca:1"]["Lat Pulldown"] && stSwap.settings.strengthCustom["ymca:1"]["Lat Pulldown"].swap === "One-Arm Dumbbell Row"));
     // Remove Triceps Extension from Monday.
+    await expandRow("Triceps Extension");
     await page.click('[data-remove-routine="Triceps Extension"]');
     await sleep(300);
     check("Triceps Extension removed, 6 exercises left", (await txt("#strength-routine-list")).indexOf("Triceps Extension") === -1 && (await count("#strength-routine-list .entry")) === 6);
@@ -1036,7 +1119,9 @@ async function main() {
         cardioMissing: nc.filter((n) => !EXERCISE_LIBRARY.some((e) => e.name === n))
       };
     }, [NEW_STRENGTH, NEW_CARDIO]);
-    check("strength index has 99 exercises", lib.indexCount === 99, "got " + lib.indexCount);
+    // v109: the lowercase "Abdominal machine" entry was merged into
+    // "Abdominal Machine", so the index has one fewer exercise.
+    check("strength index has 98 exercises", lib.indexCount === 98, "got " + lib.indexCount);
     check("all 44 new strength names in the index", lib.newMissing.length === 0, "missing: " + lib.newMissing.join(", "));
     check("every new strength entry has 2 swap alternatives", lib.newNoSwaps.length === 0, "missing: " + lib.newNoSwaps.join(", "));
     check("every swap key and target resolves", lib.badSwaps.length === 0, lib.badSwaps.slice(0, 3).join("; "));
@@ -1064,6 +1149,7 @@ async function main() {
     // Friday already has 7: the 6 built-in Lower B plus the Plank
     // added in section 11, so the add makes 8.
     check("Friday has 8 exercises after add", (await count("#strength-routine-list .entry")) === 8);
+    await expandRow("__add:Cable Crossover");
     await page.click('[data-swap-routine="__add:Cable Crossover"]');
     await sleep(200);
     check("swap picker offers Dumbbell Chest Fly", (await count('[data-swap-to="Dumbbell Chest Fly"]')) === 1);
@@ -1082,7 +1168,132 @@ async function main() {
     await page.click("#movement-plan-cancel");
     await sleep(200);
 
-    // Section 23 (v101): Skip personalization closes first-run setup
+    // Section 23 (v109): compact strength routine picker. The routine
+    // picker loads another routine for the viewed date only; rows are
+    // one line and expand on tap; the library has search and chips;
+    // the Abdominal duplicate is merged; a swap can be for one date.
+    // Friday Nov 13, 4-day plan, Lower B, all six exercises logged.
+    check("routine picker shows four routines", (await count("#strength-routine-picker [data-routine-pick]")) === 4);
+    check("routine picker marks Lower B loaded", await page.evaluate(() => {
+      const b = document.querySelector('[data-routine-pick="Lower B"]');
+      return !!b && b.getAttribute("aria-pressed") === "true" && b.classList.contains("routine-pick-active");
+    }));
+    await page.click('[data-routine-pick="Upper A"]');
+    await sleep(300);
+    check("picker loads Upper A for Friday only", (await txt("#strength-routine-title")) === "Today's routine: Upper A", await txt("#strength-routine-title"));
+    check("picker shows Bench Press on Friday", (await txt("#strength-routine-list")).indexOf("Dumbbell Bench Press, 3 x 10") !== -1);
+    const stPick = await store();
+    check("override stored for the date only", !!(stPick && stPick.settings.strengthDateRoutine && stPick.settings.strengthDateRoutine["2026-11-13"] === "Upper A"));
+    check("plan still 4day after picking", !!(stPick && stPick.settings.strengthPlan === "4day"));
+    // The week view still shows the weekday pattern.
+    await page.click("#strength-week-row");
+    await sleep(300);
+    check("week Friday label is still Lower B", await page.evaluate(() => {
+      const b = document.querySelector('[data-week-view-day="2026-11-20"]');
+      return b && b.getAttribute("aria-label").indexOf("Lower B") !== -1;
+    }));
+    await page.click('[data-week-view-day="2026-11-20"]');
+    await sleep(300);
+    check("week Friday detail is Lower B", (await txt("#strength-week-day-title")) === "Friday, November 20: Lower B");
+    await page.click("#strength-week-close");
+    await sleep(300);
+    // Picking the weekday routine clears the override.
+    await page.click('[data-routine-pick="Lower B"]');
+    await sleep(300);
+    check("picker back to Lower B", (await txt("#strength-routine-title")) === "Today's routine: Lower B");
+    const stPick2 = await store();
+    check("override cleared", !(stPick2 && stPick2.settings.strengthDateRoutine && stPick2.settings.strengthDateRoutine["2026-11-13"]));
+    // Compact rows: all six logged, so none is expanded by itself.
+    check("six compact rows", (await count("#strength-routine-list .entry")) === 6);
+    check("no Swap button while every row is collapsed", (await count("#strength-routine-list [data-swap-routine]")) === 0);
+    check("Undo buttons stay on the collapsed rows", (await count("#strength-routine-list [data-log-routine]")) === 0 && (await count("#strength-routine-list [data-unlog-routine]")) === 6);
+    await expandRow("Bulgarian Split Squat");
+    check("expanded row shows Swap and Remove", (await count("#strength-routine-list [data-swap-routine]")) === 1 && (await count("#strength-routine-list [data-remove-routine]")) === 1);
+    check("expanded row shows the cue", (await txt("#strength-routine-list")).indexOf("Back foot on a chair") !== -1);
+    await page.click('[data-expand-routine="Bulgarian Split Squat"]');
+    await sleep(200);
+    check("row collapses again", (await count("#strength-routine-list [data-swap-routine]")) === 0);
+    // Library: search, chips, and the dedup.
+    await page.click("#strength-tab-all");
+    await sleep(300);
+    check("library search field present", (await count("#strength-lib-search")) === 1);
+    check("library chips present", (await count("#strength-all-exercises [data-lib-chip]")) >= 7);
+    const libVisible = async () => page.evaluate(() => Array.from(document.querySelectorAll("#strength-all-exercises .routine-row")).filter((r) => r.style.display !== "none").map((r) => r.dataset.libName));
+    await page.fill("#strength-lib-search", "bench");
+    await sleep(300);
+    const benchVisible = await libVisible();
+    check("search shows bench exercises", benchVisible.indexOf("Dumbbell Bench Press") !== -1 && benchVisible.indexOf("Barbell Bench Press") !== -1, benchVisible.join(", "));
+    check("search hides Goblet Squat", benchVisible.indexOf("Goblet Squat") === -1);
+    check("search narrows the list", benchVisible.length < 10 && benchVisible.length > 0, String(benchVisible.length));
+    await page.fill("#strength-lib-search", "");
+    await sleep(300);
+    await page.click('[data-lib-chip="Legs"]');
+    await sleep(300);
+    const legsVisible = await libVisible();
+    check("Legs chip shows Goblet Squat", legsVisible.indexOf("Goblet Squat") !== -1);
+    check("Legs chip hides Bench Press", legsVisible.indexOf("Dumbbell Bench Press") === -1);
+    await page.click('[data-lib-chip="All"]');
+    await sleep(300);
+    const allVisible = await libVisible();
+    check("All chip shows 98 exercises", allVisible.length === 98, String(allVisible.length));
+    check("library has one Abdominal Machine", allVisible.filter((n) => n === "Abdominal Machine").length === 1);
+    check("library has no lowercase Abdominal machine", (await txt("#strength-all-exercises")).indexOf("Abdominal machine") === -1);
+    // A swap for just this date: stored under the date, not the weekday.
+    await page.click("#strength-tab-mine");
+    await sleep(300);
+    await expandRow("Bulgarian Split Squat");
+    await page.click('[data-swap-routine="Bulgarian Split Squat"]');
+    await sleep(200);
+    await page.click('[data-swap-to="Split Squat"]');
+    await sleep(300);
+    check("date scope question shown", (await count('[data-swap-scope="date"]')) === 1);
+    await page.click('[data-swap-scope="date"]');
+    await sleep(300);
+    check("Split Squat shown for Friday", await splitShown());
+    const stDate = await store();
+    check("date swap stored under the date", !!(stDate && stDate.settings.strengthCustom && stDate.settings.strengthCustom["date:2026-11-13"] && stDate.settings.strengthCustom["date:2026-11-13"]["Bulgarian Split Squat"] && stDate.settings.strengthCustom["date:2026-11-13"]["Bulgarian Split Squat"].swap === "Split Squat"));
+    check("date swap did not touch the weekday key", !(stDate && stDate.settings.strengthCustom && stDate.settings.strengthCustom["4day:5"] && stDate.settings.strengthCustom["4day:5"]["Bulgarian Split Squat"]));
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const t = document.getElementById("strength-routine-title");
+      return !!t && t.textContent !== "Today's routine";
+    }, null, { timeout: 10000 });
+    await page.evaluate(() => document.getElementById("day-prev").click());
+    await sleep(300);
+    await ensureRoutineOpen();
+    check("date swap survives a reload", await splitShown());
+    await page.click("#strength-routine-reset-btn");
+    await sleep(300);
+    check("reset clears the date swap", (await txt("#strength-routine-list")).indexOf("Bulgarian Split Squat, 3 x 10 each leg") !== -1);
+    const stDate2 = await store();
+    check("reset clears the date key", !(stDate2 && stDate2.settings.strengthCustom && stDate2.settings.strengthCustom["date:2026-11-13"]));
+    // A stored swap using the old lowercase name still resolves.
+    const aliasSeeded = await page.evaluate((k) => {
+      let st = null;
+      try { st = JSON.parse(localStorage.getItem(k)); } catch {}
+      if (!st) return false;
+      st.settings = st.settings || {};
+      st.settings.strengthCustom = st.settings.strengthCustom || {};
+      st.settings.strengthCustom["4day:5"] = Object.assign({}, st.settings.strengthCustom["4day:5"], { "Dead Bug": { swap: "Abdominal machine" } });
+      localStorage.setItem(k, JSON.stringify(st));
+      return true;
+    }, LS_KEY);
+    check("alias seed stored", aliasSeeded);
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const t = document.getElementById("strength-routine-title");
+      return !!t && t.textContent !== "Today's routine";
+    }, null, { timeout: 10000 });
+    await page.evaluate(() => document.getElementById("day-prev").click());
+    await sleep(300);
+    await ensureRoutineOpen();
+    check("old lowercase swap shows the merged exercise", (await txt("#strength-routine-list")).indexOf("Abdominal Machine, 2 x 12") !== -1);
+    check("old lowercase swap shows swapped-from", (await txt("#strength-routine-list")).indexOf("Swapped from Dead Bug.") !== -1);
+    await page.click("#strength-routine-reset-btn");
+    await sleep(300);
+    check("alias swap cleared by reset", (await txt("#strength-routine-list")).indexOf("Dead Bug, 2 x 10 each side") !== -1);
+
+    // Section 24 (v101): Skip personalization closes first-run setup
     // without the Terms box ticked. Fresh context, so no setup-done key
     // is set and the overlay must appear. The demo has no setup overlay.
     const freshCtx = await browser.newContext();
