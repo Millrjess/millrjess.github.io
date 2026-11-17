@@ -1095,10 +1095,11 @@ async function main() {
 
     // 22. v100: the full gym library. 44 new strength exercises
     // (every common machine, barbells, kettlebells, cables, bands,
-    // lunges, bodyweight) and 19 new cardio moves in the picker.
+    // lunges, bodyweight) and 20 new cardio moves in the picker
+    // (v110 adds Brisk walk and renames Outdoor cycling to flat).
     // Nothing was deleted: the built-in plans are untouched.
     const NEW_STRENGTH = ["Cable Crossover", "Smith Machine Squat", "Smith Machine Bench Press", "Assisted Pull-up", "Assisted Dip", "Back Extension machine", "Torso Rotation machine", "Lateral Raise machine", "Triceps Pushdown", "Cable Row", "Preacher Curl machine", "Hack Squat machine", "Lying Leg Curl machine", "Incline Chest Press machine", "T-Bar Row", "Rear Delt Fly machine", "Barbell Bench Press", "Barbell Squat", "Barbell Deadlift", "Barbell Row", "Barbell Overhead Press", "Dumbbell Forward Lunge", "Dumbbell Walking Lunge", "Dumbbell Lateral Lunge", "Dumbbell Front Raise", "Concentration Curl", "Dumbbell Pullover", "Kettlebell Swing", "Kettlebell Deadlift", "Band Pull-Apart", "Band Squat", "Band Pull-Through", "Step-ups", "Wall Sit", "Bird Dog", "Bench Dip", "Diamond Push-up", "Russian Twist", "Bicycle Crunch", "Hanging Knee Raise", "Leg Raise", "Cable Kickback", "Face Pull", "Cable Lateral Raise"];
-    const NEW_CARDIO = ["Treadmill walk", "Treadmill run", "Elliptical", "Stationary bike", "Recumbent bike", "Spin bike", "Rowing machine", "Stair climber", "Swimming", "Water aerobics", "Outdoor walk", "Outdoor run", "Outdoor cycling", "Hiking", "Dance", "Aerobics class", "Jump rope", "Yoga", "Tai chi"];
+    const NEW_CARDIO = ["Brisk walk", "Treadmill walk", "Treadmill run", "Elliptical", "Stationary bike", "Recumbent bike", "Spin bike", "Rowing machine", "Stair climber", "Swimming", "Water aerobics", "Outdoor walk", "Outdoor run", "Outdoor cycling, flat", "Hiking", "Dance", "Aerobics class", "Jump rope", "Yoga", "Tai chi"];
     const lib = await page.evaluate(([ns, nc]) => {
       const badSwaps = [];
       Object.entries(STRENGTH_SWAPS).forEach(([k, alts]) => {
@@ -1121,12 +1122,18 @@ async function main() {
     }, [NEW_STRENGTH, NEW_CARDIO]);
     // v109: the lowercase "Abdominal machine" entry was merged into
     // "Abdominal Machine", so the index has one fewer exercise.
-    check("strength index has 98 exercises", lib.indexCount === 98, "got " + lib.indexCount);
+    // v110: eight entries join the index: the six beginner moves
+    // (Sit-to-stand, Pallof press with band, Farmer's carry, Suitcase
+    // carry, Hip hinge to a chair or wall, Chair squat) plus the two
+    // lighter-day moves (5-minute walk, Gentle full-body stretch),
+    // which were movement entries and are now in the strength index
+    // too, so the lighter-day routine can resolve them.
+    check("strength index has 106 exercises", lib.indexCount === 106, "got " + lib.indexCount);
     check("all 44 new strength names in the index", lib.newMissing.length === 0, "missing: " + lib.newMissing.join(", "));
     check("every new strength entry has 2 swap alternatives", lib.newNoSwaps.length === 0, "missing: " + lib.newNoSwaps.join(", "));
     check("every swap key and target resolves", lib.badSwaps.length === 0, lib.badSwaps.slice(0, 3).join("; "));
-    check("movement library has 37 entries", lib.libNames.length === 37, "got " + lib.libNames.length);
-    check("all 19 new cardio moves in the picker list", lib.cardioMissing.length === 0, "missing: " + lib.cardioMissing.join(", "));
+    check("movement library has 38 entries", lib.libNames.length === 38, "got " + lib.libNames.length);
+    check("all 20 new cardio moves in the picker list", lib.cardioMissing.length === 0, "missing: " + lib.cardioMissing.join(", "));
     check("built-in plans untouched: 63 routine slots", lib.slots === 63, "got " + lib.slots);
     check("YMCA still 21 exercises", lib.ymca === 21, "got " + lib.ymca);
     // The All Exercises tab lists the new machines, and adding one
@@ -1235,7 +1242,7 @@ async function main() {
     await page.click('[data-lib-chip="All"]');
     await sleep(300);
     const allVisible = await libVisible();
-    check("All chip shows 98 exercises", allVisible.length === 98, String(allVisible.length));
+    check("All chip shows 106 exercises", allVisible.length === 106, String(allVisible.length));
     check("library has one Abdominal Machine", allVisible.filter((n) => n === "Abdominal Machine").length === 1);
     check("library has no lowercase Abdominal machine", (await txt("#strength-all-exercises")).indexOf("Abdominal machine") === -1);
     // A swap for just this date: stored under the date, not the weekday.
@@ -1316,6 +1323,342 @@ async function main() {
       check("Skip closes setup without the Terms box", await fresh.evaluate(() => { const o = document.getElementById("setup-overlay"); return !!o && o.classList.contains("hidden"); }));
       check("Skip marks setup done", await fresh.evaluate((key) => { try { return localStorage.getItem(key) === "1"; } catch { return false; } }, SETUP_KEY));
     }
+    // Section 25 (v110): reset week, "My plan", cardio intensity
+    // tags, strength tags and gated lifts, the 48-hour warning, the
+    // progression hint, and the effort cue. The page is on Friday
+    // Nov 13, 4-day plan, Lower B.
+
+    // 25a. Cardio list and intensity tags.
+    const cardio25 = await page.evaluate(() => {
+      const byName = {};
+      EXERCISE_LIBRARY.forEach((e) => { byName[e.name] = e; });
+      return {
+        brisk: byName["Brisk walk"] || null,
+        flat: byName["Outdoor cycling, flat"] || null,
+        oldCycling: !!byName["Outdoor cycling"],
+        allTagged: ["Brisk walk", "Treadmill walk", "Treadmill run", "Elliptical", "Stationary bike", "Recumbent bike", "Spin bike", "Rowing machine", "Stair climber", "Swimming", "Water aerobics", "Outdoor walk", "Outdoor run", "Outdoor cycling, flat", "Hiking", "Dance", "Aerobics class", "Jump rope", "Yoga", "Tai chi"].every((n) => byName[n] && (byName[n].intensity === "Moderate" || byName[n].intensity === "Vigorous" || byName[n].intensity === "Balance")),
+        vigorous: ["Treadmill run", "Outdoor run", "Spin bike", "Jump rope"].map((n) => byName[n] && byName[n].intensity),
+        yoga: byName["Yoga"],
+        taiChi: byName["Tai chi"],
+        count: EXERCISE_LIBRARY.length
+      };
+    });
+    check("Brisk walk is a Moderate cardio entry", !!(cardio25.brisk && cardio25.brisk.intensity === "Moderate"), JSON.stringify(cardio25.brisk));
+    check("Outdoor cycling renamed to flat", !!(cardio25.flat && cardio25.flat.intensity === "Moderate") && !cardio25.oldCycling);
+    check("every cardio entry carries an intensity tag", cardio25.allTagged);
+    check("run, spin, jump rope are Vigorous", cardio25.vigorous.every((v) => v === "Vigorous"), cardio25.vigorous.join(", "));
+    check("yoga and tai chi stay balance moves", !!(cardio25.yoga && cardio25.yoga.intensity === "Balance") && !!(cardio25.taiChi && cardio25.taiChi.intensity === "Balance"));
+    check("weekly movement total line present", (await txt("#movement-total")).indexOf("This week:") !== -1 && (await txt("#movement-total")).indexOf("of 150 minutes.") !== -1, await txt("#movement-total"));
+    const moveHidden25 = await page.evaluate(() => { const d = document.getElementById("movement-detail"); return d ? d.hidden : false; });
+    if (moveHidden25) { await page.click("#movement-row"); await sleep(200); }
+    await page.click("#movement-customize");
+    await sleep(300);
+    check("picker header gives the talk test", (await txt("#movement-plan-editor")).indexOf("Moderate means you can talk but not sing.") !== -1);
+    check("picker lists Brisk walk", (await txt("#movement-plan-list")).indexOf("Brisk walk") !== -1);
+    check("picker tags Brisk walk Moderate", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#movement-plan-list .plan-row"));
+      const row = rows.find((r) => r.textContent.indexOf("Brisk walk") !== -1);
+      return !!row && row.textContent.indexOf("Moderate") !== -1;
+    }));
+    await page.click("#movement-plan-cancel");
+    await sleep(200);
+
+    // 25b. Strength tags and the six beginner moves (data).
+    const tags25 = await page.evaluate(() => {
+      return {
+        newMoves: ["Sit-to-stand", "Pallof press with band", "Farmer's carry", "Suitcase carry", "Hip hinge to a chair or wall", "Chair squat"].filter((n) => STRENGTH_EXERCISES[n]),
+        gated: ["Barbell Squat", "Barbell Deadlift", "Barbell Bench Press", "Barbell Row", "Barbell Overhead Press", "Kettlebell Swing", "Hanging Knee Raise"].map((n) => strengthTags(n).advanced),
+        sitToStand: strengthTags("Sit-to-stand"),
+        pallof: strengthTags("Pallof press with band"),
+        farmer: strengthTags("Farmer's carry"),
+        barbellSquat: strengthTags("Barbell Squat")
+      };
+    });
+    check("six new beginner moves in the index", tags25.newMoves.length === 6, tags25.newMoves.join(", "));
+    check("all seven gated lifts are Advanced", tags25.gated.every(Boolean), tags25.gated.join(", "));
+    check("Sit-to-stand is Bodyweight Squat", tags25.sitToStand.modality === "Bodyweight" && tags25.sitToStand.pattern === "Squat" && tags25.sitToStand.beginner, JSON.stringify(tags25.sitToStand));
+    check("Pallof press is Band Core", tags25.pallof.modality === "Band" && tags25.pallof.pattern === "Core", JSON.stringify(tags25.pallof));
+    check("Farmer's carry is a Carry", tags25.farmer.pattern === "Carry", JSON.stringify(tags25.farmer));
+    check("Barbell Squat is Advanced and not a beginner default", tags25.barbellSquat.advanced && !tags25.barbellSquat.beginner, JSON.stringify(tags25.barbellSquat));
+
+    // 25c. Library rows show the tags and the Advanced mark.
+    await ensureRoutineOpen();
+    await page.click("#strength-tab-all");
+    await sleep(300);
+    check("library marks Barbell Squat Advanced", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#strength-all-exercises .routine-row"));
+      const row = rows.find((r) => r.dataset.libName === "Barbell Squat");
+      return !!row && row.textContent.indexOf("Advanced") !== -1;
+    }));
+    check("library tags Sit-to-stand Bodyweight Squat", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#strength-all-exercises .routine-row"));
+      const row = rows.find((r) => r.dataset.libName === "Sit-to-stand");
+      return !!row && row.textContent.indexOf("Bodyweight") !== -1 && row.textContent.indexOf("Squat") !== -1;
+    }));
+
+    // 25d. Swap suggestions exclude the gated lifts, but the swap
+    // library still lists them marked Advanced. T-Bar Row is added
+    // to Friday first, because its swap list names Barbell Row.
+    const swapGate25 = await page.evaluate(() => {
+      const fakeEff = { exercises: [] };
+      return {
+        tbar: swapOptionsFor("T-Bar Row", fakeEff).map((o) => o.name),
+        legRaise: swapOptionsFor("Leg Raise", fakeEff).map((o) => o.name)
+      };
+    });
+    check("T-Bar Row swaps exclude Barbell Row", swapGate25.tbar.indexOf("Barbell Row") === -1, swapGate25.tbar.join(", "));
+    check("Leg Raise swaps exclude Hanging Knee Raise", swapGate25.legRaise.indexOf("Hanging Knee Raise") === -1, swapGate25.legRaise.join(", "));
+    await page.click('[data-add-all-exercise="T-Bar Row"]');
+    await sleep(300);
+    await page.click("#strength-tab-mine");
+    await sleep(300);
+    await expandRow("__add:T-Bar Row");
+    await page.click('[data-swap-routine="__add:T-Bar Row"]');
+    await sleep(200);
+    check("swap suggestions exclude Barbell Row", (await count('.swap-picker .swap-options [data-swap-to="Barbell Row"]')) === 0);
+    check("swap library still lists Barbell Row as Advanced", await page.evaluate(() => {
+      const b = document.querySelector('.swap-picker .swap-library [data-swap-to="Barbell Row"]');
+      return !!b && b.textContent.indexOf("Advanced") !== -1;
+    }));
+    await page.click("#strength-routine-reset-btn");
+    await sleep(300);
+    check("reset removes the added T-Bar Row", (await txt("#strength-routine-list")).indexOf("T-Bar Row") === -1);
+
+    // 25e. Effort cue, progression hint, and the lighter day link.
+    // Hip Thrust (Lower B, 3 x 12) was logged last time at 12 reps
+    // with a weight, so the hint shows; Dumbbell Deadlift is 3 x 10,
+    // so it never shows the hint.
+    const hintSeeded25 = await page.evaluate((k) => {
+      let st = null;
+      try { st = JSON.parse(localStorage.getItem(k)); } catch {}
+      if (!st) return false;
+      st.strength = st.strength || [];
+      st.strength.push({ id: "v110-hint", date: "2026-11-13", name: "Hip Thrust", sets: 3, reps: 12, weight: 25 });
+      localStorage.setItem(k, JSON.stringify(st));
+      return true;
+    }, LS_KEY);
+    check("hint seed stored", hintSeeded25);
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const t = document.getElementById("strength-routine-title");
+      return !!t && t.textContent !== "Today's routine";
+    }, null, { timeout: 10000 });
+    await page.evaluate(() => document.getElementById("day-prev").click());
+    await sleep(300);
+    await ensureRoutineOpen();
+    await expandRow("Hip Thrust");
+    check("expanded row shows the effort cue", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#strength-routine-list .entry"));
+      const row = rows.find((r) => r.textContent.indexOf("Hip Thrust") !== -1);
+      return !!row && row.textContent.indexOf("Finish each set with 2-3 good reps left.") !== -1;
+    }));
+    check("Hip Thrust shows the progression hint", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#strength-routine-list .entry"));
+      const row = rows.find((r) => r.textContent.indexOf("Hip Thrust") !== -1);
+      return !!row && row.textContent.indexOf("Ready for the smallest next weight.") !== -1;
+    }));
+    await expandRow("Dumbbell Deadlift");
+    check("Dumbbell Deadlift shows no progression hint", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#strength-routine-list .entry"));
+      const row = rows.find((r) => r.textContent.indexOf("Dumbbell Deadlift") !== -1);
+      return !!row && row.textContent.indexOf("Ready for the smallest next weight.") === -1;
+    }));
+    check("Lighter day link present on a workout day", (await count("#strength-lighter-day-btn")) === 1);
+    await page.click("#strength-lighter-day-btn");
+    await sleep(300);
+    check("Lighter day loads for Friday only", (await txt("#strength-routine-title")) === "Today's routine: Lighter day", await txt("#strength-routine-title"));
+    check("Lighter day has the walk and the chair moves", (await txt("#strength-routine-list")).indexOf("5-minute walk") !== -1 && (await txt("#strength-routine-list")).indexOf("Sit-to-stand") !== -1 && (await txt("#strength-routine-list")).indexOf("Gentle full-body stretch") !== -1);
+    check("Lighter day offers a way back", (await count("#strength-lighter-day-back")) === 1);
+    const lighterStore25 = await store();
+    check("lighter day stored as a date routine", !!(lighterStore25 && lighterStore25.settings.strengthDateRoutine && lighterStore25.settings.strengthDateRoutine["2026-11-13"] === "Lighter day"));
+    await page.click("#strength-routine-reset-btn");
+    await sleep(300);
+    check("reset restores Lower B", (await txt("#strength-routine-title")) === "Today's routine: Lower B", await txt("#strength-routine-title"));
+
+    // 25f. Reset week clears the week's changes and only shows when
+    // there are changes. The week view opens on the next workout day
+    // (Monday Nov 16), so the seed goes in that week, Nov 16-22.
+    const weekSeeded25 = await page.evaluate((k) => {
+      let st = null;
+      try { st = JSON.parse(localStorage.getItem(k)); } catch {}
+      if (!st) return false;
+      st.settings = st.settings || {};
+      st.settings.strengthCustom = st.settings.strengthCustom || {};
+      st.settings.strengthCustom["4day:1"] = { "Dumbbell Bench Press": { swap: "Floor Press" } };
+      st.settings.strengthDateRoutine = st.settings.strengthDateRoutine || {};
+      st.settings.strengthDateRoutine["2026-11-20"] = "Upper A";
+      localStorage.setItem(k, JSON.stringify(st));
+      return true;
+    }, LS_KEY);
+    check("week seed stored", weekSeeded25);
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const t = document.getElementById("strength-routine-title");
+      return !!t && t.textContent !== "Today's routine";
+    }, null, { timeout: 10000 });
+    await page.evaluate(() => document.getElementById("day-prev").click());
+    await sleep(300);
+    await ensureRoutineOpen();
+    await page.click("#strength-week-row");
+    await sleep(300);
+    check("week view opens on Monday Nov 16", (await count('[data-week-view-day="2026-11-16"]')) === 1);
+    const weekSeedStore = await store();
+    check("seeded date routine stored for Nov 20", !!(weekSeedStore && weekSeedStore.settings.strengthDateRoutine && weekSeedStore.settings.strengthDateRoutine["2026-11-20"] === "Upper A"));
+    check("Reset week button shows when the week has changes", (await count("#strength-week-reset-btn")) === 1);
+    await page.click("#strength-week-reset-btn");
+    await sleep(300);
+    const weekAfter25 = await store();
+    check("Reset week clears the weekday key", !(weekAfter25 && weekAfter25.settings.strengthCustom && weekAfter25.settings.strengthCustom["4day:1"]));
+    check("Reset week clears the date routine", !(weekAfter25 && weekAfter25.settings.strengthDateRoutine && weekAfter25.settings.strengthDateRoutine["2026-11-20"]));
+    check("Reset week button hides when the week is clean", (await count("#strength-week-reset-btn")) === 0);
+    await page.click('[data-week-view-day="2026-11-20"]');
+    await sleep(300);
+    check("Friday Nov 20 is Lower B again after Reset week", (await txt("#strength-week-day-title")) === "Friday, November 20: Lower B", await txt("#strength-week-day-title"));
+    await page.click("#strength-week-close");
+    await sleep(300);
+
+    // 25g. "My plan": the editor starts from the 3-day starter plan
+    // (Mon Upper, Wed Lower, Fri Full-body); add to it, save it, see
+    // it on Today, switch back to the built-in plan, and check Reset
+    // all deactivates it without deleting it.
+    check("My plan button present", (await count("#strength-my-plan-btn")) === 1);
+    await page.click("#strength-my-plan-btn");
+    await sleep(300);
+    check("editor opens", await page.evaluate(() => { const ed = document.getElementById("strength-custom-plan-editor"); return !!ed && !ed.classList.contains("hidden"); }));
+    check("editor defaults to Mon Wed Fri", await page.evaluate(() => {
+      const cbs = Array.from(document.querySelectorAll("#strength-custom-days [data-custom-day]"));
+      const checked = cbs.filter((c) => c.checked).map((c) => c.dataset.customDay);
+      return cbs.length === 7 && checked.join(",") === "1,3,5";
+    }));
+    await page.click('[data-custom-day="2"]');
+    await sleep(200);
+    check("adjacent days show the 48-hour warning", await page.evaluate(() => { const w = document.getElementById("strength-custom-48h"); return !!w && !w.hidden; }));
+    await page.click('[data-custom-day="2"]');
+    await sleep(200);
+    check("warning hides when the days are not adjacent", await page.evaluate(() => { const w = document.getElementById("strength-custom-48h"); return !!w && w.hidden; }));
+    check("editor starts from the 3-day Upper routine", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('[data-custom-day-section="1"] .entry-title'));
+      return rows.length === 6 && rows[0].textContent.indexOf("Dumbbell Bench Press") !== -1;
+    }));
+    await page.click("#strength-custom-lighter");
+    await sleep(200);
+    await page.click('[data-custom-add-open="1"]');
+    await sleep(200);
+    await page.click('[data-custom-add="Bodyweight Squat"]');
+    await sleep(200);
+    check("lighter start adds 1 set of 12", await page.evaluate(() => {
+      const s = document.querySelector('[data-custom-sets="1:6"]');
+      const r = document.querySelector('[data-custom-reps="1:6"]');
+      return !!s && !!r && s.value === "1" && r.value === "12";
+    }));
+    await page.click('[data-custom-add="Glute Bridge"]');
+    await sleep(200);
+    check("Monday has eight exercises after two adds", await page.evaluate(() => document.querySelectorAll('[data-custom-day-section="1"] [data-custom-sets]').length === 8));
+    await page.click('[data-custom-up="1:7"]');
+    await sleep(200);
+    check("move up reorders Monday", await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('[data-custom-day-section="1"] .entry-title'));
+      return rows.length === 8 && rows[6].textContent.indexOf("Glute Bridge") !== -1 && rows[7].textContent.indexOf("Bodyweight Squat") !== -1;
+    }));
+    await page.click("#strength-custom-lighter");
+    await sleep(200);
+    await page.click('[data-custom-add-open="5"]');
+    await sleep(200);
+    await page.click('[data-custom-add="Push-up, or knee push-up"]');
+    await sleep(200);
+    check("standard add is 2 sets of 10", await page.evaluate(() => {
+      const s = document.querySelector('[data-custom-sets="5:6"]');
+      const r = document.querySelector('[data-custom-reps="5:6"]');
+      return !!s && !!r && s.value === "2" && r.value === "10";
+    }));
+    await page.click("#strength-custom-save");
+    await sleep(300);
+    const planStore25 = await store();
+    check("custom plan saved with Monday reordered", !!(planStore25 && planStore25.settings.strengthCustomPlan && planStore25.settings.strengthCustomPlan.days["1"] && planStore25.settings.strengthCustomPlan.days["1"].exercises.length === 8 && planStore25.settings.strengthCustomPlan.days["1"].exercises[6].name === "Glute Bridge" && planStore25.settings.strengthCustomPlan.days["1"].exercises[7].name === "Bodyweight Squat"));
+    check("custom plan Friday has the push-up last", !!(planStore25 && planStore25.settings.strengthCustomPlan && planStore25.settings.strengthCustomPlan.days["5"] && planStore25.settings.strengthCustomPlan.days["5"].exercises.length === 7 && planStore25.settings.strengthCustomPlan.days["5"].exercises[6].name === "Push-up, or knee push-up"));
+    check("custom plan active after save", !!(planStore25 && planStore25.settings.strengthCustomPlanActive));
+    check("Today shows Full-body", (await txt("#strength-routine-title")) === "Today's routine: Full-body · My plan", await txt("#strength-routine-title"));
+    check("Friday routine shows the added push-up", (await txt("#strength-routine-list")).indexOf("Push-up, or knee push-up, 2 x 10") !== -1);
+    check("routine picker lists the three custom routines", (await count("#strength-routine-picker [data-routine-pick]")) === 3);
+    check("routine picker lists Full-body", (await count('[data-routine-pick="Full-body"]')) === 1);
+    await page.click('.tab-btn[data-tab="more"]');
+    await page.click('.more-item[data-more-goto="settings"]');
+    await sleep(300);
+    await page.evaluate(() => { const sel = document.getElementById("set-strength-plan"); if (sel) { const d = sel.closest("details"); if (d) d.open = true; } });
+    await sleep(200);
+    await page.selectOption("#set-strength-plan", "4day");
+    await sleep(900);
+    const backStore25 = await store();
+    check("switching back deactivates the custom plan", !!(backStore25 && !backStore25.settings.strengthCustomPlanActive));
+    check("custom plan kept after switching back", !!(backStore25 && backStore25.settings.strengthCustomPlan));
+    await page.click('.tab-btn[data-tab="today"]');
+    await sleep(300);
+    if ((await txt("#strength-routine-title")) === "Today's routine: Rest day") { await page.click("#day-prev"); await sleep(300); }
+    await ensureRoutineOpen();
+    check("Today is Lower B again", (await txt("#strength-routine-title")) === "Today's routine: Lower B", await txt("#strength-routine-title"));
+    await page.click('.tab-btn[data-tab="more"]');
+    await page.click('.more-item[data-more-goto="settings"]');
+    await sleep(300);
+    await page.evaluate(() => { const sel = document.getElementById("set-strength-plan"); if (sel) { const d = sel.closest("details"); if (d) d.open = true; } });
+    await sleep(200);
+    await page.selectOption("#set-strength-plan", "custom");
+    await sleep(900);
+    await page.click('.tab-btn[data-tab="today"]');
+    await sleep(300);
+    if ((await txt("#strength-routine-title")) === "Today's routine: Rest day") { await page.click("#day-prev"); await sleep(300); }
+    await ensureRoutineOpen();
+    check("custom plan reactivates from Settings", (await txt("#strength-routine-title")) === "Today's routine: Full-body · My plan", await txt("#strength-routine-title"));
+    const customSwap25 = await page.evaluate((k) => {
+      let st = null;
+      try { st = JSON.parse(localStorage.getItem(k)); } catch {}
+      if (!st) return false;
+      st.settings = st.settings || {};
+      st.settings.strengthCustom = st.settings.strengthCustom || {};
+      st.settings.strengthCustom["custom:5"] = { "Push-up, or knee push-up": { swap: "Dumbbell Bench Press" } };
+      localStorage.setItem(k, JSON.stringify(st));
+      return true;
+    }, LS_KEY);
+    check("custom swap seed stored", customSwap25);
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => {
+      const t = document.getElementById("strength-routine-title");
+      return !!t && t.textContent !== "Today's routine";
+    }, null, { timeout: 10000 });
+    await page.evaluate(() => document.getElementById("day-prev").click());
+    await sleep(300);
+    await ensureRoutineOpen();
+    check("custom swap shows on Full-body", (await txt("#strength-routine-list")).indexOf("Dumbbell Bench Press, 3 x 10") !== -1);
+    await page.click('.tab-btn[data-tab="more"]');
+    await page.click('.more-item[data-more-goto="settings"]');
+    await sleep(300);
+    await page.evaluate(() => { const sel = document.getElementById("set-strength-plan"); if (sel) { const d = sel.closest("details"); if (d) d.open = true; } });
+    await sleep(200);
+    check("reset-all enabled with a custom plan active", await page.evaluate(() => !document.getElementById("strength-reset-all").disabled));
+    await page.click("#strength-reset-all");
+    await sleep(300);
+    const resetAll25 = await store();
+    check("Reset all clears the custom swap", !(resetAll25 && resetAll25.settings.strengthCustom && resetAll25.settings.strengthCustom["custom:5"]));
+    check("Reset all deactivates the custom plan", !!(resetAll25 && !resetAll25.settings.strengthCustomPlanActive));
+    check("Reset all keeps the custom plan", !!(resetAll25 && resetAll25.settings.strengthCustomPlan));
+    check("Reset all status shown", (await txt("#strength-reset-msg")) === "Routine changes reset.");
+    await page.click('.tab-btn[data-tab="today"]');
+    await sleep(300);
+    if ((await txt("#strength-routine-title")) === "Today's routine: Rest day") { await page.click("#day-prev"); await sleep(300); }
+    await ensureRoutineOpen();
+    check("Today is Lower B after Reset all", (await txt("#strength-routine-title")) === "Today's routine: Lower B", await txt("#strength-routine-title"));
+    await page.click('.tab-btn[data-tab="more"]');
+    await page.click('.more-item[data-more-goto="settings"]');
+    await sleep(300);
+    await page.evaluate(() => { const sel = document.getElementById("set-strength-plan"); if (sel) { const d = sel.closest("details"); if (d) d.open = true; } });
+    await sleep(200);
+    await page.selectOption("#set-strength-plan", "custom");
+    await sleep(900);
+    await page.click('.tab-btn[data-tab="today"]');
+    await sleep(300);
+    if ((await txt("#strength-routine-title")) === "Today's routine: Rest day") { await page.click("#day-prev"); await sleep(300); }
+    await ensureRoutineOpen();
+    check("custom plan restores after Reset all", (await txt("#strength-routine-title")) === "Today's routine: Full-body · My plan", await txt("#strength-routine-title"));
+
     await freshCtx.close();
 
   } finally {
