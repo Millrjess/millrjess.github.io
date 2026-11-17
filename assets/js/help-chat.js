@@ -3,7 +3,9 @@
   var BOOKING_PAGE="../booking/";
   var STRIPE_STRATEGY_URL="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02";
   var BOOK_ANSWER="I can book the free 15-minute discovery call right here. It is free, by phone, with no obligation, on a Tuesday or Thursday. A 1-hour strategy session is $200, paid in advance at booking through Stripe.";
+  var HOW_WE_WORK_ANSWER="Ongoing care: compare care plans, book a call, then receive onboarding.<br>Projects: choose a service, check its starting price, then book a call.<br>Strategy Session: one hour, $200, payable at booking.";
   var answers=[
+    {k:["how we work together","how do we work together","how does this work"],a:HOW_WE_WORK_ANSWER},
     {k:["strategy session","strategy"],a:"A 1-hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
     {k:["price","cost","fee","charge","rate"],a:"A 1-hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full pricing page for every price."},
     {k:["book","consultation","session","appointment"],a:BOOK_ANSWER},
@@ -55,7 +57,7 @@
       }
     }
     var s=siteSearch(q); if(s) return s;
-    return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. This chat can book a free discovery call. Only Jessica can confirm a strategy session, change a price, or start work in this chat.";
+    return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. This chat asks a few questions first, then books a free discovery call or sends you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work in this chat.";
   }
   /* Booking agent: books the free 15-minute discovery call in the chat.
      The call is free, by phone, Tuesday and Thursday, 10 AM to noon and
@@ -433,7 +435,7 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Help chat");
   panel.style.cssText="display:none;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>This help chat is not Jessica. It answers only from published pages on this site, and it links you to the page that covers your question. This chat can book a free discovery call. Only Jessica can confirm a strategy session, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan?</p>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'><p style='margin:0;color:#0f2340;font-weight:700'>Help chat</p><button id='hc-close' aria-label='Close help chat' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em'>This help chat is not Jessica. It answers from published pages, asks a few questions first, then books a free discovery call or sends you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
   var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   document.getElementById("hc-log").addEventListener("click",function(e){
@@ -513,6 +515,21 @@
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
+    qualStart(log);
+    document.getElementById("hc-q").focus();
+  };
+  /* Entry point for the home page "How we work together" button: open the
+     chat, show the three ways of working together, then start qualification
+     at the service question. The step is set before the first say() so the
+     Send button reads Send. If a booking or qualification is already in
+     progress, just open the panel. */
+  window.hcHowWeWork=function(){
+    panel.style.display="block";
+    btn.setAttribute("aria-expanded","true");
+    var log=hcLog();
+    if(bk.step){ document.getElementById("hc-q").focus(); return; }
+    bk.step="qual-service";
+    say(log,HOW_WE_WORK_ANSWER);
     qualStart(log);
     document.getElementById("hc-q").focus();
   };
