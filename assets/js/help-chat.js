@@ -68,6 +68,21 @@
     d.innerHTML="<p style='margin:8px 0'>"+html+"</p>";
     log.appendChild(d);
     log.scrollTop=log.scrollHeight;
+    syncSendButton();
+  }
+  /* The send button reads Send while the chat is asking a booking
+     question and Ask when it is waiting for a question. Every booking
+     step change is followed by a say(), so syncing here covers all of them. */
+  function syncSendButton(){
+    var inp=document.getElementById("hc-q");
+    var send=document.getElementById("hc-send");
+    var lab=document.querySelector("label[for='hc-q']");
+    if(!inp||!send) return;
+    var answering=!!bk.step;
+    send.textContent=answering?"Send":"Ask";
+    inp.placeholder=answering?"Type your answer":"Ask about prices or booking";
+    inp.setAttribute("aria-label",answering?"Type your answer":"Ask about prices or booking");
+    if(lab) lab.textContent=answering?"Type your answer":"Ask about prices or booking";
   }
   function validEmail(v){ var at=v.indexOf("@"); return at>0 && v.indexOf(".",at)>at+1; }
   function validPhone(v){ return v.replace(/\D/g,"").length>=7; }
