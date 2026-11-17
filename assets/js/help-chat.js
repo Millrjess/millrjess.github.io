@@ -490,4 +490,17 @@
     say(log,"Shall I book a discovery call for you?");
     document.getElementById("hc-q").focus();
   };
+  /* Entry point for the booking page strategy button: open the chat and
+     start qualification at the service question. Picking "Strategy session"
+     shows the strategy description and the Stripe link, as before, and
+     never books. If a booking or qualification is already in progress,
+     just open the panel. */
+  window.hcStrategy=function(){
+    panel.style.display="block";
+    btn.setAttribute("aria-expanded","true");
+    var log=hcLog();
+    if(bk.step){ document.getElementById("hc-q").focus(); return; }
+    qualStart(log);
+    document.getElementById("hc-q").focus();
+  };
 })();
