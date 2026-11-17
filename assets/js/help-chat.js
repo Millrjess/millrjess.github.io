@@ -94,7 +94,7 @@
   function isResched(q){
     return q.indexOf("reschedule")>-1||q.indexOf("move my")>-1||q.indexOf("change my call")>-1||q.indexOf("different time")>-1||q.indexOf("move it")>-1;
   }
-  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; }
+  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; clearChoiceButtons(hcLog()); }
   function bkGet(url,cb){
     fetch(url).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
@@ -103,7 +103,13 @@
   }
   function clearChoiceButtons(log){
     var old=log.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual]");
-    for(var i=0;i<old.length;i++){ old[i].disabled=true; old[i].style.opacity="0.45"; }
+    var focused=document.activeElement;
+    var focusLost=false;
+    for(var i=0;i<old.length;i++){ if(old[i]===focused) focusLost=true; old[i].disabled=true; old[i].style.opacity="0.45"; }
+    /* A keyboard user on a button that just got disabled would lose focus
+       to a dead end. Return focus to the input, from where Shift+Tab
+       reaches the next set of choices. */
+    if(focusLost){ var inp=document.getElementById("hc-q"); if(inp) inp.focus(); }
   }
   function renderSlots(log,slots){
     clearChoiceButtons(log);
@@ -207,9 +213,14 @@
   }
   function hcQualPick(group,i){
     var log=hcLog();
-    if(group==="service"&&bk.step==="qual-service"){ qualServicePick(log,i); return; }
-    if(group==="budget"&&bk.step==="qual-budget"){ qualBudgetPick(log,i); return; }
-    if(group==="timeline"&&bk.step==="qual-timeline"){ qualTimelinePick(log,i); return; }
+    if(group==="service"&&bk.step==="qual-service"){ qualServicePick(log,i); }
+    else if(group==="budget"&&bk.step==="qual-budget"){ qualBudgetPick(log,i); }
+    else if(group==="timeline"&&bk.step==="qual-timeline"){ qualTimelinePick(log,i); }
+    else { return; }
+    /* A pick that leads to a typed question (timeline to website, service
+       to "something else") renders no buttons, so focus would stay on the
+       picked button and typed keys would go nowhere. Put focus in the input. */
+    var inp=document.getElementById("hc-q"); if(inp) inp.focus();
   }
   function qualTextService(q){
     if(q.indexOf("care")>-1||q.indexOf("maintenance")>-1) return 0;
@@ -265,6 +276,7 @@
         bk.booked=true;
         bk.eventLabel=res.label||bk.slot.label;
         bk.step=null;
+        clearChoiceButtons(log);
         say(log,"You are booked for "+esc(bk.eventLabel)+". Jessica will call you at "+esc(bk.phone)+".");
         say(log,"Would you like a 1-hour strategy session next? It is $200, paid at booking through Stripe. <a href='"+BOOKING_PAGE+"'>Booking page</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
       } else {
@@ -281,6 +293,7 @@
       if(res&&res.success){
         bk.eventLabel=res.label||bk.slot.label;
         bk.step=null;
+        clearChoiceButtons(log);
         say(log,"Your call moved to "+esc(bk.eventLabel)+".");
       } else {
         say(log,esc(res&&res.message?res.message:"Something went wrong. Please try again."));
