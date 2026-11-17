@@ -146,6 +146,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .consult-form input:focus,.consult-form select:focus,.consult-form textarea:focus{
   outline:3px solid var(--accent-soft); border-color:var(--accent); background:#fff}
 .consult-form button{border:0; cursor:pointer; font:inherit}
+.consult-turnaway{border:1px solid var(--border); border-left:4px solid var(--accent); background:var(--accent-soft); border-radius:10px; padding:.8em 1em; margin:1em 0; color:var(--navy)}
+.consult-turnaway a{text-decoration:underline}
 
 /* mobile hamburger menu */
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
@@ -226,10 +228,29 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <option>Custom website agents &amp; workflow automation</option>
 <option>Something else</option>
 </select></label>
+<label>Your budget *
+<select name="budget" required>
+<option value="" selected>Choose a budget</option>
+<option>Under $500</option>
+<option>$500 to $1,500</option>
+<option>$1,500 to $5,000</option>
+<option>Over $5,000</option>
+<option>Not sure yet</option>
+<option>I need it free</option>
+</select></label>
+<label>Your timeline *
+<select name="timeline" required>
+<option value="" selected>Choose a timeline</option>
+<option>This month</option>
+<option>Next month or two</option>
+<option>No rush</option>
+<option>Just exploring</option>
+</select></label>
 <label>Project details *
 <textarea name="details" rows="5" required placeholder="What&rsquo;s going wrong, what you&rsquo;d like to achieve&hellip;"></textarea></label>
 <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
 <p id="consult-errors" role="alert" aria-live="assertive" hidden></p>
+<p id="consult-turnaway" class="consult-turnaway" role="alert" aria-live="assertive" tabindex="-1" hidden></p>
 <p><button class="btn" type="submit" id="consult-submit">Send Request</button></p>
 <p class="muted" id="consult-note" role="status" aria-live="polite">Your message goes straight to my inbox. Nothing is stored on this site.</p>
 <p>Please do not include passwords, payment information, or other sensitive details in your initial message.</p>
@@ -238,11 +259,14 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 document.getElementById('consult-form').addEventListener('submit', function(e){
   e.preventDefault();
   if (e.target._honey && e.target._honey.value.trim()) return;
-  var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note'), errBox = document.getElementById('consult-errors');
+  var f = e.target, btn = document.getElementById('consult-submit'), note = document.getElementById('consult-note'), errBox = document.getElementById('consult-errors'), turnaway = document.getElementById('consult-turnaway');
+  turnaway.hidden = true; turnaway.innerHTML = '';
   var fields = [
     {el: f.name, label: 'Your name', hint: 'Please enter your full name.'},
     {el: f.email, label: 'Your email', hint: 'Please enter a valid email address, for example name@example.com.'},
     {el: f.service, label: 'What do you need help with', hint: 'Please choose a topic from the list.'},
+    {el: f.budget, label: 'Your budget', hint: 'Please choose a budget from the list.'},
+    {el: f.timeline, label: 'Your timeline', hint: 'Please choose a timeline from the list.'},
     {el: f.details, label: 'Project details', hint: 'Please describe your project and what you would like to achieve.'}
   ];
   var errors = [];
@@ -266,6 +290,28 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     return;
   }
   errBox.hidden = true; errBox.innerHTML = '';
+  var service = f.service.value;
+  var budget = f.budget.value;
+  var isCarePlan = service.indexOf('Website maintenance') === 0;
+  var isSomethingElse = service === 'Something else';
+  var isOneTime = !isCarePlan && !isSomethingElse;
+  var detailsText = f.details.value.toLowerCase();
+  var outOfScope = ['logo', 'social media', 'graphic design', 'copywriting', 'video editing', 'photography'];
+  var scopeHit = outOfScope.some(function(w){ return detailsText.indexOf(w) > -1; });
+  var turnawayHtml = '';
+  if (budget === 'I need it free') {
+    turnawayHtml = 'I do not do free work. My prices are on the <a href="../pricing/">pricing page</a>. A care plan starts at $150 a month. A <a href="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02">1-hour strategy session is $200</a>.';
+  } else if (budget === 'Under $500' && isOneTime) {
+    turnawayHtml = 'One time work starts at $500. That is the floor for an audit, SEO, accessibility, or a new site or app. A care plan starts at $150 a month. A 1-hour strategy session is $200. See <a href="../pricing/">pricing</a> or <a href="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02">pay $200 for a strategy session</a>.';
+  } else if (isSomethingElse && scopeHit) {
+    turnawayHtml = 'I do website work. That request is outside it. Prices are on the <a href="../pricing/">pricing page</a>. If your website is the real need, say so and <a href="../booking/">I can book a call</a>.';
+  }
+  if (turnawayHtml) {
+    turnaway.innerHTML = turnawayHtml;
+    turnaway.hidden = false;
+    turnaway.focus();
+    return;
+  }
   btn.disabled = true; btn.textContent = 'Sending\u2026';
   var iframe = document.getElementById('consult-iframe');
   if (!iframe) {
@@ -302,6 +348,13 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   f.action = 'https://script.google.com/macros/s/AKfycbyu_GwuNpfzdxiG210DDZ-m-UgdqJaFrXwey61Cpx1Cl72DuhMttNNLsBb3JvLoXWJX/exec';
   f.method = 'POST'; f.target = 'consult-iframe';
   f.submit();
+});
+['budget', 'service', 'details'].forEach(function(name){
+  var el = document.getElementById('consult-form').elements[name];
+  if (el) el.addEventListener('change', function(){
+    var t = document.getElementById('consult-turnaway');
+    t.hidden = true; t.innerHTML = '';
+  });
 });
 </script>
 </article>
