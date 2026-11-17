@@ -476,4 +476,18 @@
   document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
   document.getElementById("hc-send").onclick=ask;
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); } });
+  /* Entry point for the booking page button: open the chat and start the
+     booking offer, the same offer the chat gives for "book a discovery call".
+     If a booking or qualification is already in progress, just open the panel. */
+  window.hcBookCall=function(){
+    panel.style.display="block";
+    btn.setAttribute("aria-expanded","true");
+    var log=hcLog();
+    if(bk.step){ document.getElementById("hc-q").focus(); return; }
+    if(!BOOKING_ENDPOINT){ say(log,"You can book a free discovery call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); document.getElementById("hc-q").focus(); return; }
+    bk.step="offer";
+    say(log,BOOK_ANSWER);
+    say(log,"Shall I book a discovery call for you?");
+    document.getElementById("hc-q").focus();
+  };
 })();
