@@ -721,8 +721,22 @@
     }
     if(bk.step==="resched-email"){
       if(!validEmail(raw)){ say(log,"That email does not look right. What email did you book with? "+HUMAN_FALLBACK); return; }
-      bk.reschedEmail=raw; bk.step="resched-slots"; bkLoadSlots(log); return;
+      bk.reschedEmail=raw; bk.step="resched-lookup";
+      say(log,"Looking up your booking. One moment.");
+      bkPost({action:"lookup",email:bk.reschedEmail},function(res){
+        if(res&&res.success&&res.found){
+          say(log,"Your call is booked for "+esc(res.label)+". Here are the open times. Pick one:");
+          bk.step="resched-slots"; bkLoadSlots(log);
+        } else {
+          var msg=res&&res.message?res.message:"I could not find a booking for that email in the next two weeks.";
+          say(log,esc(msg)+" Or call (978) 267-5304.");
+          say(log,"What email did you book with?");
+          bk.step="resched-email";
+        }
+      });
+      return;
     }
+    if(bk.step==="resched-lookup"){ say(log,"Looking up your booking. One moment."); return; }
     if(bk.step==="resched-slots"){ say(log,"Please tap one of the times above."); return; }
     if(bk.step==="resched-confirm"){
       if(isYes(q)){ bkDoReschedule(log); return; }
