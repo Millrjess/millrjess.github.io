@@ -767,6 +767,13 @@ label textarea {
   box-shadow: 0 -2px 16px rgba(78, 92, 70, 0.06);
 }
 
+.tab-list {
+  display: flex;
+  flex: 5 1 0;
+  gap: 4px;
+  min-width: 0;
+}
+
 /* v168: gold active state is the gold icon and label plus a small gold
    dot under the active tab (no gold circle behind the icon). */
 .tab-btn.active .tab-icon {
@@ -1205,6 +1212,9 @@ details.card.kitchen-hidden-compact summary::before {
     letter-spacing: 0;
   }
   .tab-bar {
+    gap: 0;
+  }
+  .tab-list {
     gap: 0;
   }
 }
@@ -2099,7 +2109,7 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .routine-picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .routine-pick-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }
 .routine-row-head { display: flex; align-items: center; gap: 8px; }
-.routine-row-toggle { flex: 1 1 auto; min-width: 0; text-align: left; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.routine-row-toggle { flex: 1 1 auto; min-width: 0; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
 .routine-row-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
 .routine-row-head label { flex: 0 0 auto; margin: 0; }
 .routine-row-head .btn { flex: 0 0 auto; }
