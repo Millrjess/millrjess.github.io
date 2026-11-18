@@ -63,7 +63,7 @@
   /* Booking agent: books the free 15-minute discovery call in the chat.
      The call is free, by phone, Tuesday and Thursday, 10 AM to noon and
      1 to 3 PM Eastern. Strategy sessions are never booked here. */
-  var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",booked:false,qualService:"",qualBudget:"",qualTimeline:"",qualOther:"",qualified:false};
+  var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",cancelEmail:"",cancelLabel:"",booked:false,qualService:"",qualBudget:"",qualTimeline:"",qualOther:"",qualified:false};
   /* Proactive agent: offers help once when a visitor struggles, and never
      nags. Three triggers: two failed validations on the same booking field,
      60 seconds idle on the pricing page with the panel closed, and two
@@ -115,11 +115,23 @@
   }
   function proactiveAnswered(){ proactiveFallbacks=0; }
   /* Voice agent: speak instead of type, and hear the replies. Uses the
-     browser's built-in speech recognition and speech synthesis. No audio
-     is recorded, stored, or sent anywhere. Text stays available always. */
+     browser's built-in speech recognition where it exists (desktop
+     Chrome), and speech synthesis for read-aloud. Where built-in speech
+     recognition is missing (iOS Safari), the microphone records and the
+     recording is sent to Cloudflare only to be transcribed into text.
+     Audio is never stored and never used to train. Text stays available
+     always. */
   var voiceListening=false;
   var voiceReadAloud=false;
   var voiceRecog=null;
+  /* Recorder fallback for browsers without built-in speech recognition
+     (iOS Safari). Tests override the endpoint with window.__hcTranscribeUrl. */
+  var VOICE_TRANSCRIBE_URL=(typeof window!=="undefined"&&window.__hcTranscribeUrl)?window.__hcTranscribeUrl:"https://website-agent-transcribe.millrjess.workers.dev/api/transcribe";
+  var VOICE_REC_MAX_MS=60000;
+  var voiceRecording=false;
+  var voiceRecorder=null;
+  var voiceRecStream=null;
+  var voiceRecTimer=null;
   function voiceSpeechRecog(){
     return window.SpeechRecognition||window.webkitSpeechRecognition||null;
   }
@@ -131,36 +143,208 @@
     d.innerHTML=html;
     return (d.textContent||"").replace(/\s+/g," ").trim();
   }
+  /* iOS Safari loads its speech voices asynchronously: getVoices() returns
+     an empty list until the voiceschanged event fires, and a speak() issued
+     before the voices are ready can silently do nothing. Prime the list
+     early and re-read it when it arrives, so a tap on the speaker always
+     has a voice to use. */
+  var voicePrimed=false;
+  var voiceSpeakTimer=null;
+  function voicePrime(){
+    var synth=voiceSynth();
+    if(!synth) return;
+    try{ synth.getVoices(); }catch(e){}
+    if(voicePrimed) return;
+    voicePrimed=true;
+    try{
+      if(synth.addEventListener){ synth.addEventListener("voiceschanged",function(){ try{ synth.getVoices(); }catch(e){} }); }
+      else if("onvoiceschanged" in synth){ synth.onvoiceschanged=function(){ try{ synth.getVoices(); }catch(e){} }; }
+    }catch(e){}
+  }
+  /* The most recent agent message in the log, as plain text. User echoes
+     carry a "You:" strong tag and are skipped. Falls back to the intro
+     when the log has no agent message yet. */
+  function voiceLastAgentText(){
+    var log=hcLog();
+    if(log){
+      var ps=log.querySelectorAll("p");
+      for(var i=ps.length-1;i>=0;i--){
+        if(ps[i].querySelector("strong")) continue;
+        var t=(ps[i].textContent||"").replace(/\s+/g," ").trim();
+        if(t) return t;
+      }
+    }
+    var all=panel.querySelectorAll("p");
+    for(var j=0;j<all.length;j++){
+      var it=(all[j].textContent||"").replace(/\s+/g," ").trim();
+      if(it.indexOf("I am Jessica's website agent.")===0) return it;
+    }
+    return "";
+  }
+  function voiceSpeakNow(synth,plain){
+    try{
+      var utt=new SpeechSynthesisUtterance(plain);
+      utt.lang="en-US";
+      try{
+        var vs=synth.getVoices?synth.getVoices():[];
+        for(var i=0;i<vs.length;i++){
+          if(vs[i]&&vs[i].lang&&vs[i].lang.toLowerCase().indexOf("en")===0){ utt.voice=vs[i]; break; }
+        }
+      }catch(e){}
+      synth.speak(utt);
+    }catch(e){}
+  }
   function voiceSpeak(text){
     if(!voiceReadAloud) return;
     var synth=voiceSynth();
     if(!synth) return;
     var plain=voiceStripHtml(text);
     if(!plain) return;
-    try{ synth.cancel(); }catch(e){}
-    try{ synth.speak(new SpeechSynthesisUtterance(plain)); }catch(e){}
+    voicePrime();
+    /* iOS Safari can swallow an utterance spoken in the same tick as a
+       cancel(). Only cancel when something is actually speaking, and give
+       the queue a moment to clear before speaking again. A fresh speak
+       with nothing queued goes out at once, inside the tap. */
+    var busy=false;
+    try{ busy=!!(synth.speaking||synth.pending); }catch(e){}
+    if(busy){
+      try{ synth.cancel(); }catch(e){}
+      if(voiceSpeakTimer) clearTimeout(voiceSpeakTimer);
+      voiceSpeakTimer=setTimeout(function(){ voiceSpeakTimer=null; if(!voiceReadAloud) return; voiceSpeakNow(synth,plain); },80);
+    } else {
+      voiceSpeakNow(synth,plain);
+    }
   }
   function syncVoiceButtons(){
     var mic=document.getElementById("hc-voice");
     var spk=document.getElementById("hc-speak");
-    if(mic){ mic.setAttribute("aria-pressed",voiceListening?"true":"false"); mic.style.background=voiceListening?"#f0dfae":"#0b1a30"; mic.style.color=voiceListening?"#0b1a30":"#fff"; }
+    if(mic){ mic.setAttribute("aria-pressed",voiceListening?"true":"false"); mic.style.background=voiceListening?"#f0dfae":"#0b1a30"; mic.style.color=voiceListening?"#0b1a30":"#fff"; mic.setAttribute("aria-label",voiceRecording?"Stop recording":"Speak instead of typing"); }
     if(spk){ spk.setAttribute("aria-pressed",voiceReadAloud?"true":"false"); spk.style.background=voiceReadAloud?"#f0dfae":"#0b1a30"; spk.style.color=voiceReadAloud?"#0b1a30":"#fff"; }
+  }
+  function voiceCanRecord(){
+    try{
+      return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+    }catch(e){ return false; }
+  }
+  function voiceReleaseRecStream(){
+    if(voiceRecStream){ try{ voiceRecStream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} }); }catch(e){} voiceRecStream=null; }
+  }
+  /* Stop a recording. send=true means transcribe it; send=false discards
+     it (panel closed, Escape, or an error). The send flag rides on the
+     recorder instance, and the chunks live in that recording's own
+     closure, so the onstop handler reads the decision made for it even
+     if a new recording starts first. */
+  function voiceStopRecording(send){
+    if(voiceRecTimer){ clearTimeout(voiceRecTimer); voiceRecTimer=null; }
+    var rec=voiceRecorder;
+    voiceRecorder=null;
+    voiceRecording=false;
+    voiceListening=false;
+    if(rec){
+      rec.__send=!!send;
+      if(rec.state&&rec.state!=="inactive"){
+        try{ rec.stop(); }catch(e){ voiceReleaseRecStream(); }
+      } else {
+        voiceReleaseRecStream();
+      }
+    } else {
+      voiceReleaseRecStream();
+    }
+    syncVoiceButtons();
+  }
+  function voiceSendRecording(blob){
+    say(hcLog(),"Transcribing. One moment.");
+    var headers={};
+    if(blob.type) headers["Content-Type"]=blob.type;
+    fetch(VOICE_TRANSCRIBE_URL,{method:"POST",headers:headers,body:blob}).then(function(r){
+      if(!r.ok) throw new Error("transcribe "+r.status);
+      return r.json();
+    }).then(function(j){
+      var text=j&&j.text?String(j.text).trim():"";
+      if(!text){ say(hcLog(),"I could not hear anything. Type your question instead."); return; }
+      var inp=document.getElementById("hc-q");
+      inp.value=text;
+      ask();
+    }).catch(function(){
+      say(hcLog(),"Voice transcription is not available right now. Type your question instead.");
+    });
+  }
+  function voiceStartRecording(){
+    if(!voiceCanRecord()){
+      say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
+      return;
+    }
+    var log=hcLog();
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      voiceRecStream=stream;
+      var rec;
+      try{ rec=new MediaRecorder(stream); }catch(e){
+        voiceReleaseRecStream();
+        say(log,"Voice input is not available in this browser. Type your question instead.");
+        return;
+      }
+      voiceRecorder=rec;
+      var chunks=[];
+      rec.ondataavailable=function(e){
+        if(e&&e.data&&e.data.size) chunks.push(e.data);
+      };
+      rec.onstop=function(){
+        var myChunks=chunks.slice();
+        voiceReleaseRecStream();
+        if(!rec.__send) return;
+        if(!myChunks.length){ say(hcLog(),"I could not hear anything. Type your question instead."); return; }
+        var blob;
+        try{ blob=new Blob(myChunks,{type:rec.mimeType||"audio/mp4"}); }catch(e){ say(hcLog(),"Voice transcription is not available right now. Type your question instead."); return; }
+        voiceSendRecording(blob);
+      };
+      rec.onerror=function(){
+        voiceStopRecording(false);
+        say(hcLog(),"Voice transcription is not available right now. Type your question instead.");
+      };
+      try{ rec.start(); }catch(e){
+        voiceStopRecording(false);
+        say(log,"Voice input is not available in this browser. Type your question instead.");
+        return;
+      }
+      voiceRecording=true;
+      voiceListening=true;
+      syncVoiceButtons();
+      say(log,"Recording. Tap the microphone again to stop. Your voice is transcribed only and never stored.");
+      voiceRecTimer=setTimeout(function(){ voiceStopRecording(true); },VOICE_REC_MAX_MS);
+    }).catch(function(err){
+      var name=err&&err.name?err.name:"";
+      if(name==="NotAllowedError"||name==="SecurityError"){
+        say(log,"Microphone access was denied. Type your question instead.");
+      } else {
+        say(log,"Voice input is not available in this browser. Type your question instead.");
+      }
+    });
   }
   function voiceStopListen(){
     voiceListening=false;
+    if(voiceRecording){ voiceStopRecording(false); }
     if(voiceRecog){ try{ voiceRecog.stop(); }catch(e){} voiceRecog=null; }
     syncVoiceButtons();
   }
   function voiceStopAll(){
     voiceStopListen();
+    if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
     var synth=voiceSynth();
     if(synth){ try{ synth.cancel(); }catch(e){} }
   }
   function voiceToggleListen(){
-    if(voiceListening){ voiceStopListen(); return; }
+    if(voiceListening){
+      /* Tap again while recording: stop and transcribe. Tap again while
+         built-in listening: stop. */
+      if(voiceRecording){ voiceStopRecording(true); return; }
+      voiceStopListen();
+      return;
+    }
     var Recog=voiceSpeechRecog();
     if(!Recog){
-      say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
+      /* No built-in speech recognition (iOS Safari): record and
+         transcribe instead. */
+      voiceStartRecording();
       return;
     }
     var recog;
@@ -173,7 +357,7 @@
     recog.maxAlternatives=1;
     voiceRecog=recog;
     voiceListening=true;
-    voiceReadAloud=true;
+    /* The mic never turns read aloud on; the speaker button owns that. */
     syncVoiceButtons();
     recog.onresult=function(e){
       var transcript="";
@@ -201,9 +385,18 @@
   }
   function voiceToggleReadAloud(){
     voiceReadAloud=!voiceReadAloud;
+    var synth=voiceSynth();
     if(!voiceReadAloud){
-      var synth=voiceSynth();
+      if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
       if(synth){ try{ synth.cancel(); }catch(e){} }
+    } else {
+      /* Turning it on reads the most recent reply at once, inside the
+         tap, so the visitor hears something right away instead of
+         waiting for the next reply. iOS Safari needs the speak to start
+         from a user gesture and the voices to be loaded; voicePrime and
+         this direct call cover both. */
+      voicePrime();
+      voiceSpeak(voiceLastAgentText());
     }
     syncVoiceButtons();
   }
@@ -229,6 +422,29 @@
   function memForget(){
     try{ localStorage.removeItem(MEM_KEY); localStorage.removeItem(MEM_CONSENT_KEY); }catch(e){}
     syncForgetButton();
+  }
+  /* Forget command: a typed "forget what you remember about me" (and
+     close variants) erases the saved visit and confirms it, instead of
+     falling through to the site search. Email and phone are never stored,
+     so there is nothing else to erase. */
+  function isForget(q){
+    if(q.indexOf("forget what you remember")>-1) return true;
+    if(q.indexOf("forget me")>-1) return true;
+    if(q.indexOf("erase what you remember")>-1) return true;
+    if(q.indexOf("forget everything")>-1) return true;
+    if(q.indexOf("forget about me")>-1) return true;
+    if(q.indexOf("do not remember me")>-1||q.indexOf("don't remember me")>-1) return true;
+    if(q.indexOf("forget")>-1&&q.indexOf("remember")>-1) return true;
+    return false;
+  }
+  function doForget(log){
+    var had=!!memRead();
+    memForget();
+    bk.step=null;
+    removeChoiceButtons();
+    if(had){ say(log,"Forgotten. I have erased what I remembered about you, and I will not remember this visit."); }
+    else { say(log,"Forgotten. There was nothing saved to erase, and I will not remember this visit."); }
+    syncSendButton();
   }
   function memDecline(){
     try{ localStorage.setItem(MEM_CONSENT_KEY,"no"); }catch(e){}
@@ -323,6 +539,25 @@
   function isResched(q){
     return q.indexOf("reschedule")>-1||q.indexOf("move my")>-1||q.indexOf("change my call")>-1||q.indexOf("different time")>-1||q.indexOf("move it")>-1;
   }
+  /* Cancel by chat: "cancel my booking", "cancel my call", "I need to
+     cancel", and close variants. A bare "cancel" is NOT a match: that is
+     the stop command ("Type cancel any time to stop"), handled elsewhere. */
+  function isCancelBooking(q){
+    if(q.indexOf("cancel my booking")>-1) return true;
+    if(q.indexOf("cancel my call")>-1) return true;
+    if(q.indexOf("cancel the call")>-1) return true;
+    if(q.indexOf("cancel my appointment")>-1) return true;
+    if(q.indexOf("cancel the appointment")>-1) return true;
+    if(q.indexOf("cancel my session")>-1) return true;
+    if(q.indexOf("cancel the session")>-1) return true;
+    if(q.indexOf("cancel my meeting")>-1) return true;
+    if(q.indexOf("cancel the meeting")>-1) return true;
+    if(q.indexOf("cancel my discovery")>-1) return true;
+    if(q.indexOf("i need to cancel")>-1) return true;
+    if(q.indexOf("i want to cancel")>-1) return true;
+    if(q.indexOf("cancel")>-1&&(q.indexOf("booking")>-1||q.indexOf("appointment")>-1)) return true;
+    return false;
+  }
   /* Human fallback for validation re-prompts and the reschedule
      not-found message: a stuck visitor can reach a human. */
   var HUMAN_FALLBACK="Or email millrjess@gmail.com / call (978) 267-5304.";
@@ -343,7 +578,7 @@
     if(q.indexOf("my website")>-1||q.indexOf("my site")>-1||q.indexOf("website needs")>-1||q.indexOf("site needs")>-1||q.indexOf("needs care")>-1||q.indexOf("care plan")>-1||q.indexOf("i need")>-1) return true;
     return qualTextService(q)>-1;
   }
-  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; removeChoiceButtons(); }
+  function bkReset(){ bk.step=null; bk.name=""; bk.phone=""; bk.website=""; bk.topic=""; bk.slots=[]; bk.slot=null; bk.reschedEmail=""; bk.cancelEmail=""; bk.cancelLabel=""; bk.qualService=""; bk.qualBudget=""; bk.qualTimeline=""; bk.qualOther=""; bk.qualified=false; removeChoiceButtons(); }
   function bkGet(url,cb){
     fetch(url).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
   }
@@ -377,11 +612,11 @@
     box.scrollTop=0;
     scrollLog(log);
   }
-  function renderConfirm(log,yesLabel){
+  function renderConfirm(log,yesLabel,noLabel){
     removeChoiceButtons();
     var box=hcChoices();
     var d=document.createElement("div");
-    d.innerHTML="<button type='button' data-hc-confirm='yes' style='background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 6px 6px 0;cursor:pointer;font:inherit;font-weight:700'>"+yesLabel+"</button><button type='button' data-hc-confirm='no' style='background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 0;cursor:pointer;font:inherit'>No, pick another time</button>";
+    d.innerHTML="<button type='button' data-hc-confirm='yes' style='background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 6px 6px 0;cursor:pointer;font:inherit;font-weight:700'>"+yesLabel+"</button><button type='button' data-hc-confirm='no' style='background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 0;cursor:pointer;font:inherit'>"+(noLabel||"No, pick another time")+"</button>";
     box.appendChild(d);
     box.scrollTop=0;
     scrollLog(log);
@@ -586,6 +821,40 @@
       }
     });
   }
+  /* Cancel by chat: find the booking by email (the same lookup the
+     reschedule pre-check uses), ask for a clear confirmation, then
+     delete the one matching event. A not-found answer says so plainly
+     and never restarts the booking pitch. */
+  function startCancel(log){
+    if(bk.booked&&bk.email&&bk.eventLabel){
+      bk.cancelEmail=bk.email;
+      bk.cancelLabel=bk.eventLabel;
+      bk.step="cancel-confirm";
+      say(log,"Your call is booked for "+esc(bk.cancelLabel)+". Shall I cancel it?");
+      renderConfirm(log,"Yes, cancel it","No, keep my call");
+      return;
+    }
+    bk.step="cancel-email";
+    say(log,"I can cancel your discovery call. What email did you book with?");
+  }
+  function bkDoCancel(log){
+    say(log,"Cancelling your call. One moment.");
+    bkPost({action:"cancel",email:bk.cancelEmail},function(res){
+      if(res&&res.success){
+        bk.booked=false;
+        bk.eventLabel="";
+        bk.step=null;
+        removeChoiceButtons();
+        say(log,"Your call on "+esc(res.label||bk.cancelLabel)+" is cancelled.");
+      } else {
+        var msg=res&&res.message?res.message:"Something went wrong. Please try again.";
+        bk.step=null;
+        removeChoiceButtons();
+        say(log,esc(msg)+" You can book a new call on the <a href='"+BOOKING_PAGE+"'>booking page</a>, email millrjess@gmail.com, or call (978) 267-5304.");
+      }
+      syncSendButton();
+    });
+  }
   function hcSlotPick(i){
     var log=hcLog();
     if(bk.step!=="slots"&&bk.step!=="resched-slots") return;
@@ -625,6 +894,13 @@
       bk.step="resched-slots";
       say(log,"Here are the open times. Pick one:");
       renderSlots(log,bk.slots);
+      return;
+    }
+    if(bk.step==="cancel-confirm"){
+      if(v==="yes"){ bkDoCancel(log); return; }
+      bk.step=null;
+      say(log,"No problem. Your call is still booked for "+esc(bk.cancelLabel||"the time you picked")+".");
+      return;
     }
   }
   function bkHandle(q,raw,log){
@@ -744,6 +1020,32 @@
       say(log,"Please tap Yes or No, or type yes or no.");
       return;
     }
+    if(bk.step==="cancel-email"){
+      if(!validEmail(raw)){ say(log,"That email does not look right. What email did you book with? "+HUMAN_FALLBACK); return; }
+      bk.cancelEmail=raw; bk.step="cancel-lookup";
+      say(log,"Looking up your booking. One moment.");
+      bkPost({action:"lookup",email:bk.cancelEmail},function(res){
+        if(res&&res.success&&res.found){
+          bk.cancelLabel=res.label;
+          bk.step="cancel-confirm";
+          say(log,"Your call is booked for "+esc(res.label)+". Shall I cancel it?");
+          renderConfirm(log,"Yes, cancel it","No, keep my call");
+        } else {
+          var msg=res&&res.message?res.message:"I could not find a booking for that email in the next two weeks.";
+          bk.step=null;
+          say(log,esc(msg)+" You can book a new call on the <a href='"+BOOKING_PAGE+"'>booking page</a>, email millrjess@gmail.com, or call (978) 267-5304.");
+        }
+        syncSendButton();
+      });
+      return;
+    }
+    if(bk.step==="cancel-lookup"){ say(log,"Looking up your booking. One moment."); return; }
+    if(bk.step==="cancel-confirm"){
+      if(isYes(q)){ bkDoCancel(log); return; }
+      if(isNo(q)){ bk.step=null; say(log,"No problem. Your call is still booked for "+esc(bk.cancelLabel||"the time you picked")+"."); return; }
+      say(log,"Please tap Yes or No, or type yes or no.");
+      return;
+    }
   }
   var btn=document.createElement("button");
   btn.id="hc-toggle";
@@ -755,8 +1057,8 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Website agent");
   panel.style.cssText="display:none;flex-direction:column;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, book a free discovery call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:6'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:7'>Forget what you remember about me</button>";
-  var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, book a free discovery call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing. Your voice is transcribed only, never stored.' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:6'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:7'>Forget what you remember about me</button>";
+  var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}#hc-q{min-width:0}@media (max-width:480px){#hc-voice,#hc-speak{width:44px !important;height:44px !important;padding:.6em !important}#hc-send{padding:.8em .8em !important}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   /* Choice buttons live in #hc-choices, a sibling of the log, so the
      delegated click listener sits on the panel that holds both. */
@@ -784,6 +1086,19 @@
     var q=raw.toLowerCase();
     var log=document.getElementById("hc-log");
     var d=document.createElement("div"); d.innerHTML="<p style='margin:8px 0'><strong>You:</strong> "+esc(raw)+"</p>"; log.appendChild(d); scrollLog(log); inp.value="";
+    if(isForget(q)){ doForget(log); return; }
+    if(isCancelBooking(q)){ startCancel(log); return; }
+    if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+    /* A reschedule, book, or strategy intent is not trapped by the
+       memory question that follows a booking (or a returning-visitor
+       greeting). Clear that step and let the normal handler run, so a
+       visitor can reschedule right after booking without first
+       answering Yes or No. A plain yes or no still answers the memory
+       question, and the Yes/No buttons keep working. */
+    if((bk.step==="memory-consent"||bk.step==="memory-resume")&&(isResched(q)||isBookIntent(q)||q.indexOf("strategy")>-1)){
+      bk.step=null;
+      syncSendButton();
+    }
     if(bk.step==="turnaway"){
       if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
       if(isTurnawayWebsiteNeed(q)){ qualStart(log); return; }
@@ -825,6 +1140,7 @@
   document.getElementById("hc-speak").onclick=voiceToggleReadAloud;
   document.getElementById("hc-forget").onclick=function(){ bkReset(); memForget(); say(hcLog(),"Forgotten. I will not remember this visit."); };
   syncForgetButton();
+  voicePrime();
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); } });
   /* Proactive idle trigger: 60 seconds with no activity on the pricing page,
      panel closed, chat never opened this session. Any activity resets it.
