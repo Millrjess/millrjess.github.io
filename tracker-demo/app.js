@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v110";
+const APP_VERSION = "v113";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -4419,7 +4419,7 @@ function routineRowHtml(item, eff, opts) {
      tapping Undo removes today's entry for the exercise. The weight
      input stays visible but disabled, showing the logged weight. */
   const logPart = opts.showLog
-    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Weight <input type="number" class="routine-weight-input" style="width:44px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label>${opts.alreadyLogged ? `<button type="button" class="btn btn-small" data-unlog-routine="${escapeHtml(ex.name)}" aria-label="Undo log for ${escapeHtml(ex.name)}">Undo</button>` : `<button type="button" class="btn btn-small" data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">Log</button>`}`
+    ? `<label style="display:inline-flex;align-items:center;gap:4px;font-size:.9rem">Wt. <input type="number" class="routine-weight-input" style="width:64px" data-weight-for="${escapeHtml(ex.name)}" value="${escapeHtml(String(prefillW))}" min="0" step="0.5" aria-label="Weight in pounds for ${escapeHtml(ex.name)}"${opts.alreadyLogged ? " disabled" : ""}></label>${opts.alreadyLogged ? `<button type="button" class="btn btn-small" data-unlog-routine="${escapeHtml(ex.name)}" aria-label="Undo log for ${escapeHtml(ex.name)}">Undo</button>` : `<button type="button" class="btn btn-small" data-log-routine="${escapeHtml(ex.name)}" aria-label="Log ${escapeHtml(ex.name)}">Log</button>`}`
     : "";
   const expanded = !!opts.expanded;
   const detail = expanded
