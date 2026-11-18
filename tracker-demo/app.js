@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v114";
+const APP_VERSION = "v115";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -16977,7 +16977,8 @@ function populateVoicePicker() {
 /* v114: Preview the voice. Speaks a sample line in the voice
    currently chosen in the picker, Azure or phone, so you can hear
    it before saving. */
-document.getElementById("companion-voice-preview").addEventListener("click", () => {
+const voicePreviewBtn = document.getElementById("companion-voice-preview");
+if (voicePreviewBtn) voicePreviewBtn.addEventListener("click", () => {
   const sel = document.getElementById("set-companion-voice");
   const name = sel ? sel.value : "";
   speakWithVoice(name, "Hello. I am your AI Wellness Companion. I am here to help you stay strong while the medicine works.");
