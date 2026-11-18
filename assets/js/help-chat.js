@@ -64,6 +64,222 @@
      The call is free, by phone, Tuesday and Thursday, 10 AM to noon and
      1 to 3 PM Eastern. Strategy sessions are never booked here. */
   var bk={step:null,name:"",email:"",phone:"",website:"",topic:"",slots:[],slot:null,eventLabel:"",reschedEmail:"",booked:false,qualService:"",qualBudget:"",qualTimeline:"",qualOther:"",qualified:false};
+  /* Proactive agent: offers help once when a visitor struggles, and never
+     nags. Three triggers: two failed validations on the same booking field,
+     60 seconds idle on the pricing page with the panel closed, and two
+     questions in a row the agent could not answer. */
+  var PROACTIVE_IDLE_MS=60000;
+  var PROACTIVE_FORM_COPY="That step is giving trouble. I can walk you through it, or you can email Jessica at millrjess@gmail.com.";
+  var PROACTIVE_IDLE_COPY="Questions about pricing? I can explain a plan or a price, or book a free call.";
+  var PROACTIVE_UNANSWERED_COPY="I could not answer that. Would a free 15-minute call help? I can book one.";
+  var proactiveOffered={form:false,idle:false,unanswered:false};
+  var proactiveFormFails={};
+  var proactiveFallbacks=0;
+  var proactiveBubble=null;
+  var proactiveChatOpened=false;
+  function proactiveOffer(kind,text){
+    if(proactiveOffered[kind]) return;
+    proactiveOffered[kind]=true;
+    var log=hcLog();
+    if(panel.style.display!=="none"){ say(log,text); return; }
+    if(proactiveBubble) return;
+    var bubble=document.createElement("div");
+    bubble.id="hc-proactive";
+    bubble.setAttribute("role","status");
+    bubble.style.cssText="position:fixed;right:20px;bottom:88px;z-index:100;width:300px;max-width:calc(100vw - 40px);background:#fff;border:2px solid #0b1a30;border-radius:12px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:12px;font-family:inherit;color:#334155";
+    var offer=document.createElement("button");
+    offer.type="button";
+    offer.textContent=text;
+    offer.style.cssText="display:block;width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer;font:inherit;color:#0f2340";
+    var close=document.createElement("button");
+    close.type="button";
+    close.setAttribute("aria-label","Dismiss this offer");
+    close.textContent="X";
+    close.style.cssText="position:absolute;top:6px;right:8px;background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:.85em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:28px;min-height:28px";
+    offer.onclick=function(){ var b=proactiveBubble; proactiveBubble=null; if(b) b.remove(); panel.style.display="flex"; btn.setAttribute("aria-expanded","true"); proactiveChatOpened=true; say(hcLog(),text); document.getElementById("hc-q").focus(); };
+    close.onclick=function(){ var b=proactiveBubble; proactiveBubble=null; if(b) b.remove(); btn.focus(); };
+    bubble.appendChild(offer);
+    bubble.appendChild(close);
+    proactiveBubble=bubble;
+    document.body.appendChild(bubble);
+  }
+  function proactiveFormError(field){
+    var n=(proactiveFormFails[field]||0)+1;
+    proactiveFormFails[field]=n;
+    if(n===2) proactiveOffer("form",PROACTIVE_FORM_COPY);
+  }
+  function proactiveFormPassed(field){ proactiveFormFails[field]=0; }
+  function proactiveFallback(){
+    proactiveFallbacks++;
+    if(proactiveFallbacks===2) proactiveOffer("unanswered",PROACTIVE_UNANSWERED_COPY);
+  }
+  function proactiveAnswered(){ proactiveFallbacks=0; }
+  /* Voice agent: speak instead of type, and hear the replies. Uses the
+     browser's built-in speech recognition and speech synthesis. No audio
+     is recorded, stored, or sent anywhere. Text stays available always. */
+  var voiceListening=false;
+  var voiceReadAloud=false;
+  var voiceRecog=null;
+  function voiceSpeechRecog(){
+    return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+  }
+  function voiceSynth(){
+    return window.speechSynthesis||null;
+  }
+  function voiceStripHtml(html){
+    var d=document.createElement("div");
+    d.innerHTML=html;
+    return (d.textContent||"").replace(/\s+/g," ").trim();
+  }
+  function voiceSpeak(text){
+    if(!voiceReadAloud) return;
+    var synth=voiceSynth();
+    if(!synth) return;
+    var plain=voiceStripHtml(text);
+    if(!plain) return;
+    try{ synth.cancel(); }catch(e){}
+    try{ synth.speak(new SpeechSynthesisUtterance(plain)); }catch(e){}
+  }
+  function syncVoiceButtons(){
+    var mic=document.getElementById("hc-voice");
+    var spk=document.getElementById("hc-speak");
+    if(mic){ mic.setAttribute("aria-pressed",voiceListening?"true":"false"); mic.style.background=voiceListening?"#f0dfae":"#0b1a30"; mic.style.color=voiceListening?"#0b1a30":"#fff"; }
+    if(spk){ spk.setAttribute("aria-pressed",voiceReadAloud?"true":"false"); spk.style.background=voiceReadAloud?"#f0dfae":"#0b1a30"; spk.style.color=voiceReadAloud?"#0b1a30":"#fff"; }
+  }
+  function voiceStopListen(){
+    voiceListening=false;
+    if(voiceRecog){ try{ voiceRecog.stop(); }catch(e){} voiceRecog=null; }
+    syncVoiceButtons();
+  }
+  function voiceStopAll(){
+    voiceStopListen();
+    var synth=voiceSynth();
+    if(synth){ try{ synth.cancel(); }catch(e){} }
+  }
+  function voiceToggleListen(){
+    if(voiceListening){ voiceStopListen(); return; }
+    var Recog=voiceSpeechRecog();
+    if(!Recog){
+      say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
+      return;
+    }
+    var recog;
+    try{ recog=new Recog(); }catch(e){
+      say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
+      return;
+    }
+    recog.lang="en-US";
+    recog.interimResults=false;
+    recog.maxAlternatives=1;
+    voiceRecog=recog;
+    voiceListening=true;
+    voiceReadAloud=true;
+    syncVoiceButtons();
+    recog.onresult=function(e){
+      var transcript="";
+      try{
+        for(var i=e.resultIndex;i<e.results.length;i++){
+          if(e.results[i].isFinal) transcript+=e.results[i][0].transcript;
+        }
+      }catch(err){}
+      transcript=transcript.trim();
+      if(transcript){
+        var inp=document.getElementById("hc-q");
+        inp.value=transcript;
+        ask();
+      }
+    };
+    recog.onerror=function(e){
+      voiceStopListen();
+      var err=e&&e.error?e.error:"";
+      if(err==="not-allowed"||err==="service-not-allowed"||err==="audio-capture"||err==="network"){
+        say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
+      }
+    };
+    recog.onend=function(){ voiceStopListen(); };
+    try{ recog.start(); }catch(e){ voiceStopListen(); say(hcLog(),"Voice input is not available in this browser. Type your question instead."); }
+  }
+  function voiceToggleReadAloud(){
+    voiceReadAloud=!voiceReadAloud;
+    if(!voiceReadAloud){
+      var synth=voiceSynth();
+      if(synth){ try{ synth.cancel(); }catch(e){} }
+    }
+    syncVoiceButtons();
+  }
+  /* Agent with memory: opt-in continuity across visits, stored on the
+     visitor's device only. The tracker Companion already has opt-in
+     memory; this matches that pattern. Email and phone are never stored. */
+  var MEM_KEY="hc-memory-v1";
+  var MEM_CONSENT_KEY="hc-memory-consent-v1";
+  var memGreeted=false;
+  function memRead(){
+    try{ var raw=localStorage.getItem(MEM_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+  }
+  function memConsent(){
+    try{ return localStorage.getItem(MEM_CONSENT_KEY); }catch(e){ return null; }
+  }
+  function memSave(){
+    try{
+      localStorage.setItem(MEM_KEY,JSON.stringify({name:bk.name,service:bk.qualService,budget:bk.qualBudget,timeline:bk.qualTimeline,topic:bk.topic,savedAt:new Date().toISOString()}));
+      localStorage.setItem(MEM_CONSENT_KEY,"yes");
+    }catch(e){}
+    syncForgetButton();
+  }
+  function memForget(){
+    try{ localStorage.removeItem(MEM_KEY); localStorage.removeItem(MEM_CONSENT_KEY); }catch(e){}
+    syncForgetButton();
+  }
+  function memDecline(){
+    try{ localStorage.setItem(MEM_CONSENT_KEY,"no"); }catch(e){}
+  }
+  function syncForgetButton(){
+    var b=document.getElementById("hc-forget");
+    if(!b) return;
+    b.style.display=memRead()?"inline":"none";
+  }
+  function renderMemory(log,kind){
+    removeChoiceButtons();
+    var box=hcChoices();
+    var d=document.createElement("div");
+    d.innerHTML="<button type='button' data-hc-memory='"+kind+"-yes' style='background:#f0dfae;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 6px 6px 0;cursor:pointer;font:inherit;font-weight:700'>Yes</button><button type='button' data-hc-memory='"+kind+"-no' style='background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.7em 1em;margin:6px 0;cursor:pointer;font:inherit'>No</button>";
+    box.appendChild(d);
+    box.scrollTop=0;
+    scrollLog(log);
+  }
+  function memResume(log){
+    var m=memRead();
+    if(!m){ bk.step=null; say(log,"I do not have a past visit saved. What can I help with?"); return; }
+    bk.qualService=m.service||"";
+    bk.qualBudget=m.budget||"";
+    bk.qualTimeline=m.timeline||"";
+    bk.qualified=!!(m.service&&m.budget&&m.timeline);
+    bk.step="slots";
+    say(log,"Picking up where we left off. Here are the open times.");
+    bkLoadSlots(log);
+  }
+  function hcMemoryPick(kind,v){
+    var log=hcLog();
+    removeChoiceButtons();
+    if(kind==="consent"){
+      if(v==="yes"){ memSave(); bk.step=null; say(log,"Remembered. Next time I will pick up where we left off."); }
+      else { memDecline(); bk.step=null; say(log,"No problem. I will not remember this visit."); }
+    } else if(kind==="resume"){
+      if(v==="yes"){ memResume(log); }
+      else { bk.step=null; say(log,"No problem. What can I help with?"); }
+    }
+    syncSendButton();
+    var inp=document.getElementById("hc-q"); if(inp) inp.focus();
+  }
+  function memGreet(log){
+    if(memGreeted||bk.step) return;
+    var m=memRead();
+    if(!m||!m.name) return;
+    memGreeted=true;
+    bk.step="memory-resume";
+    say(log,"Welcome back, "+esc(m.name)+". Last time you were looking at "+esc(m.service||"your website")+". Shall I pick up where we left off?");
+    renderMemory(log,"resume");
+  }
   function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
   function hcLog(){ return document.getElementById("hc-log"); }
   /* Scroll the log to the newest message. On iOS Safari a scrollTop set
@@ -79,6 +295,7 @@
     var d=document.createElement("div");
     d.innerHTML="<p style='margin:8px 0'>"+html+"</p>";
     log.appendChild(d);
+    voiceSpeak(html);
     scrollLog(log);
     syncSendButton();
   }
@@ -141,7 +358,7 @@
   function removeChoiceButtons(){
     var box=hcChoices();
     if(!box) return;
-    var old=box.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual]");
+    var old=box.querySelectorAll("button[data-hc-slot],button[data-hc-confirm],button[data-hc-qual],button[data-hc-memory]");
     var focused=document.activeElement;
     var focusLost=false;
     for(var i=0;i<old.length;i++){ if(old[i]===focused) focusLost=true; old[i].remove(); }
@@ -331,6 +548,11 @@
         removeChoiceButtons();
         say(log,"You are booked for "+esc(bk.eventLabel)+". Jessica will call you at "+esc(bk.phone)+".");
         say(log,"Would you like a 1-hour strategy session next? It is $200, paid at booking through Stripe. <a href='"+BOOKING_PAGE+"'>Booking page</a> or <a href='"+STRIPE_STRATEGY_URL+"'>pay on Stripe</a>.");
+        if(!memConsent()){
+          bk.step="memory-consent";
+          say(log,"Would you like me to remember this visit, so next time I can pick up where we left off? You can forget it any time.");
+          renderMemory(log,"consent");
+        }
       } else {
         say(log,esc(res&&res.message?res.message:"Something went wrong. Please try again."));
         bk.step="slots";
@@ -407,6 +629,18 @@
   }
   function bkHandle(q,raw,log){
     if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+    if(bk.step==="memory-consent"){
+      if(isYes(q)){ memSave(); bk.step=null; say(log,"Remembered. Next time I will pick up where we left off."); syncSendButton(); return; }
+      if(isNo(q)){ memDecline(); bk.step=null; say(log,"No problem. I will not remember this visit."); syncSendButton(); return; }
+      say(log,"Tap Yes to remember this visit, or No to forget it.");
+      return;
+    }
+    if(bk.step==="memory-resume"){
+      if(isYes(q)){ memResume(log); return; }
+      if(isNo(q)){ bk.step=null; say(log,"No problem. What can I help with?"); syncSendButton(); return; }
+      say(log,"Tap Yes to pick up where we left off, or No to start fresh.");
+      return;
+    }
     if(bk.step==="offer"){
       if(q.indexOf("strategy")>-1){
         if(isStrategyQuestion(q)){ bkReset(); say(log,find(q)); return; }
@@ -424,18 +658,21 @@
     }
     if(bk.step==="name"){ bk.name=raw; bk.step="email"; say(log,"What email should I use?"); return; }
     if(bk.step==="email"){
-      if(!validEmail(raw)){ say(log,"That email does not look right. What email should I use? "+HUMAN_FALLBACK); return; }
+      if(!validEmail(raw)){ proactiveFormError("email"); say(log,"That email does not look right. What email should I use? "+HUMAN_FALLBACK); return; }
+      proactiveFormPassed("email");
       bk.email=raw; bk.step="phone"; say(log,"What phone number should Jessica call?"); return;
     }
     if(bk.step==="phone"){
-      if(!validPhone(raw)){ say(log,"That phone number does not look right. What phone number should Jessica call? "+HUMAN_FALLBACK); return; }
+      if(!validPhone(raw)){ proactiveFormError("phone"); say(log,"That phone number does not look right. What phone number should Jessica call? "+HUMAN_FALLBACK); return; }
+      proactiveFormPassed("phone");
       bk.phone=raw;
       bk.step="website"; say(log,"What is your website? Type skip if you do not have one."); return;
     }
     if(bk.step==="website"){
       if(q==="skip"||q==="none"||q==="no"||q==="no website"){ bk.website=""; }
       else if(/\S+\.\S{2,}/.test(raw)){ bk.website=raw; }
-      else { say(log,"That does not look like a website address. Please type the address, like example.com, or type skip."); return; }
+      else { proactiveFormError("website"); say(log,"That does not look like a website address. Please type the address, like example.com, or type skip."); return; }
+      proactiveFormPassed("website");
       bk.step="topic"; say(log,"What do you want help with?"); return;
     }
     if(bk.step==="topic"){
@@ -504,7 +741,7 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Website agent");
   panel.style.cssText="display:none;flex-direction:column;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, book a free discovery call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:6'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, book a free discovery call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:8px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices or booking</label><input id='hc-q' type='text' aria-label='Ask about prices or booking' placeholder='Ask about prices or booking' style='flex:1;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:6'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together?</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:7'>Forget what you remember about me</button>";
   var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   /* Choice buttons live in #hc-choices, a sibling of the log, so the
@@ -519,6 +756,8 @@
         if(c!==null){ hcConfirm(c); return; }
         var g=t.getAttribute("data-hc-qual");
         if(g!==null){ var parts=g.split(":"); hcQualPick(parts[0],Number(parts[1])); return; }
+        var m=t.getAttribute("data-hc-memory");
+        if(m!==null){ var mp=m.split("-"); hcMemoryPick(mp[0],mp[1]); return; }
       }
       t=t.parentNode;
     }
@@ -556,6 +795,7 @@
       return;
     }
     var reply=find(q);
+    if(reply.indexOf("I do not have a published answer for that.")===0){ proactiveFallback(); } else { proactiveAnswered(); }
     say(log,reply);
     if(reply===BOOK_ANSWER){
       if(!BOOKING_ENDPOINT) return;
@@ -563,16 +803,37 @@
       say(log,"Shall I book a discovery call for you?");
     }
   }
-  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "flex" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open) document.getElementById("hc-q").focus(); };
-  document.getElementById("hc-close").onclick=function(){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); };
-  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
+  btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "flex" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open){ proactiveChatOpened=true; memGreet(hcLog()); document.getElementById("hc-q").focus(); } else { voiceStopAll(); } };
+  document.getElementById("hc-close").onclick=function(){ voiceStopAll(); panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); };
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && panel.style.display!=="none"){ voiceStopAll(); panel.style.display="none"; btn.setAttribute("aria-expanded","false"); btn.focus(); } });
   document.getElementById("hc-send").onclick=ask;
+  document.getElementById("hc-voice").onclick=voiceToggleListen;
+  document.getElementById("hc-speak").onclick=voiceToggleReadAloud;
+  document.getElementById("hc-forget").onclick=function(){ bkReset(); memForget(); say(hcLog(),"Forgotten. I will not remember this visit."); };
+  syncForgetButton();
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); } });
+  /* Proactive idle trigger: 60 seconds with no activity on the pricing page,
+     panel closed, chat never opened this session. Any activity resets it.
+     Tests override the delay with window.__hcProactiveIdleMs. */
+  (function proactiveArmIdle(){
+    if(location.pathname.indexOf("/pricing/")===-1) return;
+    var idleMs=(typeof window!=="undefined"&&window.__hcProactiveIdleMs)?window.__hcProactiveIdleMs:PROACTIVE_IDLE_MS;
+    var timer=null;
+    function reset(){
+      if(timer) clearTimeout(timer);
+      timer=setTimeout(function(){
+        if(panel.style.display==="none"&&!proactiveChatOpened) proactiveOffer("idle",PROACTIVE_IDLE_COPY);
+      },idleMs);
+    }
+    ["mousemove","keydown","touchstart","scroll"].forEach(function(ev){ document.addEventListener(ev,reset,{passive:true}); });
+    reset();
+  })();
   /* Entry point for the booking page button: open the chat and start the
      booking offer, the same offer the chat gives for "book a discovery call".
      If a booking or qualification is already in progress, just open the panel. */
   window.hcBookCall=function(){
     panel.style.display="flex";
+    proactiveChatOpened=true;
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
@@ -589,6 +850,7 @@
      just open the panel. */
   window.hcStrategy=function(){
     panel.style.display="flex";
+    proactiveChatOpened=true;
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
@@ -602,6 +864,7 @@
      progress, just open the panel. */
   window.hcHowWeWork=function(){
     panel.style.display="flex";
+    proactiveChatOpened=true;
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
