@@ -118,8 +118,9 @@
      microphone always records and the recording is sent to Cloudflare
      only to be transcribed into text; built-in speech recognition is
      never used for input because it fails silently on iOS (no prompt,
-     immediate error). Speech synthesis is used for read-aloud. Audio
-     is never stored and never used to train. Text stays available
+     immediate error). Read-aloud uses the Azure TTS Worker (Jenny)
+     first, with the phone's built-in speech synthesis as the fallback.
+     Audio is never stored and never used to train. Text stays available
      always. */
   var voiceListening=false;
   var voiceReadAloud=false;
@@ -128,6 +129,24 @@
      is sent to Cloudflare only to be transcribed into text. Tests
      override the endpoint with window.__hcTranscribeUrl. */
   var VOICE_TRANSCRIBE_URL=(typeof window!=="undefined"&&window.__hcTranscribeUrl)?window.__hcTranscribeUrl:"https://website-agent-transcribe.millrjess.workers.dev/api/transcribe";
+  /* Read-aloud: the Azure TTS Worker speaks replies in Jenny's voice
+     first, and the phone's built-in speech synthesis is the fallback
+     when the Worker is unreachable or its audio cannot play. Tests
+     override the endpoint with window.__hcTtsUrl. */
+  var VOICE_TTS_URL=(typeof window!=="undefined"&&window.__hcTtsUrl)?window.__hcTtsUrl:"https://website-agent-tts.millrjess.workers.dev/api/speak";
+  var VOICE_TTS_VOICE="en-US-JennyNeural";
+  var VOICE_TTS_TIMEOUT_MS=10000;
+  var voiceAudio=null;
+  /* Stop the Azure audio, if any is playing, and release its object
+     URL. Clearing voiceAudio first means a stale onended/onerror
+     handler on the stopped element cannot fire the fallback. */
+  function voiceStopAudio(){
+    var a=voiceAudio;
+    voiceAudio=null;
+    if(!a) return;
+    try{ a.pause(); }catch(e){}
+    try{ if(a.__hcObjUrl) URL.revokeObjectURL(a.__hcObjUrl); }catch(e){}
+  }
   var VOICE_REC_MAX_MS=60000;
   var voiceRecording=false;
   var voiceRecorder=null;
@@ -208,25 +227,87 @@
       synth.speak(utt);
     }catch(e){}
   }
+  /* Try the Azure TTS Worker first (Jenny). Any failure (network error,
+     an error status, an empty reply, a hung request, or an audio element
+     that cannot play) falls back to the phone's built-in speech
+     synthesis, exactly as read-aloud worked before. The fallback runs
+     at most once per request. */
+  function voiceSpeakAzure(plain,synth){
+    if(!voiceReadAloud) return;
+    var done=false;
+    var timer=null;
+    function fallback(){
+      if(done) return;
+      done=true;
+      if(timer){ clearTimeout(timer); timer=null; }
+      if(synth) voiceSpeakNow(synth,plain);
+    }
+    /* A hung Worker request must not leave the visitor in silence:
+       fall back to the system voice after the timeout. */
+    timer=setTimeout(fallback,VOICE_TTS_TIMEOUT_MS);
+    var body;
+    try{ body=JSON.stringify({text:plain,voice:VOICE_TTS_VOICE,rate:"+0%",pitch:"+0st"}); }catch(e){ fallback(); return; }
+    fetch(VOICE_TTS_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:body}).then(function(r){
+      if(!r.ok) throw new Error("tts "+r.status);
+      return r.blob();
+    }).then(function(blob){
+      if(done) return;
+      if(!blob||!blob.size) throw new Error("tts empty");
+      if(timer){ clearTimeout(timer); timer=null; }
+      var objUrl;
+      try{ objUrl=URL.createObjectURL(blob); }catch(e){ fallback(); return; }
+      var audio=new Audio(objUrl);
+      audio.__hcObjUrl=objUrl;
+      voiceAudio=audio;
+      audio.onended=function(){
+        if(voiceAudio!==audio) return;
+        voiceAudio=null;
+        try{ URL.revokeObjectURL(objUrl); }catch(e){}
+      };
+      audio.onerror=function(){
+        if(voiceAudio!==audio) return;
+        voiceAudio=null;
+        try{ URL.revokeObjectURL(objUrl); }catch(e){}
+        fallback();
+      };
+      var p=null;
+      try{ p=audio.play(); }catch(e){
+        if(voiceAudio===audio) voiceAudio=null;
+        try{ URL.revokeObjectURL(objUrl); }catch(e){}
+        fallback();
+        return;
+      }
+      if(p&&p.catch) p.catch(function(){
+        if(voiceAudio===audio) voiceAudio=null;
+        try{ URL.revokeObjectURL(objUrl); }catch(e){}
+        fallback();
+      });
+    }).catch(function(){
+      fallback();
+    });
+  }
   function voiceSpeak(text){
     if(!voiceReadAloud) return;
-    var synth=voiceSynth();
-    if(!synth) return;
     var plain=voiceStripHtml(text);
     if(!plain) return;
     voicePrime();
+    var synth=voiceSynth();
+    /* Stop anything currently playing first: the Azure audio and the
+       system voice. A new reply replaces the old one, never overlaps
+       it, the same cancel-then-speak behavior the system voice had. */
+    voiceStopAudio();
     /* iOS Safari can swallow an utterance spoken in the same tick as a
        cancel(). Only cancel when something is actually speaking, and give
        the queue a moment to clear before speaking again. A fresh speak
        with nothing queued goes out at once, inside the tap. */
     var busy=false;
-    try{ busy=!!(synth.speaking||synth.pending); }catch(e){}
+    try{ busy=!!(synth&&(synth.speaking||synth.pending)); }catch(e){}
     if(busy){
       try{ synth.cancel(); }catch(e){}
       if(voiceSpeakTimer) clearTimeout(voiceSpeakTimer);
-      voiceSpeakTimer=setTimeout(function(){ voiceSpeakTimer=null; if(!voiceReadAloud) return; voiceSpeakNow(synth,plain); },80);
+      voiceSpeakTimer=setTimeout(function(){ voiceSpeakTimer=null; if(!voiceReadAloud) return; voiceSpeakAzure(plain,synth); },80);
     } else {
-      voiceSpeakNow(synth,plain);
+      voiceSpeakAzure(plain,synth);
     }
   }
   function syncVoiceButtons(){
@@ -343,6 +424,7 @@
   }
   function voiceStopAll(){
     voiceStopListen();
+    voiceStopAudio();
     if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
     var synth=voiceSynth();
     if(synth){ try{ synth.cancel(); }catch(e){} }
@@ -364,6 +446,7 @@
     voiceReadAloud=!voiceReadAloud;
     var synth=voiceSynth();
     if(!voiceReadAloud){
+      voiceStopAudio();
       if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
       if(synth){ try{ synth.cancel(); }catch(e){} }
     } else {
