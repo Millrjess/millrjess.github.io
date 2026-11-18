@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=117">
+<link rel="stylesheet" href="styles.css?v=118">
 </head>
 <body>
 
@@ -1334,10 +1334,10 @@
         </label>
         <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
         <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--ink);background:var(--cream);margin-top:.35em">
-          <option value="">Phone default voice</option>
+          <option value="azure:en-US-JennyNeural">Jenny (Azure)</option>
         </select>
         <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
-        <p class="muted">Phone voices and Azure voices are listed. For more natural phone voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
+        <p class="muted">Only Azure voices are offered. They are the natural cloud voices.</p>
         <p class="muted">Azure voices send the reply text to Microsoft Azure to be spoken. Azure does not store it.</p>
         <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
         </div>
@@ -1857,7 +1857,7 @@
     </div>
   </div>
 
-<script src="app.js?v=117"></script>
+<script src="app.js?v=118"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires

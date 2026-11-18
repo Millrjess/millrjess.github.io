@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v117";
+const APP_VERSION = "v118";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -86,7 +86,7 @@ const DEFAULTS = {
     theme: "sage", // v000: sage | dark | cream
     textSize: "normal", // v000: normal | large
     readAloud: false, // v000: read Companion replies aloud with the phone's own voice
-    companionVoice: "", // v001: the chosen speech voice name; blank means the phone default; v114: "azure:..." picks an Azure voice
+    companionVoice: "azure:en-US-JennyNeural", // v001: the chosen speech voice name; v114: "azure:..." picks an Azure voice; v118: Azure voices only, Jenny is the default
     yourName: "" // v004: your own first name, for the greeting on Today; blank means just "Good morning."
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
@@ -17278,7 +17278,8 @@ function loadCustomActivities() {
 }
 
 /* v114: Azure voices for the Companion. Five Azure neural voices
-   offered in the picker, alongside the phone's built-in voices.
+   offered in the picker. v118: Azure voices only; the phone's
+   built-in voices are no longer listed.
    They speak through the Azure TTS Worker; the reply text is sent
    to Microsoft Azure only to be spoken, and Azure does not store
    it. If the Worker is unreachable, read-aloud falls back to the
@@ -17718,33 +17719,26 @@ function phoneVoiceByName(name) {
   const voices = bestVoices(availableVoices());
   return voices.find((v) => v.name === name) || voices[0] || null;
 }
+/* v118: Azure voices only. The phone's built-in voices and the
+   "Phone default voice" option are no longer listed, per Jessica's
+   call: the picker offers only the five Azure neural voices.
+   Jenny is the default. A stored value that is not an Azure voice
+   (for example an old phone voice name) is reset to Jenny. The
+   phone-voice fallback in the read-aloud path is unchanged. */
 function populateVoicePicker() {
   const sel = document.getElementById("set-companion-voice");
   if (!sel) return;
-  const voices = bestVoices(availableVoices());
   const current = store.settings.companionVoice || "";
   sel.innerHTML = "";
-  const def = document.createElement("option");
-  def.value = "";
-  def.textContent = "Phone default voice";
-  sel.appendChild(def);
-  /* v114: Azure voices first, so the good cloud voices are easy to
-     find. Jenny is first. */
   AZURE_VOICES.forEach((v) => {
     const o = document.createElement("option");
     o.value = AZURE_PREFIX + v.voice;
     o.textContent = v.name + " (Azure)";
     sel.appendChild(o);
   });
-  voices.forEach((v) => {
-    const o = document.createElement("option");
-    o.value = v.name;
-    o.textContent = v.name + (v.lang ? " (" + v.lang + ")" : "");
-    sel.appendChild(o);
-  });
-  const known = !!azureVoiceFor(current) || voices.some((v) => v.name === current);
-  sel.value = known ? current : "";
-  if (sel.value !== current) store.settings.companionVoice = "";
+  const known = !!azureVoiceFor(current);
+  sel.value = known ? current : AZURE_PREFIX + AZURE_VOICES[0].voice;
+  if (sel.value !== current) store.settings.companionVoice = sel.value;
 }
 /* v004: Preview the voice. Speaks a sample line in the voice currently
    chosen in the picker, so you can hear it before saving. Uses the same
