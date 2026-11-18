@@ -51,7 +51,8 @@
   <p class="tagline">Stay strong while the medicine works.</p>
 </header>
 
-<nav aria-label="Main navigation"><div class="tab-bar" role="tablist">
+<nav aria-label="Main navigation"><div class="tab-bar">
+  <div class="tab-list" role="tablist">
   <button class="tab-btn active" data-tab="today" role="tab" aria-selected="true" aria-controls="tab-today">
     <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><title>Today</title><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg></span>
     <span class="tab-label">Today</span>
@@ -77,6 +78,7 @@
     <span class="tab-label">Companion</span>
     <span class="tab-dot" aria-hidden="true"></span>
   </button>
+  </div>
   <button class="tab-btn" data-tab="more" aria-haspopup="dialog" aria-expanded="false" aria-controls="more-sheet">
     <span class="tab-icon" aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><title>More</title><circle cx="6" cy="6" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="18" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/><circle cx="6" cy="18" r="1.8"/><circle cx="12" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/></svg></span>
     <span class="tab-label">More</span>
@@ -1312,6 +1314,13 @@
           <input type="checkbox" id="set-read-aloud" style="width:24px;height:24px">
           Read Companion replies aloud
         </label>
+        <label style="display:block;font-weight:600;margin-top:12px" for="set-companion-voice">Companion voice</label>
+        <select id="set-companion-voice" style="width:100%;padding:.7em .9em;border:1px solid var(--border);border-radius:10px;font:inherit;color:var(--ink);background:var(--cream);margin-top:.35em">
+          <option value="">Phone default voice</option>
+        </select>
+        <button type="button" class="btn btn-small" id="companion-voice-preview" style="margin-top:8px">Preview this voice</button>
+        <p class="muted">Phone voices and Azure voices are listed. For more natural phone voices, download an Enhanced or Premium voice in iPhone Settings &gt; Accessibility &gt; Spoken Content &gt; Voices.</p>
+        <p class="muted">Azure voices send the reply text to Microsoft Azure to be spoken. Azure does not store it.</p>
         <p class="muted">When on, new Companion replies and the morning check-in are read aloud.</p>
         </div>
       </details>
@@ -1518,6 +1527,7 @@
         <summary aria-expanded="false">Getting started · 27 sec</summary>
         <video id="help-video-getting-started" controls playsinline preload="metadata" title="Getting started: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/getting-started-poster.jpg">
           <source src="assets/videos/getting-started.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/getting-started.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1529,6 +1539,7 @@
         <summary aria-expanded="false">Entering your code · 26 sec</summary>
         <video id="help-video-entering-your-code" controls playsinline preload="metadata" title="Entering your code: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/entering-your-code-poster.jpg">
           <source src="assets/videos/entering-your-code.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/entering-your-code.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1540,6 +1551,7 @@
         <summary aria-expanded="false">Today · 19 sec</summary>
         <video id="help-video-today" controls playsinline preload="metadata" title="Today: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/today-poster.jpg">
           <source src="assets/videos/today.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/today.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1551,6 +1563,7 @@
         <summary aria-expanded="false">Shots · 15 sec</summary>
         <video id="help-video-shots" controls playsinline preload="metadata" title="Shots: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/shots-poster.jpg">
           <source src="assets/videos/shots.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/shots.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1562,6 +1575,7 @@
         <summary aria-expanded="false">Weight · 15 sec</summary>
         <video id="help-video-weight" controls playsinline preload="metadata" title="Weight: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/weight-poster.jpg">
           <source src="assets/videos/weight.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/weight.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1573,6 +1587,7 @@
         <summary aria-expanded="false">Journal · 18 sec</summary>
         <video id="help-video-journal" controls playsinline preload="metadata" title="Journal: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/journal-poster.jpg">
           <source src="assets/videos/journal.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/journal.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1584,6 +1599,7 @@
         <summary aria-expanded="false">Companion · 18 sec</summary>
         <video id="help-video-companion" controls playsinline preload="metadata" title="Companion: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/companion-poster.jpg">
           <source src="assets/videos/companion.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/companion.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1595,6 +1611,7 @@
         <summary aria-expanded="false">Kitchen · 21 sec</summary>
         <video id="help-video-kitchen" controls playsinline preload="metadata" title="Kitchen: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/kitchen-poster.jpg">
           <source src="assets/videos/kitchen.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/kitchen.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1606,6 +1623,7 @@
         <summary aria-expanded="false">Settings · 26 sec</summary>
         <video id="help-video-settings" controls playsinline preload="metadata" title="Settings: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/settings-poster.jpg">
           <source src="assets/videos/settings.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/settings.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1617,6 +1635,7 @@
         <summary aria-expanded="false">Side Effects · 15 sec</summary>
         <video id="help-video-side-effects" controls playsinline preload="metadata" title="Side Effects: New Chapter: GLP-1 Tracker™" style="display:block;width:100%;max-width:300px;margin:10px auto;border-radius:12px;background:#000" poster="assets/videos/side-effects-poster.jpg">
           <source src="assets/videos/side-effects.mp4" type="video/mp4">
+          <track kind="captions" src="assets/videos/side-effects.vtt" srclang="en" label="English">
           Your browser does not support the video tag.
         </video>
         <details class="help-video-transcript" style="margin:0 0 8px">
@@ -1699,6 +1718,7 @@
     <h2 id="getting-started-title" style="margin-top:0">Getting started</h2>
     <video id="getting-started-video" controls playsinline preload="metadata" title="Getting started: New Chapter: GLP-1 Tracker™" style="display:block;margin:0 auto;max-width:100%;max-height:60vh;border-radius:12px;background:#000" poster="assets/videos/getting-started-poster.jpg">
       <source src="assets/videos/getting-started.mp4" type="video/mp4">
+      <track kind="captions" src="assets/videos/getting-started.vtt" srclang="en" label="English">
       Your browser does not support the video tag.
     </video>
     <p class="muted" style="margin:10px 0 0">A quick tour of the app.</p>
