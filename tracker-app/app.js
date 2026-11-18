@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v113";
+const APP_VERSION = "v114";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -86,7 +86,7 @@ const DEFAULTS = {
     theme: "sage", // v000: sage | dark | cream
     textSize: "normal", // v000: normal | large
     readAloud: false, // v000: read Companion replies aloud with the phone's own voice
-    companionVoice: "", // v001: the chosen speech voice name; blank means the phone default
+    companionVoice: "", // v001: the chosen speech voice name; blank means the phone default; v114: "azure:..." picks an Azure voice
     yourName: "" // v004: your own first name, for the greeting on Today; blank means just "Good morning."
   },
   water: [],        // { id, date: "YYYY-MM-DD", oz: number }
@@ -17588,18 +17588,51 @@ function applyAppearance() {
   document.documentElement.setAttribute("data-text-size", size);
 }
 
+/* v114: Azure voices for the Companion. Five Azure neural voices
+   offered in the picker, alongside the phone's built-in voices.
+   They speak through the Azure TTS Worker; the reply text is sent
+   to Microsoft Azure only to be spoken, and Azure does not store
+   it. If the Worker is unreachable, read-aloud falls back to the
+   phone voice so it never goes silent. Stored as
+   "azure:en-US-JennyNeural" in the companionVoice setting, so the
+   picker can tell them apart from phone voice names. */
+const AZURE_TTS_URL = "https://website-agent-tts.millrjess.workers.dev/api/speak";
+const AZURE_VOICES = [
+  { name: "Jenny", voice: "en-US-JennyNeural" },
+  { name: "Aria", voice: "en-US-AriaNeural" },
+  { name: "Ava", voice: "en-US-AvaNeural" },
+  { name: "Nancy", voice: "en-US-NancyNeural" },
+  { name: "Guy", voice: "en-US-GuyNeural" },
+];
+const AZURE_PREFIX = "azure:";
+function azureVoiceFor(value) {
+  if (typeof value !== "string" || value.indexOf(AZURE_PREFIX) !== 0) return null;
+  const voice = value.slice(AZURE_PREFIX.length);
+  return AZURE_VOICES.find((v) => v.voice === voice) || null;
+}
+
 /* v000: talking voice for the Companion. Uses the phone's built-in
    speech (speechSynthesis), on-device and free; no server, no cost.
    The voice is the phone's own system voice, not a custom voice. */
 let currentUtterance = null;
 function speakCompanion(text) {
-  if (!("speechSynthesis" in window)) return false;
   const clean = String(text || "").replace(/[*#_`>\[\]()]/g, "").replace(/\s+/g, " ").trim();
   if (!clean) return false;
+  return speakWithVoice(store.settings.companionVoice || "", clean);
+}
+/* v114: one place that picks how a reply is spoken. An Azure choice
+   goes through the TTS Worker; anything else uses the phone's own
+   speech, exactly as before. */
+function speakWithVoice(value, clean) {
+  const azure = azureVoiceFor(value);
+  if (azure) return speakWithAzure(azure.voice, clean);
+  return speakWithPhone(clean, value ? phoneVoiceByName(value) : null);
+}
+function speakWithPhone(clean, voice) {
+  if (!("speechSynthesis" in window)) return false;
   try {
-    window.speechSynthesis.cancel();
+    stopSpeaking();
     const u = new SpeechSynthesisUtterance(clean);
-    const voice = selectedVoice();
     if (voice) u.voice = voice;
     u.rate = 0.9; // v004: a slightly slower read, so the Companion sounds calm and relaxed.
     currentUtterance = u;
@@ -17609,9 +17642,43 @@ function speakCompanion(text) {
     return true;
   } catch { return false; }
 }
+/* v114: speak through the Azure TTS Worker. Fetches MP3 audio and
+   plays it. On any failure, falls back to the phone default voice.
+   The Listen button listens for "error" on the audio, so the
+   fallback fires it first to reset the button. */
+function speakWithAzure(voiceName, clean) {
+  if (typeof Audio === "undefined") return speakWithPhone(clean, null);
+  stopSpeaking();
+  const audio = new Audio();
+  currentUtterance = audio;
+  audio.onended = () => { if (currentUtterance === audio) currentUtterance = null; };
+  audio.onerror = () => { if (currentUtterance === audio) currentUtterance = null; };
+  fetch(AZURE_TTS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: clean, voice: voiceName, rate: "-10%" }), // v114: -10% matches the 0.9 calm rate used for phone voices
+  }).then((resp) => {
+    if (!resp.ok) throw new Error("tts " + resp.status);
+    return resp.blob();
+  }).then((blob) => {
+    if (!blob || !blob.size) throw new Error("tts empty");
+    if (currentUtterance !== audio) return;
+    audio.src = URL.createObjectURL(blob);
+    return audio.play();
+  }).catch(() => {
+    if (currentUtterance !== audio) return;
+    try { audio.dispatchEvent(new Event("error")); } catch {}
+    speakWithPhone(clean, null);
+  });
+  return true;
+}
 function stopSpeaking() {
-  if (!("speechSynthesis" in window)) return;
-  try { window.speechSynthesis.cancel(); } catch {}
+  if (currentUtterance && typeof currentUtterance.pause === "function") {
+    try { currentUtterance.pause(); } catch {}
+  }
+  if ("speechSynthesis" in window) {
+    try { window.speechSynthesis.cancel(); } catch {}
+  }
   currentUtterance = null;
 }
 
@@ -17643,9 +17710,11 @@ function bestVoices(voices) {
   if (nonCompact.length) return nonCompact;
   return same;
 }
-function selectedVoice() {
-  const name = store.settings.companionVoice || "";
-  if (!name) return null;
+/* v114: the phone voice for a stored name, or null for the phone
+   default. A stored Azure value ("azure:...") never matches a
+   phone voice, so it returns null and the Azure path is used. */
+function phoneVoiceByName(name) {
+  if (!name || azureVoiceFor(name)) return null;
   const voices = bestVoices(availableVoices());
   return voices.find((v) => v.name === name) || voices[0] || null;
 }
@@ -17659,31 +17728,34 @@ function populateVoicePicker() {
   def.value = "";
   def.textContent = "Phone default voice";
   sel.appendChild(def);
+  /* v114: Azure voices first, so the good cloud voices are easy to
+     find. Jenny is first. */
+  AZURE_VOICES.forEach((v) => {
+    const o = document.createElement("option");
+    o.value = AZURE_PREFIX + v.voice;
+    o.textContent = v.name + " (Azure)";
+    sel.appendChild(o);
+  });
   voices.forEach((v) => {
     const o = document.createElement("option");
     o.value = v.name;
     o.textContent = v.name + (v.lang ? " (" + v.lang + ")" : "");
     sel.appendChild(o);
   });
-  sel.value = voices.some((v) => v.name === current) ? current : "";
+  const known = !!azureVoiceFor(current) || voices.some((v) => v.name === current);
+  sel.value = known ? current : "";
   if (sel.value !== current) store.settings.companionVoice = "";
 }
 /* v004: Preview the voice. Speaks a sample line in the voice currently
    chosen in the picker, so you can hear it before saving. Uses the same
    calm rate as the real read-aloud. */
+/* v114: Preview the voice. Speaks a sample line in the voice
+   currently chosen in the picker, Azure or phone, so you can hear
+   it before saving. */
 document.getElementById("companion-voice-preview").addEventListener("click", () => {
-  if (!("speechSynthesis" in window)) return;
   const sel = document.getElementById("set-companion-voice");
   const name = sel ? sel.value : "";
-  const voices = bestVoices(availableVoices());
-  const voice = name ? voices.find((v) => v.name === name) || null : null;
-  try {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance("Hello. I am your AI Wellness Companion. I am here to help you stay strong while the medicine works.");
-    if (voice) u.voice = voice;
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-  } catch {}
+  speakWithVoice(name, "Hello. I am your AI Wellness Companion. I am here to help you stay strong while the medicine works.");
 });
 function isSpeaking() { return currentUtterance !== null; }
 let lastSpokenReply = "";
@@ -17774,8 +17846,15 @@ function renderChat() {
         const u = currentUtterance;
         if (u) {
           const done = () => { b.innerHTML = SPEAKER_SVG + " Listen"; b.classList.remove("playing"); b.setAttribute("aria-label", "Listen to this reply"); };
-          u.addEventListener("end", done);
-          u.addEventListener("error", done);
+          /* v114: Azure playback is an Audio element, which fires
+             "ended" instead of "end". */
+          if (typeof u.play === "function") {
+            u.addEventListener("ended", done);
+            u.addEventListener("error", done);
+          } else {
+            u.addEventListener("end", done);
+            u.addEventListener("error", done);
+          }
         }
       }
     });
