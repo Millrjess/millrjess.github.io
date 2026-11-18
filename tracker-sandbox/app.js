@@ -17263,6 +17263,29 @@ function loadCustomActivities() {
   getCustomActivities();
 }
 
+/* v114: Azure voices for the Companion. Five Azure neural voices
+   offered in the picker, alongside the phone's built-in voices.
+   They speak through the Azure TTS Worker; the reply text is sent
+   to Microsoft Azure only to be spoken, and Azure does not store
+   it. If the Worker is unreachable, read-aloud falls back to the
+   phone voice so it never goes silent. Stored as
+   "azure:en-US-JennyNeural" in the companionVoice setting, so the
+   picker can tell them apart from phone voice names. */
+const AZURE_TTS_URL = "https://website-agent-tts.millrjess.workers.dev/api/speak";
+const AZURE_VOICES = [
+  { name: "Jenny", voice: "en-US-JennyNeural" },
+  { name: "Aria", voice: "en-US-AriaNeural" },
+  { name: "Ava", voice: "en-US-AvaNeural" },
+  { name: "Nancy", voice: "en-US-NancyNeural" },
+  { name: "Guy", voice: "en-US-GuyNeural" },
+];
+const AZURE_PREFIX = "azure:";
+function azureVoiceFor(value) {
+  if (typeof value !== "string" || value.indexOf(AZURE_PREFIX) !== 0) return null;
+  const voice = value.slice(AZURE_PREFIX.length);
+  return AZURE_VOICES.find((v) => v.voice === voice) || null;
+}
+
 maybeRestoreFromSnapshot();
 if (ensureEntryIds()) saveStore(); // persist ids given to old entries (F27)
 loadCustomActivities();
@@ -17533,29 +17556,6 @@ function applyAppearance() {
   const size = s.textSize === "large" ? "large" : "normal";
   document.documentElement.setAttribute("data-theme", theme);
   document.documentElement.setAttribute("data-text-size", size);
-}
-
-/* v114: Azure voices for the Companion. Five Azure neural voices
-   offered in the picker, alongside the phone's built-in voices.
-   They speak through the Azure TTS Worker; the reply text is sent
-   to Microsoft Azure only to be spoken, and Azure does not store
-   it. If the Worker is unreachable, read-aloud falls back to the
-   phone voice so it never goes silent. Stored as
-   "azure:en-US-JennyNeural" in the companionVoice setting, so the
-   picker can tell them apart from phone voice names. */
-const AZURE_TTS_URL = "https://website-agent-tts.millrjess.workers.dev/api/speak";
-const AZURE_VOICES = [
-  { name: "Jenny", voice: "en-US-JennyNeural" },
-  { name: "Aria", voice: "en-US-AriaNeural" },
-  { name: "Ava", voice: "en-US-AvaNeural" },
-  { name: "Nancy", voice: "en-US-NancyNeural" },
-  { name: "Guy", voice: "en-US-GuyNeural" },
-];
-const AZURE_PREFIX = "azure:";
-function azureVoiceFor(value) {
-  if (typeof value !== "string" || value.indexOf(AZURE_PREFIX) !== 0) return null;
-  const voice = value.slice(AZURE_PREFIX.length);
-  return AZURE_VOICES.find((v) => v.voice === voice) || null;
 }
 
 /* v000: talking voice for the Companion. Uses the phone's built-in
