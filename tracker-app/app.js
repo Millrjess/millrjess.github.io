@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v114";
+const APP_VERSION = "v115";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -17752,7 +17752,8 @@ function populateVoicePicker() {
 /* v114: Preview the voice. Speaks a sample line in the voice
    currently chosen in the picker, Azure or phone, so you can hear
    it before saving. */
-document.getElementById("companion-voice-preview").addEventListener("click", () => {
+const voicePreviewBtn = document.getElementById("companion-voice-preview");
+if (voicePreviewBtn) voicePreviewBtn.addEventListener("click", () => {
   const sel = document.getElementById("set-companion-voice");
   const name = sel ? sel.value : "";
   speakWithVoice(name, "Hello. I am your AI Wellness Companion. I am here to help you stay strong while the medicine works.");
