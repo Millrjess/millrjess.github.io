@@ -114,18 +114,19 @@
     if(proactiveFallbacks===2) proactiveOffer("unanswered",PROACTIVE_UNANSWERED_COPY);
   }
   function proactiveAnswered(){ proactiveFallbacks=0; }
-  /* Voice agent: speak instead of type, and hear the replies. Uses the
-     browser's built-in speech recognition where it exists (desktop
-     Chrome), and speech synthesis for read-aloud. Where built-in speech
-     recognition is missing (iOS Safari), the microphone records and the
-     recording is sent to Cloudflare only to be transcribed into text.
-     Audio is never stored and never used to train. Text stays available
+  /* Voice agent: speak instead of type, and hear the replies. The
+     microphone always records and the recording is sent to Cloudflare
+     only to be transcribed into text; built-in speech recognition is
+     never used for input because it fails silently on iOS (no prompt,
+     immediate error). Speech synthesis is used for read-aloud. Audio
+     is never stored and never used to train. Text stays available
      always. */
   var voiceListening=false;
   var voiceReadAloud=false;
   var voiceRecog=null;
-  /* Recorder fallback for browsers without built-in speech recognition
-     (iOS Safari). Tests override the endpoint with window.__hcTranscribeUrl. */
+  /* Recorder for voice input: the microphone records and the recording
+     is sent to Cloudflare only to be transcribed into text. Tests
+     override the endpoint with window.__hcTranscribeUrl. */
   var VOICE_TRANSCRIBE_URL=(typeof window!=="undefined"&&window.__hcTranscribeUrl)?window.__hcTranscribeUrl:"https://website-agent-transcribe.millrjess.workers.dev/api/transcribe";
   var VOICE_REC_MAX_MS=60000;
   var voiceRecording=false;
@@ -335,55 +336,16 @@
   }
   function voiceToggleListen(){
     if(voiceListening){
-      /* Tap again while recording: stop and transcribe. Tap again while
-         built-in listening: stop. */
+      /* Tap again while recording: stop and transcribe. */
       if(voiceRecording){ voiceStopRecording(true); return; }
       voiceStopListen();
       return;
     }
-    var Recog=voiceSpeechRecog();
-    if(!Recog){
-      /* No built-in speech recognition (iOS Safari): record and
-         transcribe instead. */
-      voiceStartRecording();
-      return;
-    }
-    var recog;
-    try{ recog=new Recog(); }catch(e){
-      say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
-      return;
-    }
-    recog.lang="en-US";
-    recog.interimResults=false;
-    recog.maxAlternatives=1;
-    voiceRecog=recog;
-    voiceListening=true;
-    /* The mic never turns read aloud on; the speaker button owns that. */
-    syncVoiceButtons();
-    recog.onresult=function(e){
-      var transcript="";
-      try{
-        for(var i=e.resultIndex;i<e.results.length;i++){
-          if(e.results[i].isFinal) transcript+=e.results[i][0].transcript;
-        }
-      }catch(err){}
-      transcript=transcript.trim();
-      if(transcript){
-        var inp=document.getElementById("hc-q");
-        inp.value=transcript;
-        syncInputHeight();
-        inp.focus();
-      }
-    };
-    recog.onerror=function(e){
-      voiceStopListen();
-      var err=e&&e.error?e.error:"";
-      if(err==="not-allowed"||err==="service-not-allowed"||err==="audio-capture"||err==="network"){
-        say(hcLog(),"Voice input is not available in this browser. Type your question instead.");
-      }
-    };
-    recog.onend=function(){ voiceStopListen(); };
-    try{ recog.start(); }catch(e){ voiceStopListen(); say(hcLog(),"Voice input is not available in this browser. Type your question instead."); }
+    /* The microphone always records and the recording is transcribed.
+       Built-in speech recognition is never used for input: on iOS it
+       fails silently (no prompt, immediate error) whenever it exists,
+       so the recorder path is the only one. */
+    voiceStartRecording();
   }
   function voiceToggleReadAloud(){
     voiceReadAloud=!voiceReadAloud;
@@ -787,10 +749,12 @@
     say(log,"What do you need help with?");
     renderQual(log,"service",QUAL_SERVICE);
   }
-  function qualServicePick(log,i){
+  function qualServicePick(log,i,echo){
     var label=QUAL_SERVICE[i];
     if(!label) return;
-    qualEcho(log,label);
+    /* Typed answers are already echoed by ask(); only echo here for a
+       button tap, so a typed answer that matches a button appears once. */
+    if(echo!==false) qualEcho(log,label);
     if(label==="Strategy session"){
       bkReset();
       say(log,find("strategy session"));
@@ -807,10 +771,10 @@
     say(log,"What is your budget?");
     renderQual(log,"budget",QUAL_BUDGET);
   }
-  function qualBudgetPick(log,i){
+  function qualBudgetPick(log,i,echo){
     var label=QUAL_BUDGET[i];
     if(!label) return;
-    qualEcho(log,label);
+    if(echo!==false) qualEcho(log,label);
     if(label==="I need it free"){ qualBudgetTurnAway(log,true); return; }
     if(label==="Under $500"&&qualIsOneTime(bk.qualService)){ qualBudgetTurnAway(log,false); return; }
     bk.qualBudget=label;
@@ -818,10 +782,10 @@
     say(log,"When do you need it?");
     renderQual(log,"timeline",QUAL_TIMELINE);
   }
-  function qualTimelinePick(log,i){
+  function qualTimelinePick(log,i,echo){
     var label=QUAL_TIMELINE[i];
     if(!label) return;
-    qualEcho(log,label);
+    if(echo!==false) qualEcho(log,label);
     bk.qualTimeline=label;
     bk.qualified=true;
     /* Open times come next, before any contact details, so the visitor
@@ -1155,7 +1119,7 @@
       if(isOutOfScopeAsk(q)){ qualScopeTurnAway(log); return; }
       if(isFreeWorkAsk(q)){ qualBudgetTurnAway(log,true); return; }
       var si=qualTextService(q);
-      if(si>-1){ qualServicePick(log,si); return; }
+      if(si>-1){ qualServicePick(log,si,false); return; }
       say(log,"Please tap one of the choices above, or type what you need.");
       return;
     }
@@ -1173,13 +1137,13 @@
     }
     if(bk.step==="qual-budget"){
       var bi=qualTextBudget(q);
-      if(bi>-1){ qualBudgetPick(log,bi); return; }
+      if(bi>-1){ qualBudgetPick(log,bi,false); return; }
       say(log,"Please tap one of the choices above, or type your budget.");
       return;
     }
     if(bk.step==="qual-timeline"){
       var ti=qualTextTimeline(q);
-      if(ti>-1){ qualTimelinePick(log,ti); return; }
+      if(ti>-1){ qualTimelinePick(log,ti,false); return; }
       say(log,"Please tap one of the choices above, or type when you need it.");
       return;
     }
