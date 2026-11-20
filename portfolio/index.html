@@ -215,13 +215,13 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <article>
 <h1>Work &amp; Credentials</h1>
 <p>Selected work in design, product, and data. A website is only good if people can use it. See how I work, then book a free call to discuss yours.</p>
-<p>My work and credentials are in one place: this page, <a href="../certifications/">course certificates</a>, and <a href="../testimonials/">recommendations</a>, including a recommendation from a paid engagement.</p>
+<p>Work and credentials in one place: this page, <a href="../certifications/">course certificates</a>, and <a href="../testimonials/">recommendations</a>, including one from a paid engagement.</p>
 <p><button type="button" class="expand-all" id="expand-all" aria-expanded="false">Expand all</button></p>
 
 <h2>Product</h2>
 <h3>New Chapter: GLP-1 Tracker™ (Independent Product, Founder)</h3>
 <p><a href="https://millrjess.github.io/tracker/"><img src="/assets/img/cards/card-new-chapter.jpg" alt="New Chapter: GLP-1 Tracker™ app" width="1200" height="630" loading="lazy" style="width:100%; max-width:720px; border-radius:16px; display:block; margin:0.8em 0;"></a></p>
-<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (SURMOUNT-1), and the STEP-1 DXA subset reported about 40 percent of weight lost as lean mass for semaglutide in separate trials (STEP-1 DXA subset data). DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job.</p>
+<p><strong>Problem:</strong> About 25 percent of the weight lost on tirzepatide can be lean mass, not fat (SURMOUNT-1), and the STEP-1 DXA subset reported about 40 percent for semaglutide. DXA scans measure lean tissue, which includes muscle, water, and organs. Yet most trackers log injections, protein, and movement in separate places. None I found was built around protecting strength as the central job.</p>
 <p>A GLP-1 lifestyle tool with a personal AI coach. Everything in one place. Tracking data stays on device; Companion messages go to Cloudflare Workers AI with a short summary of today, not stored, not used to train.</p>
 <p class="role">Founder &middot; Designer and developer &middot; Live on the web</p>
 <div class="viz-details">
@@ -229,22 +229,17 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="entry-panel" id="panel-how-i-built-it-new-chapter-glp-1-tracker" hidden>
 <p><strong>Approach:</strong> I designed and built a progressive web app from scratch around a simple framework: eat enough protein, keep moving, never miss a shot.</p>
 <p>A six-tab interface (Today, Shots, Weight, Kitchen, Companion, More) runs offline-first with a service worker and installs on iPhone and Android, using no frameworks and no build step. I integrated Stripe for $3.99/month and $29.99/year subscriptions, Google Analytics for usage insights, and a tab-delimited data export. Subscriptions and analytics sync when the device is online, while logging works offline.</p>
-<p>The Companion is a real agentic AI, built on large language models on Cloudflare Workers AI: it understands context and responds as a personal AI coach, the same class of agentic AI that MIT and other leading institutions use. I built it with defined safeguards on Cloudflare Workers and Workers AI. The Companion has opt-in memory that remembers the user's name, goals, and preferences, and is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and explicit guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code typed into the app.</p>
+<p>The Companion is a real agentic AI, built on large language models on Cloudflare Workers AI, the same class of agentic AI that MIT and other leading institutions use. The Companion has opt-in memory for the user's name, goals, and preferences, and is rate-limited to 40 messages per user per day, origin-gated, with no API key in client code and guardrails against medical advice. I replaced a complex link-based onboarding with a simple six-digit access code.</p>
 <p><strong>Design decisions:</strong> I iterated the interface based on real user testing. I added Undo and per-entry Remove controls after testing revealed users could not fix mistakes. I ran a self-assessment against WCAG 2.2 AA, Apple Human Interface Guidelines, and W3C mobile guidance:</p>
 <ul>
-<li>I checked text contrast ratios.</li>
-<li>I used legible type sizes.</li>
-<li>I set 44px touch targets.</li>
-<li>I added keyboard and screen reader support with ARIA roles.</li>
-<li>I added visible focus indicators.</li>
-<li>I added reduced motion support.</li>
-<li>The app has no orientation lock.</li>
-<li>The app does not block zoom.</li>
+<li>Text contrast ratios checked, with legible type sizes and 44px touch targets.</li>
+<li>Keyboard and screen reader support with ARIA roles, plus visible focus indicators.</li>
+<li>Reduced motion support, no orientation lock, and zoom not blocked.</li>
 </ul>
-<p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone, and a custom design system around the brand's gold-and-sage palette with a hand-designed app icon, gradient header, and refined card and button styling. The layout is mobile-first and responsive.</p>
+<p>I built an interactive injection site body map with keyboard navigation, ARIA labels, and state indicators that do not rely on color alone, plus a custom design system around the brand's gold-and-sage palette. The layout is mobile-first and responsive.</p>
 </div>
 </div>
-<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Validation: usability testing with real users and a self-assessment against WCAG 2.2 AA. Post-launch results: usage figures are private and not published here. The app is live, takes subscriptions through Stripe, and runs the same standards I apply to client sites. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
+<p><strong>Outcome:</strong> I designed, built, and launched it as an independent product, including a sales page and a custom app icon. The data export gives users a spreadsheet-ready record to share with their healthcare providers. Validation: usability testing with real users and a self-assessment against WCAG 2.2 AA. Usage figures are private and not published here. The app runs the same standards I apply to client sites. <a href="https://millrjess.github.io/tracker/">Sales page</a> &middot; <a href="../assets/presentations/New_Chapter_Executive.pdf">Founder and product showcase (PDF)</a>.</p>
 <p><a class="btn" href="../booking/">Book a Free 15-Minute Discovery Call</a></p>
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-sources"><span class="entry-lede">Sources</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
@@ -264,8 +259,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-got-there-parish-website-redesign"><span class="entry-lede">How I got there: Parish Website Redesign</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-got-there-parish-website-redesign" hidden>
-<p><strong>What I learned from users:</strong> I ran user interviews and built empathy maps. The research showed that convenience and accessibility matter most for community engagement, and poor navigation kept people from finding information and connecting with the church. The primary persona was Eleanor Vance, a 62-year-old retired teacher whose goals were to find service times, contact info, and events, and to donate online. The pain points fell into three groups: navigation (confusing menus, poor search, broken links), interaction (slow loading, cumbersome forms, buggy interfaces), and experience (cluttered design, unclear calls to action, poor content, no trust signals).</p>
-<p><strong>Approach:</strong> I built a sitemap to fix the information architecture, created paper and digital wireframes, and built a low-fidelity prototype to test the primary user flow. Usability studies found three problems to fix: participants struggled to locate key information, the donation process was confusing and lengthy with unclear instructions, and the layout broke on smaller screens. I revised the mockups around those findings, simplifying the donation process and the navigation, and finalized a high-fidelity prototype. I built the redesign on Joomla so parish staff could update content themselves, with accessibility included from the start: sufficient font size and contrast, full keyboard navigation, and screen reader compatibility.</p>
+<p><strong>What I learned from users:</strong> I ran user interviews and built empathy maps. The research showed that convenience and accessibility matter most for community engagement, and poor navigation kept people from finding information and connecting with the church. The primary persona was Eleanor Vance, a 62-year-old retired teacher whose goals were to find service times, contact info, and events, and to donate online.</p>
+<p><strong>Approach:</strong> I built a sitemap to fix the information architecture, created paper and digital wireframes, and built a low-fidelity prototype to test the primary user flow. Usability studies found three problems: key information was hard to locate, the donation process was confusing and lengthy, and the layout broke on smaller screens. I revised the mockups around those findings, simplifying the donation process and the navigation, and finalized a high-fidelity prototype. I built the redesign on Joomla so parish staff could update content themselves, with accessibility included from the start: sufficient font size and contrast, full keyboard navigation, and screen reader compatibility.</p>
 </div>
 </div>
 <p><strong>Outcome:</strong> I delivered a redesigned, responsive, accessible site with simplified navigation, intuitive layout, and integrated online donations. Fully documented in the <a href="../case-study-website/">case study</a>, including the <a href="../assets/presentations/Church_Website_Design_Case_Study.pdf">full case study PDF</a> &middot; <a href="../assets/presentations/Church_Website_Executive.pdf">Executive presentation (PDF)</a>.</p>
@@ -275,7 +270,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-i-got-there-foodie-explorer"><span class="entry-lede">How I got there: Foodie Explorer</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-i-got-there-foodie-explorer" hidden>
-<p><strong>What I learned from users:</strong> I ran user research through surveys and usability tests. The persona was David Miller, a 42-year-old freelance photographer whose goals were to save time, enjoy family time, explore new foods, support local businesses, and simplify life. His frustrations were time constraints, grocery store hassle, limited cooking time, difficulty finding quality ingredients, and inconsistent quality. The pain points were complex navigation in existing apps and limited tailored recipe recommendations.</p>
+<p><strong>What I learned from users:</strong> I ran user research through surveys and usability tests. The persona was David Miller, a 42-year-old freelance photographer who wants to save time, enjoy family time, explore new foods, support local businesses, and simplify life. His frustrations: time constraints, grocery hassle, limited cooking time, difficulty finding quality ingredients, and inconsistent quality. The pain points: complex navigation in existing apps and limited tailored recipe recommendations.</p>
 <p><strong>Approach:</strong> I followed a full UX lifecycle covering user research, synthesis, personas, journey mapping, wireframing, prototyping, and iterative design rounds. The design centered on the following:</p>
 <ul>
 <li>Users can discover recipes by ingredients, dietary needs, cuisine, or cooking time.</li>
@@ -298,7 +293,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-how-the-model-works-predictive-analytics-dashboard"><span class="entry-lede">How the model works: Predictive Analytics Dashboard</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-how-the-model-works-predictive-analytics-dashboard" hidden>
-<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built a negative binomial regression model to identify associations, and piped the results into an automated Tableau dashboard. The reporting now refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views, each tuned to its readers. For policymakers, it shows the model coefficients for each factor. For community organizers, it shows protest activity patterns by day of week and month. For the general public, it gives an accessible overview of trends and drivers. I created a dashboard view that separates location indicators from the selected socioeconomic variables, making those variables easier to inspect.</p>
+<p><strong>Approach:</strong> I combined ACLED event data with BLS economic indicators, built a negative binomial regression model to identify associations, and piped the results into an automated Tableau dashboard. The reporting now refreshes itself instead of requiring manual work each time. The dashboard presents the same model through three views: coefficients for policymakers, protest patterns by day of week and month for community organizers, and an accessible overview of trends and drivers for the general public. I created a dashboard view that separates location indicators from the selected socioeconomic variables, making those variables easier to inspect.</p>
 </div>
 </div>
 <p><strong>Outcome:</strong> The model is a negative binomial regression on 3,523 state-month observations (ACLED event counts with BLS unemployment, data through January 2026). Log population exposure carries a coefficient of 0.8017, unemployment 0.1131, and the time trend 0.0342. These are associations, not proof of cause. The automated pipeline keeps the reporting current. <a href="https://github.com/Millrjess/Jess/blob/main/protest_analysis_2026_gold_standard.ipynb">Notebook on GitHub</a> &middot; <a href="https://public.tableau.com/app/profile/aiuxjm/vizzes">Dashboard on Tableau Public</a>.</p>
@@ -317,7 +312,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h4 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-dashboard-details"><span class="entry-lede">Dashboard details</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h4>
 <div class="entry-panel" id="panel-dashboard-details" hidden>
-<p>I designed the dashboard for a course case study, working from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. The dashboard shows trends over time, call reasons by city, and first-time versus repeat calls, so a call-center manager can inspect repeat-call patterns and compare reasons by city.</p>
+<p>A course case study from the brief and data provided, to help Google Fiber&apos;s call center spot and reduce repeat customer calls. The dashboard shows trends over time, call reasons by city, and first-time versus repeat calls.</p>
 </div>
 </div>
 </div>
@@ -330,7 +325,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-tiktok-views-and-likes"><span class="entry-lede">TikTok: Views and Likes</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-tiktok-views-and-likes" hidden>
-<p><strong>What it shows:</strong> This is an exploratory analysis of relationships between the engagement measures in the dataset. The dashboard lets viewers compare patterns and inspect outliers; it does not establish what causes a video to perform well.</p>
+<p><strong>What it shows:</strong> An exploratory analysis of relationships between the engagement measures in the dataset. Viewers can compare patterns and inspect outliers; it does not establish what causes a video to perform well.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TikTokViewsandLikes_17468027625160/Story12?:showVizHome=no" height="520" loading="lazy" title="TikTok: Views and Likes - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TikTokViewsandLikes_17468027625160/Story12">View on Tableau Public</a></p>
 </div>
@@ -340,7 +335,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-what-drives-world-happiness"><span class="entry-lede">What Drives World Happiness</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-what-drives-world-happiness" hidden>
-<p><strong>What it shows:</strong> This is an exploratory analysis of how the available factors relate to happiness scores. The dashboard lets viewers compare factors; it does not establish what causes wellbeing.</p>
+<p><strong>What it shows:</strong> An exploratory analysis of how the available factors relate to happiness scores. Viewers can compare factors; it does not establish what causes wellbeing.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/BiggestContributorsforWorldHappiness/Dashboard1?:showVizHome=no" height="520" loading="lazy" title="What Drives World Happiness - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/BiggestContributorsforWorldHappiness/Dashboard1">View on Tableau Public</a></p>
 </div>
@@ -350,7 +345,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-nyc-taxi-trips-2017"><span class="entry-lede">NYC Taxi Trips 2017</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-nyc-taxi-trips-2017" hidden>
-<p><strong>What it shows:</strong> Hidden fare anomalies go unnoticed in summaries, so this visualization exposes the outliers. Look at what the averages hide.</p>
+<p><strong>What it shows:</strong> Hidden fare anomalies go unnoticed in summaries, so this visualization exposes the outliers the averages hide.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/TotaldistanceandamountTLC2017_17467580140370/Sheet2?:showVizHome=no" height="520" loading="lazy" title="NYC Taxi Trips 2017 - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/TotaldistanceandamountTLC2017_17467580140370/Sheet2">View on Tableau Public</a></p>
 </div>
@@ -360,7 +355,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-seoul-bike-rentals-and-holidays"><span class="entry-lede">Seoul Bike Rentals and Holidays</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-seoul-bike-rentals-and-holidays" hidden>
-<p><strong>What it shows:</strong> Operators guess when demand will shift, so this dashboard maps holiday and weekday patterns. Plan with data instead of instinct.</p>
+<p><strong>What it shows:</strong> This dashboard maps holiday and weekday patterns, so operators can plan with data instead of instinct.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/ConsultingDataStory/Dashboard2?:showVizHome=no" height="520" loading="lazy" title="Seoul Bike Rentals and Holidays - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/ConsultingDataStory/Dashboard2">View on Tableau Public</a></p>
 </div>
@@ -380,7 +375,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-global-co2-emissions"><span class="entry-lede">Global CO2 Emissions</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-global-co2-emissions" hidden>
-<p><strong>What it shows:</strong> The scale of emissions feels abstract, so this bubble map makes concentration impossible to miss. See where the challenge lives.</p>
+<p><strong>What it shows:</strong> The scale of emissions feels abstract, so this bubble map makes concentration impossible to miss.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/GlobalCarbonDioxideCO2Emissions/Sheet1?:showVizHome=no" height="520" loading="lazy" title="Global CO2 Emissions - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/GlobalCarbonDioxideCO2Emissions/Sheet1">View on Tableau Public</a></p>
 </div>
@@ -400,7 +395,7 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <div class="viz-details">
 <h3 class="entry-head"><button type="button" class="entry-btn" aria-expanded="false" aria-controls="panel-world-happiness-by-country"><span class="entry-lede">World Happiness by Country</span><span class="entry-toggle" aria-hidden="true"><span class="read-more">Read more</span><span class="show-less">Show less</span></span></button></h3>
 <div class="entry-panel" id="panel-world-happiness-by-country" hidden>
-<p><strong>What it shows:</strong> Happiness data is hard to explore, so this interactive map lets anyone filter by score. Dive in and find the patterns yourself.</p>
+<p><strong>What it shows:</strong> Happiness data is hard to explore, so this interactive map lets anyone filter by score.</p>
 <div class="viz-embed"><iframe src="https://public.tableau.com/views/WorldHappinessDemo_17419853657420/Sheet2?:showVizHome=no" height="520" loading="lazy" title="World Happiness by Country - Tableau visualization"></iframe></div>
 <p><a href="https://public.tableau.com/app/profile/aiuxjm/viz/WorldHappinessDemo_17419853657420/Sheet2">View on Tableau Public</a></p>
 </div>
