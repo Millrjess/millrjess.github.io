@@ -1303,6 +1303,7 @@ html, body {
 /* ---------- Readable inputs ---------- */
 input[type="text"],
 input[type="number"],
+input[type="search"],
 select,
 textarea {
   font-size: 1rem; /* prevents iOS zoom on focus */
@@ -1765,7 +1766,7 @@ html[data-text-size="large"] body { font-size: 20.25px; }
   padding: 12px;
   box-shadow: var(--shadow);
 }
-.kitchen-photo { width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-sm); display: block; }
+.kitchen-photo { width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius-sm); display: block; }
 .kitchen-credit { font-size: .75rem; color: var(--muted); margin: 2px 0 8px; }
 /* Recipe source line (v048): a compact muted line under the name and
    calories on Kitchen cards, and at the end of the recipe modal. */
@@ -1934,9 +1935,14 @@ canvas { max-width: 100%; height: auto; display: block; }
 .kitchen-photo-wrap { display: block; position: relative; }
 .kitchen-photo-wrap .kitchen-photo { border-radius: 0; }
 .kitchen-chip-tag { position: absolute; left: 8px; bottom: 8px; background: rgba(43, 43, 40, 0.85); color: #FDFBF7; font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
-.kitchen-photo-body { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 12px 12px; }
-.kitchen-photo-body strong { font-size: .9rem; line-height: 1.3; }
+/* v120: recipe cards lead with the name in Georgia, then a nutrition
+   strip (protein, saturated fat, sodium) and the time and calories. */
+.kitchen-photo-body { display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 12px 14px 14px; }
+.kitchen-photo-body strong { font-family: Georgia, "Times New Roman", serif; font-size: 1.02rem; line-height: 1.3; color: var(--sage-dark); }
+.kitchen-nutrition { font-size: .82rem; font-weight: 600; color: var(--sage-dark); line-height: 1.4; }
+.kitchen-photo-meta { display: flex; gap: 12px; font-size: .85rem; color: var(--muted); }
 .kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
+.kitchen-featured .kitchen-nutrition { display: none; }
 .kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .kitchen-hide { display: block; width: 100%; padding: 6px 12px 10px; background: none; border: none; color: inherit; opacity: .7; font-size: .85rem; text-align: center; cursor: pointer; }
@@ -2098,7 +2104,16 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .swap-scope-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .lib-tools { margin-bottom: 12px; }
 #strength-lib-search { display: block; width: 100%; margin-bottom: 8px; }
+/* v120: the Strength search fields are bigger and easier to tap. */
+#strength-lib-search, .swap-search { font-size: 1.05rem; padding: 12px 14px; min-height: 52px; border-radius: 12px; }
 .lib-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+/* v120: All Exercises rows are polished cards with a muscle-group
+   visual tile (sage with a gold line drawing) beside the name. */
+.lib-exercise { display: flex; gap: 12px; align-items: flex-start; }
+.lib-ex-thumb { flex: none; width: 56px; height: 56px; border-radius: 12px; background: var(--sage); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lib-ex-thumb svg { width: 56px; height: 56px; display: block; }
+.lib-ex-main { flex: 1; min-width: 0; }
+.lib-ex-muscle { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
 .ex-tag { display: inline-block; font-size: 0.75rem; line-height: 1.2; padding: 2px 6px; margin-left: 6px; border: 1px solid var(--sage); border-radius: 999px; color: var(--sage-dark); background: var(--sage-tint); white-space: nowrap; }
 .ex-tag-adv { border-color: var(--gold-dark); color: var(--gold-dark); }
 .lib-chip-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }
