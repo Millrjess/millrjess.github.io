@@ -1313,7 +1313,7 @@ async function main() {
       target: (document.getElementById("calories-target-part") || {}).textContent || "",
       note: (document.getElementById("calories-note") || {}).textContent || ""
     }));
-    check("V169 calorie target set: section shows 245 of 1,400", withTarget.today === "245" && withTarget.target === " of 1,400" && withTarget.note === "Calories from macros today (protein and carbs 4 cal/g, fat 9 cal/g).", JSON.stringify(withTarget));
+    check("V169 calorie target set: section shows 245 of 1,400", withTarget.today === "245" && withTarget.target === " of 1,400" && withTarget.note === "From the food you logged today.", JSON.stringify(withTarget));
     // Clear it in Settings: the plain line comes back.
     await clickMoreTab(t.page, "settings");
     await t.page.waitForTimeout(300);
@@ -1330,7 +1330,7 @@ async function main() {
       target: (document.getElementById("calories-target-part") || {}).textContent || "",
       note: (document.getElementById("calories-note") || {}).textContent || ""
     }));
-    check("V169 calorie target cleared: plain section returns", cleared.today === "245" && cleared.target === "" && cleared.note.indexOf("Set a daily calorie target") !== -1, JSON.stringify(cleared));
+    check("V169 calorie target cleared: plain section returns", cleared.today === "245" && cleared.target === "" && cleared.note.indexOf("Set a calorie target in Settings") !== -1, JSON.stringify(cleared));
     await t.ctx.close();
     // Invalid target in storage is ignored by validation.
     const t2 = await newPage(browser, url);
@@ -1345,7 +1345,7 @@ async function main() {
       target: (document.getElementById("calories-target-part") || {}).textContent || "",
       note: (document.getElementById("calories-note") || {}).textContent || ""
     }));
-    check("V169 invalid calorie target is ignored", invalid.today === "245" && invalid.target === "" && invalid.note.indexOf("Set a daily calorie target") !== -1, JSON.stringify(invalid));
+    check("V169 invalid calorie target is ignored", invalid.today === "245" && invalid.target === "" && invalid.note.indexOf("Set a calorie target in Settings") !== -1, JSON.stringify(invalid));
     await t2.ctx.close();
   } catch (e) { check("V169 calorie target", false, "error: " + e.message); }
 
