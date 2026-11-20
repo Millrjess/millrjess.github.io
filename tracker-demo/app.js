@@ -10,7 +10,7 @@
 
 /* Demo version: shown in Settings, About, so the version on the
    screen can be checked at a glance. Bump with every tracker-demo change. */
-const APP_VERSION = "v118";
+const APP_VERSION = "v120";
 
 const LS_KEY = "newChapterTracker.demo.v1";
 /* Generation counter for the store: bumped on every successful save.
@@ -3842,6 +3842,24 @@ function strengthMuscleGroup(muscle) {
   if (m.indexOf("core") !== -1 || m.indexOf("abdominal") !== -1) return "Core";
   return "Other";
 }
+/* v120: one on-brand illustration per muscle group, used as the visual
+   tile on every All Exercises row. Simple gold line drawings on sage,
+   so every exercise gets a consistent visual without a photo per
+   exercise. Decorative; the muscle group is also named in text. */
+function strengthMuscleIcon(group) {
+  const common = 'width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="#F0DFAE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+  const icons = {
+    Chest: `<svg ${common}><path d="M8 14h32"/><path d="M12 10v8M36 10v8"/><path d="M14 28h20"/><path d="M18 28v8M30 28v8"/></svg>`,
+    Back: `<svg ${common}><path d="M24 6v10"/><path d="M12 16h24"/><path d="M15 16v5M33 16v5"/><path d="M18 36h12"/></svg>`,
+    Shoulders: `<svg ${common}><path d="M12 12h24"/><path d="M15 12v6M33 12v6"/><circle cx="24" cy="30" r="4"/><path d="M24 34v8"/></svg>`,
+    Arms: `<svg ${common}><path d="M16 24h16"/><path d="M11 19v10M15 19v10M33 19v10M37 19v10"/></svg>`,
+    Legs: `<svg ${common}><circle cx="24" cy="9" r="3"/><path d="M24 13v9"/><path d="M24 22l-7 8M24 22l7 8"/><path d="M13 38h22"/></svg>`,
+    Glutes: `<svg ${common}><path d="M10 34h12"/><path d="M22 34l8-10"/><circle cx="33" cy="20" r="3"/><path d="M22 34v8"/><path d="M14 42h20"/></svg>`,
+    Core: `<svg ${common}><path d="M10 32h22"/><circle cx="38" cy="28" r="3"/><path d="M14 32l3-7M21 32l3-7"/><path d="M32 32v6"/></svg>`,
+    Other: `<svg ${common}><path d="M8 24h8l3-8 4 12 3-4h14"/></svg>`
+  };
+  return icons[group] || icons.Other;
+}
 const STRENGTH_MUSCLE_GROUPS = ["Chest", "Back", "Shoulders", "Arms", "Legs", "Glutes", "Core"];
 /* Sensible swaps for each exercise. Most exercises have two
    options; exercises with a machine alternative have three, so
@@ -4495,12 +4513,17 @@ function renderStrengthAllExercises() {
   </div>` + (filtered.length ? filtered.map((ex) => {
     const added = !!inRoutine[ex.name];
     const expanded = strengthLibExpanded === ex.name;
-    return `<div class="entry routine-row" data-lib-name="${escapeHtml(ex.name)}" data-lib-muscle="${escapeHtml(ex.muscle)}">
-      <div class="routine-row-head">
-        <button type="button" class="routine-row-toggle entry-title" data-expand-lib="${escapeHtml(ex.name)}" aria-expanded="${expanded}">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${strengthTagChips(ex.name)}</button>
-        <button type="button" class="btn btn-small"${added ? " disabled" : ""} data-add-all-exercise="${escapeHtml(ex.name)}" aria-label="Add ${escapeHtml(ex.name)} to today's routine">${added ? "Added" : "Add"}</button>
+    const group = strengthMuscleGroup(ex.muscle);
+    return `<div class="entry routine-row lib-exercise" data-lib-name="${escapeHtml(ex.name)}" data-lib-muscle="${escapeHtml(ex.muscle)}">
+      <span class="lib-ex-thumb" aria-hidden="true">${strengthMuscleIcon(group)}</span>
+      <div class="lib-ex-main">
+        <div class="routine-row-head">
+          <button type="button" class="routine-row-toggle entry-title" data-expand-lib="${escapeHtml(ex.name)}" aria-expanded="${expanded}">${escapeHtml(ex.name)}, ${escapeHtml(ex.detail)}${strengthTagChips(ex.name)}</button>
+          <button type="button" class="btn btn-small"${added ? " disabled" : ""} data-add-all-exercise="${escapeHtml(ex.name)}" aria-label="Add ${escapeHtml(ex.name)} to today's routine">${added ? "Added" : "Add"}</button>
+        </div>
+        <p class="lib-ex-muscle">${escapeHtml(group)} &middot; ${escapeHtml(ex.muscle)}</p>
+        ${expanded ? `<div class="routine-row-detail"><p class="entry-sub">${escapeHtml(ex.cue)}</p></div>` : ""}
       </div>
-      ${expanded ? `<div class="routine-row-detail"><p class="entry-sub">${escapeHtml(ex.muscle)}</p><p class="entry-sub">${escapeHtml(ex.cue)}</p></div>` : ""}
     </div>`;
   }).join("") : `<p class="muted">No exercises match.</p>`);
   const searchInput = wrap.querySelector("#strength-lib-search");
@@ -13073,6 +13096,188 @@ const KITCHEN_RECIPES = [
     ]
   },
   {
+    "id": "cranberry-rosemary-sparkler",
+    "image": "kitchen/cranberry-rosemary-sparkler.jpg",
+    "credit": "",
+    "name": "Cranberry-Rosemary Sparkler",
+    "category": "Mocktails",
+    "cuisine": "American",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 0, "carbs": 8, "fat": 0, "saturatedFat": 0, "calories": 32, "sodium": 2,
+    "tags": [
+      "mocktails",
+      "american",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "1 cup (240 ml) 100% unsweetened cranberry juice, no added sugar",
+      "2 cups (480 ml) cold sparkling water, unflavoured",
+      "1/2 orange, juiced",
+      "4 fresh rosemary sprigs",
+      "Stevia or monk fruit to taste (optional)",
+      "Ice",
+      "Fresh cranberries, to garnish (optional)"
+    ],
+    "steps": [
+      "Stir the cranberry juice, orange juice, and stevia or monk fruit together in a pitcher.",
+      "Add ice and pour the sparkling water in slowly, so the bubbles stay.",
+      "Pour into glasses and garnish each with a rosemary sprig and a few cranberries. Serve at once.",
+      "If sparkling water bothers your stomach, swap half of it for still water."
+    ]
+  },
+  {
+    "id": "spiced-apple-cider-cooler",
+    "image": "kitchen/spiced-apple-cider-cooler.jpg",
+    "credit": "",
+    "name": "Spiced Apple Cider Cooler",
+    "category": "Mocktails",
+    "cuisine": "American",
+    "time": 10,
+    "difficulty": "Easy",
+    "servings": 4,
+    "protein": 0, "carbs": 14, "fat": 0, "saturatedFat": 0, "calories": 57, "sodium": 5,
+    "tags": [
+      "mocktails",
+      "american",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "2 cups (480 ml) unsweetened apple cider, no added sugar",
+      "2 cups (480 ml) cold sparkling water, unflavoured",
+      "2 cinnamon sticks",
+      "4 whole cloves",
+      "1 orange, sliced",
+      "Stevia or monk fruit to taste (optional)",
+      "Ice"
+    ],
+    "steps": [
+      "Warm the cider in a small saucepan with the cinnamon sticks and cloves over low heat for 5 minutes. Do not boil. Remove from the heat and cool for 5 minutes.",
+      "Remove the cinnamon and cloves, pour the cider over ice, and stir in stevia or monk fruit if you want it sweeter.",
+      "Top each glass with sparkling water and garnish with orange slices. Serve at once.",
+      "If sparkling water bothers your stomach, swap half of it for still water."
+    ]
+  },
+  {
+    "id": "pomegranate-ginger-fizz",
+    "image": "kitchen/pomegranate-ginger-fizz.jpg",
+    "credit": "",
+    "name": "Pomegranate-Ginger Fizz",
+    "category": "Mocktails",
+    "cuisine": "Persian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 0, "carbs": 12, "fat": 0, "saturatedFat": 0, "calories": 47, "sodium": 6,
+    "tags": [
+      "mocktails",
+      "persian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "1/2 cup (120 ml) 100% pomegranate juice, no added sugar",
+      "1 cup (240 ml) cold sparkling water, unflavoured",
+      "1 tablespoon fresh ginger, finely grated",
+      "Juice of 1/2 lemon",
+      "Stevia or monk fruit to taste (optional)",
+      "Ice",
+      "2 tablespoons pomegranate seeds and fresh mint, to garnish"
+    ],
+    "steps": [
+      "Stir the pomegranate juice, lemon juice, and grated ginger together in a small pitcher. Let it sit for 2 minutes so the ginger infuses.",
+      "Strain into glasses over ice, top with sparkling water, and stir gently.",
+      "Garnish with pomegranate seeds and mint and serve at once."
+    ]
+  },
+  {
+    "id": "hot-mulled-cranberry-apple",
+    "image": "kitchen/hot-mulled-cranberry-apple.jpg",
+    "credit": "",
+    "name": "Hot Mulled Cranberry-Apple",
+    "category": "Mocktails",
+    "cuisine": "American",
+    "time": 20,
+    "difficulty": "Easy",
+    "servings": 8,
+    "protein": 0, "carbs": 28, "fat": 0, "saturatedFat": 0, "calories": 110, "sodium": 7,
+    "tags": [
+      "mocktails",
+      "american",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep"
+    ],
+    "ingredients": [
+      "4 cups (960 ml) 100% unsweetened cranberry juice, no added sugar",
+      "4 cups (960 ml) unsweetened apple cider, no added sugar",
+      "4 cinnamon sticks",
+      "1 star anise",
+      "4 whole cloves",
+      "2 strips orange peel",
+      "Stevia or monk fruit to taste"
+    ],
+    "steps": [
+      "Pour the cranberry juice and cider into a large saucepan. Add the cinnamon sticks, star anise, cloves, and orange peel.",
+      "Warm over low heat for 15 minutes until hot and fragrant. Do not boil.",
+      "Stir in stevia or monk fruit to taste, remove the spices, and ladle into mugs. Serve hot."
+    ]
+  },
+  {
+    "id": "pear-sage-sparkler",
+    "image": "kitchen/pear-sage-sparkler.jpg",
+    "credit": "",
+    "name": "Pear-Sage Sparkler",
+    "category": "Mocktails",
+    "cuisine": "Italian",
+    "time": 5,
+    "difficulty": "Easy",
+    "servings": 2,
+    "protein": 0, "carbs": 14, "fat": 0, "saturatedFat": 0, "calories": 53, "sodium": 1,
+    "tags": [
+      "mocktails",
+      "italian",
+      "low-sodium",
+      "gluten-free",
+      "vegetarian",
+      "vegan",
+      "easy-prep",
+      "low-calorie"
+    ],
+    "ingredients": [
+      "1 ripe pear, peeled and cut into chunks",
+      "4 fresh sage leaves",
+      "1 tablespoon lemon juice",
+      "1 cup (240 ml) cold sparkling water, unflavoured",
+      "Stevia or monk fruit to taste (optional)",
+      "Ice",
+      "Thin pear slices and sage leaves, to garnish"
+    ],
+    "steps": [
+      "Muddle the pear chunks and sage leaves gently in a small pitcher until the pear is pulpy.",
+      "Stir in the lemon juice and stevia or monk fruit, then strain into glasses over ice.",
+      "Top with sparkling water, stir gently, and garnish with pear slices and sage. Serve at once.",
+      "If sparkling water bothers your stomach, swap half of it for still water."
+    ]
+  },
+  {
     "id": "lemon-herb-greek-seasoning",
     "image": "kitchen/lemon-herb-greek-seasoning.jpg",
     "credit": "",
@@ -13827,7 +14032,7 @@ function kitchenPhotoCardHtml(r, hidden) {
   return `<article class="kitchen-photo-card">
     <button type="button" class="kitchen-photo-open" data-kitchen-open="${r.id}" aria-label="${escapeHtml(r.category)} ${escapeHtml(r.name)} ${r.calories} cal${r.source ? " " + escapeHtml(r.source) : ""}. See recipe.">
       <span class="kitchen-photo-wrap">${photo}<span class="kitchen-chip-tag">${escapeHtml(r.category)}</span></span>
-      <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong> <span class="muted">${r.calories} cal</span></span>
+      <span class="kitchen-photo-body"><strong>${escapeHtml(r.name)}</strong><span class="kitchen-nutrition">${r.protein}g protein &middot; ${r.saturatedFat}g sat fat &middot; ${r.sodium}mg sodium</span><span class="kitchen-photo-meta"><span>${r.calories} cal</span><span>${r.time} min</span></span></span>
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
