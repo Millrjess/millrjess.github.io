@@ -9,7 +9,7 @@
     {k:["strategy session","strategy"],a:"A 1-hour strategy session is $200, paid in advance at booking through Stripe, with a receipt. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
     {k:["price","cost","fee","charge","rate"],a:"A 1-hour strategy session is $200, paid in advance. Care plans are $150 per month for Essential and $300 per month for Professional, with two months at no charge when paid annually. One time services start from $500 for a Site Health Audit and from $750 for a Website Standards Pass or a WCAG Accessibility Audit. See the full <a href='../pricing/'>pricing page</a> for every price."},
     {k:["book","consultation","session","appointment"],a:BOOK_ANSWER},
-    {k:["free"],a:"The 15-minute discovery call is free, with no charge and no obligation. It is a phone call to discuss your website, your goals, and the problem you want to solve."},
+    {k:["free"],a:"The Free 15-Minute Discovery Call has no charge and no obligation. It is a phone call to discuss your website, your goals, and the problem you want to solve."},
     {k:["200","paid","pay","stripe","refund"],a:"A 1-hour strategy session is $200, paid in advance through Stripe, with a receipt. No session starts until payment is received. After payment, I will arrange a time with you and confirm every booking personally before it is final. If we cannot find a time that works, you will be refunded."},
     {k:["care plan","maintenance","support","monthly"],a:"Essential, $150 per month, includes CMS updates, daily off site backups, uptime monitoring, and a monthly site health report. Professional, $300 per month, adds security hardening and malware scanning, performance checks, one hour of content or design updates, and priority support. See <a href='../pricing/'>Pricing</a>."},
     {k:["audit","health"],a:"A Site Health Audit starts from $500 and reviews technical SEO, security configuration, and website performance, with a prioritized action plan."},
@@ -25,13 +25,13 @@
   ];
 
   var siteIndex=[
-    {k:["home","consultant","website operations"],u:"../",d:"Home: Jessica A. Miller, Website Operations Consultant, 20 years keeping business websites fast, secure, and online."},
+    {k:["home","consultant","website operations"],u:"../",d:"Home: Jessica A. Miller, Website Operations Consultant, 20 years in websites, with a six-year break for full-time parenting and writing, keeping business websites fast, secure, and online."},
     {k:["service","care plan","maintenance","seo","agent","audit","standards"],u:"../services/",d:"Services: care plans, one time projects, Website Agents, Standards Pass, technical SEO, and performance."},
     {k:["fee","price","pricing","cost"],u:"../pricing/",d:"Pricing: published prices for care plans, audits, development, agents, and strategy sessions, with pricing sources."},
-    {k:["book","consultation","discovery","session","appointment"],u:"../booking/",d:"Booking: free 15-minute discovery call, and 1-hour strategy session, $200 paid in advance, approval before confirmation."},
+    {k:["book","consultation","discovery","session","appointment"],u:"../booking/",d:"Booking: Free 15-Minute Discovery Call, and 1-hour strategy session, $200 paid in advance, approval before confirmation."},
     {k:["contact","email","phone","message"],u:"../contact/",d:"Contact: email millrjess@gmail.com, call (978) 267-5304, North Andover, MA."},
     {k:["faq","question","how"],u:"../faqs/",d:"FAQs: project timing, support, working with a team, prices, booking, refund, care plans, remote work, and platforms."},
-    {k:["about","story","background","experience"],u:"../about/",d:"About: 20 years of website work, a six year break for full time parenting and writing, and a return to client work in 2026."},
+    {k:["about","story","background","experience"],u:"../about/",d:"About: 20 years in websites, with a six-year break for full-time parenting and writing, and a return to client work in 2026."},
     {k:["certif","course","credential"],u:"../certifications/",d:"Certifications: 34 course certificates with verification links."},
     {k:["recommend","testimonial","review"],u:"../testimonials/",d:"Testimonials: dated LinkedIn recommendations."},
     {k:["portfolio","project","case study","capstone"],u:"../portfolio/",d:"Work & Credentials: selected work in product, data, and design, plus course certificates and recommendations."},
@@ -75,7 +75,7 @@
       }
     }
     var s=siteSearch(q); if(s) return s;
-    return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. This chat asks a few questions first, then books a free discovery call or sends you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work in this chat.";
+    return "I do not have a published answer for that. Please email millrjess@gmail.com, call (978) 267-5304, or use the booking page, and Jessica will reply personally. This chat asks a few questions first, then books a Free 15-Minute Discovery Call or sends you to pay for a strategy session. Only Jessica can confirm a strategy session, change a price, or start work in this chat.";
   }
   /* Booking agent: books the free 15-minute discovery call in the chat.
      The call is free, by phone, Tuesday and Thursday, 10 AM to noon and
@@ -1082,7 +1082,7 @@
       return;
     }
     bk.step="cancel-email";
-    say(log,"I can cancel your discovery call. What email did you book with?");
+    say(log,"I can cancel your Free 15-Minute Discovery Call. What email did you book with?");
   }
   function bkDoCancel(log){
     say(log,"Cancelling your call. One moment.");
@@ -1303,7 +1303,7 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Website agent");
   panel.style.cssText="display:none;flex-direction:column;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, search the site, book a free discovery call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:6px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices, booking, or search the site</label><textarea id='hc-q' rows='2' aria-label='Ask about prices, booking, or search the site' placeholder='Ask about prices, booking, or search the site' style='flex:1;min-width:0;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em;line-height:1.4;box-sizing:border-box;resize:none;overflow-y:auto'></textarea><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div style='display:flex;gap:8px;margin-top:8px;align-items:center;order:6'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing. Your voice is transcribed only, never stored.' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-clear' type='button' aria-label='Clear chat' style='flex:1;min-width:0;height:48px;background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.8em 1em;cursor:pointer;font:inherit;font-weight:700'>Clear chat</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:7'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together? Find the resume.</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:8'>Forget what you remember about me</button>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, search the site, book a Free 15-Minute Discovery Call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:6px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices, booking, or search the site</label><textarea id='hc-q' rows='2' aria-label='Ask about prices, booking, or search the site' placeholder='Ask about prices, booking, or search the site' style='flex:1;min-width:0;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em;line-height:1.4;box-sizing:border-box;resize:none;overflow-y:auto'></textarea><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div style='display:flex;gap:8px;margin-top:8px;align-items:center;order:6'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing. Your voice is transcribed only, never stored.' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-clear' type='button' aria-label='Clear chat' style='flex:1;min-width:0;height:48px;background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.8em 1em;cursor:pointer;font:inherit;font-weight:700'>Clear chat</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:7'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together? Find the resume.</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:8'>Forget what you remember about me</button>";
   var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}#hc-q{min-width:0;resize:none;max-height:140px}@media (max-width:480px){#hc-voice,#hc-speak{width:44px !important;height:44px !important;padding:.6em !important}#hc-send{padding:.5em .6em !important}#hc-clear{height:44px !important;padding:.6em .8em !important}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   /* Choice buttons live in #hc-choices, a sibling of the log, so the
@@ -1377,7 +1377,7 @@
         bk.step="resched-slots"; bkLoadSlots(log);
       }
       else if(sessionEmail()){ doReschedLookup(log,sessionEmail()); }
-      else { bk.step="resched-email"; say(log,"I can move your discovery call. What email did you book with?"); }
+      else { bk.step="resched-email"; say(log,"I can move your Free 15-Minute Discovery Call. What email did you book with?"); }
       return;
     }
     /* A search command ("find resume", "show me the tracker") looks the
@@ -1390,10 +1390,10 @@
       if(s){ proactiveAnswered(); say(log,s); return; }
     }
     if(isBookIntent(q)){
-      if(!BOOKING_ENDPOINT){ say(log,"You can book a free discovery call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+      if(!BOOKING_ENDPOINT){ say(log,"You can book a Free 15-Minute Discovery Call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
       bk.step="offer";
       say(log,BOOK_ANSWER);
-      say(log,"Shall I book a discovery call for you?");
+      say(log,"Shall I book a Free 15-Minute Discovery Call for you?");
       return;
     }
     var reply=find(q);
@@ -1402,7 +1402,7 @@
     if(reply===BOOK_ANSWER){
       if(!BOOKING_ENDPOINT) return;
       bk.step="offer";
-      say(log,"Shall I book a discovery call for you?");
+      say(log,"Shall I book a Free 15-Minute Discovery Call for you?");
     }
   }
   btn.onclick=function(){ var open = panel.style.display==="none"; panel.style.display = open ? "flex" : "none"; btn.setAttribute("aria-expanded", open ? "true" : "false"); if(open){ proactiveChatOpened=true; memGreet(hcLog()); document.getElementById("hc-q").focus(); } else { voiceStopAll(); } };
@@ -1454,10 +1454,10 @@
     btn.setAttribute("aria-expanded","true");
     var log=hcLog();
     if(bk.step){ document.getElementById("hc-q").focus(); return; }
-    if(!BOOKING_ENDPOINT){ say(log,"You can book a free discovery call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); document.getElementById("hc-q").focus(); return; }
+    if(!BOOKING_ENDPOINT){ say(log,"You can book a Free 15-Minute Discovery Call on the <a href='"+BOOKING_PAGE+"'>booking page</a>."); document.getElementById("hc-q").focus(); return; }
     bk.step="offer";
     say(log,BOOK_ANSWER);
-    say(log,"Shall I book a discovery call for you?");
+    say(log,"Shall I book a Free 15-Minute Discovery Call for you?");
     document.getElementById("hc-q").focus();
   };
   /* Entry point for the booking page strategy button: open the chat and
