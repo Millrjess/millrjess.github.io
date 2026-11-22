@@ -140,7 +140,8 @@
      only to be transcribed into text; built-in speech recognition is
      never used for input because it fails silently on iOS (no prompt,
      immediate error). Read-aloud uses the Azure TTS Worker (Jenny)
-     first, with the phone's built-in speech synthesis as the fallback.
+     only. There is no fallback voice: if the Worker cannot be reached,
+     the reply stays silent and the text is on screen.
      Audio is never stored and never used to train. Text stays available
      always. */
   var voiceListening=false;
@@ -150,9 +151,8 @@
      is sent to Cloudflare only to be transcribed into text. Tests
      override the endpoint with window.__hcTranscribeUrl. */
   var VOICE_TRANSCRIBE_URL=(typeof window!=="undefined"&&window.__hcTranscribeUrl)?window.__hcTranscribeUrl:"https://website-agent-transcribe.millrjess.workers.dev/api/transcribe";
-  /* Read-aloud: the Azure TTS Worker speaks replies in Jenny's voice
-     first, and the phone's built-in speech synthesis is the fallback
-     when the Worker is unreachable or its audio cannot play. Tests
+  /* Read-aloud: the Azure TTS Worker speaks replies in Jenny's voice.
+     There is no fallback voice. Tests
      override the endpoint with window.__hcTtsUrl. */
   var VOICE_TTS_URL=(typeof window!=="undefined"&&window.__hcTtsUrl)?window.__hcTtsUrl:"https://website-agent-tts.millrjess.workers.dev/api/speak";
   var VOICE_TTS_VOICE="en-US-JennyNeural";
@@ -160,7 +160,7 @@
   var voiceAudio=null;
   /* Stop the Azure audio, if any is playing, and release its object
      URL. Clearing voiceAudio first means a stale onended/onerror
-     handler on the stopped element cannot fire the fallback. */
+     handler on the stopped element cannot act on it. */
   function voiceStopAudio(){
     var a=voiceAudio;
     voiceAudio=null;
@@ -176,32 +176,17 @@
   function voiceSpeechRecog(){
     return window.SpeechRecognition||window.webkitSpeechRecognition||null;
   }
-  function voiceSynth(){
-    return window.speechSynthesis||null;
-  }
   function voiceStripHtml(html){
     var d=document.createElement("div");
     d.innerHTML=html;
     return (d.textContent||"").replace(/\s+/g," ").trim();
   }
-  /* iOS Safari loads its speech voices asynchronously: getVoices() returns
-     an empty list until the voiceschanged event fires, and a speak() issued
-     before the voices are ready can silently do nothing. Prime the list
-     early and re-read it when it arrives, so a tap on the speaker always
-     has a voice to use. */
-  var voicePrimed=false;
-  var voiceSpeakTimer=null;
-  function voicePrime(){
-    var synth=voiceSynth();
-    if(!synth) return;
-    try{ synth.getVoices(); }catch(e){}
-    if(voicePrimed) return;
-    voicePrimed=true;
-    try{
-      if(synth.addEventListener){ synth.addEventListener("voiceschanged",function(){ try{ synth.getVoices(); }catch(e){} }); }
-      else if("onvoiceschanged" in synth){ synth.onvoiceschanged=function(){ try{ synth.getVoices(); }catch(e){} }; }
-    }catch(e){}
-  }
+  /* One voice only: Jenny, from the Azure TTS Worker. There is no
+     fallback to the phone's built-in voice, so a second voice can never
+     speak over her. A speak request counts up, and a request that is no
+     longer the newest is dropped when its audio arrives, so a slow
+     reply can never play over a newer one. */
+  var voiceSpeakSeq=0;
   /* The most recent agent message in the log, as plain text. User echoes
      carry a "You:" strong tag and are skipped. Falls back to the intro
      when the log has no agent message yet. */
@@ -222,61 +207,35 @@
     }
     return "";
   }
-  function voiceSpeakNow(synth,plain){
-    try{
-      var utt=new SpeechSynthesisUtterance(plain);
-      utt.lang="en-US";
-      try{
-        var vs=synth.getVoices?synth.getVoices():[];
-        /* Prefer a high-quality English voice. On iOS the first English
-           voice is often a low-quality compact voice, so pick Samantha
-           first, then an Enhanced or Premium voice, then any English
-           voice. If there is no English voice, leave utt.voice unset
-           so iOS uses its default Siri-quality voice. */
-        var pick=null, en=null, i, v, name;
-        for(i=0;i<vs.length;i++){
-          v=vs[i];
-          if(!v||!v.lang||v.lang.toLowerCase().indexOf("en")!==0) continue;
-          if(!en) en=v;
-          name=v.name||"";
-          if(name.indexOf("Samantha")>-1){ pick=v; break; }
-          if(!pick&&(name.indexOf("Enhanced")>-1||name.indexOf("Premium")>-1)) pick=v;
-        }
-        if(!pick) pick=en;
-        if(pick) utt.voice=pick;
-      }catch(e){}
-      synth.speak(utt);
-    }catch(e){}
-  }
-  /* Try the Azure TTS Worker first (Jenny). Any failure (network error,
+  /* Jenny only, from the Azure TTS Worker. Any failure (network error,
      an error status, an empty reply, a hung request, or an audio element
-     that cannot play) falls back to the phone's built-in speech
-     synthesis, exactly as read-aloud worked before. The fallback runs
-     at most once per request. */
-  function voiceSpeakAzure(plain,synth){
+     that cannot play) stays silent: the text is on screen, and no other
+     voice is ever used. A request that is no longer the newest is
+     dropped when its audio arrives. */
+  function voiceSpeakAzure(plain,seq){
     if(!voiceReadAloud) return;
     var done=false;
     var timer=null;
-    function fallback(){
+    function fail(){
       if(done) return;
       done=true;
       if(timer){ clearTimeout(timer); timer=null; }
-      if(synth) voiceSpeakNow(synth,plain);
     }
-    /* A hung Worker request must not leave the visitor in silence:
-       fall back to the system voice after the timeout. */
-    timer=setTimeout(fallback,VOICE_TTS_TIMEOUT_MS);
+    timer=setTimeout(fail,VOICE_TTS_TIMEOUT_MS);
     var body;
-    try{ body=JSON.stringify({text:plain,voice:VOICE_TTS_VOICE,rate:"+0%",pitch:"+0st"}); }catch(e){ fallback(); return; }
+    try{ body=JSON.stringify({text:plain,voice:VOICE_TTS_VOICE,rate:"+0%",pitch:"+0st"}); }catch(e){ fail(); return; }
     fetch(VOICE_TTS_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:body}).then(function(r){
       if(!r.ok) throw new Error("tts "+r.status);
       return r.blob();
     }).then(function(blob){
-      if(done) return;
+      if(done||seq!==voiceSpeakSeq) return;
       if(!blob||!blob.size) throw new Error("tts empty");
       if(timer){ clearTimeout(timer); timer=null; }
+      /* An earlier reply may have started playing after this request
+         was sent. Stop it first, so only this reply is heard. */
+      voiceStopAudio();
       var objUrl;
-      try{ objUrl=URL.createObjectURL(blob); }catch(e){ fallback(); return; }
+      try{ objUrl=URL.createObjectURL(blob); }catch(e){ fail(); return; }
       var audio=new Audio(objUrl);
       audio.__hcObjUrl=objUrl;
       voiceAudio=audio;
@@ -289,47 +248,35 @@
         if(voiceAudio!==audio) return;
         voiceAudio=null;
         try{ URL.revokeObjectURL(objUrl); }catch(e){}
-        fallback();
+        fail();
       };
       var p=null;
       try{ p=audio.play(); }catch(e){
         if(voiceAudio===audio) voiceAudio=null;
         try{ URL.revokeObjectURL(objUrl); }catch(e){}
-        fallback();
+        fail();
         return;
       }
       if(p&&p.catch) p.catch(function(){
         if(voiceAudio===audio) voiceAudio=null;
         try{ URL.revokeObjectURL(objUrl); }catch(e){}
-        fallback();
+        fail();
       });
     }).catch(function(){
-      fallback();
+      fail();
     });
   }
   function voiceSpeak(text){
     if(!voiceReadAloud) return;
     var plain=voiceStripHtml(text);
     if(!plain) return;
-    voicePrime();
-    var synth=voiceSynth();
-    /* Stop anything currently playing first: the Azure audio and the
-       system voice. A new reply replaces the old one, never overlaps
-       it, the same cancel-then-speak behavior the system voice had. */
+    /* Stop anything currently playing first. A new reply replaces the
+       old one, never overlaps it. The count marks this request as the
+       newest, so an older request that is still on its way is dropped
+       when it arrives instead of playing over this one. */
     voiceStopAudio();
-    /* iOS Safari can swallow an utterance spoken in the same tick as a
-       cancel(). Only cancel when something is actually speaking, and give
-       the queue a moment to clear before speaking again. A fresh speak
-       with nothing queued goes out at once, inside the tap. */
-    var busy=false;
-    try{ busy=!!(synth&&(synth.speaking||synth.pending)); }catch(e){}
-    if(busy){
-      try{ synth.cancel(); }catch(e){}
-      if(voiceSpeakTimer) clearTimeout(voiceSpeakTimer);
-      voiceSpeakTimer=setTimeout(function(){ voiceSpeakTimer=null; if(!voiceReadAloud) return; voiceSpeakAzure(plain,synth); },80);
-    } else {
-      voiceSpeakAzure(plain,synth);
-    }
+    voiceSpeakSeq++;
+    voiceSpeakAzure(plain,voiceSpeakSeq);
   }
   function syncVoiceButtons(){
     var mic=document.getElementById("hc-voice");
@@ -446,9 +393,7 @@
   function voiceStopAll(){
     voiceStopListen();
     voiceStopAudio();
-    if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
-    var synth=voiceSynth();
-    if(synth){ try{ synth.cancel(); }catch(e){} }
+    voiceSpeakSeq++;
   }
   function voiceToggleListen(){
     if(voiceListening){
@@ -465,18 +410,13 @@
   }
   function voiceToggleReadAloud(){
     voiceReadAloud=!voiceReadAloud;
-    var synth=voiceSynth();
     if(!voiceReadAloud){
       voiceStopAudio();
-      if(voiceSpeakTimer){ clearTimeout(voiceSpeakTimer); voiceSpeakTimer=null; }
-      if(synth){ try{ synth.cancel(); }catch(e){} }
+      voiceSpeakSeq++;
     } else {
       /* Turning it on reads the most recent reply at once, inside the
          tap, so the visitor hears something right away instead of
-         waiting for the next reply. iOS Safari needs the speak to start
-         from a user gesture and the voices to be loaded; voicePrime and
-         this direct call cover both. */
-      voicePrime();
+         waiting for the next reply. */
       voiceSpeak(voiceLastAgentText());
     }
     syncVoiceButtons();
@@ -1495,7 +1435,6 @@
   document.getElementById("hc-clear").onclick=hcClearChat;
   document.getElementById("hc-forget").onclick=function(){ bkReset(); memForget(); say(hcLog(),"Forgotten. I will not remember this visit."); };
   syncForgetButton();
-  voicePrime();
   document.getElementById("hc-q").addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); ask(); } });
   document.getElementById("hc-q").addEventListener("input", syncInputHeight);
   /* Proactive idle trigger: 60 seconds with no activity on the pricing page,
