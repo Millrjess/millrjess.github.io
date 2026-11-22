@@ -1527,7 +1527,7 @@ function renderMacroStack(dates) {
       const daysWith = totals.filter((t) => t[r.key] > 0).length;
       const total = totals.reduce((s, t) => s + t[r.key], 0);
       const avg = daysWith > 0 ? Math.round(total / daysWith) : 0;
-      return "<tr><td>" + r.label + "</td><td>" + avg + "g</td><td>" + (r.goal > 0 ? r.goal + "g" : "—") + "</td></tr>";
+      return "<tr><td>" + r.label + "</td><td>" + avg + "g</td><td>" + (r.goal > 0 ? r.goal + "g" : "-") + "</td></tr>";
     }).join("");
     body.innerHTML = rows;
   }
@@ -2259,7 +2259,7 @@ function syncMacroAddLabels(totals, targets) {
   MACRO_KEYS.forEach((key) => {
     const btn = document.getElementById("logged-" + key + "-btn");
     if (btn) {
-      const targetPart = totals[key] + " of " + (targets[key] > 0 ? targets[key] : "—") + " grams";
+      const targetPart = totals[key] + " of " + (targets[key] > 0 ? targets[key] : "-") + " grams";
       btn.setAttribute("aria-label", names[key] + " logged today, " + targetPart + ". Tap to add more.");
     }
   });
@@ -6878,7 +6878,7 @@ function renderWeight() {
   } else {
     const curWEl2 = document.getElementById("current-weight");
     if (curWEl2) curWEl2.textContent = "-";
-    document.getElementById("weight-hero-value").textContent = "—";
+    document.getElementById("weight-hero-value").textContent = "-";
     document.getElementById("weight-hero-date").textContent = "No weigh-ins yet";
     document.getElementById("starting-weight").textContent = "-";
     document.getElementById("starting-weight-date").textContent = "";
@@ -8125,7 +8125,7 @@ function renderSeTrends() {
     return localDateStr(dt);
   };
   const rows = Object.entries(groups).sort((a, b) => b[1].count - a[1].count).map(([key, g]) => {
-    const avg = g.n ? (g.sev / g.n).toFixed(1) : "—";
+    const avg = g.n ? (g.sev / g.n).toFixed(1) : "-";
     let shotNote = "";
     if (g.last && (shotDates.has(g.last) || shotDates.has(dayBeforeStr(g.last)))) {
       const sd = shotDates.has(g.last) ? g.last : dayBeforeStr(g.last);
