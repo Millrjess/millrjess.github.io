@@ -1,5 +1,9 @@
 (function(){
   var BOOKING_ENDPOINT="https://script.google.com/macros/s/AKfycby_8v8seWol3G1XXb9NlamfiYQTKA6Rk9pPHNqss1bTrSx1ONTVlY8BeG0Qg1m4vfKHaA/exec";
+  /* Notify Worker: emails Jessica when a call is booked, when a visitor
+     leaves a message, or when the agent cannot answer a question.
+     Tests override the endpoint with window.__hcNotifyUrl. */
+  var NOTIFY_URL=(typeof window!=="undefined"&&window.__hcNotifyUrl)?window.__hcNotifyUrl:"https://website-agent-notify.millrjess.workers.dev/api/notify";
   var BOOKING_PAGE="../booking/";
   var STRIPE_STRATEGY_URL="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02";
   var BOOK_ANSWER="I can book the free 15-minute discovery call right here. It is free, by phone, with no obligation, on a Tuesday or Thursday. A 1-hour strategy session is $200, paid in advance at booking through Stripe.";
@@ -660,6 +664,33 @@
     if(q.indexOf("cancel")>-1&&(q.indexOf("booking")>-1||q.indexOf("appointment")>-1)) return true;
     return false;
   }
+  /* Leave a message: "leave a message", "leave a note", "message for
+     Jessica", and close variants. Starts the message flow from a plain
+     question, never from inside another flow. */
+  function isLeaveMessage(q){
+    if(q.indexOf("leave a message")>-1) return true;
+    if(q.indexOf("leave a note")>-1) return true;
+    if(q.indexOf("message for jessica")>-1) return true;
+    if(q.indexOf("leave her a message")>-1) return true;
+    if(q.indexOf("leave a message for")>-1) return true;
+    return false;
+  }
+  /* Leave-a-message flow: name, email, question, then one email to
+     Jessica through the notify Worker. Name, email, and question are
+     kept in this session only and never saved to the device. */
+  var msg={name:"",email:"",question:""};
+  function msgStart(log){
+    bk.step="msg-name";
+    msg={name:"",email:"",question:""};
+    say(log,"I will send a message to Jessica. What is your name?");
+  }
+  function msgSend(log){
+    notifyJessica("message",{name:msg.name,email:msg.email,question:msg.question});
+    bk.step=null;
+    msg={name:"",email:"",question:""};
+    say(log,"Your message is sent. Jessica will reply personally within 1 business day.");
+    syncSendButton();
+  }
   /* Human fallback for validation re-prompts and the reschedule
      not-found message: a stuck visitor can reach a human. */
   var HUMAN_FALLBACK="Or email millrjess@gmail.com / call (978) 267-5304.";
@@ -741,6 +772,17 @@
   }
   function bkPost(data,cb){
     fetch(BOOKING_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)}).then(function(r){ return r.json(); }).then(function(j){ cb(j); }).catch(function(){ cb(null); });
+  }
+  /* Notify Jessica by email through the notify Worker: a booked call, a
+     message left for her, or a question the agent could not answer.
+     Fire and forget: a failed notify never changes what the visitor
+     sees, and a booking is already recorded by the booking endpoint. */
+  function notifyJessica(type,data){
+    var body={type:type};
+    if(data){ for(var k in data){ if(data.hasOwnProperty(k)) body[k]=data[k]; } }
+    try{
+      fetch(NOTIFY_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).catch(function(){});
+    }catch(e){}
   }
   /* Choice buttons live in their own container below the log and after
      the input in DOM order, so forward Tab reaches them. A picked set is
@@ -975,6 +1017,7 @@
       if(res&&res.success){
         bk.booked=true;
         bk.eventLabel=res.label||bk.slot.label;
+        notifyJessica("booking",{name:bk.name,email:bk.email,phone:bk.phone,website:bk.website,topic:bk.topic,slot:bk.eventLabel,service:bk.qualService,budget:bk.qualBudget,timeline:bk.qualTimeline});
         bk.step=null;
         removeChoiceButtons();
         say(log,"You are booked for "+esc(bk.eventLabel)+". Jessica will call you at "+esc(bk.phone)+".");
@@ -1154,6 +1197,23 @@
   }
   function bkHandle(q,raw,log){
     if(q==="cancel"||q==="stop"){ bkReset(); say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); return; }
+    if(bk.step==="msg-offer"){
+      if(isYes(q)){ msgStart(log); return; }
+      if(isNo(q)){ bk.step=null; say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); syncSendButton(); return; }
+      say(log,"Tap Yes to leave a message, or No to skip it.");
+      return;
+    }
+    if(bk.step==="msg-name"){ msg.name=raw; bk.step="msg-email"; say(log,"What email should Jessica reply to?"); return; }
+    if(bk.step==="msg-email"){
+      if(!validEmail(raw)){ say(log,"That email does not look right. What email should Jessica reply to? "+HUMAN_FALLBACK); return; }
+      msg.email=raw; bk.step="msg-question"; say(log,"What is your question?"); return;
+    }
+    if(bk.step==="msg-question"){
+      if(!raw){ say(log,"Type your question, and I will send it to Jessica."); return; }
+      msg.question=raw;
+      msgSend(log);
+      return;
+    }
     if(bk.step==="memory-consent"){
       if(isYes(q)){ memSave(); bk.step=null; say(log,"Remembered. Next time I will pick up where we left off."); syncSendButton(); return; }
       if(isNo(q)){ memDecline(); bk.step=null; say(log,"No problem. I will not remember this visit."); syncSendButton(); return; }
@@ -1303,7 +1363,7 @@
   panel.setAttribute("role","dialog");
   panel.setAttribute("aria-label","Website agent");
   panel.style.cssText="display:none;flex-direction:column;position:fixed;right:20px;bottom:88px;z-index:100;width:400px;max-width:calc(100vw - 40px);max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 14px 34px -18px rgba(15,35,64,.22);padding:16px;font-family:inherit;color:#334155";
-  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, search the site, book a Free 15-Minute Discovery Call, or send you to pay for a strategy session. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:6px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices, booking, or search the site</label><textarea id='hc-q' rows='2' aria-label='Ask about prices, booking, or search the site' placeholder='Ask about prices, booking, or search the site' style='flex:1;min-width:0;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em;line-height:1.4;box-sizing:border-box;resize:none;overflow-y:auto'></textarea><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div style='display:flex;gap:8px;margin-top:8px;align-items:center;order:6'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing. Your voice is transcribed only, never stored.' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-clear' type='button' aria-label='Clear chat' style='flex:1;min-width:0;height:48px;background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.8em 1em;cursor:pointer;font:inherit;font-weight:700'>Clear chat</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:7'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together? Find the resume.</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:8'>Forget what you remember about me</button>";
+  panel.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;order:1'><p style='margin:0;color:#0f2340;font-weight:700'>Website agent</p><button id='hc-close' aria-label='Close website agent' style='background:#f0dfae;border:2px solid #0b1a30;border-radius:999px;font-size:1em;font-weight:700;line-height:1;cursor:pointer;color:#0b1a30;padding:.25em .5em;min-width:32px;min-height:32px'>X</button></div><p style='margin:0 0 12px;font-size:.9em;order:2'>I am Jessica's website agent. I can answer questions, search the site, book a Free 15-Minute Discovery Call, send you to pay for a strategy session, or leave a message for Jessica. Only Jessica confirms a session or a price. Type cancel any time to stop.</p><div id='hc-log' aria-live='polite' role='status' style='font-size:.95em;max-height:300px;overflow-y:auto;order:3'></div><div style='display:flex;gap:6px;margin-top:12px;align-items:flex-end;order:5'><label for='hc-q' style='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)'>Ask about prices, booking, or search the site</label><textarea id='hc-q' rows='2' aria-label='Ask about prices, booking, or search the site' placeholder='Ask about prices, booking, or search the site' style='flex:1;min-width:0;padding:.8em;border:1px solid #e2e8f0;border-radius:10px;font:inherit;font-size:1em;line-height:1.4;box-sizing:border-box;resize:none;overflow-y:auto'></textarea><button id='hc-send' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em 1.2em;cursor:pointer;font:inherit;height:48px;flex-shrink:0'>Ask</button></div><div style='display:flex;gap:8px;margin-top:8px;align-items:center;order:6'><button id='hc-voice' type='button' aria-label='Speak instead of typing' aria-pressed='false' title='Speak instead of typing. Your voice is transcribed only, never stored.' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 3-2.54 5.1-5.5 5.1S6 14 6 11H4c0 3.41 2.72 6.23 6 6.72V21h4v-3.28c3.28-.49 6-3.31 6-6.72h-2z'/></svg></button><button id='hc-speak' type='button' aria-label='Read replies aloud' aria-pressed='false' title='Read replies aloud' style='background:#0b1a30;color:#fff;border:0;border-radius:10px;padding:.8em;cursor:pointer;font:inherit;height:48px;width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center'><svg width='20' height='20' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z'/></svg></button><button id='hc-clear' type='button' aria-label='Clear chat' style='flex:1;min-width:0;height:48px;background:#fff;color:#0b1a30;border:2px solid #0b1a30;border-radius:10px;padding:.8em 1em;cursor:pointer;font:inherit;font-weight:700'>Clear chat</button></div><div id='hc-choices' style='order:4;max-height:220px;overflow-y:auto'></div><p style='font-size:.85em;color:#64748b;margin:12px 0 0;order:7'>Try: How much is a strategy session? How do I book? What is in a care plan? How do we work together? Find the resume.</p><button id='hc-forget' type='button' style='display:none;font-size:.85em;background:none;border:0;padding:0;margin-top:8px;cursor:pointer;color:#64748b;text-decoration:underline;order:8'>Forget what you remember about me</button>";
   var st=document.createElement("style"); st.textContent="#hc-toggle:focus-visible{outline:3px solid #0b1a30; outline-offset:2px; box-shadow:0 0 0 6px #f0dfae, 0 10px 22px -8px rgba(15,35,64,.35)}@media (max-width:720px){#hc-toggle{right:12px !important;bottom:12px !important;width:48px !important;height:48px !important}#hc-toggle svg{width:22px !important;height:22px !important}#hc-close{min-width:44px !important;min-height:44px !important}.site-footer{padding-bottom:76px}}#hc-q{min-width:0;resize:none;max-height:140px}@media (max-width:480px){#hc-voice,#hc-speak{width:44px !important;height:44px !important;padding:.6em !important}#hc-send{padding:.5em .6em !important}#hc-clear{height:44px !important;padding:.6em .8em !important}}"; document.head.appendChild(st);
   document.body.appendChild(btn); document.body.appendChild(panel);
   /* Choice buttons live in #hc-choices, a sibling of the log, so the
@@ -1396,8 +1456,17 @@
       say(log,"Shall I book a Free 15-Minute Discovery Call for you?");
       return;
     }
+    if(isLeaveMessage(q)){ msgStart(log); return; }
     var reply=find(q);
-    if(reply.indexOf("I do not have a published answer for that.")===0){ proactiveFallback(); } else { proactiveAnswered(); }
+    if(reply.indexOf("I do not have a published answer for that.")===0){
+      proactiveFallback();
+      notifyJessica("unanswered",{question:raw});
+      say(log,reply);
+      bk.step="msg-offer";
+      say(log,"Would you like to leave a message for Jessica? I will send it to her.");
+      return;
+    }
+    proactiveAnswered();
     say(log,reply);
     if(reply===BOOK_ANSWER){
       if(!BOOKING_ENDPOINT) return;
