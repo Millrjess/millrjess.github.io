@@ -235,7 +235,6 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 <option>$1,500 to $5,000</option>
 <option>Over $5,000</option>
 <option>Not sure yet</option>
-<option>I need it free</option>
 </select></label>
 <label>Your timeline *
 <select name="timeline" required>
@@ -299,9 +298,7 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   var outOfScope = ['logo', 'social media', 'graphic design', 'copywriting', 'video editing', 'photography'];
   var scopeHit = outOfScope.some(function(w){ return detailsText.indexOf(w) > -1; });
   var turnawayHtml = '';
-  if (budget === 'I need it free') {
-    turnawayHtml = 'I do not do free work. My prices are on the <a href="../pricing/">pricing page</a>. A care plan starts at $150 a month. A <a href="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02">1-hour strategy session is $200</a>.';
-  } else if (budget === 'Under $500' && isOneTime) {
+  if (budget === 'Under $500' && isOneTime) {
     turnawayHtml = 'One time work starts at $500. That is the floor for an audit, SEO, accessibility, or a new site or app. A care plan starts at $150 a month. A 1-hour strategy session is $200. See <a href="../pricing/">pricing</a> or <a href="https://buy.stripe.com/aFa7sMfCM43Nc8JdOF6EU02">pay $200 for a strategy session</a>.';
   } else if (isSomethingElse && scopeHit) {
     turnawayHtml = 'I do website work. That request is outside it. Prices are on the <a href="../pricing/">pricing page</a>. If your website is the real need, say so and <a href="../booking/">I can book a call</a>.';
