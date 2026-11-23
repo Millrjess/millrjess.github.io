@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=121">
+<link rel="stylesheet" href="styles.css?v=122">
 </head>
 <body>
 
@@ -1213,10 +1213,10 @@
         <h4 style="margin:0 0 8px">Your height</h4>
         <div style="display:flex;gap:10px">
           <label style="flex:1">Feet
-            <input type="number" id="set-height-ft" min="0" max="8" step="1" placeholder="5">
+            <input type="number" id="set-height-ft" min="0" max="8" step="1" placeholder="ft">
           </label>
           <label style="flex:1">Inches
-            <input type="number" id="set-height-in" min="0" max="11" step="1" placeholder="6">
+            <input type="number" id="set-height-in" min="0" max="11" step="1" placeholder="in">
           </label>
         </div>
         <p class="muted">Height is only for your BMI on the Weight tab.</p>
@@ -1755,10 +1755,10 @@
       <p style="margin:0 0 12px">Height is for your BMI. Goal weight adds a line to your chart.</p>
       <div style="display:flex;gap:10px">
         <label style="flex:1">Height, feet
-          <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="5">
+          <input type="number" id="setup-height-ft" min="0" max="8" step="1" placeholder="ft">
         </label>
         <label style="flex:1">Height, inches
-          <input type="number" id="setup-height-in" min="0" max="11" step="1" placeholder="6">
+          <input type="number" id="setup-height-in" min="0" max="11" step="1" placeholder="in">
         </label>
       </div>
       <label>Goal weight (lbs)
@@ -1857,7 +1857,7 @@
     </div>
   </div>
 
-<script src="app.js?v=121"></script>
+<script src="app.js?v=122"></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
