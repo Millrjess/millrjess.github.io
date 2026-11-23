@@ -288,12 +288,15 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
   if (errors.length) {
     errBox.hidden = false;
     errBox.innerHTML = 'Please fix ' + errors.length + ' field' + (errors.length > 1 ? 's' : '') + ': ' + errors.map(function(item){ return item.label + ' - ' + item.hint; }).join(' ');
-    fields.forEach(function(item){ item.el.setAttribute('aria-describedby', 'consult-errors'); });
-    if (websiteBad) f.website.setAttribute('aria-describedby', 'consult-errors');
+    fields.forEach(function(item){ item.el.removeAttribute('aria-describedby'); });
+    if (!websiteBad) f.website.removeAttribute('aria-describedby');
+    errors.forEach(function(item){ item.el.setAttribute('aria-describedby', 'consult-errors'); });
     errors[0].el.focus();
     return;
   }
   errBox.hidden = true; errBox.innerHTML = '';
+  fields.forEach(function(item){ item.el.removeAttribute('aria-describedby'); });
+  f.website.removeAttribute('aria-describedby');
   var service = f.service.value;
   var budget = f.budget.value;
   var isCarePlan = service.indexOf('Website maintenance') === 0;
@@ -332,6 +335,8 @@ document.getElementById('consult-form').addEventListener('submit', function(e){
     window.removeEventListener('message', onReply);
     if (data.success) {
       f.reset();
+      fields.forEach(function(item){ item.el.removeAttribute('aria-invalid'); item.el.removeAttribute('aria-describedby'); });
+      f.website.removeAttribute('aria-invalid'); f.website.removeAttribute('aria-describedby');
       note.innerHTML = 'Thanks. Your message is on its way. I personally read and reply to every inquiry.';
     } else {
       note.innerHTML = 'The form did not send your message. Please email me directly at <a href="mailto:millrjess@gmail.com">millrjess@gmail.com</a>. Your form entries are kept above, so you can copy them if you prefer.';
@@ -388,7 +393,7 @@ document.addEventListener("keydown", function(e){
   }
 });
 </script>
-<script defer src="../assets/js/help-chat.js?v=19"></script>
+<script defer src="../assets/js/help-chat.js?v=20"></script>
 <script defer src="../assets/js/a11y-live.js?v=1"></script>
 <script defer src="../assets/js/ga-events.js?v=1"></script>
 </body>
