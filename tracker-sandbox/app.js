@@ -6968,9 +6968,17 @@ function renderWeight() {
    inches). The 703 formula: BMI = 703 × weight(lb) / height(in)².
    Shown under the big current-weight number with its category. */
 function calcBMI() {
-  const ft = Number(store.settings && store.settings.heightFt);
-  const inch = Number(store.settings && store.settings.heightIn);
-  const totalIn = (Number.isFinite(ft) ? ft : 0) * 12 + (Number.isFinite(inch) ? inch : 0);
+  // features-117: a blank feet or inches is missing, not zero. Number("") is 0,
+  // so a half-filled height used to read as 5 ft 0 in and show a wrong BMI.
+  // Both parts must be present; 0 inches is a real height (6 ft 0 in).
+  const rawFt = store.settings && store.settings.heightFt;
+  const rawIn = store.settings && store.settings.heightIn;
+  if (rawFt === "" || rawFt === undefined || rawFt === null) return null;
+  if (rawIn === "" || rawIn === undefined || rawIn === null) return null;
+  const ft = Number(rawFt);
+  const inch = Number(rawIn);
+  if (!Number.isFinite(ft) || !Number.isFinite(inch)) return null;
+  const totalIn = ft * 12 + inch;
   const sorted = [...(store.weight || [])].sort(byDate);
   const latest = sorted[sorted.length - 1];
   if (!latest || !(totalIn > 0)) return null;
