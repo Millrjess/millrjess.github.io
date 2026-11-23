@@ -1161,10 +1161,24 @@
       say(log,"Tap Yes to leave a message, or No to skip it.");
       return;
     }
-    if(bk.step==="msg-name"){ msg.name=raw; bk.step="msg-email"; say(log,"What email should Jessica reply to?"); return; }
+    if(bk.step==="msg-name"){
+      /* A decline ("no", "skip") exits the flow gracefully instead of
+         being recorded as the visitor's name. A bare "yes" is consent,
+         not a name, so ask for the name again. */
+      if(isNo(q)||q==="skip"||q==="no thanks"||q==="no thank you"){ bk.step=null; msg={name:"",email:"",question:""}; say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); syncSendButton(); return; }
+      if(isYes(q)){ say(log,"What is your name?"); return; }
+      msg.name=raw; bk.step="msg-email"; say(log,"What email should Jessica reply to?"); return;
+    }
     if(bk.step==="msg-email"){
+      /* A decline exits gracefully instead of triggering the
+         "email does not look right" error. */
+      if(isNo(q)||q==="skip"||q==="no thanks"||q==="no thank you"){ bk.step=null; msg={name:"",email:"",question:""}; say(log,"No problem. Ask me anything else, or use the <a href='"+BOOKING_PAGE+"'>booking page</a>."); syncSendButton(); return; }
       if(!validEmail(raw)){ say(log,"That email does not look right. What email should Jessica reply to? "+HUMAN_FALLBACK); return; }
-      msg.email=raw; bk.step="msg-question"; say(log,"What is your question?"); return;
+      msg.email=raw;
+      /* If the question is already known (the agent could not answer
+         it), send the message now instead of asking for the question. */
+      if(msg.question){ msgSend(log); return; }
+      bk.step="msg-question"; say(log,"What is your question?"); return;
     }
     if(bk.step==="msg-question"){
       if(!raw){ say(log,"Type your question, and I will send it to Jessica."); return; }
@@ -1423,12 +1437,19 @@
     if(isLeaveMessage(q)){ msgStart(log); return; }
     var reply=find(q);
     if(reply.indexOf("I do not have a published answer for that.")===0){
-      proactiveFallback();
       notifyJessica("unanswered",{question:raw});
       say(log,reply);
-      bk.step="msg-offer";
-      say(log,"Would you like to leave a message for Jessica? I will send it to her.");
-      renderConfirm(log,"Yes, leave a message","No, thanks");
+      /* Ask for contact info first: when the agent cannot answer, it
+         takes the visitor's name and email up front so Jessica can
+         follow up, instead of offering a Yes/No message choice the
+         visitor can skip. The unanswered question is pre-filled, so
+         the message flow only asks for name and email. The proactive
+         call offer is not used here, so it does not stack on top of
+         this flow. Copy is a statement, not a yes/no question, so a
+         "yes" reply is never captured as the visitor's name. */
+      msg={name:"",email:"",question:raw};
+      bk.step="msg-name";
+      say(log,"I will send your question to Jessica. What is your name?");
       return;
     }
     proactiveAnswered();
