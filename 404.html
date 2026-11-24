@@ -90,12 +90,12 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 .nav-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:.5em .7em; font-size:1.1em; cursor:pointer; color:var(--navy)}
 @media (max-width:720px){
   body{font-size:16px}
-  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between}
+  .header-inner{flex-direction:row !important; align-items:center !important; justify-content:space-between; flex-wrap:wrap}
   .nav-toggle{display:block; min-width:44px; min-height:44px}
   .site-header nav{display:none; width:100%}
   .site-header nav.open{display:block}
-  .site-header nav.open .nav{flex-direction:column; align-items:stretch}
-  .site-header nav.open .nav a{padding:.7em .5em}
+  .site-header nav.open .nav{flex-direction:column; align-items:stretch; flex-wrap:wrap}
+  .site-header nav.open .nav a{padding:.7em .5em; white-space:normal}
   .footer-inner{flex-direction:column; align-items:flex-start}
   .page > article{border-radius:16px}
 }
