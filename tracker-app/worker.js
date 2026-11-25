@@ -236,7 +236,6 @@ async function handleStripeWebhook(request, env) {
     else if (session.amount_total === 399) plan = "monthly";
     try {
       const { token } = await issueUserToken(env, email, plan);
-      console.log("Issued token for purchase:", email, plan);
       return corsResponse(JSON.stringify({ ok: true, token_issued: true }), request, 200);
     } catch (e) {
       console.error("Token issue on webhook failed:", e);
