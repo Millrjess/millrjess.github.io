@@ -75,9 +75,6 @@ html[data-theme="dark"] a, html[data-theme="dark"] a:visited {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .progress-fill {
-    transition: none;
-  }
 }
 
 h1, h2, h3, .card {
@@ -236,33 +233,9 @@ input[aria-invalid="true"]:focus-visible {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.progress-fill {
-  background: var(--gold);
-  height: 100%;
-  width: 0%;
-  border-radius: 12px;
-  transition: width 0.4s ease;
-}
-
-.percent-line {
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
 
 
-.goals-add {
-  border: 1.5px solid var(--gold);
-  background: var(--card-bg);
-  color: var(--ink);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  font-weight: 600;
-  margin-top: 10px;
-  min-height: 44px;
-  /* v167: stops iOS Safari double-tap zoom on rapid taps. */
-  touch-action: manipulation;
-}
+
 
 /* Personal greeting (v165): serif, sage-deep, under the date nav. */
 .greeting-line {
@@ -742,11 +715,6 @@ label textarea {
   margin-top: 0;
 }
 
-.copyright {
-  margin-top: 16px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
 
 .tab-bar {
   position: fixed;
@@ -900,13 +868,6 @@ label textarea {
 /* Recent foods quick-pick */
 
 
-.recent-label {
-  width: 100%;
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--muted);
-}
 
 
 
@@ -1093,20 +1054,6 @@ body {
 }
 
 /* Bigger progress numbers for at-a-glance reading */
-.pc-value {
-  font-weight: 700;
-  margin: 0 0 8px;
-  /* WCAG 1.4.12: allow wrapping instead of nowrap with ellipsis, so numbers are not truncated at larger text spacing */
-  white-space: normal;
-  overflow: visible;
-  font-size: 1.5rem;
-}
-.pc-goal {
-  white-space: normal;
-  font-weight: 400;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
 
 /* Roomier cards (v164: rounder, softer shadow, more space between sections) */
 .card {
@@ -1408,19 +1355,10 @@ button.macro-name:focus-visible { outline: 3px solid var(--focus); outline-offse
 .macro-row[data-macro="carbs"] .macro-bar i::after { border-color: var(--sage); }
 .macro-row[data-macro="fat"] .macro-bar i::after { border-color: #C9B586; }
 .macro-row, .macro-bar { user-select: none; -webkit-user-select: none; }
-.macro-meta { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
 .macro-pct { font-size: 0.85rem; color: var(--muted); }
 /* Log steppers on each macro row: change the day's logged grams by
    exactly 1, like the ring nudge buttons. */
 .macro-stepper { display: inline-flex; align-items: center; gap: 8px; }
-.macro-log-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1.5px solid var(--sage); background: #fff; color: var(--sage-deep);
-  font-size: 1.25rem; font-weight: 700; line-height: 1; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; padding: 0;
-  touch-action: manipulation;
-}
-.macro-log-btn:active { background: var(--sage-soft); }
 
 /* Today's Movement card */
 .movement-sub { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 700; color: #87692B; }
@@ -1617,7 +1555,6 @@ html[data-theme="dark"] .progress-big,
 html[data-theme="dark"] .progress-small,
 html[data-theme="dark"] .week-bar-val,
 html[data-theme="dark"] .stack-legend,
-html[data-theme="dark"] .simple-macro,
 html[data-theme="dark"] .food-note,
 html[data-theme="dark"] .stat-value.loss,
 html[data-theme="dark"] li.done-move .move-name { color: #9DB894; }
@@ -1775,10 +1712,6 @@ html[data-text-size="large"] body { font-size: 20.25px; }
 .kitchen-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; margin-top: 8px; }
 .kitchen-macro b { display: block; font-size: 1.05em; }
 .kitchen-macro span { font-size: .85rem; color: var(--muted); }
-.kitchen-details { margin-top: 8px; font-size: .9rem; }
-.kitchen-details summary { cursor: pointer; font-weight: 500; }
-.kitchen-details ul, .kitchen-details ol { margin: 6px 0 0; padding-left: 24px; }
-.kitchen-details li { margin: 2px 0; }
 .kitchen-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .kitchen-stepper { display: inline-flex; align-items: center; gap: 8px; }
 
@@ -1836,14 +1769,11 @@ canvas { max-width: 100%; height: auto; display: block; }
 .meal-total { font-size:.85em; flex:1; }
 
 /* GLP-1 quick actions (v035): three links in one row on Today. */
-.quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
-.quick-actions .btn { flex:1; white-space:nowrap; padding-left:10px; padding-right:10px; }
 
 /* Compact slider rows (v036): water and movement as one row with the
    big amount and the goal, a horizontal slider, and a slim progress
    bar. Sage slider, gold progress fill, sage when the goal is met. */
 .slider-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.slider-row .goals-add { margin-top: 0; flex: none; }
 .slider-amount { background: none; border: none; padding: 0; margin: 0; cursor: pointer; font: inherit; color: inherit; text-align: left; display: flex; align-items: baseline; gap: 6px; min-height: 44px; }
 .slider-amount:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .slider-goal { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
@@ -1861,7 +1791,6 @@ canvas { max-width: 100%; height: auto; display: block; }
 .goal-slider.pct-fill::-moz-range-track { height: 6px; border-radius: 3px; background: #EDEBE3; }
 .goal-slider.pct-fill::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--fill); }
 .goal-slider.pct-fill::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--fill); box-shadow: 0 1px 3px rgba(0,0,0,0.25); cursor: ew-resize; }
-.slider-hint { color: var(--muted); margin: 6px 0 0; font-size: 0.9rem; }
 .slider-amount .big-number { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px; }
 
 /* Compact Today (v036): tighter cards on Today only, so the tab reads
@@ -1924,10 +1853,6 @@ canvas { max-width: 100%; height: auto; display: block; }
 .macro-detail .macro-pct { font-size: .85rem; color: var(--muted); }
 
 /* Kitchen photo cards: horizontal featured row, two-column full list. */
-.kitchen-featured { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; scroll-snap-type: x mandatory; }
-.kitchen-featured .kitchen-photo-card { flex: 0 0 200px; scroll-snap-align: start; }
-.kitchen-featured .kitchen-photo { height: 120px; }
-.kitchen-featured .recipe-placeholder { height: 120px; }
 #kitchen-list.kitchen-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .kitchen-photo-card { position: relative; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); box-shadow: var(--shadow); overflow: hidden; }
 .kitchen-photo-open { display: block; width: 100%; background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
@@ -1942,7 +1867,6 @@ canvas { max-width: 100%; height: auto; display: block; }
 .kitchen-nutrition { font-size: .82rem; font-weight: 600; color: var(--sage-dark); line-height: 1.4; }
 .kitchen-photo-meta { display: flex; gap: 12px; font-size: .85rem; color: var(--muted); }
 .kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
-.kitchen-featured .kitchen-nutrition { display: none; }
 .kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .kitchen-hide { display: block; width: 100%; padding: 6px 12px 10px; background: none; border: none; color: inherit; opacity: .7; font-size: .85rem; text-align: center; cursor: pointer; }
@@ -1952,11 +1876,6 @@ canvas { max-width: 100%; height: auto; display: block; }
 .recipe-placeholder img { width: 72px; height: 55px; object-fit: contain; }
 
 /* Simple meals row: horizontal cards with a macro highlight. */
-.kitchen-simple { display: flex; gap: 12px; overflow-x: auto; padding: 10px 2px 12px; scroll-snap-type: x mandatory; }
-.simple-card { flex: 0 0 200px; scroll-snap-align: start; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); box-shadow: var(--shadow); padding: 12px; }
-.simple-macro { margin: 0 0 6px; font-size: 1.05rem; font-weight: 700; color: var(--sage-dark); line-height: 1.3; }
-.simple-card strong { display: block; line-height: 1.3; }
-.simple-card .muted { margin: 4px 0 10px; font-size: .85rem; line-height: 1.4; }
 
 /* Compact Companion header: smaller avatar and heading, and the
    privacy note as one line with the full text behind a tap. */
@@ -2115,5 +2034,4 @@ input[type="checkbox"] { width: 24px; height: 24px; }
 .lib-ex-main { flex: 1; min-width: 0; }
 .lib-ex-muscle { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
 .ex-tag { display: inline-block; font-size: 0.75rem; line-height: 1.2; padding: 2px 6px; margin-left: 6px; border: 1px solid var(--sage); border-radius: 999px; color: var(--sage-dark); background: var(--sage-tint); white-space: nowrap; }
-.ex-tag-adv { border-color: var(--gold-dark); color: var(--gold-dark); }
 .lib-chip-active { background: var(--gold); border-color: var(--gold-dark); color: #2D2D2D; font-weight: 600; }
