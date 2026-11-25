@@ -8,7 +8,7 @@
 
 "use strict";
 
-/* App version (v159): shown in Settings, About, so the version on the
+/* App version (v000-features): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
