@@ -4,7 +4,7 @@
  * https://millrjess.github.io/tracker/
  *
  * Freshness strategy (S16/S17/S18/S19):
- * - The page requests styles.css?v=131 and app.js?v=131, so the precache
+ * - The page requests styles.css?v=132 and app.js?v=132, so the precache
  *   lists those exact versioned URLs; a bare "./app.js" would never match.
  * - App shell files (HTML, JS, CSS) are network-first with a cache fallback,
  *   so an installed app picks up new code instead of serving old code forever.
@@ -31,12 +31,12 @@
  *   a waiting worker to take over, then reloads; it never unregisters.
  */
 
-const CACHE_NAME = "new-chapter-tracker-v131";
+const CACHE_NAME = "new-chapter-tracker-v132";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=131",
-  "./app.js?v=131",
+  "./styles.css?v=132",
+  "./app.js?v=132",
   "./assets/js/html5-qrcode.min.js",
   "./assets/js/zxing-browser.min.js",
   "./manifest.json",
