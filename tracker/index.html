@@ -34,8 +34,8 @@
   "url": "https://millrjess.github.io/tracker/",
   "image": "https://millrjess.github.io/tracker/assets/og-image.png",
   "offers": [
-    { "@type": "Offer", "name": "Monthly", "price": "3.99", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
-    { "@type": "Offer", "name": "Annual", "price": "29.99", "priceCurrency": "USD", "availability": "https://schema.org/InStock" }
+    { "@type": "Offer", "name": "Monthly", "price": "3.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder" },
+    { "@type": "Offer", "name": "Annual", "price": "29.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder" }
   ],
   "video": {
     "@type": "VideoObject",
@@ -56,17 +56,17 @@
     {
       "@type": "Question",
       "name": "Can I try it first?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. A subscription is free for 30 days, then $3.99 a month or $29.99 a year. Your first charge is 30 days after you subscribe." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The demo is free, with no sign-in, no credit card, and sample data only. Subscriptions open when the store listings open: Google Play in December to early January, and the Apple App Store in February, at $3.99 a month or $29.99 a year." }
     },
     {
       "@type": "Question",
       "name": "How do I cancel, and what about refunds?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Cancel anytime by emailing millrjess@gmail.com. One-tap cancel in the app arrives in December. Your cancellation takes effect at the end of the period you paid for, and you keep access until then. Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription, and renewals do not qualify. After 30 days, no partial refund for the current month or year. Subscriptions are refunded through Stripe. Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. I answer refund requests within one business day. When the money reaches your bank depends on your bank." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Subscriptions run through Google Play or the Apple App Store. You cancel in the store where you subscribed, and your cancellation takes effect at the end of the period you paid for. You keep access until then. Refunds follow the rules of the store where you subscribed. For help with a subscription, email millrjess@gmail.com. I answer within one business day." }
     },
     {
       "@type": "Question",
       "name": "What happens to my data if I cancel?",
-      "acceptedAnswer": { "@type": "Answer", "text": "When your paid period ends, the service locks, not your data. You can still view and export your entries. Cancellation does not delete your locally stored records. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device. Your access code is tied to the device that first redeems it." }
+      "acceptedAnswer": { "@type": "Answer", "text": "When your paid period ends, the service locks, not your data. You can still view and export your entries. Cancellation does not delete your locally stored records. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime in the store where you subscribed. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device." }
     },
     {
       "@type": "Question",
@@ -251,9 +251,6 @@
     .plan-includes { list-style: none; padding: 0; margin: 0 auto 28px; max-width: 520px; color: var(--muted); }
     .plan-includes li { padding: 6px 0 6px 25px; position: relative; }
     .plan-includes li .check-mark { position: absolute; left: 0; color: var(--sage); font-weight: 700; }
-    .terms-check { display: flex; gap: 8px; align-items: flex-start; font-size: .92rem; margin: 0 0 14px; cursor: pointer; }
-    .terms-check input { margin-top: 3px; flex: 0 0 auto; }
-    .payment-note { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 22px; }
 
     .how-it-works { background: var(--bg); }
     .how-intro { text-align: center; max-width: 650px; margin: 0 auto 32px; }
@@ -279,7 +276,6 @@
     details[open] summary .faq-icon:after { content: "−"; }
     details p { color: var(--muted); padding: 0 30px 18px 0; margin: 0; }
 
-    .mobile-buy { display: none; }
     footer { border-top: 1px solid var(--line); padding: 26px 0 64px; color: var(--muted); font-size: .9rem; }
     .footer-row { display: flex; justify-content: space-between; gap: 28px; }
     .footer-row p { max-width: 68ch; margin-bottom: 0; }
@@ -331,19 +327,6 @@
       .story-mark { width: 74px; height: 74px; font-size: 2.5rem; }
       .story-mark.word { font-size: .74rem; line-height: 1.2; text-align: center; }
       .footer-row { flex-direction: column; }
-      html { scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-      body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-      .mobile-buy { position: fixed; z-index: 30; left: 12px; right: 12px; max-width: calc(100vw - 24px); bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 64px; padding: 8px 16px; border-radius: 7px; background: var(--sage-dark); color: var(--bg); box-shadow: 0 12px 30px rgba(26, 39, 28, .3); transform: translateY(170%); pointer-events: none; visibility: hidden; transition: transform .32s ease, visibility 0s linear .32s; }
-      .mobile-buy.on { transform: translateY(0); pointer-events: auto; visibility: visible; transition: transform .32s ease; }
-      .mobile-buy-text { font-size: 1rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-      .mobile-buy-btn { flex: 0 0 auto; background: #E8B54A; color: #233027; font-size: .9rem; font-weight: 700; padding: 12px 14px; border-radius: 999px; text-decoration: none; }
-      .mobile-buy-demo { flex: 0 0 auto; color: var(--bg); font-size: .85rem; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
-      @media (max-width: 400px) {
-        .mobile-buy { padding: 8px 12px; }
-        .mobile-buy-text { font-size: .95rem; }
-        .mobile-buy-btn { font-size: .85rem; padding: 12px 12px; }
-        .mobile-buy-demo { display: none; }
-      }
     }
     nav[aria-label="Site"] a{padding-block:3px}
     .subhead a{text-decoration:underline; text-underline-offset:2px}
@@ -396,7 +379,7 @@
             <a href="https://millrjess.github.io/tracker-demo/" class="button primary">Try the free demo <span aria-hidden="true">→</span></a>
             <a class="button ghost" href="#pricing">See pricing <span aria-hidden="true">→</span></a>
           </div>
-          <p class="cta-note">Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p>
+          <p class="cta-note">Coming to Google Play in December to early January, and to the Apple App Store in February, at $3.99 a month or $29.99 a year. Try the free demo today.</p>
         </div>
         <div class="phone-stage">
           <div class="halo"></div>
@@ -428,7 +411,7 @@
           <p>One summary for your doctor at each refill. Your next shot date is always visible.</p>
           <p>Then ask your Companion about your routine. Your Companion can remember you when you enable Memory.</p>
           <p>In the Kitchen, salmon from Greece, chicken from Provence, teriyaki from Japan.</p>
-          <p>Private by design. Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime.</p>
+          <p>Private by design. The tracker comes to Google Play in December to early January, and to the Apple App Store in February, at $3.99 a month or $29.99 a year.</p>
         </details>
       </div>
     </section>
@@ -483,7 +466,7 @@
     <section class="included" style="background:var(--surface-soft)">
       <div class="wrap" style="max-width:68ch;margin:0 auto;padding:0 20px">
         <h2 style="margin-bottom:16px">Included, not extra</h2>
-        <p>MyFitnessPal Premium puts these tools behind a paid plan, at $19.99 a month in the App Store. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export for $3.99 a month.</p>
+        <p>MyFitnessPal Premium puts these tools behind a paid plan, at $19.99 a month in the App Store. New Chapter: GLP-1 Tracker™ includes the barcode scanner, voice logging, and data export at $3.99 a month in the stores.</p>
         <p>A year of MyFitnessPal Premium is $79.99 in the App Store. A year of New Chapter is $29.99.</p>
         <ul style="list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:10px">
           <li><strong>Scan barcode.</strong> Then review the food and serving size.</li>
@@ -520,7 +503,7 @@
         <p>At each refill, your doctor may ask about your current dose, your current weight, your exercise, and any side effects. The tracker puts all four in one summary you can copy or download and send through your medical portal.</p>
         <p>The doctor summary is a record you can share through your usual medical portal, not just a printout. Your information stays yours and goes only where you send it.</p>
         <p>New Chapter is not a medical device. The app does not replace your doctor's advice, your dietitian's guidance, or medical supervision. The app works alongside them. When you arrive with a clear record, your doctor and dietitian can see the whole picture and make better decisions with you.</p>
-        <p>I don't pretend to be your doctor. And I don't charge a high membership fee. Free for 30 days.</p>
+        <p>I don't pretend to be your doctor. And I don't charge a high membership fee.</p>
       </div>
     </section>
 
@@ -529,16 +512,16 @@
         <div class="how-intro"><h2>How it works</h2><p>Four steps. Try the demo free.</p></div>
         <ol class="steps">
           <li><strong><a href="https://millrjess.github.io/tracker-demo/">Try the demo.</a></strong> No sign-in, sample data only. No credit card needed.</li>
-          <li><strong>Subscribe.</strong> Monthly for $3.99 or annually for $29.99, through Stripe.</li>
-          <li><strong>Get your code.</strong> After you subscribe, the welcome page gives you a code. Enter the email you subscribed with. The code lasts 24 hours.</li>
-          <li><strong>Connect your Companion.</strong> In the app, open Settings, enter the code, then tap “Connect my Companion.”</li>
+          <li><strong>Watch for the launch.</strong> Google Play opens in December to early January, and the Apple App Store opens in February.</li>
+          <li><strong>Get the app.</strong> Download New Chapter from the store and subscribe there, at $3.99 a month or $29.99 a year.</li>
+          <li><strong>Connect your Companion.</strong> Open the Companion tab in the app and start chatting. Your subscription includes the Companion.</li>
         </ol>
       </div>
     </section>
 
     <section class="pricing" id="pricing">
       <div class="wrap">
-        <div class="price-intro"><h2>Start tracking today</h2><p>Try the demo free. The subscription unlocks the full tracker and your AI Wellness Companion.</p><p>Free for 30 days, then $3.99 a month or $29.99 a year. Cancel anytime before the trial ends and you will not be charged.</p></div>
+        <div class="price-intro"><h2>Coming to Google Play and the App Store</h2><p>Explore the free demo today. New Chapter: GLP-1 Tracker™ launches on Google Play in December to early January, and in the Apple App Store in February, at $3.99 a month or $29.99 a year. Website subscriptions are paused while the store launch finishes. Join the newsletter below, and I will email you the day the listing goes live.</p><p><a class="button primary" href="https://millrjess.github.io/tracker-demo/">Try the free demo <span aria-hidden="true">→</span></a></p></div>
         <p class="plan-includes-label">Every plan includes</p>
         <ul class="plan-includes">
           <li><span aria-hidden="true" class="check-mark">✓</span>AI Wellness Companion with memory.</li>
@@ -552,26 +535,14 @@
             <h3>Monthly</h3>
             <div class="amount">$3.99</div>
             <div class="period">per month. Automatically renews until canceled.</div>
-            <label class="terms-check">
-              <input type="checkbox" class="terms-agree">
-              <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
-            </label>
-            <a class="button primary" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe Monthly</a>
           </div>
           <div class="price-card featured">
             <h3>Annual</h3>
             <span class="save">Save 37%</span>
             <div class="amount">$29.99</div>
             <div class="period">per year, charged upfront. Automatically renews until canceled.</div>
-            <label class="terms-check">
-              <input type="checkbox" class="terms-agree">
-              <span>I agree to the <a href="https://millrjess.github.io/tracker-app/terms.html" target="_blank" rel="noopener">Terms</a>.</span>
-            </label>
-            <a class="button primary" href="https://buy.stripe.com/00w5kEbmw9o74GhbGx6EU01">Subscribe Annual</a>
           </div>
         </div>
-        <p id="terms-msg" role="status" style="text-align:center;min-height:1.2em;color:#8a2f2f;margin:16px auto 0"></p>
-        <p class="payment-note">After subscribing, you will land on the welcome page, where you get your code and the app link. Secure payment through Stripe. Cancel anytime.</p>
       </div>
     </section>
 
@@ -592,7 +563,7 @@
           <p style="text-align:center;margin:12px 0 0"><a href="#getting-started-transcript">Read the transcript</a></p>
           <details id="getting-started-transcript" style="text-align:left;max-width:68ch;margin:12px auto 0">
             <summary>Video transcript: Getting started</summary>
-            <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. A subscription is free for 30 days, then $3.99 a month, or $29.99 a year. Cancel anytime. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
+            <p>New Chapter is a GLP-1 lifestyle tool with a personal AI coach. Everything in one place. The tracker comes to Google Play in December to early January, and to the Apple App Store in February, at $3.99 a month or $29.99 a year. Start by logging your shot. Then water and movement, and your weight. Then food, when you are ready. Your journey, one day at a time.</p>
           </details>
         </details>
       </div>
@@ -602,9 +573,9 @@
       <div class="wrap faq-grid">
         <div class="faq-copy"><h2>Questions, answered</h2><p>Clear information before you decide.</p></div>
         <div class="accordion">
-          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. A subscription is free for 30 days, then $3.99 a month or $29.99 a year. Your first charge is 30 days after you subscribe.</p></details>
-          <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Cancel anytime by emailing millrjess@gmail.com. One-tap cancel in the app arrives in December. Your cancellation takes effect at the end of the period you paid for, and you keep access until then.</p><p>Your first subscription is fully refundable within 30 days of your first successful payment, on request. A refund ends your subscription, and renewals do not qualify. After 30 days, no partial refund for the current month or year.</p><p>Subscriptions are refunded through Stripe.</p><p>Duplicate charges, charges after a confirmed cancellation, and clear payment errors are always refunded in full. I answer refund requests within one business day. When the money reaches your bank depends on your bank.</p></details>
-          <details><summary>What happens to my data if I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>When your paid period ends, the service locks, not your data. You can still view and export your entries. Cancellation does not delete your locally stored records. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device. Your access code is tied to the device that first redeems it.</p></details>
+          <details><summary>Can I try it first?<span aria-hidden="true" class="faq-icon"></span></summary><p>Yes. The demo is free, with no sign-in, no credit card, and sample data only. Subscriptions open when the store listings open: Google Play in December to early January, and the Apple App Store in February, at $3.99 a month or $29.99 a year.</p></details>
+          <details><summary>How do I cancel, and what about refunds?<span aria-hidden="true" class="faq-icon"></span></summary><p>Subscriptions run through Google Play or the Apple App Store. You cancel in the store where you subscribed, and your cancellation takes effect at the end of the period you paid for. You keep access until then. Refunds follow the rules of the store where you subscribed. For help with a subscription, email millrjess@gmail.com. I answer within one business day.</p></details>
+          <details><summary>What happens to my data if I cancel?<span aria-hidden="true" class="faq-icon"></span></summary><p>When your paid period ends, the service locks, not your data. You can still view and export your entries. Cancellation does not delete your locally stored records. You cannot log new entries or use the Companion until you resubscribe. You can resubscribe anytime in the store where you subscribed. If you change phones or lose your device, your entries do not move on their own. Download a backup in Settings regularly, and restore that backup on your new device.</p></details>
           <details><summary>Is my data private?<span aria-hidden="true" class="faq-icon"></span></summary><p>Everything you track stays on your phone. I cannot see your entries. The only things that leave are what you choose to send, either to the Companion for a reply or to your doctor through your medical portal, and anonymous usage statistics, such as which screens are viewed, sent to Google automatically. Cloudflare, which runs the Companion, processes your messages to generate a reply. Messages are not stored afterward and are not used to train AI models.</p></details>
           <details><summary>Does it give medical advice?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. This is a personal organization tool and does not diagnose, treat, or replace your prescriber, dietitian, or doctor. Always follow your prescriber's instructions.</p></details>
           <details><summary>Is this only for Zepbound?<span aria-hidden="true" class="faq-icon"></span></summary><p>No. New Chapter works with Zepbound, Wegovy, Ozempic, Mounjaro, and other GLP-1 medications. You enter your own medication and dose.</p></details>
@@ -645,94 +616,6 @@
     </section>
 
   </main>
-
-  <div class="mobile-buy" id="sticky-bar" aria-hidden="true">
-    <span class="mobile-buy-text">New Chapter™ · $3.99/month</span>
-    <a class="mobile-buy-demo" href="https://millrjess.github.io/tracker-demo/">Try the demo</a>
-    <a class="mobile-buy-btn" href="https://buy.stripe.com/8x28wQ8ak57R5Kl9yp6EU00">Subscribe</a>
-  </div>
-  <script>
-    (function () {
-      var bar = document.getElementById('sticky-bar');
-      if (!bar) return;
-      var pastHero = false, nearBottom = false, keyboardOpen = false;
-      function update() {
-        var show = pastHero && !nearBottom && !keyboardOpen;
-        bar.classList.toggle('on', show);
-        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
-      }
-      /* Hide the bar while the on-screen keyboard is open: the visual
-         viewport shrinks well below the layout viewport only then. */
-      function updateKeyboard() {
-        if (window.visualViewport) {
-          keyboardOpen = window.visualViewport.height < window.innerHeight - 120;
-          update();
-        }
-      }
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', updateKeyboard);
-      }
-      if ('IntersectionObserver' in window) {
-        var hero = document.querySelector('.hero');
-        if (hero) {
-          new IntersectionObserver(function (entries) {
-            pastHero = !entries[0].isIntersecting;
-            update();
-          }).observe(hero);
-        } else {
-          pastHero = true;
-        }
-        var seen = new Set();
-        var watcher = new IntersectionObserver(function (entries) {
-          entries.forEach(function (en) {
-            if (en.isIntersecting) { seen.add(en.target); } else { seen.delete(en.target); }
-          });
-          nearBottom = seen.size > 0;
-          update();
-        });
-        document.querySelectorAll('.pricing, .newsletter, footer').forEach(function (el) { watcher.observe(el); });
-      } else {
-        pastHero = true;
-        update();
-      }
-    })();
-  </script>
-
-  <script>
-    /* Clickwrap (v066): a Terms checkbox sits directly above each
-       Subscribe button and must be checked before any Stripe checkout
-       link can be followed. The two boxes stay in sync. Acceptance is
-       logged with a timestamp and the Terms version. */
-    (function () {
-      var boxes = Array.prototype.slice.call(document.querySelectorAll('.terms-agree'));
-      var msg = document.getElementById('terms-msg');
-      if (!boxes.length) return;
-      function anyChecked() { return boxes.some(function (b) { return b.checked; }); }
-      function logAcceptance() {
-        try {
-          localStorage.setItem('nct-terms-accepted', JSON.stringify({ at: new Date().toISOString(), termsVersion: '2026-11-11' }));
-        } catch {}
-      }
-      boxes.forEach(function (box) {
-        box.addEventListener('change', function () {
-          boxes.forEach(function (b) { b.checked = box.checked; });
-          if (box.checked) { logAcceptance(); if (msg) msg.textContent = ''; }
-        });
-      });
-      document.querySelectorAll('a[href*="buy.stripe.com"]').forEach(function (a) {
-        a.addEventListener('click', function (e) {
-          if (!anyChecked()) {
-            e.preventDefault();
-            if (msg) msg.textContent = 'Please agree to the Terms first.';
-            boxes[0].focus();
-            boxes[0].scrollIntoView({ block: 'center' });
-          } else {
-            logAcceptance();
-          }
-        });
-      });
-    })();
-  </script>
 
   <footer aria-label="Site footer"><section id="sources" style="padding:26px 20px 0">
     <div class="wrap" style="max-width:68ch;margin:0 auto">
