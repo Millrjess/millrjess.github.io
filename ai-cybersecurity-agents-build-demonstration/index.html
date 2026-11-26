@@ -232,8 +232,10 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
 
 <h2>What the Playbook Allows</h2>
 
-<p>The playbook pre-authorizes exactly seven actions. First, restore a known-malware file from backup. Second, block one attacking address for a set time: more than 100 requests in 60 seconds, or 50 for a repeat offender, blocked for one hour. Third, block a request that matches a SQL injection pattern, and block the address for one hour after three such attempts in 60 seconds. Fourth, apply a virtual patch: block a request that matches a known exploit pattern until the real fix lands. Fifth, quarantine an infected file and restore the clean copy, for known malware only. Sixth, roll back its own change if it broke the site: after a fix, the agent checks that the site still works, and if its own change broke it, it rolls that change back at once and reports it. Seventh, learn a new attack pattern and block it: when the same new pattern appears 3 or more times in 60 minutes, the agent creates a virtual patch rule for it on its own, logs it, and emails me at once. The rule blocks exactly that pattern, never a whole path, never by address alone, and never a file in the clean baseline. I review it after, and I can remove it or keep it. Everything else waits for a named human's approval. The agent never changes anything beyond the seven pre-authorized actions on its own.</p>
-<p>A super dome for your website. Super intelligence that watches for incoming attacks day and night, recognizes a repeated pattern, and blocks it on its own. I review everything it does.</p>
+<p>The playbook pre-authorizes exactly seven actions. First, restore a known-malware file from backup. Second, block one attacking address for a set time: more than 100 requests in 60 seconds, or 50 for a repeat offender, blocked for one hour. Third, block a request that matches a SQL injection pattern, and block the address for one hour after three such attempts in 60 seconds. Fourth, apply a virtual patch: block a request that matches a known exploit pattern until the real fix lands. Fifth, quarantine an infected file and restore the clean copy, for known malware only. Sixth, roll back its own change if it broke the site: after a fix, the agent checks that the site still works, and if its own change broke it, it rolls that change back at once and reports it. Seventh, learn a new attack pattern and block it: the first time it sees a new pattern, the agent creates a virtual patch rule for it on its own, logs it, and emails me at once. The rule blocks exactly that pattern, never a whole path, never by address alone, and never a file in the clean baseline. I review it after, and I can remove it or keep it. Everything else waits for a named human's approval. The agent never changes anything beyond the seven pre-authorized actions on its own.</p>
+<p>A super dome for your website. Autonomous defense that watches for incoming attacks day and night, recognizes a new pattern, and blocks it on its own. I review everything it does.</p>
+<p>Nothing else at small business price creates a block rule from your own site's repeated patterns. Cloudflare does the concept at enterprise scale, for bots. Nobody does it per site, deterministically, for $200 a month. Each rule is visible to me. I can remove it. I review it after.</p>
+<p>Built for a small business website. Designed to scale, with no cap on the files or pages it watches.</p>
 
 <h2>Live Demo</h2>
 
@@ -269,6 +271,8 @@ hr{border:0; border-top:1px solid var(--border); margin:2.2em 0}
   <source src="../assets/videos/ai-cybersecurity-agents-walkthrough.mp4" type="video/mp4">
   <track kind="captions" src="../assets/videos/ai-cybersecurity-agents-walkthrough.vtt" srclang="en" label="English">
 </video>
+
+<p><a href="../videos/">See all videos</a></p>
 
 <h2>The Malware Test</h2>
 
