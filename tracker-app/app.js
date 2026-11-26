@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v128): shown in Settings, About, so the version on the
+/* App version (v129): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v128";
+const APP_VERSION = "v129";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -7075,7 +7075,7 @@ function buildDoctorSummary(fromDate, toDate) {
     });
   }
   lines.push("");
-  lines.push("This summary is from your own log. It is not medical advice.");
+  lines.push("This summary is from your own log. The summary is not medical advice.");
   return lines.join("\n");
 }
 /* Doctor summary (v085): the summary is shown to a clinician, so it must
@@ -7251,7 +7251,7 @@ function downloadDoctorPdf() {
       line("None logged in the last 30 days.");
     }
     line("", { size: 11 });
-    line("This summary is from your own log. It is not medical advice.", { size: 10 });
+    line("This summary is from your own log. The summary is not medical advice.", { size: 10 });
     line("Your tracked data stays on this device. When you message the Companion, your message and a short summary of today go to Cloudflare for a reply. Chat messages are not stored on our servers.", { size: 10 });
     doc.save("doctor-visit-summary-" + todayStr() + ".pdf");
     setFormStatus(msg, "Downloaded as a PDF.", false);
@@ -14625,15 +14625,13 @@ function renderHiddenKitchen() {
   ).join("");
   box.innerHTML =
     `<details class="card kitchen-hidden-compact"${open ? " open" : ""}>` +
-    `<summary aria-expanded="${open ? "true" : "false"}">Hidden recipes (${hidden.length})</summary>` +
+    `<summary>Hidden recipes (${hidden.length})</summary>` +
     `<p class="muted" style="font-size:.9em;margin:8px 0">These recipes are hidden from your Kitchen. They are not deleted. Show one to bring it back.</p>` +
     rows +
     `</details>`;
   const details = box.querySelector("details");
   if (details) details.addEventListener("toggle", () => {
     hiddenRecipesOpen = details.open;
-    const summary = details.querySelector("summary");
-    if (summary) summary.setAttribute("aria-expanded", details.open ? "true" : "false");
   });
   bindKitchenCards(box);
 }
@@ -16087,16 +16085,9 @@ document.addEventListener("keydown", (e) => {
 });
 bindDialogFocusTrap("getting-started-overlay");
 
-/* ---------- Help videos: aria-expanded on details toggles (v079) ----------
-   Native <details> toggles are keyboard accessible, but the expanded state
-   is not exposed as aria-expanded in every browser, so sync it here. The
-   toggle event does not bubble, so listen in the capture phase. */
-document.addEventListener("toggle", (e) => {
-  const d = e.target;
-  if (!d || d.tagName !== "DETAILS" || !d.closest || !d.closest("#help-videos")) return;
-  const s = d.querySelector(":scope > summary");
-  if (s) s.setAttribute("aria-expanded", d.open ? "true" : "false");
-}, true);
+/* ---------- Help videos ----------
+   Native <details>/<summary> exposes its open state on its own;
+   aria-expanded is not valid on <summary>, so nothing is synced here. */
 
 /* The Subscription button reads "Subscribe" until this device has
    held a subscription, then "Resubscribe". */
@@ -17663,8 +17654,6 @@ document.getElementById("memory-save").addEventListener("click", async () => {
    view so the whole detail shows inside the visible area instead of
    running under the keyboard. */
 document.getElementById("memory-optin-card").addEventListener("toggle", (e) => {
-  const summary = e.target.querySelector("summary");
-  if (summary) summary.setAttribute("aria-expanded", String(e.target.open));
   if (e.target.open) e.target.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
