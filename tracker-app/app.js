@@ -8,11 +8,11 @@
 
 "use strict";
 
-/* App version (v130): shown in Settings, About, so the version on the
+/* App version (v131): shown in Settings, About, so the version on the
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v130";
+const APP_VERSION = "v131";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
