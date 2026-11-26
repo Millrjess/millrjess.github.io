@@ -1,0 +1,49 @@
+WEBVTT
+
+1
+00:00:00.200 --> 00:00:04.832
+Attackers use AI now. I build the defense for it.
+
+2
+00:00:05.132 --> 00:00:13.000
+One address sent 120 requests to Ashford & Locke
+in 17.6 seconds. The counter climbed past 100.
+
+3
+00:00:14.144 --> 00:00:17.552
+A test malware file was planted in the site.
+
+4
+00:00:17.852 --> 00:00:26.732
+The agent counted each request and scanned the
+files. At request 101, the agent blocked that
+address.
+
+5
+00:00:27.032 --> 00:00:43.040
+The agent found the test file and restored the
+clean copy at once, under the pre-authorized rule.
+The site was clean in about 3 seconds. The office
+stayed open for everyone else. The block lifted
+after one hour.
+
+6
+00:00:43.340 --> 00:00:55.000
+The agent logged the time, the pattern, and what
+it did. I reviewed the log. The playbook was
+updated from what was learned. The agent remembers
+the addresses it blocked.
+
+7
+00:00:55.000 --> 00:01:08.060
+A repeat offender is blocked at 50 requests in
+five minutes instead of 100. A brand-new pattern
+is flagged to me, never fixed silently. Each sweep
+is smarter than the last.
+
+8
+00:01:08.360 --> 00:01:25.328
+AI Cybersecurity Agents are built for your
+business. See the live demo and read the build
+demonstration. Book a free 15-minute discovery
+call. Monitor. Detect. Respond. I review.
