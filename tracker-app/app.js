@@ -12,7 +12,7 @@
    phone can be checked at a glance. Bump with every tracker-app change,
    together with CACHE_NAME in sw.js, the ?v= tokens in index.html, and
    version.json (the staleness check compares against this value). */
-const APP_VERSION = "v133";
+const APP_VERSION = "v134";
 
 const LS_KEY = "newChapterTracker.v1";
 /* Generation counter for the store (v150): bumped on every successful
@@ -104,6 +104,7 @@ const DEFAULTS = {
   steps: {}, // v096: { "YYYY-MM-DD": steps } typed in by hand; a web app cannot read iPhone Health data
   recipes: [],       // { id, title, body, date } saved recipes
   hiddenKitchen: [],  // [recipe id] built-in Kitchen recipes this user hid; ids only, never the recipes themselves
+  favoriteKitchen: [],  // [recipe id] built-in Kitchen recipes this user marked as favorites; ids only, never the recipes themselves
   foodLibrary: {},   // v028: foods already scanned, keyed by barcode: { barcode: { barcode, name, brand, protein, carbs, fat, calories, savedAt } }
   foodArchive: {}    // v031: archived foods, same entry shape as foodLibrary. Archiving never deletes a food.
 };
@@ -504,6 +505,14 @@ function validateStore(parsed, strict) {
     const seen = new Set();
     out.hiddenKitchen = parsed.hiddenKitchen.filter((id) => typeof id === "string" && id.trim() !== "" && !seen.has(id) && seen.add(id)).slice(0, 200);
   }
+  // Kitchen favorites: the same ids-only shape as hiddenKitchen,
+  // validated the same way.
+  if (parsed.favoriteKitchen !== undefined && !Array.isArray(parsed.favoriteKitchen)) {
+    lastValidateDropped.push("favoriteKitchen");
+  } else if (Array.isArray(parsed.favoriteKitchen)) {
+    const seen = new Set();
+    out.favoriteKitchen = parsed.favoriteKitchen.filter((id) => typeof id === "string" && id.trim() !== "" && !seen.has(id) && seen.add(id)).slice(0, 200);
+  }
   return out;
 }
 
@@ -634,6 +643,9 @@ function mergeStores(persisted, local) {
   // Hidden Kitchen recipes merge as a union: a hide made in either
   // copy stays hidden.
   out.hiddenKitchen = Array.from(new Set([...(persisted.hiddenKitchen || []), ...(local.hiddenKitchen || [])].filter((id) => typeof id === "string" && id !== "")));
+  // Kitchen favorites merge as a union: a favorite marked in either
+  // copy stays a favorite.
+  out.favoriteKitchen = Array.from(new Set([...(persisted.favoriteKitchen || []), ...(local.favoriteKitchen || [])].filter((id) => typeof id === "string" && id !== "")));
   return out;
 }
 
@@ -14430,10 +14442,13 @@ function kitchenQuickPool() {
 
 /* One photo card (v039): photo, category chip, name, and calories, with
    a bookmark to save it. Shared by the featured row and the full list.
-   Tapping the card opens the recipe; the bookmark saves it. Our own
+   Tapping the card opens the recipe; the bookmark saves it. v134: a
+   heart beside the bookmark marks the recipe as a favorite. Our own
    words and layout, in our colors. */
 const BOOKMARK_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
 const BOOKMARK_SAVED_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#E8B54A" stroke="#87692B" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>`;
+const HEART_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+const HEART_FAVORITE_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="#E8B54A" stroke="#87692B" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
 /* Recipe source line (v048): the American Heart Association recipes
    carry a source field and a sourceUrl. The modal shows the full
    attribution with the source as a link; cards show the plain text. */
@@ -14449,6 +14464,7 @@ function recipeSourceHtml(r) {
 }
 function kitchenPhotoCardHtml(r, hidden) {
   const saved = kitchenIsSaved(r.id);
+  const fav = kitchenIsFavorite(r.id);
   const photo = r.image
     ? `<img class="kitchen-photo" src="${escapeHtml(r.image)}" alt="" loading="lazy">`
     : `<span class="recipe-placeholder"><img src="icons/lotus-gold-only-transparent.png" alt=""></span>`;
@@ -14459,6 +14475,7 @@ function kitchenPhotoCardHtml(r, hidden) {
       ${r.source ? `<span class="kitchen-source">${escapeHtml(r.source)}</span>` : ""}
     </button>
     <button type="button" class="kitchen-bookmark" data-kitchen-save="${r.id}" aria-pressed="${saved ? "true" : "false"}" aria-label="${saved ? "Remove " : "Save "}${escapeHtml(r.name)}">${saved ? BOOKMARK_SAVED_SVG : BOOKMARK_SVG}</button>
+    <button type="button" class="kitchen-favorite" data-kitchen-favorite="${r.id}" aria-pressed="${fav ? "true" : "false"}" aria-label="${fav ? "Remove from favorites: " : "Mark as favorite: "}${escapeHtml(r.name)}">${fav ? HEART_FAVORITE_SVG : HEART_SVG}</button>
     ${hidden
       ? `<button type="button" class="btn btn-small kitchen-hide" data-kitchen-unhide="${r.id}" aria-label="Unhide ${escapeHtml(r.name)}">Unhide</button>`
       : `<button type="button" class="btn btn-small kitchen-hide" data-kitchen-hide="${r.id}" aria-label="Hide ${escapeHtml(r.name)}">Hide</button>`}
@@ -14474,6 +14491,22 @@ function toggleKitchenSave(id) {
   }
   saveStore();
   renderRecipes();
+}
+/* Kitchen favorites (v134): ids only, stored on this device in
+   store.favoriteKitchen, the same shape as hiddenKitchen. The heart
+   on a recipe card and the Favorite button in the recipe modal mark
+   a recipe as a favorite; the Favorites filter chip shows favorites
+   only, so a favorite recipe is easy to find again. */
+function kitchenIsFavorite(id) {
+  return (store.favoriteKitchen || []).includes(id);
+}
+function toggleKitchenFavorite(id) {
+  if (!KITCHEN_RECIPES.some((r) => r.id === id)) return;
+  if (!Array.isArray(store.favoriteKitchen)) store.favoriteKitchen = [];
+  if (kitchenIsFavorite(id)) store.favoriteKitchen = store.favoriteKitchen.filter((x) => x !== id);
+  else store.favoriteKitchen.push(id);
+  saveStore();
+  renderKitchen();
 }
 /* Hidden built-in Kitchen recipes: ids only, stored on this device in
    store.hiddenKitchen. Hiding removes a recipe from this user's Kitchen
@@ -14534,6 +14567,7 @@ function bindKitchenCards(root) {
   if (!root) return;
   root.querySelectorAll("[data-kitchen-open]").forEach((btn) => btn.addEventListener("click", () => openRecipeModal(btn.dataset.kitchenOpen)));
   root.querySelectorAll("[data-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenSave(btn.dataset.kitchenSave)));
+  root.querySelectorAll("[data-kitchen-favorite]").forEach((btn) => btn.addEventListener("click", () => toggleKitchenFavorite(btn.dataset.kitchenFavorite)));
   root.querySelectorAll("[data-kitchen-hide]").forEach((btn) => btn.addEventListener("click", () => hideKitchenRecipe(btn.dataset.kitchenHide)));
   root.querySelectorAll("[data-kitchen-unhide]").forEach((btn) => btn.addEventListener("click", () => unhideKitchenRecipe(btn.dataset.kitchenUnhide)));
 }
@@ -14561,6 +14595,7 @@ function kitchenFiltered() {
   let pool;
   const visible = kitchenVisibleRecipes();
   if (kitchenFilter === "all") pool = visible.slice();
+  else if (kitchenFilter === "favorites") pool = visible.filter((r) => kitchenIsFavorite(r.id));
   else if (kitchenFilter === "fresh-picks") pool = visible.slice(0, 6);
   else if (kitchenFilter === "quick-and-easy") pool = kitchenQuickPool();
   else pool = visible.filter((r) => r.tags.includes(kitchenFilter) || r.category.toLowerCase().replace(/ /g, "-") === kitchenFilter);
@@ -14592,7 +14627,7 @@ function renderKitchen() {
   if (!shown.length) {
     const q = kitchenSearch.trim();
     const hiddenCount = (store.hiddenKitchen || []).length;
-    const msg = q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : kitchenFilter !== "all" ? "No recipes match this filter." : hiddenCount ? "You have hidden every recipe in the Kitchen. Show hidden recipes above to bring one back." : "No recipes match this filter.";
+    const msg = kitchenFilter === "favorites" && !q ? "No favorites yet. Tap the heart on a recipe card and the recipe will appear here." : q && kitchenFilter !== "all" ? "No recipes match this search and filter." : q ? "No recipes match this search." : kitchenFilter !== "all" ? "No recipes match this filter." : hiddenCount ? "You have hidden every recipe in the Kitchen. Show hidden recipes above to bring one back." : "No recipes match this filter.";
     list.innerHTML = '<p class="empty-state">' + msg + '</p>';
     return;
   }
@@ -15086,11 +15121,13 @@ function openRecipeModal(id) {
     else if (modalActive.hasAttribute("data-modal-kitchen-add")) modalFocusSel = '[data-modal-kitchen-add="' + id + '"]';
     else if (modalActive.hasAttribute("data-recipe-add")) modalFocusSel = '[data-recipe-add="' + id + '"]';
     else if (modalActive.hasAttribute("data-modal-kitchen-save")) modalFocusSel = '[data-modal-kitchen-save="' + id + '"]';
+    else if (modalActive.hasAttribute("data-modal-kitchen-favorite")) modalFocusSel = '[data-modal-kitchen-favorite="' + id + '"]';
   }
   const kr = KITCHEN_RECIPES.find((x) => x.id === id);
   if (kr) {
     const n = kitchenServings[kr.id] || 1;
     const saved = kitchenIsSaved(kr.id);
+    const fav = kitchenIsFavorite(kr.id);
     const added = kitchenAddedAt[kr.id] && Date.now() - kitchenAddedAt[kr.id] < 2500;
     body.innerHTML = `
       ${kr.image ? `<img class="kitchen-photo" src="${escapeHtml(kr.image)}" alt="${escapeHtml(kr.name)}" style="height:200px">` : ""}
@@ -15109,6 +15146,7 @@ function openRecipeModal(id) {
       <ol style="margin:0;padding-left:24px">${kr.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>
       <div class="kitchen-actions">
         <button type="button" class="btn btn-small" data-modal-kitchen-save="${kr.id}">${saved ? "Saved ✓" : "Save"}</button>
+        <button type="button" class="btn btn-small" data-modal-kitchen-favorite="${kr.id}" aria-pressed="${fav ? "true" : "false"}">${fav ? "Favorited ✓" : "Favorite"}</button>
         <button type="button" class="btn btn-small" data-modal-kitchen-hide="${kr.id}">Hide this recipe</button>
         <span class="kitchen-stepper">
           <button type="button" class="btn btn-small" data-modal-kitchen-serv="${kr.id}" data-dir="-1" aria-label="One fewer serving">−</button>
@@ -15154,6 +15192,11 @@ function bindRecipeModalButtons() {
   body.querySelectorAll("[data-modal-kitchen-save]").forEach((btn) => btn.addEventListener("click", () => {
     const id = btn.dataset.modalKitchenSave;
     toggleKitchenSave(id);
+    openRecipeModal(id);
+  }));
+  body.querySelectorAll("[data-modal-kitchen-favorite]").forEach((btn) => btn.addEventListener("click", () => {
+    const id = btn.dataset.modalKitchenFavorite;
+    toggleKitchenFavorite(id);
     openRecipeModal(id);
   }));
   body.querySelectorAll("[data-modal-kitchen-hide]").forEach((btn) => btn.addEventListener("click", () => hideKitchenRecipe(btn.dataset.modalKitchenHide)));
