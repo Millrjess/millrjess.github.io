@@ -69,14 +69,14 @@ No page limit, no tier that cuts you off.
 01:41.750 --> 01:43.390
 Predict checks versions daily.
 
-01:44.250 --> 01:46.150
-I pre-authorize six actions:
+01:44.250 --> 01:46.100
+I pre-authorize seven actions:
 
-01:46.810 --> 01:53.290
+01:46.800 --> 01:52.550
 restore a known malware file from backup, quarantine it first, block one attacking address,
 
-01:53.990 --> 02:01.030
-block a SQL injection request, apply a virtual patch, and roll back a fix that broke the site.
+01:53.000 --> 02:01.030
+block a SQL injection request, apply a virtual patch, roll back a fix that broke the site, and learn a new attack pattern and block it.
 
 02:01.040 --> 02:06.590
 I get immediate notification for every action, and you get automated reporting.
