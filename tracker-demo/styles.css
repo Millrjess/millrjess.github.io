@@ -1893,6 +1893,8 @@ canvas { max-width: 100%; height: auto; display: block; }
 .kitchen-photo-body .muted { font-size: .85rem; white-space: nowrap; }
 .kitchen-bookmark { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .kitchen-bookmark:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.kitchen-favorite { position: absolute; top: 8px; right: 52px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(43, 43, 40, 0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.kitchen-favorite:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .kitchen-hide { display: block; width: 100%; padding: 6px 12px 10px; background: none; border: none; color: inherit; opacity: .7; font-size: .85rem; text-align: center; cursor: pointer; }
 .kitchen-hide:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
 .kitchen-card-del { position: absolute; top: 8px; right: 8px; }
