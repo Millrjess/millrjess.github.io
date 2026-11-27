@@ -159,8 +159,8 @@ It is your strategy.
 It monitors your site day and night, blocks attacks as they happen, scans every page with no tier and no page limit, and restores a hacked file in about 3 seconds.
 
 41
-00:03:16,570 --> 00:03:18,890
-One avoided hack pays for it.
+00:03:16,700 --> 00:03:19,050
+One avoided hack pays for the build.
 
 42
 00:03:19,470 --> 00:03:21,150
