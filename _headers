@@ -1,0 +1,12 @@
+# Security headers for Cloudflare Pages.
+# GitHub Pages ignores this file. The headers take effect when the site is
+# served from Cloudflare Pages (staging deploy at millrjess.pages.dev).
+# Policy built from what the pages actually load, November 26, 2026.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://github-fetcher.millrjess.workers.dev https://website-agent-tts.millrjess.workers.dev https://website-agent-transcribe.millrjess.workers.dev https://website-agent-notify.millrjess.workers.dev https://script.google.com https://script.googleusercontent.com https://world.openfoodfacts.org; frame-src 'self' https://public.tableau.com; form-action 'self' https://gmail.us8.list-manage.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), accelerometer=(), gyroscope=(), magnetometer=(), payment=(), usb=(), midi=(), display-capture=(), interest-cohort=()
+  Referrer-Policy: strict-origin-when-cross-origin
