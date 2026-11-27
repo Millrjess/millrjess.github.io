@@ -40,7 +40,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=133">
+<link rel="stylesheet" href="styles.css?v=134">
 <noscript><style>#strength-week-row{display:none}</style></noscript>
 </head>
 <body>
@@ -973,6 +973,7 @@
         <p class="kitchen-filter-label" id="kitchen-filter-meal-label">Meal</p>
         <div class="kitchen-filter-row" role="group" aria-labelledby="kitchen-filter-meal-label">
           <button type="button" class="kitchen-chip active" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="kitchen-chip" data-filter="favorites" aria-pressed="false">Favorites</button>
           <button type="button" class="kitchen-chip" data-filter="breakfast" aria-pressed="false">Breakfast</button>
           <button type="button" class="kitchen-chip" data-filter="lunch" aria-pressed="false">Lunch</button>
           <button type="button" class="kitchen-chip" data-filter="dinner" aria-pressed="false">Dinner</button>
@@ -1858,7 +1859,7 @@
     </div>
   </div>
 
-<script src="app.js?v=133" defer></script>
+<script src="app.js?v=134" defer></script>
 <script>
 // v000: on a first install there is no controlling worker yet, and the
 // new worker skips waiting and claims the page, which fires
