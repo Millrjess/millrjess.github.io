@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://millrjess.github.io/sitemap.xml
+Sitemap: https://millrjess.pages.dev/sitemap.xml
